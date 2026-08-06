@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DTS Frontend
 
-## Getting Started
+Frontend cho hệ thống luyện thi bằng lái xe (DTS). Next.js 16 (App Router) + TypeScript + Tailwind v4 + shadcn/ui + TanStack Query + Zustand + React Hook Form + Zod.
 
-First, run the development server:
+## Kiến trúc
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+dts-frontend/
+├─ api-specs/                  → OpenAPI của 3 backend (identity/practice/progress)
+├─ src/
+│  ├─ types/*.generated.ts     → Type sinh tự động từ OpenAPI (KHÔNG sửa tay)
+│  ├─ lib/api/                 → Axios client + interceptor (token, refresh queue, unwrap envelope)
+│  ├─ lib/auth/                → Refresh token logic
+│  ├─ stores/auth-store.ts     → Zustand: accessToken, refreshToken, user (persist localStorage)
+│  ├─ features/                → Mỗi service một module: auth, practice, progress
+│  └─ app/                     → App Router pages
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Cách FE gọi backend (không cần CORS)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Không có CORS/gateway ở backend hiện tại, nên Next proxy mọi request `/api/...` tới từng service qua `rewrites` trong `next.config.ts` (browser gọi cùng origin → không bị chặn). Khi có API Gateway, chỉ cần đổi `IDENTITY_API_URL`/`PRACTICE_API_URL`/`PROGRESS_API_URL`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| FE gọi | Proxy sang | Backend |
+|---|---|---|
+| `/api/identity/*` | `IDENTITY_API_URL` (8081) | dts-identity |
+| `/api/practice/*` | `PRACTICE_API_URL` (8087) | dts-practice |
+| `/api/progress/*` | `PROGRESS_API_URL` (8083) | dts-progress |
 
-## Learn More
+### Luồng dữ liệu
 
-To learn more about Next.js, take a look at the following resources:
+Mọi response đều bọc trong envelope `ApiResponse<T> = { success, message, data, errorCode, timestamp }`. Axios interceptor:
+1. Gắn `Authorization: Bearer <token>` từ auth store.
+2. Bóc envelope → component nhận thẳng `data`.
+3. Nhận 401 → tự refresh token (chỉ gọi refresh 1 lần, queue các request đang chờ) → replay. Refresh fail → logout.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Chạy local
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# 1. Chạy các backend (mỗi service có docker-compose.infra.yml / docker-compose.yml riêng)
+#    dts-identity: 8081, dts-practice: 8087, dts-progress: 8083
 
-## Deploy on Vercel
+# 2. Frontend
+npm install
+npm run dev        # http://localhost:3000
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Sinh lại types khi backend đổi
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Cập nhật spec mới vào `api-specs/` rồi chạy:
+
+```bash
+npm run gen:types
+```
+
+## Project structure — thêm feature mới
+
+1. Tạo `src/features/<name>/<name>-service.ts` — gọi API qua `identityApi`/`practiceApi`/`progressApi`.
+2. Tạo hook trong `src/features/<name>/use-<name>.ts` — React Query (`useQuery`/`useMutation`).
+3. Tạo page trong `src/app/<route>/page.tsx`, bọc `RequireAuth` nếu cần đăng nhập.
