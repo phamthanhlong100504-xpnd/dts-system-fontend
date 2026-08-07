@@ -2,10 +2,6 @@ name: Build & Deploy
 
 on:
   push:
-name: Build & Deploy
-
-on:
-  push:
     branches: [main]
 
 permissions:
