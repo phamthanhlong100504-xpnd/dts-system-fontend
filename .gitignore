@@ -42,6 +42,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# CI/CD workflow — pushed manually (requires `workflow` scope on the token)
+.github/workflows/deploy.yml
+
+# Ops/verification scripts — may contain credentials
+scripts/
+
 # ---------------------------------------------------------------
 # Enterprise / non-source files (không liên quan trực tiếp tới source)
 # ---------------------------------------------------------------

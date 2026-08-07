@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Standalone output: tạo bản build tự chứa (server.js) để đóng gói Docker image nhỏ gọn.
+  output: "standalone",
   // API proxy: browser gọi cùng origin (/api/...), Next server proxy sang từng backend.
   // Khi lên prod, thay bằng API Gateway hoặc reverse proxy — chỉ cần đổi biến môi trường.
   async rewrites() {
