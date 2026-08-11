@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Check, Info, RotateCcw, X } from "lucide-react";
@@ -10,6 +10,7 @@ import {
   useFinishExam,
   useStartExamAndGo,
 } from "@/features/practice/use-practice";
+import { logStudySession } from "@/features/progress/progress-service";
 import type { ExamAnswerResult } from "@/features/practice/practice-service";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,30 @@ export default function ResultPage() {
   const startAndGo = useStartExamAndGo();
   const [filter, setFilter] = useState<Filter>("all");
 
+  const result = resultQuery.data;
+
+  useEffect(() => {
+    if (!result || !result.examId) return;
+    const key = `dts_logged_${result.examId}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "true");
+
+    const startedAt = result.startedAt ? new Date(result.startedAt).getTime() : Date.now();
+    const completedAt = result.completedAt ? new Date(result.completedAt).getTime() : Date.now();
+    const durationSeconds = Math.max(1, Math.round((completedAt - startedAt) / 1000));
+
+    logStudySession({
+      sessionType: result.mode === "PRACTICE" ? "PRACTICE" : "EXAM",
+      examType: result.examType ?? "B2",
+      mode: result.mode ?? "EXAM",
+      examId: result.examId,
+      questionsCount: result.totalQuestions ?? 25,
+      correctCount: result.correctCount ?? 0,
+      wrongCount: result.wrongCount ?? 0,
+      durationSeconds,
+    }).catch((err) => console.error("Progress log error:", err));
+  }, [result]);
+
   if (resultQuery.isLoading) {
     return (
       <RequireAuth>
@@ -38,8 +63,6 @@ export default function ResultPage() {
       </RequireAuth>
     );
   }
-
-  const result = resultQuery.data;
 
   if (resultQuery.isError || !result) {
     return (
