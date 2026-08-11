@@ -7,8 +7,9 @@ const nextConfig: NextConfig = {
   // Khi lên prod, thay bằng API Gateway hoặc reverse proxy — chỉ cần đổi biến môi trường.
   async rewrites() {
     const identityApi = process.env.IDENTITY_API_URL ?? "http://localhost:8081";
-    const practiceApi = process.env.PRACTICE_API_URL ?? "http://localhost:8082";
+    const practiceApi = process.env.PRACTICE_API_URL ?? "http://localhost:8087";
     const progressApi = process.env.PROGRESS_API_URL ?? "http://localhost:8083";
+    const contentBuilderApi = process.env.CONTENT_BUILDER_API_URL ?? "http://localhost:8082";
 
     return [
       {
@@ -27,6 +28,12 @@ const nextConfig: NextConfig = {
       {
         source: "/api/progress/:path*",
         destination: `${progressApi}/api/:path*`,
+      },
+      {
+        // Frontend gọi:  /api/content-builder/v1/<resource>
+        // Backend nghe:  /api/v1/content-builder/<resource>
+        source: "/api/content-builder/v1/:path*",
+        destination: `${contentBuilderApi}/api/v1/content-builder/:path*`,
       },
     ];
   },

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Car, LogOut, Shield } from "lucide-react";
 import { isAdminSelector, isAuthenticatedSelector, useAuthStore } from "@/stores/auth-store";
 import { useLogout } from "@/features/auth/use-auth";
@@ -16,10 +17,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function SiteHeader() {
+  const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore(isAuthenticatedSelector);
   const isAdmin = useAuthStore(isAdminSelector);
   const logoutMutation = useLogout();
+
+  // Đóng SiteHeader khi ở các trang /admin (vì Admin Layout có Header/Sidebar riêng)
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

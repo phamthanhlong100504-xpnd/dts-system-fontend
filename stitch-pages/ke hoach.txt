@@ -1,0 +1,83 @@
+api-gateway validate
+
+---------------------
+
+(03/8) 
+
+khai nốt service (progress) 
+
+khởi service result + history
+
+Long : ngồi đọc và rà soát lại + làm vối khởi + validate lại các service đảm bảo liên kết
+
+gen giao diện các phần mình làm stich
+
+
+2. Core Framework & Ngôn ngữ (Nền tảng chính)
+Framework chính: Next.js (với App Router)
+Lý do: Hệ thống của bạn có phần dành cho học viên (có thể cần SEO tốt để tìm kiếm bài tập/khóa học), và phần admin (cần tốc độ SPA). Next.js đáp ứng xuất sắc cả hai (SSR cho SEO và Client Components cho tương tác). Nó cũng cung cấp sẵn cơ chế Routing cực kỳ mạnh mẽ.
+Alternative (Nếu bạn chỉ muốn làm web nội bộ/SPA thuần, không cần SEO): Dùng React + Vite. Nó nhẹ và build rất nhanh.
+Ngôn ngữ: TypeScript (BẮT BUỘC)
+Lý do: Với 5 microservices, cấu trúc dữ liệu trả về sẽ rất phức tạp (đặc biệt là Content Builder và Examination). Nếu dùng JavaScript thường, bạn sẽ "phát điên" khi maintain. TypeScript giúp định nghĩa trước các interface/type, bắt lỗi ngay khi code.
+
+
+3. UI Framework & Styling (Giao diện)
+Thư viện CSS: Tailwind CSS
+Lý do: Viết CSS cực nhanh, không lo trùng lặp class, hiệu năng cao do chỉ build ra các class được sử dụng.
+Bộ UI Components (Component Library): Shadcn UI kết hợp Radix UI
+Lý do: Khác với Ant Design hay MUI (khá nặng và khó custom sâu), Shadcn UI cho phép bạn copy source code component vào dự án. Nó cực kỳ linh hoạt, đẹp, hiện đại và hoàn toàn tùy biến được bằng Tailwind.
+Lựa chọn an toàn hơn (nếu team không mạnh về CSS): Ant Design (AntD). Rất mạnh về các table phức tạp, form dài (rất phù hợp cho content-builder).
+
+
+4. Data Fetching & Quản lý State (Kết nối BE & Dữ liệu)
+Data Fetching & Cache: TanStack Query (React Query)
+Lý do: Đây là thư viện quan trọng nhất bạn phải có. Khi gọi API tới 5 services, React Query sẽ tự động xử lý caching (lưu tạm dữ liệu), tự động gọi lại API khi lỗi, quản lý trạng thái loading/error một cách tuyệt vời mà không cần phải viết useEffect hay useState thủ công.
+HTTP Client: Axios
+Lý do: Dễ dàng cấu hình Interceptors để tự động đính kèm Token từ dts-identity vào mọi request tới các service khác, và tự động xử lý logic Refresh Token khi hết hạn.
+Global State: Zustand
+Lý do: Thay vì dùng Redux quá cồng kềnh, Zustand cực kỳ nhẹ, cú pháp đơn giản. Dùng để lưu trữ thông tin User đang đăng nhập, hoặc các trạng thái dùng chung toàn app (ví dụ: giao diện Dark/Light mode).
+
+
+5. Form & Validation (Đặc trị cho Content Builder & Examination)
+Quản lý Form: React Hook Form
+Lý do: Form tạo câu hỏi (content-builder) hay làm bài thi (examination) sẽ có rất nhiều trường (input). React Hook Form giúp giao diện không bị giật lag (re-render) khi gõ phím.
+Validation (Xác thực dữ liệu): Zod
+Lý do: Kết hợp hoàn hảo với React Hook Form và TypeScript. Zod giúp bạn định nghĩa luật (rules) cho form (ví dụ: password phải dài 8 ký tự, câu hỏi không được để trống) một cách chặt chẽ.
+
+
+6. Các thư viện tiện ích (Utilities) xử lý riêng cho hệ thống
+Xử lý nội dung (cho Content Builder): Editor.js hoặc TipTap
+Hệ thống tạo đề bài chắc chắn cần trình soạn thảo văn bản (Rich Text Editor). TipTap (headless) hoặc Editor.js (block-based) là các lựa chọn hiện đại, hỗ trợ chèn ảnh (từ dts-media), công thức toán học tốt hơn CKEditor cũ.
+Xử lý thời gian (cho Examination): date-fns hoặc Day.js
+Để làm các bài thi đếm ngược thời gian, tính giờ nộp bài, thư viện nhẹ như dayjs là lý tưởng.
+Xử lý kéo thả (Drag & Drop): @hello-pangea/dnd
+Dùng để admin kéo thả sắp xếp thứ tự câu hỏi trong đề, sắp xếp chapter block.
+TÓM TẮT ĐỂ TẠO DỰ ÁN (Mẫu lệnh)
+Nếu bạn đồng ý với Stack đề xuất (Next.js + TypeScript + Tailwind + Shadcn UI), bạn có thể dùng lệnh sau để khởi tạo ngay:
+
+bash
+npx create-next-app@latest dts-frontend
+(Trong lúc cài đặt, hãy chọn: TypeScript = Yes, ESLint = Yes, Tailwind CSS = Yes, src/ directory = Yes, App Router = Yes).
+
+Sau đó cài đặt các thư viện thiết yếu:
+
+bash
+cd dts-frontend
+npm install axios @tanstack/react-query zustand react-hook-form @hookform/resolvers zod lucide-react
+Bạn thấy bộ Stack này đã phù hợp với kỹ năng của team bạn chưa, hay bạn muốn dùng một framework khác (như Vue/Angular) để tôi điều chỉnh?
+
+---------------
+
+(sau hôm 03/05) 
+
+gen test case ( unit test ; intergration test ) 
+
+gen kịch bản test ( với jmetter ) 
+
+Progres Trạng thái hiện tại (current state)
+
+History Chuỗi sự kiện đã xảy ra (event log)
+
+Result Kết quả cuối cùng của một lần thực hiện (outcome/snapshot)
+
+
