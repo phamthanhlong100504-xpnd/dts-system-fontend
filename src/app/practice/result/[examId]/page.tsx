@@ -235,8 +235,8 @@ function AnswerRow({ answer }: { answer: ExamAnswerResult }) {
                 key={label ?? i}
                 className={cn(
                   "flex items-start gap-2 rounded-lg border px-3 py-2 text-sm",
-                  isCorrectOpt && "border-emerald-500/60 bg-emerald-50 text-emerald-900",
-                  isWrongSel && "border-destructive/60 bg-destructive/5 text-destructive",
+                  isCorrectOpt && "border-emerald-500/60 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-medium",
+                  isWrongSel && "border-destructive/60 bg-destructive/10 text-destructive dark:text-red-400 font-medium",
                   !isCorrectOpt && !isWrongSel && "border-border"
                 )}
               >
