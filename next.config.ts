@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     const practiceApi = process.env.PRACTICE_API_URL ?? "http://localhost:8087";
     const progressApi = process.env.PROGRESS_API_URL ?? "http://localhost:8083";
     const contentBuilderApi = process.env.CONTENT_BUILDER_API_URL ?? "http://localhost:8082";
+    const examinationApi = process.env.EXAMINATION_API_URL ?? "http://localhost:8088";
 
     return [
       {
@@ -34,6 +35,12 @@ const nextConfig: NextConfig = {
         // Backend nghe:  /api/v1/content-builder/<resource>
         source: "/api/content-builder/v1/:path*",
         destination: `${contentBuilderApi}/api/v1/content-builder/:path*`,
+      },
+      {
+        // Frontend gọi:  /api/examination/v1/<resource>
+        // Backend nghe:  /api/v1/<resource> (vd: /api/v1/exams, /api/v1/criterias)
+        source: "/api/examination/v1/:path*",
+        destination: `${examinationApi}/api/v1/:path*`,
       },
     ];
   },

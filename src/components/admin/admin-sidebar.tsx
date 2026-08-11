@@ -39,6 +39,11 @@ const NAV_ITEMS: NavItem[] = [
     icon: FolderTree,
   },
   {
+    name: "Quản lý đề thi",
+    href: "/admin/exams",
+    icon: ShieldCheck,
+  },
+  {
     name: "Cài đặt",
     href: "/admin/settings",
     icon: Settings,

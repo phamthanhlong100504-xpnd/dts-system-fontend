@@ -6,6 +6,7 @@ export const identityApi = createApiClient(IDENTITY_API_BASE);
 export const practiceApi = createApiClient(PRACTICE_API_BASE);
 export const progressApi = createApiClient(PROGRESS_API_BASE);
 export const contentBuilderApi = createApiClient("/api/content-builder");
+export const examinationApi = createApiClient("/api/examination");
 
 
 export * from "./envelope";

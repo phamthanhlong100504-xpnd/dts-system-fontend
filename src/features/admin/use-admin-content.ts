@@ -19,6 +19,12 @@ import {
   createChapterApi,
   deleteChapterApi,
 } from "./admin-chapters-service";
+import {
+  fetchAdminExams,
+  createExamApi,
+  changeExamStatusApi,
+  deleteExamApi,
+} from "./admin-examination-service";
 
 /* ==================== QUESTIONS ==================== */
 export function useAdminQuestions() {
@@ -115,6 +121,47 @@ export function useDeleteChapter() {
     mutationFn: (id: string) => deleteChapterApi(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "chapters"] });
+    },
+  });
+}
+
+/* ==================== EXAMS ==================== */
+export function useAdminExams() {
+  return useQuery({
+    queryKey: ["admin", "exams"],
+    queryFn: fetchAdminExams,
+    staleTime: 30_000,
+  });
+}
+
+export function useCreateExam() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { name?: string; title?: string; code?: string; durationMinutes?: number; passScore?: number; status?: "DRAFT" | "PUBLISHED" }) =>
+      createExamApi(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
+    },
+  });
+}
+
+export function useChangeExamStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "DRAFT" | "PUBLISHED" | "ARCHIVED" }) =>
+      changeExamStatusApi(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
+    },
+  });
+}
+
+export function useDeleteExam() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteExamApi(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
     },
   });
 }
