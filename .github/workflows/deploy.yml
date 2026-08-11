@@ -27,6 +27,9 @@ jobs:
 
       - run: |
           docker build \
+            --build-arg IDENTITY_API_URL=http://103.75.182.249:8081 \
+            --build-arg PRACTICE_API_URL=http://103.75.182.249:8083 \
+            --build-arg PROGRESS_API_URL=http://103.75.182.249:8084 \
             -t $IMAGE:latest \
             -t $IMAGE:${{ github.sha }} .
           docker push $IMAGE:latest
@@ -48,6 +51,7 @@ jobs:
           script: |
             mkdir -p ${{ env.DEPLOY_DIR }}
             cd ${{ env.DEPLOY_DIR }}
+            docker login ghcr.io -u phamthanhlong100504-xpnd -p ${{ secrets.GHCR_TOKEN }}
             mv -f docker-compose.prod.yml docker-compose.yml
             docker compose pull
             docker compose up -d
