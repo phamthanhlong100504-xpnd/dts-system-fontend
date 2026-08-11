@@ -150,6 +150,7 @@ export interface PageResponse<T> {
 
 export interface LeaderboardEntry {
   userId?: string;
+  username?: string;
   examType?: string;
   score?: number;
   correctCount?: number;

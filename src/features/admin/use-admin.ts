@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ApiError } from "@/lib/api";
+import { ApiError, type IdentitySchemas } from "@/lib/api";
 import {
   assignPermissionToRole,
   assignRole,
@@ -15,8 +15,10 @@ import {
   listPermissions,
   listRoles,
   listUsers,
+  resetUserPassword,
   revokePermissionFromRole,
   revokeRole,
+  updateUser,
   updateUserStatus,
   type ListUsersParams,
 } from "./admin-service";
@@ -73,8 +75,27 @@ export function useCreateUser() {
     onSuccess: () => {
       toast.success("Đã tạo người dùng");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
     },
     onError: (error) => toastError(error, "Không thể tạo người dùng"),
+  });
+}
+
+export function useUpdateUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: IdentitySchemas["UpdateUserRequest"];
+    }) => updateUser(id, payload),
+    onSuccess: () => {
+      toast.success("Đã cập nhật thông tin người dùng");
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+    },
+    onError: (error) => toastError(error, "Không thể cập nhật thông tin người dùng"),
   });
 }
 
@@ -88,6 +109,19 @@ export function useUpdateUserStatus() {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     },
     onError: (error) => toastError(error, "Không thể cập nhật trạng thái"),
+  });
+}
+
+export function useResetUserPassword() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, password }: { id: string; password: string }) =>
+      resetUserPassword(id, password),
+    onSuccess: () => {
+      toast.success("Đã đặt lại mật khẩu");
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+    },
+    onError: (error) => toastError(error, "Không thể đặt lại mật khẩu"),
   });
 }
 
@@ -110,6 +144,7 @@ export function useAssignRole() {
     onSuccess: () => {
       toast.success("Đã gán vai trò");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
     },
     onError: (error) => toastError(error, "Không thể gán vai trò"),
   });
@@ -123,6 +158,7 @@ export function useRevokeRole() {
     onSuccess: () => {
       toast.success("Đã thu hồi vai trò");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
     },
     onError: (error) => toastError(error, "Không thể thu hồi vai trò"),
   });

@@ -49,9 +49,13 @@ export function ExamRunner({ examId }: { examId: string }) {
 
   if (!questions.length) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 py-8">
-        <Skeleton className="h-24" />
-        <Skeleton className="h-40" />
+      <div className="mx-auto max-w-2xl space-y-4 py-8 text-center">
+        <p className="text-sm text-destructive">
+          Không tìm thấy danh sách câu hỏi cho bài thi này.
+        </p>
+        <Button asChild variant="outline">
+          <a href="/practice">Về trang luyện tập</a>
+        </Button>
       </div>
     );
   }

@@ -9,6 +9,8 @@ import {
   Lock,
   LockOpen,
   MoreHorizontal,
+  Pencil,
+  RefreshCw,
   Search,
   Trash2,
   UserPlus,
@@ -63,11 +65,21 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   useAssignRole,
   useCreateUser,
   useDeleteUser,
+  useResetUserPassword,
   useRevokeRole,
   useRoles,
+  useUpdateUser,
   useUpdateUserStatus,
   useUserRoles,
   useUsers,
@@ -253,7 +265,9 @@ function UsersManager() {
 function UserRowActions({ user }: { user: UserResponse }) {
   const updateStatus = useUpdateUserStatus();
   const deleteUserMutation = useDeleteUser();
+  const [editOpen, setEditOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
@@ -280,9 +294,17 @@ function UserRowActions({ user }: { user: UserResponse }) {
               Khóa tài khoản
             </DropdownMenuItem>
           )}
+          <DropdownMenuItem onClick={() => setEditOpen(true)}>
+            <Pencil className="h-4 w-4" />
+            Chỉnh sửa
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setAssignOpen(true)}>
             <KeyRound className="h-4 w-4" />
             Gán vai trò
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setResetOpen(true)}>
+            <RefreshCw className="h-4 w-4" />
+            Đặt lại mật khẩu
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -299,6 +321,18 @@ function UserRowActions({ user }: { user: UserResponse }) {
         user={user}
         open={assignOpen}
         onOpenChange={setAssignOpen}
+      />
+
+      <EditUserSheet
+        user={user}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
+
+      <ResetPasswordDialog
+        user={user}
+        open={resetOpen}
+        onOpenChange={setResetOpen}
       />
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
@@ -525,5 +559,281 @@ function CreateUserSheet() {
         </form>
       </SheetContent>
     </Sheet>
+  );
+}
+
+/* ---------- Chỉnh sửa người dùng ---------- */
+
+const editUserSchema = z.object({
+  username: z
+    .string()
+    .min(3, "Tên đăng nhập tối thiểu 3 ký tự")
+    .max(20, "Tên đăng nhập tối đa 20 ký tự")
+    .regex(/^[a-zA-Z0-9_.-]+$/, "Chỉ được dùng chữ, số, dấu chấm, gạch dưới, gạch ngang"),
+  email: z.string().email("Email không hợp lệ"),
+  fullName: z.string().min(1, "Vui lòng nhập họ tên").max(100, "Họ tên tối đa 100 ký tự"),
+  birthOfDate: z.string().min(1, "Vui lòng chọn ngày sinh"),
+  phoneNumber: z.string().min(1, "Vui lòng nhập số điện thoại").max(20, "Số điện thoại tối đa 20 ký tự"),
+  status: z.string(),
+});
+
+type EditUserForm = z.infer<typeof editUserSchema>;
+
+const USER_STATUSES = [
+  { key: "ACTIVE", label: "Hoạt động" },
+  { key: "LOCKED", label: "Đã khóa" },
+  { key: "BANNED", label: "Cấm" },
+  { key: "PENDING", label: "Chờ xác minh" },
+];
+
+function EditUserSheet({
+  user,
+  open,
+  onOpenChange,
+}: {
+  user: UserResponse;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const updateUserMutation = useUpdateUser();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<EditUserForm>({
+    resolver: zodResolver(editUserSchema),
+    values: {
+      username: user.username ?? "",
+      email: user.email ?? "",
+      fullName: user.fullName ?? "",
+      birthOfDate: user.birthOfDate?.slice(0, 10) ?? "",
+      phoneNumber: user.phoneNumber ?? "",
+      status: user.status ?? "ACTIVE",
+    },
+  });
+
+  function onSubmit(values: EditUserForm) {
+    if (!user.id) return;
+    updateUserMutation.mutate(
+      { id: user.id, payload: values },
+      { onSuccess: () => onOpenChange(false) }
+    );
+  }
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle>Chỉnh sửa — {user.fullName || user.username}</SheetTitle>
+          <SheetDescription>Cập nhật thông tin hồ sơ người dùng</SheetDescription>
+        </SheetHeader>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className="flex flex-col gap-4 overflow-y-auto px-4"
+        >
+          <div className="space-y-2">
+            <Label htmlFor="eu-username">Tên người dùng</Label>
+            <Input id="eu-username" className="h-11" {...register("username")} />
+            {errors.username && (
+              <p className="text-sm text-destructive">{errors.username.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="eu-email">Email</Label>
+            <Input id="eu-email" type="email" className="h-11" {...register("email")} />
+            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="eu-fullName">Họ và tên</Label>
+            <Input id="eu-fullName" className="h-11" {...register("fullName")} />
+            {errors.fullName && <p className="text-sm text-destructive">{errors.fullName.message}</p>}
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="eu-birthOfDate">Ngày sinh</Label>
+              <Input
+                id="eu-birthOfDate"
+                type="date"
+                className="h-11"
+                {...register("birthOfDate")}
+              />
+              {errors.birthOfDate && (
+                <p className="text-sm text-destructive">{errors.birthOfDate.message}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="eu-phoneNumber">Số điện thoại</Label>
+              <Input
+                id="eu-phoneNumber"
+                type="tel"
+                className="h-11"
+                {...register("phoneNumber")}
+              />
+              {errors.phoneNumber && (
+                <p className="text-sm text-destructive">{errors.phoneNumber.message}</p>
+              )}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="eu-status">Trạng thái</Label>
+            <Select
+              defaultValue={user.status ?? "ACTIVE"}
+              onValueChange={(v) => setValue("status", v)}
+            >
+              <SelectTrigger id="eu-status" className="h-11">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {USER_STATUSES.map((s) => (
+                  <SelectItem key={s.key} value={s.key}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <SheetFooter>
+            <Button type="submit" disabled={updateUserMutation.isPending}>
+              {updateUserMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+            </Button>
+          </SheetFooter>
+        </form>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+/* ---------- Đặt lại mật khẩu ---------- */
+
+const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Mật khẩu tối thiểu 8 ký tự")
+      .max(100, "Mật khẩu tối đa 100 ký tự"),
+    confirm: z.string(),
+  })
+  .refine((data) => data.password === data.confirm, {
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["confirm"],
+  });
+
+type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
+
+/** Tạo mật khẩu ngẫu nhiên 12 ký tự (có chữ hoa, chữ thường, số, ký tự đặc biệt) */
+function generatePassword(): string {
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower = "abcdefghjkmnpqrstuvwxyz";
+  const digits = "23456789";
+  const symbols = "!@#$%";
+  const all = upper + lower + digits + symbols;
+  const chars = new Array<string>(12);
+  for (let i = 0; i < chars.length; i++) {
+    const pool = i < 2 ? upper : i < 4 ? digits : all;
+    chars[i] = pool[Math.floor(Math.random() * pool.length)];
+  }
+  return chars.join("");
+}
+
+function ResetPasswordDialog({
+  user,
+  open,
+  onOpenChange,
+}: {
+  user: UserResponse;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const resetMutation = useResetUserPassword();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<ResetPasswordForm>({ resolver: zodResolver(resetPasswordSchema) });
+
+  // Pre-fill mật khẩu ngẫu nhiên mỗi lần mở dialog
+  useEffect(() => {
+    if (open) {
+      const pwd = generatePassword();
+      reset({ password: pwd, confirm: pwd });
+    }
+  }, [open, reset]);
+
+  function onSubmit(values: ResetPasswordForm) {
+    if (!user.id) return;
+    resetMutation.mutate(
+      { id: user.id, password: values.password },
+      { onSuccess: () => onOpenChange(false) }
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Đặt lại mật khẩu</DialogTitle>
+          <DialogDescription>
+            Tạo mật khẩu mới cho{" "}
+            <span className="font-medium text-foreground">
+              {user.fullName || user.username}
+            </span>
+            . Người dùng sẽ bị đăng xuất ở tất cả thiết bị.
+          </DialogDescription>
+        </DialogHeader>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className="flex flex-col gap-4"
+        >
+          <div className="space-y-2">
+            <Label htmlFor="rp-password">Mật khẩu mới</Label>
+            <div className="flex gap-2">
+              <Input
+                id="rp-password"
+                type="text"
+                className="h-11 flex-1"
+                {...register("password")}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-11 w-11 shrink-0"
+                aria-label="Tạo mật khẩu ngẫu nhiên"
+                onClick={() => {
+                  const pwd = generatePassword();
+                  setValue("password", pwd);
+                  setValue("confirm", pwd);
+                }}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
+            {errors.password && (
+              <p className="text-sm text-destructive">{errors.password.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="rp-confirm">Xác nhận mật khẩu</Label>
+            <Input id="rp-confirm" type="text" className="h-11" {...register("confirm")} />
+            {errors.confirm && (
+              <p className="text-sm text-destructive">{errors.confirm.message}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Hủy bỏ
+            </Button>
+            <Button type="submit" disabled={resetMutation.isPending}>
+              {resetMutation.isPending ? "Đang đặt lại..." : "Đặt lại mật khẩu"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

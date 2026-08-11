@@ -23,12 +23,22 @@ export async function createUser(payload: IdentitySchemas["CreateUserRequest"]) 
   return identityApi.post<IdentitySchemas["UserResponse"]>("/v1/admin/users", payload);
 }
 
+/** Cập nhật hồ sơ người dùng (admin): username/email/fullName/birthOfDate/phoneNumber/status */
+export async function updateUser(id: string, payload: IdentitySchemas["UpdateUserRequest"]) {
+  return identityApi.put<IdentitySchemas["UserResponse"]>(`/v1/admin/users/${id}`, payload);
+}
+
 /** Đổi trạng thái tài khoản (LOCKED/ACTIVE/BANNED/...) */
 export async function updateUserStatus(id: string, status: string) {
   return identityApi.patch<IdentitySchemas["UserResponse"]>(
     `/v1/admin/users/${id}/status`,
     { status }
   );
+}
+
+/** Admin đặt lại mật khẩu cho người dùng */
+export async function resetUserPassword(id: string, password: string) {
+  return identityApi.patch<unknown>(`/v1/admin/users/${id}/password`, { password });
 }
 
 /** Soft-delete người dùng */
