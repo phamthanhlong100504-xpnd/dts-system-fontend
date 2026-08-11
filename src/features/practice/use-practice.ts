@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -15,6 +15,8 @@ import {
   submitAnswer,
   type SubmitAnswerRequest,
 } from "./practice-service";
+import { logStudySession } from "@/features/progress/progress-service";
+import { progressKeys } from "@/features/progress/use-progress";
 import { ApiError } from "@/lib/api";
 import { useExamStore } from "@/stores/exam-store";
 
@@ -94,9 +96,37 @@ export function useSubmitAnswer() {
 /** Nộp bài / kết thúc → xóa session khỏi store + sang màn kết quả */
 export function useFinishExam() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: finishExam,
-    onSuccess: (result, examId) => {
+    onSuccess: async (result, examId) => {
+      try {
+        const examKey = result.examId ?? examId;
+        const storageKey = `dts_logged_${examKey}`;
+        // Dedup với result page: chỉ log 1 lần/1 bài, dù vào theo nút Kết thúc hay xem kết quả
+        if (sessionStorage.getItem(storageKey)) return;
+        sessionStorage.setItem(storageKey, "true");
+
+        const startedAt = result.startedAt ? new Date(result.startedAt).getTime() : Date.now();
+        const completedAt = result.completedAt ? new Date(result.completedAt).getTime() : Date.now();
+        const durationSeconds = Math.max(1, Math.round((completedAt - startedAt) / 1000));
+
+        await logStudySession({
+          sessionType: result.mode === "PRACTICE" ? "PRACTICE" : "EXAM",
+          examType: result.examType ?? "B2",
+          mode: result.mode ?? "EXAM",
+          examId: examKey,
+          questionsCount: result.totalQuestions ?? 25,
+          correctCount: result.correctCount ?? 0,
+          wrongCount: result.wrongCount ?? 0,
+          durationSeconds,
+        });
+
+        queryClient.invalidateQueries({ queryKey: progressKeys.dashboard });
+      } catch (err) {
+        console.error("Failed to log progress session:", err);
+      }
+
       useExamStore.getState().clear();
       toast.success("Đã nộp bài");
       router.push(`/practice/result/${result.examId ?? examId}`);
