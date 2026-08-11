@@ -22,10 +22,13 @@ export default function ExamPage() {
   const router = useRouter();
   const hydrated = useHasExamHydrated();
   const storeExamId = useExamStore((s) => s.examId);
+  const storeQuestions = useExamStore((s) => s.questions);
   const startSession = useExamStore((s) => s.startSession);
   const clear = useExamStore((s) => s.clear);
 
   const sessionQuery = useExamSession(hydrated ? examId : "");
+
+  const hasStoreData = storeExamId === examId && storeQuestions.length > 0;
 
   useEffect(() => {
     const data = sessionQuery.data;
@@ -35,10 +38,11 @@ export default function ExamPage() {
       router.replace(`/practice/result/${examId}`);
       return;
     }
-    if (storeExamId !== examId) {
+    // Nạp session vào store nếu store chưa có examId này HOẶC câu hỏi trong store bị rỗng
+    if (storeExamId !== examId || !storeQuestions.length) {
       startSession(data);
     }
-  }, [sessionQuery.data, storeExamId, examId, router, startSession, clear]);
+  }, [sessionQuery.data, storeExamId, storeQuestions.length, examId, router, startSession, clear]);
 
   if (!hydrated) {
     return (
@@ -48,23 +52,32 @@ export default function ExamPage() {
     );
   }
 
-  if (sessionQuery.isError && storeExamId !== examId) {
+  // Đã có dữ liệu trong store từ trước (vừa tạo xong từ dialog) → render ngay
+  if (hasStoreData) {
     return (
       <RequireAuth>
-        <div className="mx-auto max-w-2xl space-y-4 py-8 text-center">
-          <p className="text-sm text-destructive">Không tải được bài thi.</p>
-          <Button asChild variant="outline">
-            <Link href="/practice">Về trang luyện tập</Link>
-          </Button>
-        </div>
+        <ExamRunner examId={examId} />
       </RequireAuth>
     );
   }
 
-  if (storeExamId === examId) {
+  // Khi chưa có dữ liệu store và API gặp lỗi
+  if (sessionQuery.isError) {
     return (
       <RequireAuth>
-        <ExamRunner examId={examId} />
+        <div className="mx-auto max-w-2xl space-y-4 py-8 text-center">
+          <p className="text-sm text-destructive">
+            Không tải được bài thi. Vui lòng kiểm tra lại kết nối.
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <Button onClick={() => sessionQuery.refetch()} variant="default">
+              Thử lại
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/practice">Về trang luyện tập</Link>
+            </Button>
+          </div>
+        </div>
       </RequireAuth>
     );
   }
@@ -84,3 +97,4 @@ function ExamSkeleton() {
     </div>
   );
 }
+

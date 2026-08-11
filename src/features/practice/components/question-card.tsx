@@ -84,11 +84,11 @@ export function QuestionCard({
                 !answered && isSelected && "border-primary bg-primary/5",
                 !answered && !isSelected && "border-border",
                 answered && isCorrectOpt &&
-                  "border-emerald-500 bg-emerald-50 text-emerald-900",
+                  "border-emerald-500/60 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-medium",
                 answered && isWrongSelected &&
-                  "border-destructive bg-destructive/5 text-destructive",
+                  "border-destructive/60 bg-destructive/10 text-destructive dark:text-red-400 font-medium",
                 answered && !isCorrectOpt && !isWrongSelected &&
-                  "border-border opacity-70"
+                  "border-border opacity-60"
               )}
             >
               <span
@@ -104,10 +104,10 @@ export function QuestionCard({
               </span>
               <span className="leading-relaxed">{opt.text}</span>
               {answered && isCorrectOpt && (
-                <Check className="ml-auto h-4 w-4 shrink-0" />
+                <Check className="ml-auto h-4 w-4 shrink-0 text-emerald-500" />
               )}
               {answered && isWrongSelected && (
-                <X className="ml-auto h-4 w-4 shrink-0" />
+                <X className="ml-auto h-4 w-4 shrink-0 text-destructive" />
               )}
             </button>
           );
@@ -119,14 +119,16 @@ export function QuestionCard({
           className={cn(
             "rounded-xl border p-4 text-sm",
             feedback.isCorrect
-              ? "border-emerald-500/40 bg-emerald-50/60"
-              : "border-destructive/40 bg-destructive/5"
+              ? "border-emerald-500/40 bg-emerald-500/10"
+              : "border-destructive/40 bg-destructive/10"
           )}
         >
           <p
             className={cn(
               "flex items-center gap-1.5 font-semibold",
-              feedback.isCorrect ? "text-emerald-700" : "text-destructive"
+              feedback.isCorrect
+                ? "text-emerald-700 dark:text-emerald-400"
+                : "text-destructive dark:text-red-400"
             )}
           >
             {feedback.isCorrect ? (
@@ -146,7 +148,7 @@ export function QuestionCard({
             </span>
           </p>
           {hasExplanation && (
-            <p className="mt-2 whitespace-pre-line leading-relaxed">
+            <p className="mt-2 whitespace-pre-line leading-relaxed text-foreground/90">
               {feedback.explanation}
             </p>
           )}
