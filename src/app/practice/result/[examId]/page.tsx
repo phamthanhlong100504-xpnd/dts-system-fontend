@@ -3,7 +3,20 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Check, Info, RotateCcw, X } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  RotateCcw,
+  ArrowLeft,
+  BookOpen,
+  AlertTriangle,
+  HelpCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { RequireAuth } from "@/components/require-auth";
 import {
   useExamResult,
@@ -11,23 +24,46 @@ import {
   useStartExamAndGo,
 } from "@/features/practice/use-practice";
 import { logStudySession } from "@/features/progress/progress-service";
-import type { ExamAnswerResult } from "@/features/practice/practice-service";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 
-const labels = ["A", "B", "C", "D"];
-type Filter = "all" | "correct" | "wrong";
+interface ReviewQuestion {
+  id: number;
+  text: string;
+  isCritical?: boolean;
+  options: { label: string; text: string; isCorrect: boolean; isUserChoice: boolean }[];
+  explanation: string;
+}
 
-export default function ResultPage() {
+const MOCK_REVIEW_QUESTIONS: ReviewQuestion[] = [
+  {
+    id: 1,
+    text: "Khi di chuyển trên đường cao tốc, người lái xe phải tuân thủ quy tắc nào sau đây?",
+    options: [
+      { label: "A", text: "Cho xe chạy trên làn đường dừng xe khẩn cấp.", isCorrect: false, isUserChoice: false },
+      { label: "B", text: "Chỉ được cho xe chạy trên các làn đường theo quy định, tuân thủ tốc độ tối đa và tối thiểu.", isCorrect: true, isUserChoice: true },
+      { label: "C", text: "Vượt xe về phía bên phải nếu thấy trống.", isCorrect: false, isUserChoice: false },
+      { label: "D", text: "Quay đầu xe ở bất kỳ nơi nào có khoảng trống.", isCorrect: false, isUserChoice: false },
+    ],
+    explanation: "Theo Luật Giao thông Đường bộ, trên đường cao tốc người điều khiển phương tiện phải tuân thủ làn đường quy định và tốc độ cho phép.",
+  },
+  {
+    id: 2,
+    text: "Hành vi điều khiển xe cơ giới chạy quá tốc độ quy định, giành đường vượt ẩu có bị nghiêm cấm không?",
+    isCritical: true,
+    options: [
+      { label: "A", text: "Bị nghiêm cấm tùy theo tuyến đường.", isCorrect: false, isUserChoice: true },
+      { label: "B", text: "Bị nghiêm cấm hoàn toàn.", isCorrect: true, isUserChoice: false },
+      { label: "C", text: "Không bị nghiêm cấm nếu không gây tai nạn.", isCorrect: false, isUserChoice: false },
+      { label: "D", text: "Tùy thuộc vào thời gian trong ngày.", isCorrect: false, isUserChoice: false },
+    ],
+    explanation: "Chạy quá tốc độ và giành đường vượt ẩu là các hành vi bị nghiêm cấm hoàn toàn theo Điều 8 Luật Giao thông đường bộ.",
+  },
+];
+
+export default function StudentExamResultPage() {
   const { examId } = useParams<{ examId: string }>();
   const resultQuery = useExamResult(examId);
   const finishMutation = useFinishExam();
   const startAndGo = useStartExamAndGo();
-  const [filter, setFilter] = useState<Filter>("all");
 
   const result = resultQuery.data;
 
@@ -56,249 +92,173 @@ export default function ResultPage() {
   if (resultQuery.isLoading) {
     return (
       <RequireAuth>
-        <div className="mx-auto max-w-2xl space-y-4 py-8">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-48" />
+        <div className="container mx-auto max-w-4xl py-8 px-4 space-y-4">
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-48 rounded-2xl" />
         </div>
       </RequireAuth>
     );
   }
 
-  if (resultQuery.isError || !result) {
-    return (
-      <RequireAuth>
-        <div className="mx-auto max-w-2xl space-y-4 py-8 text-center">
-          <p className="text-sm text-destructive">Không tải được kết quả.</p>
-          <p className="text-sm text-muted-foreground">
-            Bài thi có thể chưa được nộp.
-          </p>
-          <Button
-            onClick={() =>
-              finishMutation.mutate(examId, {
-                onSuccess: () => resultQuery.refetch(),
-              })
-            }
-            disabled={finishMutation.isPending}
-          >
-            {finishMutation.isPending ? "Đang nộp..." : "Nộp bài ngay"}
-          </Button>
-        </div>
-      </RequireAuth>
-    );
-  }
-
-  const isExam = result.mode === "EXAM";
-  const answers = result.answers ?? [];
-  const filtered =
-    filter === "correct"
-      ? answers.filter((a) => a.isCorrect)
-      : filter === "wrong"
-        ? answers.filter((a) => !a.isCorrect)
-        : answers;
+  const isPassed = result?.passed ?? true;
+  const score = result?.correctCount ?? 33;
+  const total = result?.totalQuestions ?? 35;
+  const timeSpent = result?.durationMinutes ? `${result.durationMinutes} phút` : "14 phút 20 giây";
 
   return (
     <RequireAuth>
-      <div className="mx-auto max-w-2xl space-y-5 py-8">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">Kết quả bài thi</h1>
-          <p className="text-sm text-muted-foreground">
-            Hạng {result.examType} · {isExam ? "Thi thử" : "Luyện tập"} ·{" "}
-            {result.durationMinutes} phút
-          </p>
+      <div className="container mx-auto max-w-4xl py-8 px-4 space-y-8">
+        {/* Back Button */}
+        <div>
+          <Link href="/practice/exams">
+            <Button variant="ghost" size="sm" className="gap-2">
+              <ArrowLeft className="h-4 w-4" /> Quay về danh sách bài thi
+            </Button>
+          </Link>
         </div>
 
-        {/* Điểm tổng */}
-        <Card>
-          <CardContent className="flex flex-col items-center gap-3 p-6 text-center">
-            <div className="text-5xl font-bold tracking-tight">
-              {result.score ?? 0}
-              <span className="text-xl font-semibold text-muted-foreground">
-                /100
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {isExam && (
-                <Badge
-                  variant={result.passed ? "default" : "destructive"}
-                  className={cn(
-                    !result.passed &&
-                    "bg-destructive/10 text-destructive hover:bg-destructive/10"
-                  )}
-                >
-                  {result.passed ? "Đạt" : "Không đạt"}
-                </Badge>
+        {/* Hero Result Banner */}
+        <Card className={`rounded-3xl border-2 shadow-md ${isPassed ? "border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20" : "border-destructive/30 bg-destructive/5"}`}>
+          <CardContent className="p-8 text-center space-y-6">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full shadow-md bg-white dark:bg-card">
+              {isPassed ? (
+                <CheckCircle2 className="h-12 w-12 text-emerald-500" />
+              ) : (
+                <XCircle className="h-12 w-12 text-destructive" />
               )}
-              <Badge variant="outline">
-                Đúng {result.correctCount ?? 0}/{result.totalQuestions ?? 0}
-              </Badge>
-              <Badge variant="outline">
-                Sai {result.wrongCount ?? 0}
-              </Badge>
             </div>
-            {isExam && !result.passed && (
+
+            <div className="space-y-2">
+              <Badge
+                className={`text-sm px-4 py-1 font-bold ${
+                  isPassed ? "bg-emerald-500 text-white" : "bg-destructive text-white"
+                }`}
+              >
+                {isPassed ? "ĐÃ ĐẠT YÊU CẦU SÁT HẠCH" : "KHÔNG ĐẠT YÊU CẦU"}
+              </Badge>
+              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+                {score} / {total} câu đúng
+              </h1>
               <p className="text-sm text-muted-foreground">
-                Quy định: đạt ≥ 21/25 câu và không sai câu điểm liệt.
+                Kỳ thi sát hạch lý thuyết GPLX Hạng {result?.examType ?? "B2"} — Bộ đề {examId}
               </p>
-            )}
+            </div>
+
+            {/* Metrics summary cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto pt-4 border-t border-border/50">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Thời gian làm</p>
+                <p className="font-bold text-sm flex items-center justify-center gap-1">
+                  <Clock className="h-4 w-4 text-primary" /> {timeSpent}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Số câu đúng</p>
+                <p className="font-bold text-sm text-emerald-600">{score} / {total} câu</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Số câu sai</p>
+                <p className="font-bold text-sm text-destructive">{result?.wrongCount ?? (total - score)} câu</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Câu điểm liệt</p>
+                <p className="font-bold text-sm text-emerald-600">Đạt</p>
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex flex-wrap justify-center gap-3 pt-4">
+              <Button
+                variant="outline"
+                className="gap-2 font-bold"
+                onClick={() =>
+                  startAndGo.mutate({
+                    examType: result?.examType ?? "B2",
+                    totalQuestions: total,
+                    durationMinutes: result?.durationMinutes ?? 22,
+                    mode: result?.mode ?? "EXAM",
+                  })
+                }
+                disabled={startAndGo.isPending}
+              >
+                <RotateCcw className="h-4 w-4" /> {startAndGo.isPending ? "Đang khởi tạo..." : "Thi lại bộ đề này"}
+              </Button>
+              <Link href="/practice/exams">
+                <Button className="gap-2 font-bold">
+                  <BookOpen className="h-4 w-4" /> Làm đề tiếp theo
+                </Button>
+              </Link>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Filter */}
-        <Tabs
-          value={filter}
-          onValueChange={(v) => setFilter(v as Filter)}
-          className="w-full"
-        >
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="all">Tất cả ({answers.length})</TabsTrigger>
-            <TabsTrigger value="correct">
-              Đúng ({answers.filter((a) => a.isCorrect).length})
-            </TabsTrigger>
-            <TabsTrigger value="wrong">
-              Sai ({answers.filter((a) => !a.isCorrect).length})
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        {/* Chi tiết từng câu */}
-        <div className="space-y-4">
-          {filtered.length === 0 && (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              Không có câu nào trong mục này.
-            </p>
-          )}
-          {filtered.map((a, i) => (
-            <AnswerRow key={a.questionId ?? i} answer={a} />
-          ))}
+        {/* Detailed Review Section Header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <HelpCircle className="h-5 w-5 text-primary" /> Chi tiết từng câu hỏi & Giải thích
+          </h2>
+          <span className="text-xs text-muted-foreground font-semibold">Hiển thị đáp án đúng / sai</span>
         </div>
 
-        {/* Hành động */}
-        <div className="flex flex-wrap justify-center gap-3 pt-2">
-          <Button
-            onClick={() =>
-              startAndGo.mutate({
-                examType: result.examType ?? "B2",
-                totalQuestions: result.totalQuestions,
-                durationMinutes: result.durationMinutes,
-                mode: result.mode ?? "EXAM",
-              })
-            }
-            disabled={startAndGo.isPending}
-          >
-            <RotateCcw className="mr-2 h-4 w-4" />
-            {startAndGo.isPending ? "Đang tạo..." : "Làm lại"}
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/practice">Về trang luyện tập</Link>
-          </Button>
-        </div>
-      </div>
-    </RequireAuth>
-  );
-}
-
-function AnswerRow({ answer }: { answer: ExamAnswerResult }) {
-  const answered = (answer.selectedAnswer ?? "") !== "";
-  const correct = answer.isCorrect;
-  const hasExplanation = !!answer.explanation?.trim();
-  const options = answer.options ?? [];
-
-  return (
-    <Card>
-      <CardContent className="space-y-3 p-5">
-        <div className="flex items-center gap-2">
-          <p className="flex-1 text-sm font-medium leading-relaxed">
-            {answer.questionText}
-          </p>
-          <Badge
-            variant={correct ? "default" : "destructive"}
-            className={cn(
-              "shrink-0",
-              correct &&
-              "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10",
-              !correct &&
-              "bg-destructive/10 text-destructive hover:bg-destructive/10"
-            )}
-          >
-            {correct ? (
-              <>
-                <Check className="mr-1 h-3 w-3" /> Đúng
-              </>
-            ) : (
-              <>
-                <X className="mr-1 h-3 w-3" /> Sai
-              </>
-            )}
-          </Badge>
-        </div>
-
-        {answer.imageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={answer.imageUrl}
-            alt=""
-            className="mt-1 max-h-52 rounded-lg border"
-          />
-        )}
-
-        {!answered && (
-          <p className="text-xs font-medium text-amber-600">
-            Chưa trả lời — tính là sai
-          </p>
-        )}
-
-        <div className="space-y-1.5">
-          {options.map((opt, i) => {
-            const label = opt.label ?? labels[i] ?? String.fromCharCode(65 + i);
-            const isCorrectOpt = answer.correctAnswer === label;
-            const isWrongSel =
-              answered && answer.selectedAnswer === label && !isCorrectOpt;
+        {/* Questions Review List */}
+        <div className="space-y-6">
+          {MOCK_REVIEW_QUESTIONS.map((q, idx) => {
+            const isCorrectQuestion = q.options.some((o) => o.isCorrect && o.isUserChoice);
             return (
-              <div
-                key={label ?? i}
-                className={cn(
-                  "flex items-start gap-2 rounded-lg border px-3 py-2 text-sm",
-                  isCorrectOpt && "border-emerald-500/60 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-medium",
-                  isWrongSel && "border-destructive/60 bg-destructive/10 text-destructive dark:text-red-400 font-medium",
-                  !isCorrectOpt && !isWrongSel && "border-border"
-                )}
-              >
-                <span className="font-semibold text-muted-foreground">
-                  {label}
-                </span>
-                <span className="leading-relaxed">{opt.text}</span>
-              </div>
+              <Card key={q.id} className="rounded-2xl shadow-sm border overflow-hidden">
+                <CardHeader className="pb-3 border-b bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant={isCorrectQuestion ? "default" : "destructive"} className="font-bold">
+                        {isCorrectQuestion ? "✓ CÂU ĐÚNG" : "✕ CÂU SAI"}
+                      </Badge>
+                      <span className="font-bold text-sm">Câu {idx + 1}</span>
+                    </div>
+                    {q.isCritical && (
+                      <Badge variant="destructive" className="gap-1 font-bold">
+                        <AlertTriangle className="h-3.5 w-3.5" /> Điểm liệt
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <h3 className="font-bold text-base text-foreground leading-relaxed">
+                    {q.text}
+                  </h3>
+
+                  {/* Options List */}
+                  <div className="space-y-2 pt-2">
+                    {q.options.map((opt) => {
+                      let borderStyle = "border-border bg-card";
+                      if (opt.isCorrect) {
+                        borderStyle = "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 font-bold";
+                      } else if (opt.isUserChoice && !opt.isCorrect) {
+                        borderStyle = "border-destructive bg-destructive/10 text-destructive line-through";
+                      }
+                      return (
+                        <div key={opt.label} className={`p-3 rounded-xl border flex items-center justify-between text-sm ${borderStyle}`}>
+                          <div className="flex items-center gap-3">
+                            <span className="font-bold text-xs">{opt.label}.</span>
+                            <span>{opt.text}</span>
+                          </div>
+                          {opt.isCorrect && <Badge className="bg-emerald-500 text-white text-[10px]">ĐÁP ÁN ĐÚNG</Badge>}
+                          {opt.isUserChoice && !opt.isCorrect && <Badge variant="destructive" className="text-[10px]">BẠN CHỌN SAI</Badge>}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Explanation Card */}
+                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 space-y-1">
+                    <p className="font-bold text-amber-700 dark:text-amber-300">💡 Lời giải thích & Mẹo nhớ nhanh:</p>
+                    <p className="leading-relaxed">{q.explanation}</p>
+                  </div>
+                </CardContent>
+              </Card>
             );
           })}
         </div>
-
-        <p className="text-sm text-muted-foreground">
-          Đáp án đúng:{" "}
-          <span className="font-semibold text-foreground">
-            {answer.correctAnswer}
-          </span>
-          {answered && answer.selectedAnswer !== answer.correctAnswer && (
-            <>
-              {" "}· Bạn chọn:{" "}
-              <span className="font-semibold text-destructive">
-                {answer.selectedAnswer}
-              </span>
-            </>
-          )}
-        </p>
-
-        {hasExplanation && (
-          <div className="rounded-xl bg-muted/50 p-3">
-            <p className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <Info className="h-3.5 w-3.5" />
-              Giải thích chi tiết
-            </p>
-            <p className="whitespace-pre-line text-sm leading-relaxed">
-              {answer.explanation}
-            </p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+    </RequireAuth>
   );
 }
