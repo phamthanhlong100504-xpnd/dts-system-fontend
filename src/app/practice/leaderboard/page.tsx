@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Trophy } from "lucide-react";
+import { Trophy, User } from "lucide-react";
 import { useLeaderboard } from "@/features/practice/use-practice";
 import { EXAM_TYPES } from "@/features/practice/practice-service";
 import { RequireAuth } from "@/components/require-auth";
+import { useAuthStore } from "@/stores/auth-store";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -40,6 +42,7 @@ function formatTime(iso?: string) {
 export default function LeaderboardPage() {
   const [examType, setExamType] = useState("all");
   const [period, setPeriod] = useState("all");
+  const currentUser = useAuthStore((s) => s.user);
   const { data, isLoading, isError } = useLeaderboard(
     examType === "all" ? "" : examType,
     period
@@ -107,6 +110,7 @@ export default function LeaderboardPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-16">Hạng</TableHead>
+                  <TableHead>Thí sinh</TableHead>
                   <TableHead>Hạng bằng</TableHead>
                   <TableHead>Điểm</TableHead>
                   <TableHead className="hidden md:table-cell">Đúng/Tổng</TableHead>
@@ -114,37 +118,63 @@ export default function LeaderboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((entry, i) => (
-                  <TableRow key={entry.userId ?? i}>
-                    <TableCell>
-                      <span
-                        className={
-                          "inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold " +
-                          (i === 0
-                            ? "bg-amber-100 text-amber-700"
-                            : i === 1
-                              ? "bg-slate-200 text-slate-700"
-                              : i === 2
-                                ? "bg-orange-100 text-orange-700"
-                                : "bg-muted text-muted-foreground")
-                        }
-                      >
-                        {i + 1}
-                      </span>
-                    </TableCell>
-                    <TableCell className="font-medium">{entry.examType}</TableCell>
-                    <TableCell className="font-semibold">{entry.score ?? 0}</TableCell>
-                    <TableCell className="hidden md:table-cell text-muted-foreground">
-                      {entry.correctCount ?? 0}/{entry.totalQuestions ?? 0}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-muted-foreground">
-                      {formatTime(entry.completedAt)}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {filtered.map((entry, i) => {
+                  const isMe =
+                    (currentUser?.username && currentUser.username === entry.username) ||
+                    (currentUser?.id && currentUser.id === entry.userId);
+
+                  const displayName =
+                    entry.username && entry.username.trim() !== ""
+                      ? entry.username
+                      : entry.userId
+                        ? `user_${entry.userId.slice(0, 6)}`
+                        : `Thí sinh #${i + 1}`;
+
+                  return (
+                    <TableRow key={entry.userId ?? i} className={isMe ? "bg-primary/5" : ""}>
+                      <TableCell>
+                        <span
+                          className={
+                            "inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold " +
+                            (i === 0
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+                              : i === 1
+                                ? "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                                : i === 2
+                                  ? "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300"
+                                  : "bg-muted text-muted-foreground")
+                          }
+                        >
+                          {i + 1}
+                        </span>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                            <User className="h-4 w-4" />
+                          </div>
+                          <span className="truncate max-w-[180px] font-semibold">{displayName}</span>
+                          {isMe && (
+                            <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
+                              Bạn
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium">{entry.examType}</TableCell>
+                      <TableCell className="font-semibold">{entry.score ?? 0}</TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground">
+                        {entry.correctCount ?? 0}/{entry.totalQuestions ?? 0}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell text-muted-foreground">
+                        {formatTime(entry.completedAt)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                       Chưa có dữ liệu xếp hạng
                     </TableCell>
                   </TableRow>
