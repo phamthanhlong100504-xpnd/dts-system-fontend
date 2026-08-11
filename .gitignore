@@ -80,3 +80,6 @@ logs/
 .turbo/
 .cache/
 .eslintcache
+
+# Stitch HTML mockups
+stitch-pages/
