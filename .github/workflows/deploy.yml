@@ -49,10 +49,13 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
+            set -euo pipefail
             mkdir -p ${{ env.DEPLOY_DIR }}
             cd ${{ env.DEPLOY_DIR }}
             docker login ghcr.io -u phamthanhlong100504-xpnd -p ${{ secrets.GHCR_TOKEN }}
             mv -f docker-compose.prod.yml docker-compose.yml
             docker compose pull
             docker compose up -d
+            # Xác nhận container thật sự đang chạy — bắt fail ngầm
+            docker compose ps -a | grep -q Up || { echo "ERROR: dts-frontend not running"; exit 1; }
             docker image prune -a -f
