@@ -4,8 +4,6 @@ import { useState } from "react";
 import {
   Search,
   Clock,
-  CheckCircle2,
-  AlertCircle,
   ArrowRight,
   Sparkles,
   History,
@@ -17,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useStartExamAndGo } from "@/features/practice/use-practice";
 
 interface ExamSetCard {
   id: string;
@@ -81,6 +80,7 @@ export default function StudentExamsListPage() {
   const [selectedLicense, setSelectedLicense] = useState("B2");
   const [activeTab, setActiveTab] = useState<"EXAMS" | "HISTORY">("EXAMS");
   const [searchQuery, setSearchQuery] = useState("");
+  const startAndGo = useStartExamAndGo();
 
   const filteredExams = EXAM_LIST.filter((e) => {
     if (selectedLicense !== "ALL" && e.licenseType !== selectedLicense) return false;
@@ -98,11 +98,22 @@ export default function StudentExamsListPage() {
             Luyện tập các bộ đề sát hạch chuẩn của Cục Đường bộ Việt Nam 2026.
           </p>
         </div>
-        <Link href="/practice/exam/ex-b2-random">
-          <Button size="lg" className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shrink-0">
-            <Sparkles className="h-5 w-5" /> Thi Đề ngẫu nhiên
-          </Button>
-        </Link>
+        <Button
+          size="lg"
+          onClick={() =>
+            startAndGo.mutate({
+              examType: "B2",
+              totalQuestions: 35,
+              durationMinutes: 22,
+              mode: "EXAM",
+            })
+          }
+          disabled={startAndGo.isPending}
+          className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shrink-0"
+        >
+          <Sparkles className="h-5 w-5" />
+          {startAndGo.isPending ? "Đang tạo đề..." : "Thi Đề ngẫu nhiên"}
+        </Button>
       </div>
 
       {/* Tabs Bar */}
@@ -190,11 +201,23 @@ export default function StudentExamsListPage() {
                     </div>
                   )}
 
-                  <Link href={`/practice/exam/${exam.id}`} className="block pt-2">
-                    <Button className="w-full gap-2 font-bold">
-                      Bắt đầu làm bài <ArrowRight className="h-4 w-4" />
+                  <div className="block pt-2">
+                    <Button
+                      onClick={() =>
+                        startAndGo.mutate({
+                          examType: exam.licenseType,
+                          totalQuestions: exam.questionsCount,
+                          durationMinutes: exam.durationMinutes,
+                          mode: "EXAM",
+                        })
+                      }
+                      disabled={startAndGo.isPending}
+                      className="w-full gap-2 font-bold"
+                    >
+                      {startAndGo.isPending ? "Đang tạo..." : "Bắt đầu làm bài"}
+                      <ArrowRight className="h-4 w-4" />
                     </Button>
-                  </Link>
+                  </div>
                 </CardContent>
               </Card>
             ))}
