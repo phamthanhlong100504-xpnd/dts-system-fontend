@@ -1,6 +1,6 @@
 # Production compose for dts-frontend (Next.js standalone).
 # Deployed by .github/workflows/deploy.yml: GHCR image is pushed by CI, pulled here.
-# Backends trỏ qua tên service trên docker network dts-network (port internal).
+# Backend URLs bake vào image LÚC BUILD qua --build-arg (xem next.config.ts + Dockerfile).
 services:
   dts-frontend:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-phamthanhlong100504-xpnd}/dts-frontend:latest
@@ -9,13 +9,5 @@ services:
     ports:
       - "3000:3000"
     mem_limit: 512m
-    environment:
-      IDENTITY_API_URL: http://dts-identity-service:8081
-      PRACTICE_API_URL: http://dts-practice-service:8087
-      PROGRESS_API_URL: http://dts-progress:8083
-    networks:
-      - dts-network
-
-networks:
-  dts-network:
-    external: true
+    # Không env API URLs (đã bake qua --build-arg lúc build) và không dts-network
+    # (backend ở VPS 103.75.182.249, không cùng docker network trên hoangcn.com).
