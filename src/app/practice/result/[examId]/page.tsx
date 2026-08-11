@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -12,6 +12,7 @@ import {
   BookOpen,
   AlertTriangle,
   HelpCircle,
+  MinusCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,49 +21,39 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { RequireAuth } from "@/components/require-auth";
 import {
   useExamResult,
-  useFinishExam,
   useStartExamAndGo,
 } from "@/features/practice/use-practice";
+import {
+  type ExamAnswerResult,
+  type QuestionOption,
+} from "@/features/practice/practice-service";
 import { logStudySession } from "@/features/progress/progress-service";
 
-interface ReviewQuestion {
-  id: number;
+const labels = ["A", "B", "C", "D"];
+
+interface OptionView {
+  label: string;
   text: string;
-  isCritical?: boolean;
-  options: { label: string; text: string; isCorrect: boolean; isUserChoice: boolean }[];
-  explanation: string;
 }
 
-const MOCK_REVIEW_QUESTIONS: ReviewQuestion[] = [
-  {
-    id: 1,
-    text: "Khi di chuyển trên đường cao tốc, người lái xe phải tuân thủ quy tắc nào sau đây?",
-    options: [
-      { label: "A", text: "Cho xe chạy trên làn đường dừng xe khẩn cấp.", isCorrect: false, isUserChoice: false },
-      { label: "B", text: "Chỉ được cho xe chạy trên các làn đường theo quy định, tuân thủ tốc độ tối đa và tối thiểu.", isCorrect: true, isUserChoice: true },
-      { label: "C", text: "Vượt xe về phía bên phải nếu thấy trống.", isCorrect: false, isUserChoice: false },
-      { label: "D", text: "Quay đầu xe ở bất kỳ nơi nào có khoảng trống.", isCorrect: false, isUserChoice: false },
-    ],
-    explanation: "Theo Luật Giao thông Đường bộ, trên đường cao tốc người điều khiển phương tiện phải tuân thủ làn đường quy định và tốc độ cho phép.",
-  },
-  {
-    id: 2,
-    text: "Hành vi điều khiển xe cơ giới chạy quá tốc độ quy định, giành đường vượt ẩu có bị nghiêm cấm không?",
-    isCritical: true,
-    options: [
-      { label: "A", text: "Bị nghiêm cấm tùy theo tuyến đường.", isCorrect: false, isUserChoice: true },
-      { label: "B", text: "Bị nghiêm cấm hoàn toàn.", isCorrect: true, isUserChoice: false },
-      { label: "C", text: "Không bị nghiêm cấm nếu không gây tai nạn.", isCorrect: false, isUserChoice: false },
-      { label: "D", text: "Tùy thuộc vào thời gian trong ngày.", isCorrect: false, isUserChoice: false },
-    ],
-    explanation: "Chạy quá tốc độ và giành đường vượt ẩu là các hành vi bị nghiêm cấm hoàn toàn theo Điều 8 Luật Giao thông đường bộ.",
-  },
-];
+/** Options backend có thể là mảng string hoặc mảng {label, text} — chuẩn hóa về 1 dạng. */
+function normalizeOptions(raw: ExamAnswerResult["options"]): OptionView[] {
+  const list = Array.isArray(raw) ? (raw as unknown[]) : [];
+  return list.map((opt, i) => {
+    if (typeof opt === "string") {
+      return { label: labels[i] ?? String.fromCharCode(65 + i), text: opt };
+    }
+    const o = opt as QuestionOption;
+    return {
+      label: o.label ?? labels[i] ?? String.fromCharCode(65 + i),
+      text: o.text ?? "",
+    };
+  });
+}
 
 export default function StudentExamResultPage() {
   const { examId } = useParams<{ examId: string }>();
   const resultQuery = useExamResult(examId);
-  const finishMutation = useFinishExam();
   const startAndGo = useStartExamAndGo();
 
   const result = resultQuery.data;
@@ -104,6 +95,7 @@ export default function StudentExamResultPage() {
   const score = result?.correctCount ?? 33;
   const total = result?.totalQuestions ?? 35;
   const timeSpent = result?.durationMinutes ? `${result.durationMinutes} phút` : "14 phút 20 giây";
+  const answers: ExamAnswerResult[] = result?.answers ?? [];
 
   return (
     <RequireAuth>
@@ -197,66 +189,105 @@ export default function StudentExamResultPage() {
           <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <HelpCircle className="h-5 w-5 text-primary" /> Chi tiết từng câu hỏi & Giải thích
           </h2>
-          <span className="text-xs text-muted-foreground font-semibold">Hiển thị đáp án đúng / sai</span>
+          <span className="text-xs text-muted-foreground font-semibold">
+            {answers.length} câu · Hiển thị đáp án đúng / sai
+          </span>
         </div>
 
         {/* Questions Review List */}
         <div className="space-y-6">
-          {MOCK_REVIEW_QUESTIONS.map((q, idx) => {
-            const isCorrectQuestion = q.options.some((o) => o.isCorrect && o.isUserChoice);
-            return (
-              <Card key={q.id} className="rounded-2xl shadow-sm border overflow-hidden">
-                <CardHeader className="pb-3 border-b bg-muted/20">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge variant={isCorrectQuestion ? "default" : "destructive"} className="font-bold">
-                        {isCorrectQuestion ? "✓ CÂU ĐÚNG" : "✕ CÂU SAI"}
-                      </Badge>
-                      <span className="font-bold text-sm">Câu {idx + 1}</span>
+          {answers.length === 0 ? (
+            <Card className="rounded-2xl shadow-sm border">
+              <CardContent className="p-8 text-center text-sm text-muted-foreground space-y-2">
+                <MinusCircle className="h-8 w-8 mx-auto text-muted-foreground/50" />
+                <p>Không có dữ liệu chi tiết cho kỳ thi này.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            answers.map((qa, idx) => {
+              const opts = normalizeOptions(qa.options);
+              const correct = qa.correctAnswer ?? "";
+              const selected = qa.selectedAnswer ?? "";
+              const isSkipped = !selected;
+              const isCorrectQuestion = qa.isCorrect === true;
+              return (
+                <Card key={qa.questionId ?? idx} className="rounded-2xl shadow-sm border overflow-hidden">
+                  <CardHeader className="pb-3 border-b bg-muted/20">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {isSkipped ? (
+                          <Badge variant="outline" className="font-bold">— CHƯA TRẢ LỜI</Badge>
+                        ) : (
+                          <Badge variant={isCorrectQuestion ? "default" : "destructive"} className="font-bold">
+                            {isCorrectQuestion ? "✓ CÂU ĐÚNG" : "✕ CÂU SAI"}
+                          </Badge>
+                        )}
+                        <span className="font-bold text-sm">Câu {idx + 1}</span>
+                      </div>
+                      {qa.imageUrl && (
+                        <Badge variant="secondary" className="font-bold">
+                          <AlertTriangle className="h-3.5 w-3.5" /> Có hình
+                        </Badge>
+                      )}
                     </div>
-                    {q.isCritical && (
-                      <Badge variant="destructive" className="gap-1 font-bold">
-                        <AlertTriangle className="h-3.5 w-3.5" /> Điểm liệt
-                      </Badge>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-bold text-base text-foreground leading-relaxed">
+                      {qa.questionText}
+                    </h3>
+
+                    {qa.imageUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={qa.imageUrl}
+                        alt=""
+                        className="max-h-52 rounded-lg border"
+                      />
                     )}
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  <h3 className="font-bold text-base text-foreground leading-relaxed">
-                    {q.text}
-                  </h3>
 
-                  {/* Options List */}
-                  <div className="space-y-2 pt-2">
-                    {q.options.map((opt) => {
-                      let borderStyle = "border-border bg-card";
-                      if (opt.isCorrect) {
-                        borderStyle = "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 font-bold";
-                      } else if (opt.isUserChoice && !opt.isCorrect) {
-                        borderStyle = "border-destructive bg-destructive/10 text-destructive line-through";
-                      }
-                      return (
-                        <div key={opt.label} className={`p-3 rounded-xl border flex items-center justify-between text-sm ${borderStyle}`}>
-                          <div className="flex items-center gap-3">
-                            <span className="font-bold text-xs">{opt.label}.</span>
-                            <span>{opt.text}</span>
+                    {/* Options List */}
+                    <div className="space-y-2 pt-2">
+                      {opts.length === 0 && (
+                        <p className="text-sm text-muted-foreground">Câu hỏi này chưa có đáp án.</p>
+                      )}
+                      {opts.map((opt) => {
+                        const isCorrectOption = opt.label === correct;
+                        const isUserChoice = opt.label === selected;
+                        let borderStyle = "border-border bg-card";
+                        if (isCorrectOption) {
+                          borderStyle = "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 font-bold";
+                        } else if (isUserChoice && !isCorrectOption) {
+                          borderStyle = "border-destructive bg-destructive/10 text-destructive line-through";
+                        }
+                        return (
+                          <div key={opt.label} className={`p-3 rounded-xl border flex items-center justify-between text-sm ${borderStyle}`}>
+                            <div className="flex items-center gap-3">
+                              <span className="font-bold text-xs">{opt.label}.</span>
+                              <span>{opt.text}</span>
+                            </div>
+                            {isCorrectOption && <Badge className="bg-emerald-500 text-white text-[10px]">ĐÁP ÁN ĐÚNG</Badge>}
+                            {isUserChoice && !isCorrectOption && <Badge variant="destructive" className="text-[10px]">BẠN CHỌN SAI</Badge>}
                           </div>
-                          {opt.isCorrect && <Badge className="bg-emerald-500 text-white text-[10px]">ĐÁP ÁN ĐÚNG</Badge>}
-                          {opt.isUserChoice && !opt.isCorrect && <Badge variant="destructive" className="text-[10px]">BẠN CHỌN SAI</Badge>}
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
 
-                  {/* Explanation Card */}
-                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 space-y-1">
-                    <p className="font-bold text-amber-700 dark:text-amber-300">💡 Lời giải thích & Mẹo nhớ nhanh:</p>
-                    <p className="leading-relaxed">{q.explanation}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                    {/* Explanation Card */}
+                    {qa.explanation ? (
+                      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 space-y-1">
+                        <p className="font-bold text-amber-700 dark:text-amber-300">💡 Lời giải thích & Mẹo nhớ nhanh:</p>
+                        <p className="leading-relaxed">{qa.explanation}</p>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        Câu hỏi này chưa có lời giải thích.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })
+          )}
         </div>
       </div>
     </RequireAuth>
