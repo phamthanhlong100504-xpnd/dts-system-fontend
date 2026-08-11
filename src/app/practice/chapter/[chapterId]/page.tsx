@@ -1,19 +1,11 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { AlertTriangle } from "lucide-react";
 import { RequireAuth } from "@/components/require-auth";
-import {
-  getQuestionsByChapter,
-  type Question,
-  type QuestionOption,
-} from "@/features/practice/practice-service";
+import { getQuestionsByChapter, type Question } from "@/features/practice/practice-service";
+import { ChapterQuestionCard } from "@/features/practice/components/chapter-question-card";
 import { useQuery } from "@tanstack/react-query";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const labels = ["A", "B", "C", "D"];
 
 export default function ChapterPage() {
   const { chapterId } = useParams<{ chapterId: string }>();
@@ -47,43 +39,11 @@ export default function ChapterPage() {
         {questions && (
           <div className="space-y-4">
             {questions.map((q: Question, index: number) => (
-              <Card key={q.id ?? index}>
-                <CardContent className="pt-6">
-                  <div className="mb-3 flex items-start gap-2">
-                    <span className="text-sm font-semibold text-muted-foreground">
-                      {index + 1}.
-                    </span>
-                    {q.isCritical && (
-                      <Badge variant="destructive" className="ml-auto shrink-0">
-                        <AlertTriangle className="mr-1 h-3 w-3" />
-                        Điểm liệt
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="font-medium leading-relaxed">{q.questionText}</p>
-                  {q.imageUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={q.imageUrl}
-                      alt=""
-                      className="mt-3 max-h-48 rounded-md border"
-                    />
-                  )}
-                  <div className="mt-3 space-y-1.5">
-                    {q.options?.map((opt: QuestionOption, i: number) => (
-                      <div
-                        key={opt.label ?? i}
-                        className="flex items-start gap-2 rounded-md border px-3 py-2 text-sm"
-                      >
-                        <span className="font-semibold text-muted-foreground">
-                          {opt.label ?? labels[i] ?? `${i + 1}.`}
-                        </span>
-                        <span className="leading-relaxed">{opt.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <ChapterQuestionCard
+                key={q.id ?? index}
+                question={q}
+                index={index}
+              />
             ))}
           </div>
         )}

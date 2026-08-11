@@ -32,6 +32,9 @@ export interface Question {
   options?: QuestionOption[];
   isCritical?: boolean;
   imageUrl?: string;
+  /** Chỉ có ở luồng duyệt câu (ô tập theo chương / critical) sau khi backend trả thêm */
+  correctAnswer?: string;
+  explanation?: string;
 }
 
 export async function getQuestionStats() {
