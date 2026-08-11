@@ -37,19 +37,31 @@ interface ExamState {
   clear: () => void;
 }
 
+/**
+ * Chỉ các trường DỮ LIỆU (KHÔNG chứa action).
+ * `clear()` chỉ reset phần này — tránh ghi đè action bằng no-op
+ * (bug cũ: `set({...initialState})` biến startSession/setAnswer/... thành no-op,
+ * làm hỏng store cho tới khi reload trang).
+ */
+function createInitialData() {
+  return {
+    examId: null,
+    mode: null,
+    examType: "",
+    totalQuestions: 0,
+    durationMinutes: 0,
+    expiresAt: null,
+    startedAt: null,
+    status: null,
+    questions: [],
+    answers: {},
+    feedback: {},
+    currentIndex: 0,
+  };
+}
+
 const initialState: ExamState = {
-  examId: null,
-  mode: null,
-  examType: "",
-  totalQuestions: 0,
-  durationMinutes: 0,
-  expiresAt: null,
-  startedAt: null,
-  status: null,
-  questions: [],
-  answers: {},
-  feedback: {},
-  currentIndex: 0,
+  ...createInitialData(),
   startSession: () => {},
   setAnswer: () => {},
   setFeedback: () => {},
@@ -90,7 +102,7 @@ export const useExamStore = create<ExamState>()(
           feedback: { ...s.feedback, [String(questionId)]: fb },
         })),
       setCurrentIndex: (index) => set({ currentIndex: index }),
-      clear: () => set({ ...initialState }),
+      clear: () => set(createInitialData()),
     }),
     {
       name: "dts-exam",
