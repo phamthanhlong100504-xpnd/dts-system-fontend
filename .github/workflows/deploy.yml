@@ -27,6 +27,7 @@ jobs:
 
       - run: |
           docker build \
+            --build-arg GATEWAY_API_URL=http://gateway-service:8888 \
             --build-arg IDENTITY_API_URL=http://dts-identity-service:8081 \
             --build-arg PRACTICE_API_URL=http://dts-practice-service:8087 \
             --build-arg PROGRESS_API_URL=http://dts-progress:8083 \
