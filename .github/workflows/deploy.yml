@@ -27,9 +27,9 @@ jobs:
 
       - run: |
           docker build \
-            --build-arg IDENTITY_API_URL=http://103.75.182.249:8081 \
-            --build-arg PRACTICE_API_URL=http://103.75.182.249:8083 \
-            --build-arg PROGRESS_API_URL=http://103.75.182.249:8084 \
+            --build-arg IDENTITY_API_URL=http://dts-identity-service:8081 \
+            --build-arg PRACTICE_API_URL=http://dts-practice-service:8087 \
+            --build-arg PROGRESS_API_URL=http://dts-progress:8083 \
             -t $IMAGE:latest \
             -t $IMAGE:${{ github.sha }} .
           docker push $IMAGE:latest
@@ -50,6 +50,7 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
             set -euo pipefail
+            docker network create dts-network || true
             mkdir -p ${{ env.DEPLOY_DIR }}
             cd ${{ env.DEPLOY_DIR }}
             docker login ghcr.io -u phamthanhlong100504-xpnd -p ${{ secrets.GHCR_TOKEN }}

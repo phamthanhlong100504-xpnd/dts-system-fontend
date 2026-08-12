@@ -9,5 +9,9 @@ services:
     ports:
       - "3000:3000"
     mem_limit: 512m
-    # Không env API URLs (đã bake qua --build-arg lúc build) và không dts-network
-    # (backend ở VPS 103.75.182.249, không cùng docker network trên hoangcn.com).
+    networks:
+      - dts-network
+
+networks:
+  dts-network:
+    external: true
