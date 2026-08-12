@@ -40,19 +40,11 @@ function formatTime(iso?: string) {
 }
 
 export default function LeaderboardPage() {
-  const [examType, setExamType] = useState("all");
+  const [examType, setExamType] = useState("B2");
   const [period, setPeriod] = useState("all");
   const currentUser = useAuthStore((s) => s.user);
-  const { data, isLoading, isError } = useLeaderboard(
-    examType === "all" ? "" : examType,
-    period
-  );
-
-  // Backend leaderboard KHÔNG lọc theo examType (chấp nhận nhưng bỏ qua tham số)
-  // → lọc client-side trên danh sách trả về để filter hoạt động.
-  const filtered = (data ?? []).filter(
-    (e) => examType === "all" || e.examType === examType
-  );
+  // Backend lọc theo examType + dedup (1 user 1 lần) + tiebreak cùng điểm theo thời gian hoàn thành.
+  const { data, isLoading, isError } = useLeaderboard(examType, period);
 
   return (
     <RequireAuth>
@@ -80,10 +72,9 @@ export default function LeaderboardPage() {
           <div className="w-44">
             <Select value={examType} onValueChange={setExamType}>
               <SelectTrigger className="h-9">
-                <SelectValue placeholder="Tất cả hạng" />
+                <SelectValue placeholder="Chọn hạng bằng" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả hạng</SelectItem>
                 {EXAM_TYPES.map((t) => (
                   <SelectItem key={t} value={t}>
                     Hạng {t}
@@ -118,17 +109,19 @@ export default function LeaderboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((entry, i) => {
+                {data.map((entry, i) => {
                   const isMe =
                     (currentUser?.username && currentUser.username === entry.username) ||
                     (currentUser?.id && currentUser.id === entry.userId);
 
                   const displayName =
-                    entry.username && entry.username.trim() !== ""
-                      ? entry.username
-                      : entry.userId
-                        ? `user_${entry.userId.slice(0, 6)}`
-                        : `Thí sinh #${i + 1}`;
+                    entry.fullName && entry.fullName.trim() !== ""
+                      ? entry.fullName
+                      : entry.username && entry.username.trim() !== ""
+                        ? entry.username
+                        : entry.userId
+                          ? `user_${entry.userId.slice(0, 6)}`
+                          : `Thí sinh #${i + 1}`;
 
                   return (
                     <TableRow key={entry.userId ?? i} className={isMe ? "bg-primary/5" : ""}>
@@ -172,7 +165,7 @@ export default function LeaderboardPage() {
                     </TableRow>
                   );
                 })}
-                {filtered.length === 0 && (
+                {data.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                       Chưa có dữ liệu xếp hạng

@@ -214,6 +214,7 @@ export interface components {
             /** Format: int32 */
             durationMinutes?: number;
             mode?: string;
+            fullName?: string;
         };
         ApiResponseExamSessionResponse: {
             success?: boolean;
@@ -339,6 +340,8 @@ export interface components {
         LeaderboardEntry: {
             /** Format: uuid */
             userId?: string;
+            username?: string;
+            fullName?: string;
             examType?: string;
             /** Format: int32 */
             score?: number;

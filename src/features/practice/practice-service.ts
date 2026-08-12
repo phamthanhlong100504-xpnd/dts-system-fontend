@@ -1,4 +1,5 @@
 import { practiceApi } from "@/lib/api";
+import { useAuthStore } from "@/stores/auth-store";
 
 /** Thống kê câu hỏi — khớp shape thực tế `GET /v1/questions/stats` trả về */
 export interface QuestionStats {
@@ -68,6 +69,7 @@ export interface StartExamRequest {
   totalQuestions?: number; // 1–60, mặc định 25
   durationMinutes?: number; // 5–120, mặc định 20
   mode?: ExamMode; // "EXAM" | "PRACTICE", mặc định "EXAM"
+  fullName?: string; // họ tên user từ identity login — practice lưu để hiển thị leaderboard
 }
 
 export interface ExamSessionResponse {
@@ -154,6 +156,7 @@ export interface PageResponse<T> {
 export interface LeaderboardEntry {
   userId?: string;
   username?: string;
+  fullName?: string;
   examType?: string;
   score?: number;
   correctCount?: number;
@@ -162,7 +165,10 @@ export interface LeaderboardEntry {
 }
 
 export async function startExam(payload: StartExamRequest) {
-  const data = await practiceApi.post<unknown>("/v1/exams", payload);
+  // Đính kèm họ tên user (đã có từ login) để practice denormalize vào exams → hiển thị leaderboard.
+  const fullName = useAuthStore.getState().user?.fullName;
+  const body = fullName ? { ...payload, fullName } : payload;
+  const data = await practiceApi.post<unknown>("/v1/exams", body);
   return data as ExamSessionResponse;
 }
 
