@@ -38,6 +38,7 @@ export function SiteHeader() {
 
         {isAuthenticated && (
           <nav className="hidden items-center gap-1 text-sm sm:flex">
+            <NavLink href="/examination">Thi chính thức</NavLink>
             <NavLink href="/practice">Luyện tập</NavLink>
             <NavLink href="/practice/history">Lịch sử thi</NavLink>
             <NavLink href="/practice/leaderboard">Bảng xếp hạng</NavLink>
