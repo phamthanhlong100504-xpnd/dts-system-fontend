@@ -18,6 +18,10 @@ import {
   fetchAdminChapters,
   createChapterApi,
   deleteChapterApi,
+  fetchAdminChapterDetail,
+  addQuestionBlockApi,
+  deleteQuestionBlockApi,
+  reorderQuestionBlocksApi,
 } from "./admin-chapters-service";
 import {
   fetchAdminExams,
@@ -129,6 +133,14 @@ export function useDeleteChapter() {
   });
 }
 
+export function useAdminChapterDetail(chapterId: string | null) {
+  return useQuery({
+    queryKey: ["admin", "chapter-detail", chapterId],
+    queryFn: () => chapterId ? fetchAdminChapterDetail(chapterId) : null,
+    enabled: !!chapterId,
+  });
+}
+
 /* ==================== EXAMS ==================== */
 export function useAdminExams() {
   return useQuery({
@@ -166,6 +178,38 @@ export function useDeleteExam() {
     mutationFn: (id: string) => deleteExamApi(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
+    },
+  });
+}
+
+/* ==================== CHAPTER QUESTION BLOCKS ==================== */
+
+export function useAddQuestionBlock(chapterId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { questionId: string; title: string; status?: string }) => addQuestionBlockApi(chapterId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "chapter-detail", chapterId] });
+    },
+  });
+}
+
+export function useDeleteQuestionBlock(chapterId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (blockId: string) => deleteQuestionBlockApi(chapterId, blockId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "chapter-detail", chapterId] });
+    },
+  });
+}
+
+export function useReorderQuestionBlocks(chapterId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { id: string; sortOrder: number }[]) => reorderQuestionBlocksApi(chapterId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "chapter-detail", chapterId] });
     },
   });
 }

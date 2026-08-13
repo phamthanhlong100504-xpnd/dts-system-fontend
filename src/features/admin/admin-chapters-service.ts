@@ -35,3 +35,51 @@ export async function createChapterApi(payload: { title: string; status?: "DRAFT
 export async function deleteChapterApi(id: string) {
   return await contentBuilderApi.delete<void>(`/v1/chapters/${id}`);
 }
+
+/* ==================== CHAPTER DETAILS & QUESTION BLOCKS ==================== */
+
+export interface QuestionBlockItem {
+  id: string;
+  chapterId: string;
+  parentId?: string;
+  questionId?: string;
+  title: string;
+  sortOrder: number;
+  status: string;
+}
+
+export interface ChapterDetail {
+  id: string;
+  title: string;
+  description?: string;
+  status: string;
+  questionBlocks: QuestionBlockItem[];
+}
+
+export async function fetchAdminChapterDetail(chapterId: string): Promise<ChapterDetail | null> {
+  if (!chapterId) return null;
+  try {
+    const res = await contentBuilderApi.get<any>(`/v1/chapters/${chapterId}`);
+    return {
+      id: res.id,
+      title: res.title,
+      description: res.metadata?.description,
+      status: res.status,
+      questionBlocks: res.questionBlocks || [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function addQuestionBlockApi(chapterId: string, payload: { questionId: string; title: string; status?: string }) {
+  return await contentBuilderApi.post<any>(`/v1/chapters/${chapterId}/question-blocks`, payload);
+}
+
+export async function deleteQuestionBlockApi(chapterId: string, blockId: string) {
+  return await contentBuilderApi.delete<void>(`/v1/chapters/${chapterId}/question-blocks/${blockId}`);
+}
+
+export async function reorderQuestionBlocksApi(chapterId: string, payload: { id: string; sortOrder: number }[]) {
+  return await contentBuilderApi.put<any>(`/v1/chapters/${chapterId}/question-blocks/reorder`, payload);
+}

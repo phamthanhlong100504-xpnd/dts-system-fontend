@@ -2,15 +2,7 @@
 
 import { useState } from "react";
 import {
-  FolderTree,
-  Plus,
-  Clock,
-  Award,
-  GripVertical,
-  Trash2,
-  Sparkles,
-  Loader2,
-  FileText,
+  FolderTree, Plus, GripVertical, Trash2, Sparkles, Loader2, FileText, ArrowUp, ArrowDown, Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +10,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { useAdminChapters, useCreateChapter, useDeleteChapter } from "@/features/admin/use-admin-content";
+import {
+  useAdminChapters,
+  useCreateChapter,
+  useDeleteChapter,
+  useAdminChapterDetail,
+  useAddQuestionBlock,
+  useDeleteQuestionBlock,
+  useReorderQuestionBlocks,
+  useAdminQuestions
+} from "@/features/admin/use-admin-content";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { AdminQuestionItem } from "@/features/admin/admin-content-service";
 
 export default function AdminChaptersPage() {
   const { data: chapters = [], isLoading } = useAdminChapters();
@@ -32,6 +41,15 @@ export default function AdminChaptersPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const activeChapter = chapters.find((c) => c.id === selectedChapterId) || chapters[0];
+  const { data: chapterDetail, isLoading: isLoadingDetail } = useAdminChapterDetail(activeChapter?.id || null);
+
+  const addQuestionMutation = useAddQuestionBlock(activeChapter?.id || "");
+  const deleteQuestionMutation = useDeleteQuestionBlock(activeChapter?.id || "");
+  const reorderQuestionsMutation = useReorderQuestionBlocks(activeChapter?.id || "");
+
+  const { data: bankQuestions = [], isLoading: isLoadingQuestions } = useAdminQuestions();
+  const [isAddingQuestion, setIsAddingQuestion] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleCreate = () => {
     if (!newTitle.trim()) {
@@ -61,6 +79,7 @@ export default function AdminChaptersPage() {
       onSuccess: () => {
         toast.success("Đã xóa chương thành công.");
         setDeletingId(null);
+        if (selectedChapterId === id) setSelectedChapterId(null);
       },
       onError: () => {
         toast.error("Xóa chương thất bại.");
@@ -69,9 +88,55 @@ export default function AdminChaptersPage() {
     });
   };
 
+  const handleAddQuestion = (question: AdminQuestionItem) => {
+    if (!activeChapter) return;
+    addQuestionMutation.mutate(
+      { questionId: question.rawId, title: question.title, status: "PUBLISHED" },
+      {
+        onSuccess: () => {
+          toast.success("Đã thêm câu hỏi vào chương!");
+          setIsAddingQuestion(false);
+        },
+        onError: () => {
+          toast.error("Thêm câu hỏi thất bại.");
+        }
+      }
+    );
+  };
+
+  const handleRemoveQuestion = (blockId: string) => {
+    if (!window.confirm("Loại bỏ câu hỏi này khỏi chương?")) return;
+    deleteQuestionMutation.mutate(blockId, {
+      onSuccess: () => toast.success("Đã loại bỏ câu hỏi."),
+    });
+  };
+
+  const handleMove = (index: number, direction: 'up' | 'down') => {
+    if (!chapterDetail || !chapterDetail.questionBlocks) return;
+    const blocks = [...chapterDetail.questionBlocks];
+    if (direction === 'up' && index > 0) {
+      [blocks[index - 1], blocks[index]] = [blocks[index], blocks[index - 1]];
+    } else if (direction === 'down' && index < blocks.length - 1) {
+      [blocks[index], blocks[index + 1]] = [blocks[index + 1], blocks[index]];
+    } else {
+      return;
+    }
+    
+    // Update sortOrder
+    const reorderPayload = blocks.map((b, i) => ({ id: b.id, sortOrder: i }));
+    reorderQuestionsMutation.mutate(reorderPayload, {
+      onSuccess: () => toast.success("Đã cập nhật thứ tự.")
+    });
+  };
+
+  const filteredQuestions = bankQuestions.filter(q => 
+    q.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    // Lọc bỏ những câu đã có trong chương
+    !chapterDetail?.questionBlocks?.some(b => b.questionId === q.rawId)
+  );
+
   return (
     <div className="space-y-6">
-      {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-card p-6 shadow-sm border">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -94,7 +159,6 @@ export default function AdminChaptersPage() {
         </div>
       </div>
 
-      {/* Quick Create Form */}
       {isCreating && (
         <Card className="rounded-2xl border bg-primary/5">
           <CardHeader>
@@ -133,9 +197,8 @@ export default function AdminChaptersPage() {
         </Card>
       )}
 
-      {/* 2-Panel Layout: Lesson Tree & Block Canvas */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Panel: Chapters Tree */}
+        {/* Left Panel */}
         <div className="lg:col-span-4 space-y-4">
           <Card className="rounded-2xl shadow-sm">
             <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
@@ -191,7 +254,7 @@ export default function AdminChaptersPage() {
           </Card>
         </div>
 
-        {/* Right Panel: Active Chapter Detail Canvas */}
+        {/* Right Panel */}
         <div className="lg:col-span-8 space-y-4">
           <Card className="rounded-2xl shadow-sm">
             <CardHeader className="pb-3 flex flex-row items-center justify-between border-b">
@@ -203,6 +266,11 @@ export default function AdminChaptersPage() {
                   {activeChapter ? activeChapter.title : "Chọn chương để xem chi tiết"}
                 </CardTitle>
               </div>
+              {activeChapter && (
+                <Button size="sm" onClick={() => setIsAddingQuestion(true)} className="gap-2">
+                  <Plus className="h-4 w-4" /> Thêm câu hỏi
+                </Button>
+              )}
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
               {activeChapter ? (
@@ -218,11 +286,50 @@ export default function AdminChaptersPage() {
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl border bg-muted/20 space-y-3">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="font-semibold uppercase tracking-wider">Mã định danh (ID)</span>
-                    </div>
-                    <p className="text-xs font-mono bg-background p-2.5 rounded-lg border">{activeChapter.id}</p>
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-sm">Danh sách câu hỏi trong chương</h3>
+                    {isLoadingDetail ? (
+                       <Skeleton className="h-20 w-full rounded-xl" />
+                    ) : chapterDetail?.questionBlocks?.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground text-sm border rounded-xl border-dashed">
+                        Chưa có câu hỏi nào. Bấm "Thêm câu hỏi" để lấy từ Ngân hàng.
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {chapterDetail?.questionBlocks?.map((block, index) => (
+                          <div key={block.id} className="flex items-center gap-3 p-3 rounded-xl border bg-card">
+                            <div className="flex flex-col gap-1 shrink-0">
+                              <Button 
+                                variant="ghost" size="icon" className="h-5 w-5" 
+                                onClick={() => handleMove(index, 'up')}
+                                disabled={index === 0 || reorderQuestionsMutation.isPending}
+                              >
+                                <ArrowUp className="h-3 w-3" />
+                              </Button>
+                              <Button 
+                                variant="ghost" size="icon" className="h-5 w-5"
+                                onClick={() => handleMove(index, 'down')}
+                                disabled={index === chapterDetail.questionBlocks.length - 1 || reorderQuestionsMutation.isPending}
+                              >
+                                <ArrowDown className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{block.title}</p>
+                              <p className="text-xs text-muted-foreground font-mono mt-0.5">ID: {block.questionId}</p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-muted-foreground hover:text-destructive"
+                              onClick={() => handleRemoveQuestion(block.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </>
               ) : (
@@ -234,6 +341,57 @@ export default function AdminChaptersPage() {
           </Card>
         </div>
       </div>
+
+      {/* Add Question Modal */}
+      <Dialog open={isAddingQuestion} onOpenChange={setIsAddingQuestion}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Thêm câu hỏi từ Ngân hàng</DialogTitle>
+            <DialogDescription>
+              Chọn câu hỏi bạn muốn thêm vào chương {activeChapter?.title}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Tìm kiếm câu hỏi..." 
+                className="pl-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            
+            <div className="max-h-[60vh] overflow-y-auto space-y-2 pr-2">
+              {isLoadingQuestions ? (
+                <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : filteredQuestions.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">Không tìm thấy câu hỏi phù hợp.</div>
+              ) : (
+                filteredQuestions.map((q) => (
+                  <div key={q.rawId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium line-clamp-2">{q.title}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-[10px]">{q.id}</Badge>
+                        <Badge variant="secondary" className="text-[10px]">{q.type}</Badge>
+                        {q.isCritical && <Badge variant="destructive" className="text-[10px]">Điểm liệt</Badge>}
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleAddQuestion(q)}
+                      disabled={addQuestionMutation.isPending}
+                    >
+                      Thêm
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
