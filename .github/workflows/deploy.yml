@@ -46,6 +46,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
+          timeout: 30m
           script: |
             set -euo pipefail
             docker network create dts-network || true
@@ -53,8 +54,8 @@ jobs:
             cd ${{ env.DEPLOY_DIR }}
             docker login ghcr.io -u phamthanhlong100504-xpnd -p ${{ secrets.GHCR_TOKEN }}
             mv -f docker-compose.prod.yml docker-compose.yml
+            docker image prune -a -f
             docker compose pull
             docker compose up -d
             # Xác nhận container thật sự đang chạy — bắt fail ngầm
             docker compose ps -a | grep -q Up || { echo "ERROR: dts-frontend not running"; exit 1; }
-            docker image prune -a -f
