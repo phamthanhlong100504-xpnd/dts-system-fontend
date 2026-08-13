@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, FileText, Clock, Award } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { RequireAuth } from "@/components/require-auth";
 
 export default function ExaminationListPage() {
   const { data: response, isLoading } = useAvailableExams();
