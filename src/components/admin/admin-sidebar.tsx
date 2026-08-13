@@ -9,6 +9,7 @@ import {
   FolderTree,
   Settings,
   ShieldCheck,
+  LogOut,
 } from "lucide-react";
 
 export interface NavItem {
@@ -94,9 +95,18 @@ export function AdminSidebar() {
           })}
         </nav>
 
-        {/* User Profile Snippet in Sidebar */}
-        <div className="mt-auto pt-4 border-t border-border flex items-center gap-3 px-2">
-          <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+        <div className="mt-auto space-y-4">
+          <Link
+            href="/"
+            className="flex items-center gap-3 px-4 py-2 mx-2 rounded-xl font-medium text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-150"
+          >
+            <LogOut className="h-5 w-5 shrink-0" />
+            <span>Giao diện học viên</span>
+          </Link>
+          
+          {/* User Profile Snippet in Sidebar */}
+          <div className="pt-4 border-t border-border flex items-center gap-3 px-2">
+            <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
             A
           </div>
           <div className="flex flex-col overflow-hidden">
