@@ -54,6 +54,8 @@ jobs:
             cd ${{ env.DEPLOY_DIR }}
             docker login ghcr.io -u phamthanhlong100504-xpnd -p ${{ secrets.GHCR_TOKEN }}
             mv -f docker-compose.prod.yml docker-compose.yml
+            df -h
+            docker builder prune -a -f || true
             docker image prune -a -f
             docker compose pull
             docker compose up -d
