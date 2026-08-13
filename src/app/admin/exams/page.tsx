@@ -359,8 +359,8 @@ export default function AdminExamsPage() {
                           </Button>
                         )}
 
-                        <Link href="/admin/exams/structures/create">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Cấu hình ma trận">
+                        <Link href={`/admin/exams/${exam.id}`}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Cấu hình & Phiên bản">
                             <Settings2 className="h-4 w-4" />
                           </Button>
                         </Link>

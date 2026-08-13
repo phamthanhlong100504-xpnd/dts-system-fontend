@@ -44,8 +44,8 @@ export async function getExamSession(sessionId: string) {
 }
 
 export async function getExamPaper(sessionId: string) {
-  const data = await examinationApi.get<unknown>(`/v1/exam-sessions/${sessionId}/paper`);
-  return data as ExamQuestion[];
+  const data = await examinationApi.get<any>(`/v1/exam-sessions/${sessionId}/paper`);
+  return (data.questions || []) as ExamQuestion[];
 }
 
 export async function saveAnswer(sessionId: string, payload: SubmitAnswerRequest) {

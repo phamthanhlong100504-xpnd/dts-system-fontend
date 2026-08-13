@@ -62,7 +62,14 @@ export default function ExamRunPage() {
 
       <div className="flex-1 flex flex-col md:flex-row gap-6">
         <div className="flex-1">
-          {currentQuestion ? (
+          {paper.length === 0 ? (
+            <Card className="rounded-2xl shadow-sm border h-full flex items-center justify-center p-8">
+              <div className="text-center space-y-4">
+                <div className="text-xl font-bold text-muted-foreground">Bài thi này chưa có câu hỏi nào</div>
+                <p className="text-sm text-muted-foreground">Vui lòng liên hệ quản trị viên để cập nhật đề thi.</p>
+              </div>
+            </Card>
+          ) : currentQuestion ? (
             <Card className="rounded-2xl shadow-sm border h-full">
               <CardContent className="p-8 space-y-6">
                 <div className="font-bold text-xl">Câu {currentIndex + 1}: {currentQuestion.questionText}</div>

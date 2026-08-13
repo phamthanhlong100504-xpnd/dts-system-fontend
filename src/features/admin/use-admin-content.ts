@@ -24,6 +24,10 @@ import {
   createExamApi,
   changeExamStatusApi,
   deleteExamApi,
+  fetchAdminExamVersions,
+  createExamVersionApi,
+  publishExamVersionApi,
+  deleteExamVersionApi,
 } from "./admin-examination-service";
 
 /* ==================== QUESTIONS ==================== */
@@ -162,6 +166,46 @@ export function useDeleteExam() {
     mutationFn: (id: string) => deleteExamApi(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
+    },
+  });
+}
+
+/* ==================== EXAM VERSIONS ==================== */
+export function useAdminExamVersions(examId: string) {
+  return useQuery({
+    queryKey: ["admin", "exams", examId, "versions"],
+    queryFn: () => fetchAdminExamVersions(examId),
+    enabled: !!examId,
+  });
+}
+
+export function useCreateExamVersion(examId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { title: string; examType: string; contentType: string; contentId: string }) =>
+      createExamVersionApi(examId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exams", examId, "versions"] });
+    },
+  });
+}
+
+export function usePublishExamVersion(examId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (versionId: string) => publishExamVersionApi(versionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exams", examId, "versions"] });
+    },
+  });
+}
+
+export function useDeleteExamVersion(examId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (versionId: string) => deleteExamVersionApi(versionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exams", examId, "versions"] });
     },
   });
 }

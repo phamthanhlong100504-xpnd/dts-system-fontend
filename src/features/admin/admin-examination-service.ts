@@ -65,3 +65,44 @@ export async function changeExamStatusApi(id: string, status: "DRAFT" | "PUBLISH
 export async function deleteExamApi(id: string) {
   return await examinationApi.delete<void>(`/v1/exams/${id}`);
 }
+
+/* ==================== EXAM VERSIONS ==================== */
+
+export interface ExamVersionItem {
+  id: string;
+  examId: string;
+  versionNo: number;
+  title: string;
+  examType: string;
+  contentType: string;
+  contentId: string;
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  createdAt: string;
+}
+
+export async function fetchAdminExamVersions(examId: string): Promise<ExamVersionItem[]> {
+  if (!examId) return [];
+  try {
+    const res = await examinationApi.get<any>(`/v1/exams/${examId}/versions?size=100`);
+    return Array.isArray(res?.content) ? res.content : Array.isArray(res) ? res : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function createExamVersionApi(examId: string, payload: {
+  title: string;
+  examType: string;
+  contentType: string;
+  contentId: string;
+}) {
+  return await examinationApi.post<any>(`/v1/exams/${examId}/versions`, payload);
+}
+
+export async function publishExamVersionApi(versionId: string) {
+  return await examinationApi.post<any>(`/v1/exam-versions/${versionId}/publish`);
+}
+
+export async function deleteExamVersionApi(versionId: string) {
+  return await examinationApi.delete<void>(`/v1/exam-versions/${versionId}`);
+}
