@@ -119,6 +119,7 @@ export function AdminSidebar() {
           </div>
         </div>
       </div>
+      </div>
     </aside>
   );
 }
