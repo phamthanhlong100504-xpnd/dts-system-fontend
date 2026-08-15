@@ -43,6 +43,7 @@ export function SiteHeader() {
             <NavLink href="/practice/history">Lịch sử thi</NavLink>
             <NavLink href="/practice/leaderboard">Bảng xếp hạng</NavLink>
             <NavLink href="/progress">Tiến độ</NavLink>
+            <NavLink href="/results">Kết quả</NavLink>
             <NavLink href="/profile">Hồ sơ</NavLink>
             {isAdmin && (
               <DropdownMenu>

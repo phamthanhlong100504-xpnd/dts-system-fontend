@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { createExamStructureApi } from "@/features/admin/admin-examination-service";
+import { ApiError } from "@/lib/api";
 
 interface ChapterMatrix {
   id: number;
@@ -18,11 +20,19 @@ interface ChapterMatrix {
   count: number;
 }
 
+/** Tổng số câu chuẩn theo hạng (quy định sát hạch GPLX) */
+const TARGET_TOTAL: Record<string, number> = {
+  A1: 25,
+  A2: 25,
+  B1: 30,
+  B2: 35,
+  C: 40,
+};
+
 export default function ExamMatrixBuilderPage() {
   const router = useRouter();
-  const targetTotal = 35;
-
   const [licenseType, setLicenseType] = useState("B2");
+  const targetTotal = TARGET_TOTAL[licenseType] ?? 35;
   const [criticalCount, setCriticalCount] = useState(2);
   const [chapters, setChapters] = useState<ChapterMatrix[]>([
     { id: 1, title: "Chương 1: Quy tắc giao thông đường bộ", description: "Khái niệm và quy tắc giao thông", count: 10 },
@@ -33,6 +43,7 @@ export default function ExamMatrixBuilderPage() {
     { id: 6, title: "Chương 6: Sa hình & Xử lý tình huống", description: "Giải thế sa hình và kỹ năng xử lý", count: 9 },
   ]);
 
+  const [saving, setSaving] = useState(false);
   const currentTotal = chapters.reduce((sum, ch) => sum + ch.count, 0);
   const percentComplete = Math.min(100, Math.round((currentTotal / targetTotal) * 100));
 
@@ -40,13 +51,41 @@ export default function ExamMatrixBuilderPage() {
     setChapters(chapters.map((ch) => (ch.id === id ? { ...ch, count: Math.max(0, val) } : ch)));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (currentTotal !== targetTotal) {
       toast.error(`Tổng số câu hỏi hiện tại (${currentTotal}) chưa đúng với quy định hạng ${licenseType} (${targetTotal} câu).`);
       return;
     }
-    toast.success("Đã lưu cấu hình ma trận đề thi thành công!");
-    setTimeout(() => router.push("/admin/exams"), 800);
+    setSaving(true);
+    try {
+      await createExamStructureApi({
+        title: `Ma trận đề thi hạng ${licenseType}`,
+        sections: chapters
+          .filter((ch) => ch.count > 0)
+          .map((ch, i) => ({
+            code: `CH${ch.id}`,
+            title: ch.title,
+            questionCount: ch.count,
+            score: ch.count,
+            order: i + 1,
+          })),
+        metadata: {
+          licenseType,
+          criticalCount,
+          totalQuestions: targetTotal,
+        },
+      });
+      toast.success("Đã lưu cấu hình ma trận đề thi thành công!");
+      setTimeout(() => router.push("/admin/exams"), 800);
+    } catch (err) {
+      toast.error(
+        err instanceof ApiError
+          ? `Lưu ma trận thất bại: ${err.message}`
+          : "Lưu ma trận thất bại. Kiểm tra service dts-examination."
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -84,9 +123,9 @@ export default function ExamMatrixBuilderPage() {
             <option value="B2">Hạng B2 (35 câu)</option>
             <option value="C">Hạng C (40 câu)</option>
           </select>
-          <Button onClick={handleSave} className="gap-2">
+          <Button onClick={handleSave} disabled={saving} className="gap-2">
             <Save className="h-4 w-4" />
-            Lưu ma trận
+            {saving ? "Đang lưu..." : "Lưu ma trận"}
           </Button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   CheckCircle2,
   Flame,
@@ -37,11 +38,16 @@ export default function ProgressPage() {
   return (
     <RequireAuth>
       <div className="container space-y-6 py-8">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Tiến độ học tập</h1>
-          <p className="text-sm text-muted-foreground">
-            Thống kê tổng hợp từ dts-progress
-          </p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Tiến độ học tập</h1>
+            <p className="text-sm text-muted-foreground">
+              Thống kê tổng hợp từ dts-progress
+            </p>
+          </div>
+          <Link href="/results" className="text-sm text-primary hover:underline">
+            Xem Kết quả & Thống kê →
+          </Link>
         </div>
         <DashboardContent />
       </div>

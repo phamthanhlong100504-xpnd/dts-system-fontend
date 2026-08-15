@@ -85,6 +85,21 @@
   --sidebar-ring: #0053db;
 }
 
+/* Palette chart (single-series) — tham chiếu dataviz palette, đổi theo dark mode */
+:root {
+  --chart-series: #2a78d6;
+  --chart-ink: #52514e;
+  --chart-muted: #898781;
+  --chart-grid: #e1e0d9;
+}
+
+.dark {
+  --chart-series: #3987e5;
+  --chart-ink: #c3c2b7;
+  --chart-muted: #898781;
+  --chart-grid: #2c2c2a;
+}
+
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);

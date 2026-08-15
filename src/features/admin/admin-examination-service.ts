@@ -106,3 +106,21 @@ export async function publishExamVersionApi(versionId: string) {
 export async function deleteExamVersionApi(versionId: string) {
   return await examinationApi.delete<void>(`/v1/exam-versions/${versionId}`);
 }
+
+/* ==================== EXAM STRUCTURES (Ma trận đề thi) ==================== */
+
+export interface ExamStructureSection {
+  code: string;
+  title: string;
+  questionCount: number;
+  score: number;
+  order: number;
+}
+
+export async function createExamStructureApi(payload: {
+  title: string;
+  sections: ExamStructureSection[];
+  metadata?: Record<string, unknown>;
+}) {
+  return await examinationApi.post<any>("/v1/exam-structures", payload);
+}

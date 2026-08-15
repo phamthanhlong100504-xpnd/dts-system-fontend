@@ -23,42 +23,6 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useAdminExams, useCreateExam, useChangeExamStatus, useDeleteExam } from "@/features/admin/use-admin-content";
 
-const FALLBACK_EXAM_SETS = [
-  {
-    id: "ex-1",
-    code: "EX-B2-01",
-    title: "Đề thi sát hạch lý thuyết B2 — Bộ đề 01",
-    licenseType: "B2",
-    questionsCount: 35,
-    durationMinutes: 22,
-    passScore: 32,
-    status: "PUBLISHED",
-    updatedAt: "10/08/2026",
-  },
-  {
-    id: "ex-2",
-    code: "EX-B2-02",
-    title: "Đề thi sát hạch lý thuyết B2 — Bộ đề 02",
-    licenseType: "B2",
-    questionsCount: 35,
-    durationMinutes: 22,
-    passScore: 32,
-    status: "PUBLISHED",
-    updatedAt: "09/08/2026",
-  },
-  {
-    id: "ex-3",
-    code: "EX-A1-01",
-    title: "Bộ đề sát hạch xe máy A1 — Đề 01",
-    licenseType: "A1",
-    questionsCount: 25,
-    durationMinutes: 19,
-    passScore: 21,
-    status: "PUBLISHED",
-    updatedAt: "08/08/2026",
-  },
-];
-
 export default function AdminExamsPage() {
   const { data: apiExams = [], isLoading } = useAdminExams();
   const createMutation = useCreateExam();
@@ -75,8 +39,7 @@ export default function AdminExamsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
 
-  // Combine real API exams with fallbacks if API list is empty
-  const examSets = apiExams.length > 0 ? apiExams : FALLBACK_EXAM_SETS;
+  const examSets = apiExams;
 
   const filteredExams = examSets.filter((item) => {
     if (selectedLicense !== "ALL" && item.licenseType !== selectedLicense) return false;
@@ -218,7 +181,12 @@ export default function AdminExamsPage() {
           { label: "Tổng số bộ đề", value: examSets.length, icon: BookOpen, color: "text-primary" },
           { label: "Đã xuất bản", value: examSets.filter((e) => e.status === "PUBLISHED").length, icon: CheckCircle2, color: "text-emerald-500" },
           { label: "Bản nháp", value: examSets.filter((e) => e.status === "DRAFT").length, icon: Clock, color: "text-amber-500" },
-          { label: "Lượt thi hoàn thành", value: "12,450", icon: Award, color: "text-purple-500" },
+          {
+            label: "Tổng câu hỏi trong các bộ đề",
+            value: examSets.reduce((sum, e) => sum + (e.questionsCount || 0), 0).toLocaleString("vi-VN"),
+            icon: Award,
+            color: "text-purple-500",
+          },
         ].map((stat) => {
           const Icon = stat.icon;
           return (

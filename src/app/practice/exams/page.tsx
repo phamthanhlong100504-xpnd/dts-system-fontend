@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Search,
   Clock,
@@ -14,77 +14,76 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { useStartExamAndGo } from "@/features/practice/use-practice";
+import {
+  useExamHistory,
+  useStartExamAndGo,
+} from "@/features/practice/use-practice";
+import type { ExamHistoryEntry } from "@/features/practice/practice-service";
 
-interface ExamSetCard {
-  id: string;
-  code: string;
-  title: string;
+/**
+ * Cấu hình bộ đề theo hạng — spec chuẩn sát hạch GPLX (Cục Đường bộ).
+ * Practice service KHÔNG có endpoint liệt kê bộ đề: `startExam` nhận
+ * examType/totalQuestions/durationMinutes. Vì vậy phần danh sách là cấu hình
+ * miền (tương tự CHAPTER_META); phần lịch sử & "lần thi gần nhất" lấy từ API thật.
+ */
+const EXAM_SETS: {
   licenseType: string;
   questionsCount: number;
   durationMinutes: number;
   passScore: number;
-  lastAttempt?: { score: number; passed: boolean; date: string };
+}[] = [
+  { licenseType: "A1", questionsCount: 25, durationMinutes: 19, passScore: 21 },
+  { licenseType: "B1", questionsCount: 30, durationMinutes: 20, passScore: 27 },
+  { licenseType: "B2", questionsCount: 35, durationMinutes: 22, passScore: 32 },
+  { licenseType: "C", questionsCount: 40, durationMinutes: 24, passScore: 36 },
+  { licenseType: "D", questionsCount: 45, durationMinutes: 26, passScore: 41 },
+  { licenseType: "E", questionsCount: 45, durationMinutes: 26, passScore: 41 },
+  { licenseType: "F", questionsCount: 45, durationMinutes: 26, passScore: 41 },
+];
+
+const HISTORY_PAGE_SIZE = 20;
+
+function titleFor(licenseType: string) {
+  return `Đề thi sát hạch lý thuyết GPLX Hạng ${licenseType}`;
 }
 
-const EXAM_LIST: ExamSetCard[] = [
-  {
-    id: "ex-b2-1",
-    code: "ĐỀ SỐ 01",
-    title: "Đề thi sát hạch lý thuyết GPLX Hạng B2 — Bộ đề 01",
-    licenseType: "B2",
-    questionsCount: 35,
-    durationMinutes: 22,
-    passScore: 32,
-    lastAttempt: { score: 34, passed: true, date: "10/08/2026" },
-  },
-  {
-    id: "ex-b2-2",
-    code: "ĐỀ SỐ 02",
-    title: "Đề thi sát hạch lý thuyết GPLX Hạng B2 — Bộ đề 02",
-    licenseType: "B2",
-    questionsCount: 35,
-    durationMinutes: 22,
-    passScore: 32,
-    lastAttempt: { score: 30, passed: false, date: "09/08/2026" },
-  },
-  {
-    id: "ex-b2-3",
-    code: "ĐỀ SỐ 03",
-    title: "Đề thi sát hạch lý thuyết GPLX Hạng B2 — Bộ đề 03",
-    licenseType: "B2",
-    questionsCount: 35,
-    durationMinutes: 22,
-    passScore: 32,
-  },
-  {
-    id: "ex-a1-1",
-    code: "ĐỀ SỐ 01",
-    title: "Đề thi sát hạch lý thuyết GPLX Hạng A1 — Bộ đề 01",
-    licenseType: "A1",
-    questionsCount: 25,
-    durationMinutes: 19,
-    passScore: 21,
-    lastAttempt: { score: 24, passed: true, date: "08/08/2026" },
-  },
-];
-
-const HISTORY_LIST = [
-  { id: "h1", examTitle: "Đề thi sát hạch B2 - Bộ đề 01", score: "34/35", status: "ĐẠT", date: "10/08/2026 14:30", timeSpent: "14 phút 20 giây" },
-  { id: "h2", examTitle: "Đề thi sát hạch B2 - Bộ đề 02", score: "30/35", status: "TRƯỢT", date: "09/08/2026 10:15", timeSpent: "18 phút 05 giây" },
-  { id: "h3", examTitle: "Đề thi sát hạch A1 - Bộ đề 01", score: "24/25", status: "ĐẠT", date: "08/08/2026 16:45", timeSpent: "11 phút 30 giây" },
-];
+function formatTime(iso?: string) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleString("vi-VN", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
 
 export default function StudentExamsListPage() {
-  const [selectedLicense, setSelectedLicense] = useState("B2");
+  const [selectedLicense, setSelectedLicense] = useState("ALL");
   const [activeTab, setActiveTab] = useState<"EXAMS" | "HISTORY">("EXAMS");
   const [searchQuery, setSearchQuery] = useState("");
   const startAndGo = useStartExamAndGo();
 
-  const filteredExams = EXAM_LIST.filter((e) => {
+  // Lịch sử thật (dùng chung cho tab Lịch sử + "lần thi gần nhất" trên card)
+  const { data: historyData, isLoading: historyLoading } = useExamHistory(0, 50);
+
+  // Lần thi gần nhất theo từng hạng (API trả sort startedAt desc → lấy entry đầu tiên)
+  const lastAttempts = useMemo(() => {
+    const map = new Map<string, ExamHistoryEntry>();
+    for (const h of historyData?.content ?? []) {
+      if (h.status === "IN_PROGRESS") continue;
+      const key = h.examType ?? "";
+      if (key && !map.has(key)) map.set(key, h);
+    }
+    return map;
+  }, [historyData]);
+
+  const filteredExams = EXAM_SETS.filter((e) => {
     if (selectedLicense !== "ALL" && e.licenseType !== selectedLicense) return false;
-    if (searchQuery && !e.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (
+      searchQuery &&
+      !titleFor(e.licenseType).toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
     return true;
   });
 
@@ -121,7 +120,9 @@ export default function StudentExamsListPage() {
         <button
           onClick={() => setActiveTab("EXAMS")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-colors ${
-            activeTab === "EXAMS" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+            activeTab === "EXAMS"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-muted"
           }`}
         >
           <FileText className="h-4 w-4" /> Danh sách Bộ đề
@@ -129,7 +130,9 @@ export default function StudentExamsListPage() {
         <button
           onClick={() => setActiveTab("HISTORY")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-colors ${
-            activeTab === "HISTORY" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+            activeTab === "HISTORY"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-muted"
           }`}
         >
           <History className="h-4 w-4" /> Lịch sử làm bài
@@ -141,7 +144,7 @@ export default function StudentExamsListPage() {
           {/* License Filter Pills */}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap gap-2">
-              {["ALL", "A1", "A2", "B1", "B2", "C"].map((lic) => (
+              {["ALL", ...EXAM_SETS.map((e) => e.licenseType)].map((lic) => (
                 <Button
                   key={lic}
                   variant={selectedLicense === lic ? "default" : "outline"}
@@ -165,103 +168,204 @@ export default function StudentExamsListPage() {
           </div>
 
           {/* Exam Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredExams.map((exam) => (
-              <Card key={exam.id} className="rounded-2xl border shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-start justify-between">
-                    <Badge variant="outline" className="font-mono font-bold text-xs">
-                      {exam.code}
-                    </Badge>
-                    <Badge className="bg-primary/10 text-primary hover:bg-primary/10 font-bold">
-                      Hạng {exam.licenseType}
-                    </Badge>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-base text-foreground leading-snug line-clamp-2">
-                      {exam.title}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-2 flex items-center gap-3">
-                      <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> {exam.questionsCount} câu</span>
-                      <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {exam.durationMinutes} phút</span>
-                      <span className="flex items-center gap-1"><Award className="h-3.5 w-3.5" /> Đạt ≥{exam.passScore}</span>
-                    </p>
-                  </div>
+          {historyLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-64 rounded-2xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredExams.map((exam) => {
+                const last = lastAttempts.get(exam.licenseType);
+                return (
+                  <Card
+                    key={exam.licenseType}
+                    className="rounded-2xl border shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                  >
+                    <CardContent className="p-6 space-y-4">
+                      <div className="flex items-start justify-between">
+                        <Badge variant="outline" className="font-mono font-bold text-xs">
+                          ĐỀ {exam.licenseType}
+                        </Badge>
+                        <Badge className="bg-primary/10 text-primary hover:bg-primary/10 font-bold">
+                          Hạng {exam.licenseType}
+                        </Badge>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-base text-foreground leading-snug line-clamp-2">
+                          {titleFor(exam.licenseType)}
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-2 flex items-center gap-3">
+                          <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> {exam.questionsCount} câu</span>
+                          <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {exam.durationMinutes} phút</span>
+                          <span className="flex items-center gap-1"><Award className="h-3.5 w-3.5" /> Đạt ≥{exam.passScore}</span>
+                        </p>
+                      </div>
 
-                  {exam.lastAttempt ? (
-                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-muted/30 text-xs">
-                      <span className="text-muted-foreground">Lần thi gần nhất:</span>
-                      <Badge variant={exam.lastAttempt.passed ? "default" : "destructive"} className="text-[10px]">
-                        {exam.lastAttempt.passed ? `ĐẠT (${exam.lastAttempt.score}/${exam.questionsCount})` : `TRƯỢT (${exam.lastAttempt.score}/${exam.questionsCount})`}
-                      </Badge>
-                    </div>
-                  ) : (
-                    <div className="p-2.5 rounded-xl bg-muted/20 text-xs text-muted-foreground text-center">
-                      Chưa từng thi bài này
-                    </div>
-                  )}
+                      {last ? (
+                        <div className="flex items-center justify-between p-2.5 rounded-xl bg-muted/30 text-xs">
+                          <span className="text-muted-foreground">Lần thi gần nhất:</span>
+                          <Badge variant={last.passed ? "default" : "destructive"} className="text-[10px]">
+                            {last.passed
+                              ? `ĐẠT (${last.correctCount ?? 0}/${last.totalQuestions ?? exam.questionsCount})`
+                              : `TRƯỢT (${last.correctCount ?? 0}/${last.totalQuestions ?? exam.questionsCount})`}
+                          </Badge>
+                        </div>
+                      ) : (
+                        <div className="p-2.5 rounded-xl bg-muted/20 text-xs text-muted-foreground text-center">
+                          Chưa từng thi bài này
+                        </div>
+                      )}
 
-                  <div className="block pt-2">
-                    <Button
-                      onClick={() =>
-                        startAndGo.mutate({
-                          examType: exam.licenseType,
-                          totalQuestions: exam.questionsCount,
-                          durationMinutes: exam.durationMinutes,
-                          mode: "EXAM",
-                        })
-                      }
-                      disabled={startAndGo.isPending}
-                      className="w-full gap-2 font-bold"
-                    >
-                      {startAndGo.isPending ? "Đang tạo..." : "Bắt đầu làm bài"}
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      <div className="block pt-2">
+                        <Button
+                          onClick={() =>
+                            startAndGo.mutate({
+                              examType: exam.licenseType,
+                              totalQuestions: exam.questionsCount,
+                              durationMinutes: exam.durationMinutes,
+                              mode: "EXAM",
+                            })
+                          }
+                          disabled={startAndGo.isPending}
+                          className="w-full gap-2 font-bold"
+                        >
+                          {startAndGo.isPending ? "Đang tạo..." : "Bắt đầu làm bài"}
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+              {filteredExams.length === 0 && (
+                <p className="col-span-full text-center text-sm text-muted-foreground py-10">
+                  Không tìm thấy bộ đề phù hợp.
+                </p>
+              )}
+            </div>
+          )}
         </>
       ) : (
-        /* History View */
-        <Card className="rounded-2xl shadow-sm border overflow-hidden">
-          <CardContent className="p-0">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-muted/50 border-b text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <tr>
-                  <th className="py-3.5 px-4">Tên bài thi</th>
-                  <th className="py-3.5 px-4">Thời gian</th>
-                  <th className="py-3.5 px-4">Thời gian làm</th>
-                  <th className="py-3.5 px-4">Điểm số</th>
-                  <th className="py-3.5 px-4">Trạng thái</th>
-                  <th className="py-3.5 px-4 text-right">Chi tiết</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {HISTORY_LIST.map((h) => (
-                  <tr key={h.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="py-4 px-4 font-medium text-foreground">{h.examTitle}</td>
-                    <td className="py-4 px-4 text-xs text-muted-foreground">{h.date}</td>
-                    <td className="py-4 px-4 text-xs text-muted-foreground">{h.timeSpent}</td>
-                    <td className="py-4 px-4 font-bold">{h.score}</td>
-                    <td className="py-4 px-4">
-                      <Badge className={h.status === "ĐẠT" ? "bg-emerald-500 text-white" : "bg-destructive text-white"}>
-                        {h.status}
-                      </Badge>
-                    </td>
-                    <td className="py-4 px-4 text-right">
-                      <Link href={`/practice/result/${h.id}`}>
-                        <Button variant="ghost" size="sm" className="text-xs">Xem bài làm →</Button>
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
+        <HistoryTab />
       )}
     </div>
+  );
+}
+
+function HistoryTab() {
+  const [page, setPage] = useState(0);
+  const { data, isLoading, isError } = useExamHistory(page, HISTORY_PAGE_SIZE);
+
+  if (isLoading && !data) {
+    return (
+      <div className="space-y-2">
+        <Skeleton className="h-12" />
+        <Skeleton className="h-12" />
+        <Skeleton className="h-12" />
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <p className="text-sm text-destructive">
+        Không tải được lịch sử làm bài. Kiểm tra service dts-practice.
+      </p>
+    );
+  }
+
+  const rows = data.content ?? [];
+
+  return (
+    <Card className="rounded-2xl shadow-sm border overflow-hidden">
+      <CardContent className="p-0">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-muted/50 border-b text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <tr>
+              <th className="py-3.5 px-4">Hạng</th>
+              <th className="py-3.5 px-4">Loại</th>
+              <th className="py-3.5 px-4">Đúng/Sai</th>
+              <th className="py-3.5 px-4">Điểm</th>
+              <th className="py-3.5 px-4">Kết quả</th>
+              <th className="py-3.5 px-4">Thời gian</th>
+              <th className="py-3.5 px-4 text-right">Chi tiết</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {rows.map((h: ExamHistoryEntry) => (
+              <tr key={h.examId} className="hover:bg-muted/30 transition-colors">
+                <td className="py-4 px-4 font-medium text-foreground">{h.examType}</td>
+                <td className="py-4 px-4">
+                  {h.mode === "PRACTICE" ? (
+                    <Badge variant="secondary">Luyện tập</Badge>
+                  ) : (
+                    <Badge>Thi thử</Badge>
+                  )}
+                </td>
+                <td className="py-4 px-4">
+                  <span className="text-emerald-600">{h.correctCount ?? 0}</span>
+                  {" / "}
+                  <span className="text-destructive">{h.wrongCount ?? 0}</span>
+                </td>
+                <td className="py-4 px-4 font-bold">{h.score ?? 0}</td>
+                <td className="py-4 px-4">
+                  {h.status === "IN_PROGRESS" ? (
+                    <Badge variant="outline">Đang làm</Badge>
+                  ) : h.passed ? (
+                    <Badge className="bg-emerald-500 text-white">ĐẠT</Badge>
+                  ) : (
+                    <Badge className="bg-destructive text-white">TRƯỢT</Badge>
+                  )}
+                </td>
+                <td className="py-4 px-4 text-xs text-muted-foreground">{formatTime(h.startedAt)}</td>
+                <td className="py-4 px-4 text-right">
+                  {h.status === "IN_PROGRESS" ? (
+                    <Link href={`/practice/exam/${h.examId}`}>
+                      <Button variant="ghost" size="sm" className="text-xs">Tiếp tục →</Button>
+                    </Link>
+                  ) : (
+                    <Link href={`/practice/result/${h.examId}`}>
+                      <Button variant="ghost" size="sm" className="text-xs">Xem bài làm →</Button>
+                    </Link>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={7} className="h-24 text-center text-muted-foreground">
+                  Chưa có bài thi nào
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </CardContent>
+      {(data.totalPages ?? 0) > 1 && (
+        <div className="flex items-center justify-between border-t px-4 py-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={data.first}
+          >
+            Trang trước
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Trang {(data.number ?? 0) + 1} / {data.totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={data.last}
+          >
+            Trang sau
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 }

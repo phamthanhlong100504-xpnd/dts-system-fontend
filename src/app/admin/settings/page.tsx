@@ -48,7 +48,23 @@ const settingsSections = [
   },
 ];
 
+/** Môi trường & gateway hiện tại (dùng chung với next.config.ts rewrites) */
+function systemInfo(): { label: string; value: string }[] {
+  const isProd =
+    typeof window !== "undefined" && window.location.hostname === "hoangcn.com";
+  return [
+    { label: "Phiên bản", value: "v1.0.0" },
+    { label: "Môi trường", value: isProd ? "Production" : "Development" },
+    { label: "Next.js", value: "16.x" },
+    {
+      label: "API Gateway",
+      value: isProd ? "103.75.182.249:8888" : "localhost:8888",
+    },
+  ];
+}
+
 export default function AdminSettingsPage() {
+  const info = systemInfo();
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -107,12 +123,7 @@ export default function AdminSettingsPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            {[
-              { label: "Phiên bản", value: "v1.0.0" },
-              { label: "Môi trường", value: "Development" },
-              { label: "Next.js", value: "16.3.0" },
-              { label: "API Gateway", value: "localhost:8080" },
-            ].map((item) => (
+            {info.map((item) => (
               <div key={item.label} className="space-y-1">
                 <p className="text-muted-foreground">{item.label}</p>
                 <p className="font-mono font-medium">{item.value}</p>
