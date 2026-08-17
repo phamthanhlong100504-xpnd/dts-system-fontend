@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function ExamRulesPage() {

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { ExamStructureSection } from "@/features/admin/admin-examination-service";
 
 export default function ExamStructuresPage() {
