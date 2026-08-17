@@ -24,8 +24,8 @@ export async function fetchAdminExams(): Promise<ExamItem[]> {
         title: e.title || e.name || "Bộ đề thi sát hạch lý thuyết",
         licenseType: e.metadata?.category || e.metadata?.licenseType || "B2",
         questionsCount: e.metadata?.questionsCount || 35,
-        durationMinutes: e.durationMinutes || 22,
-        passScore: e.passScore || 32,
+        durationMinutes: e.metadata?.durationMinutes || e.durationMinutes || 22,
+        passScore: e.metadata?.passScore || e.passScore || 32,
         status: e.status || "DRAFT",
         createdAt: e.createdAt,
         updatedAt: e.updatedAt || e.createdAt,
@@ -53,6 +53,8 @@ export async function createExamApi(payload: {
       category: payload.licenseType || "B2",
       code: payload.code || "EX-B2-NEW",
       questionsCount: 35,
+      durationMinutes: payload.durationMinutes || 22,
+      passScore: payload.passScore || 32,
     },
   };
   return await examinationApi.post<any>("/v1/exams", body);

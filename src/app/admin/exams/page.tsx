@@ -60,7 +60,14 @@ export default function AdminExamsPage() {
       return;
     }
     createMutation.mutate(
-      { title: newName, code: newCode, status: "DRAFT", durationMinutes: 22, passScore: 32 },
+      { 
+        title: newName, 
+        code: newCode, 
+        status: "DRAFT", 
+        durationMinutes: 22, 
+        passScore: 32,
+        licenseType: selectedLicense === "ALL" ? "B2" : selectedLicense
+      },
       {
         onSuccess: () => {
           toast.success("Đã tạo bộ đề thi nháp thành công!");
@@ -101,8 +108,8 @@ export default function AdminExamsPage() {
         toast.success("Đã xóa bộ đề thi thành công.");
         setDeletingId(null);
       },
-      onError: () => {
-        toast.error("Xóa bộ đề thi thất bại.");
+      onError: (err: any) => {
+        toast.error(err.message || "Xóa bộ đề thi thất bại.");
         setDeletingId(null);
       },
     });
@@ -336,10 +343,10 @@ export default function AdminExamsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          disabled={deletingId === exam.id}
+                          disabled={deletingId === exam.id || exam.status === "PUBLISHED"}
                           onClick={() => handleDelete(exam.id, exam.title)}
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          title="Xóa"
+                          className={`h-8 w-8 ${exam.status === "PUBLISHED" ? "text-muted-foreground/30" : "text-muted-foreground hover:text-destructive"}`}
+                          title={exam.status === "PUBLISHED" ? "Không thể xóa bộ đề đã xuất bản" : "Xóa"}
                         >
                           {deletingId === exam.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                         </Button>
