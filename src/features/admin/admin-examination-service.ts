@@ -154,21 +154,42 @@ export async function fetchAdminExamRules() {
   }
 }
 
-export async function createExamRuleApi(payload: {
+export interface ExamRulePayload {
   title: string;
-  code: string;
-  description?: string;
-  status?: string;
-}) {
+  allowRetry: boolean;
+  maxRetry: number;
+  retryIntervalSeconds: number;
+  durationSeconds: number;
+  gracePeriodSeconds: number;
+  autoSubmit: boolean;
+  navigationMode: "FREE" | "SEQUENTIAL";
+  allowSkip: boolean;
+  reviewMode: "NONE" | "CURRENT_SECTION" | "ALL";
+  allowPause: boolean;
+  maxPauseCount: number;
+  maxPauseDurationSeconds: number;
+  allowResume: boolean;
+  resumeTimeoutSeconds: number;
+  shuffleSections: boolean;
+  shuffleQuestionsWithinSection: boolean;
+  shuffleQuestionsAcrossSections: boolean;
+  shuffleOptions: boolean;
+  resultReleaseMode: "IMMEDIATE" | "AFTER_SUBMIT" | "AFTER_EXAM_END" | "MANUAL";
+  showAnswerAfterSubmit: boolean;
+  showExplanationAfterSubmit: boolean;
+  showQuestionScoreAfterSubmit: boolean;
+  requireFullscreen: boolean;
+  preventTabSwitch: boolean;
+  maxTabSwitchCount: number;
+  timeZone?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export async function createExamRuleApi(payload: ExamRulePayload) {
   return await examinationApi.post<any>("/v1/exam-rules", payload);
 }
 
-export async function updateExamRuleApi(ruleId: string, payload: {
-  title: string;
-  code: string;
-  description?: string;
-  status?: string;
-}) {
+export async function updateExamRuleApi(ruleId: string, payload: ExamRulePayload) {
   return await examinationApi.patch<any>(`/v1/exam-rules/${ruleId}`, payload);
 }
 

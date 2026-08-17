@@ -46,6 +46,7 @@ import {
   createExamRuleApi,
   updateExamRuleApi,
   deleteExamRuleApi,
+  ExamRulePayload,
 } from "./admin-examination-service";
 
 /* ==================== QUESTIONS ==================== */
@@ -348,7 +349,7 @@ export function useAdminExamRules() {
 export function useCreateExamRule() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { title: string; code: string; description?: string; status?: string }) =>
+    mutationFn: (payload: ExamRulePayload) =>
       createExamRuleApi(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exam-rules"] });
@@ -359,7 +360,7 @@ export function useCreateExamRule() {
 export function useUpdateExamRule() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: { title: string; code: string; description?: string; status?: string } }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: ExamRulePayload }) =>
       updateExamRuleApi(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exam-rules"] });
