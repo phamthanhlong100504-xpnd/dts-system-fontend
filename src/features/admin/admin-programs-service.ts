@@ -40,6 +40,10 @@ export async function deleteProgramApi(id: string) {
   return await contentBuilderApi.delete<void>(`/v1/learning-programs/${id}`);
 }
 
+export async function updateProgramApi(id: string, payload: { title: string; code?: string; description?: string; status: "DRAFT" | "PUBLISHED" | "ARCHIVED" }) {
+  return await contentBuilderApi.put<any>(`/v1/learning-programs/${id}`, payload);
+}
+
 /* ==================== LEARNING PROGRAM DETAILS & CHAPTER BLOCKS ==================== */
 
 export interface ChapterBlockItem {

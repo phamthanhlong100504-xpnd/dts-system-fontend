@@ -15,7 +15,8 @@ import {
   useAddChapterBlock,
   useDeleteChapterBlock,
   useReorderChapterBlocks,
-  useAdminChapters
+  useAdminChapters,
+  useUpdateProgram
 } from "@/features/admin/use-admin-content";
 import Link from "next/link";
 
@@ -30,10 +31,30 @@ export default function ProgramDetailPage() {
   const addChapterBlock = useAddChapterBlock(programId);
   const deleteChapterBlock = useDeleteChapterBlock(programId);
   const reorderBlocks = useReorderChapterBlocks(programId);
+  const updateProgram = useUpdateProgram();
 
   const [addingChapterId, setAddingChapterId] = useState<string | null>(null);
   const [deletingBlockId, setDeletingBlockId] = useState<string | null>(null);
   const [movingBlockId, setMovingBlockId] = useState<string | null>(null);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
+  const handleUpdateStatus = (newStatus: "PUBLISHED" | "DRAFT" | "ARCHIVED") => {
+    if (!program) return;
+    setIsUpdatingStatus(true);
+    updateProgram.mutate({
+      id: programId,
+      payload: { title: program.title, code: program.code, description: program.description, status: newStatus }
+    }, {
+      onSuccess: () => {
+        toast.success(`Đã cập nhật trạng thái thành ${newStatus}`);
+        setIsUpdatingStatus(false);
+      },
+      onError: () => {
+        toast.error("Cập nhật trạng thái thất bại");
+        setIsUpdatingStatus(false);
+      }
+    });
+  };
 
   const handleAddChapter = (chapterId: string, chapterTitle: string) => {
     setAddingChapterId(chapterId);
@@ -131,6 +152,28 @@ export default function ProgramDetailPage() {
               <Badge variant={program.status === "PUBLISHED" ? "default" : "secondary"} className="text-xs">
                 {program.status}
               </Badge>
+              {program.status === "DRAFT" && (
+                <Button 
+                  size="sm" 
+                  variant="default" 
+                  className="h-6 px-2 text-xs" 
+                  disabled={isUpdatingStatus}
+                  onClick={() => handleUpdateStatus("PUBLISHED")}
+                >
+                  {isUpdatingStatus ? <Loader2 className="h-3 w-3 animate-spin" /> : "Xuất bản"}
+                </Button>
+              )}
+              {program.status === "PUBLISHED" && (
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="h-6 px-2 text-xs text-amber-600 hover:text-amber-700" 
+                  disabled={isUpdatingStatus}
+                  onClick={() => handleUpdateStatus("DRAFT")}
+                >
+                  {isUpdatingStatus ? <Loader2 className="h-3 w-3 animate-spin" /> : "Chuyển về Nháp"}
+                </Button>
+              )}
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">{program.title}</h1>
             <p className="text-sm text-muted-foreground mt-1">

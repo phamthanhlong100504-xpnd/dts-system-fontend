@@ -13,6 +13,7 @@ import {
   fetchAdminPrograms,
   createProgramApi,
   deleteProgramApi,
+  updateProgramApi,
   fetchAdminProgramDetail,
   addChapterBlockApi,
   deleteChapterBlockApi,
@@ -104,6 +105,18 @@ export function useDeleteProgram() {
     mutationFn: (id: string) => deleteProgramApi(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "programs"] });
+    },
+  });
+}
+
+export function useUpdateProgram() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: { title: string; code?: string; description?: string; status: "DRAFT" | "PUBLISHED" | "ARCHIVED" } }) => 
+      updateProgramApi(id, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "programs"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "program-detail", variables.id] });
     },
   });
 }
