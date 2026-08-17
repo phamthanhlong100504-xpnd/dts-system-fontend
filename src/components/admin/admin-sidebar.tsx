@@ -10,6 +10,8 @@ import {
   Settings,
   ShieldCheck,
   LogOut,
+  Layers,
+  FileText
 } from "lucide-react";
 
 export interface NavItem {
@@ -43,6 +45,16 @@ const NAV_ITEMS: NavItem[] = [
     name: "Quản lý đề thi",
     href: "/admin/exams",
     icon: ShieldCheck,
+  },
+  {
+    name: "Cấu trúc đề thi",
+    href: "/admin/exam-structures",
+    icon: Layers,
+  },
+  {
+    name: "Quy chế thi",
+    href: "/admin/exam-rules",
+    icon: FileText,
   },
   {
     name: "Cài đặt",

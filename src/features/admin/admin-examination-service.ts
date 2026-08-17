@@ -153,3 +153,37 @@ export async function fetchAdminExamRules() {
     return [];
   }
 }
+
+export async function createExamRuleApi(payload: {
+  title: string;
+  code: string;
+  description?: string;
+  status?: string;
+}) {
+  return await examinationApi.post<any>("/v1/exam-rules", payload);
+}
+
+export async function updateExamRuleApi(ruleId: string, payload: {
+  title: string;
+  code: string;
+  description?: string;
+  status?: string;
+}) {
+  return await examinationApi.patch<any>(`/v1/exam-rules/${ruleId}`, payload);
+}
+
+export async function deleteExamRuleApi(ruleId: string) {
+  return await examinationApi.delete<void>(`/v1/exam-rules/${ruleId}`);
+}
+
+export async function updateExamStructureApi(structureId: string, payload: {
+  title: string;
+  sections: ExamStructureSection[];
+  metadata?: Record<string, unknown>;
+}) {
+  return await examinationApi.patch<any>(`/v1/exam-structures/${structureId}`, payload);
+}
+
+export async function deleteExamStructureApi(structureId: string) {
+  return await examinationApi.delete<void>(`/v1/exam-structures/${structureId}`);
+}
