@@ -195,7 +195,7 @@ export function useAdminExams() {
 export function useCreateExam() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { name?: string; title?: string; code?: string; durationMinutes?: number; passScore?: number; status?: "DRAFT" | "PUBLISHED" }) =>
+    mutationFn: (payload: { name?: string; title?: string; code?: string; durationMinutes?: number; passScore?: number; status?: "DRAFT" | "PUBLISHED"; licenseType?: string; questionsCount?: number; }) =>
       createExamApi(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
