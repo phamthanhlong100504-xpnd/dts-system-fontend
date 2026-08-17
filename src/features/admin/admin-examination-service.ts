@@ -109,6 +109,10 @@ export async function deleteExamVersionApi(versionId: string) {
   return await examinationApi.delete<void>(`/v1/exam-versions/${versionId}`);
 }
 
+export async function archiveExamVersionApi(versionId: string) {
+  return await examinationApi.post<any>(`/v1/exam-versions/${versionId}/archive`);
+}
+
 /* ==================== EXAM STRUCTURES (Ma trận đề thi) ==================== */
 
 export interface ExamStructureSection {

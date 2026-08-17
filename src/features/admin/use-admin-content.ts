@@ -36,6 +36,7 @@ import {
   createExamVersionApi,
   publishExamVersionApi,
   deleteExamVersionApi,
+  archiveExamVersionApi,
 } from "./admin-examination-service";
 
 /* ==================== QUESTIONS ==================== */
@@ -290,6 +291,16 @@ export function useDeleteExamVersion(examId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (versionId: string) => deleteExamVersionApi(versionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exams", examId, "versions"] });
+    },
+  });
+}
+
+export function useArchiveExamVersion(examId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (versionId: string) => archiveExamVersionApi(versionId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams", examId, "versions"] });
     },

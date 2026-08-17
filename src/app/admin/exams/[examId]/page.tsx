@@ -18,6 +18,7 @@ import {
   useCreateExamVersion, 
   usePublishExamVersion, 
   useDeleteExamVersion,
+  useArchiveExamVersion,
   useAdminChapters,
   useAdminPrograms
 } from "@/features/admin/use-admin-content";
@@ -36,6 +37,7 @@ export default function AdminExamDetailsPage() {
   const createVersionMutation = useCreateExamVersion(examId);
   const publishVersionMutation = usePublishExamVersion(examId);
   const deleteVersionMutation = useDeleteExamVersion(examId);
+  const archiveVersionMutation = useArchiveExamVersion(examId);
 
   // Fetch Contents for selection
   const { data: chapters = [], isLoading: isChaptersLoading } = useAdminChapters();
@@ -48,6 +50,7 @@ export default function AdminExamDetailsPage() {
   const [newContentId, setNewContentId] = useState("");
 
   const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [unpublishingId, setUnpublishingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleCreateVersion = () => {
@@ -92,6 +95,20 @@ export default function AdminExamDetailsPage() {
     });
   };
 
+  const handleArchive = (versionId: string, title: string) => {
+    if (!window.confirm(`Hủy xuất bản phiên bản "${title}" (Chuyển về Lưu trữ)?`)) return;
+    setUnpublishingId(versionId);
+    archiveVersionMutation.mutate(versionId, {
+      onSuccess: () => {
+        toast.success("Đã hủy xuất bản thành công!");
+        setUnpublishingId(null);
+      },
+      onError: (err: any) => {
+        toast.error(err.message || "Hủy xuất bản thất bại.");
+        setUnpublishingId(null);
+      }
+    });
+  };
   const handleDelete = (versionId: string, title: string) => {
     if (!window.confirm(`Xóa phiên bản "${title}"?`)) return;
     setDeletingId(versionId);
@@ -291,12 +308,25 @@ export default function AdminExamDetailsPage() {
                             Xuất bản
                           </Button>
                         )}
+                        {version.status === "PUBLISHED" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs gap-1 font-semibold text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                            disabled={unpublishingId === version.id}
+                            onClick={() => handleArchive(version.id, version.title)}
+                            title="Hủy xuất bản (Chuyển về Lưu trữ)"
+                          >
+                            {unpublishingId === version.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Hủy xuất bản"}
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="icon"
-                          disabled={deletingId === version.id}
+                          disabled={deletingId === version.id || version.status === "PUBLISHED"}
                           onClick={() => handleDelete(version.id, version.title)}
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          className={`h-8 w-8 ${version.status === "PUBLISHED" ? "text-muted-foreground/30" : "text-muted-foreground hover:text-destructive"}`}
+                          title={version.status === "PUBLISHED" ? "Không thể xóa phiên bản đang xuất bản" : "Xóa"}
                         >
                           {deletingId === version.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                         </Button>
