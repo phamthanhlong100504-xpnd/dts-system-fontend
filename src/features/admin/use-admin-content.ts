@@ -38,6 +38,8 @@ import {
   publishExamVersionApi,
   deleteExamVersionApi,
   archiveExamVersionApi,
+  fetchAdminExamStructures,
+  fetchAdminExamRules,
 } from "./admin-examination-service";
 
 /* ==================== QUESTIONS ==================== */
@@ -282,7 +284,7 @@ export function useAdminExamVersions(examId: string) {
 export function useCreateExamVersion(examId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { title: string; examType: string; contentType: string; contentId: string }) =>
+    mutationFn: (payload: { title: string; examType: string; contentType: string; contentId: string; examStructureId: string; examRuleId: string; }) =>
       createExamVersionApi(examId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams", examId, "versions"] });
@@ -317,5 +319,22 @@ export function useArchiveExamVersion(examId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams", examId, "versions"] });
     },
+  });
+}
+
+/* ==================== EXAM STRUCTURES & RULES ==================== */
+export function useAdminExamStructures() {
+  return useQuery({
+    queryKey: ["admin", "exam-structures"],
+    queryFn: fetchAdminExamStructures,
+    staleTime: 30_000,
+  });
+}
+
+export function useAdminExamRules() {
+  return useQuery({
+    queryKey: ["admin", "exam-rules"],
+    queryFn: fetchAdminExamRules,
+    staleTime: 30_000,
   });
 }

@@ -97,6 +97,8 @@ export async function createExamVersionApi(examId: string, payload: {
   examType: string;
   contentType: string;
   contentId: string;
+  examStructureId: string;
+  examRuleId: string;
 }) {
   return await examinationApi.post<any>(`/v1/exams/${examId}/versions`, payload);
 }
@@ -123,10 +125,31 @@ export interface ExamStructureSection {
   order: number;
 }
 
+export async function fetchAdminExamStructures() {
+  try {
+    const res = await examinationApi.get<any>("/v1/exam-structures?size=100");
+    return Array.isArray(res?.content) ? res.content : Array.isArray(res) ? res : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function createExamStructureApi(payload: {
   title: string;
   sections: ExamStructureSection[];
   metadata?: Record<string, unknown>;
 }) {
   return await examinationApi.post<any>("/v1/exam-structures", payload);
+}
+
+/* ==================== EXAM RULES ==================== */
+
+export async function fetchAdminExamRules() {
+  try {
+    const res = await examinationApi.get<any>("/v1/exam-rules?size=100");
+    // Depending on PageResponse format, might be res.content or res.data
+    return Array.isArray(res?.content) ? res.content : Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+  } catch {
+    return [];
+  }
 }

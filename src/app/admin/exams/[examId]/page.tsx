@@ -20,7 +20,9 @@ import {
   useDeleteExamVersion,
   useArchiveExamVersion,
   useAdminChapters,
-  useAdminPrograms
+  useAdminPrograms,
+  useAdminExamStructures,
+  useAdminExamRules
 } from "@/features/admin/use-admin-content";
 
 export default function AdminExamDetailsPage() {
@@ -42,20 +44,24 @@ export default function AdminExamDetailsPage() {
   // Fetch Contents for selection
   const { data: chapters = [], isLoading: isChaptersLoading } = useAdminChapters();
   const { data: programs = [], isLoading: isProgramsLoading } = useAdminPrograms();
+  const { data: examStructures = [], isLoading: isStructuresLoading } = useAdminExamStructures();
+  const { data: examRules = [], isLoading: isRulesLoading } = useAdminExamRules();
 
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newExamType, setNewExamType] = useState("PRACTICE");
   const [newContentType, setNewContentType] = useState("CHAPTER");
   const [newContentId, setNewContentId] = useState("");
+  const [newExamStructureId, setNewExamStructureId] = useState("");
+  const [newExamRuleId, setNewExamRuleId] = useState("");
 
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [unpublishingId, setUnpublishingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleCreateVersion = () => {
-    if (!newTitle.trim() || !newContentId) {
-      toast.error("Vui lòng nhập Tên phiên bản và chọn Nguồn nội dung (Chương/Chương trình)");
+    if (!newTitle.trim() || !newContentId || !newExamStructureId || !newExamRuleId) {
+      toast.error("Vui lòng điền Tên phiên bản, chọn Nguồn nội dung, Cấu trúc đề thi và Quy chế thi");
       return;
     }
     
@@ -65,6 +71,8 @@ export default function AdminExamDetailsPage() {
         examType: newExamType,
         contentType: newContentType,
         contentId: newContentId,
+        examStructureId: newExamStructureId,
+        examRuleId: newExamRuleId,
       },
       {
         onSuccess: () => {
@@ -187,7 +195,7 @@ export default function AdminExamDetailsPage() {
             <h3 className="font-semibold text-sm flex items-center gap-2 text-primary">
               <Layers className="h-4 w-4" /> Thiết lập phiên bản đề thi mới
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-muted-foreground">Tên phiên bản *</label>
                 <Input 
@@ -240,6 +248,30 @@ export default function AdminExamDetailsPage() {
                 </select>
                 {newContentType === "CHAPTER" && isChaptersLoading && <span className="text-xs text-muted-foreground">Đang tải...</span>}
                 {newContentType === "LEARNING_PROGRAM" && isProgramsLoading && <span className="text-xs text-muted-foreground">Đang tải...</span>}
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Cấu trúc đề thi (Ma trận) *</label>
+                <select
+                  value={newExamStructureId}
+                  onChange={(e) => setNewExamStructureId(e.target.value)}
+                  className="w-full h-9 rounded-md border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="" disabled>-- Chọn cấu trúc --</option>
+                  {examStructures.map((s: any) => <option key={s.id} value={s.id}>{s.title}</option>)}
+                </select>
+                {isStructuresLoading && <span className="text-xs text-muted-foreground">Đang tải...</span>}
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Quy chế thi (Rule) *</label>
+                <select
+                  value={newExamRuleId}
+                  onChange={(e) => setNewExamRuleId(e.target.value)}
+                  className="w-full h-9 rounded-md border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="" disabled>-- Chọn quy chế --</option>
+                  {examRules.map((r: any) => <option key={r.id} value={r.id}>{r.title || r.code}</option>)}
+                </select>
+                {isRulesLoading && <span className="text-xs text-muted-foreground">Đang tải...</span>}
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
