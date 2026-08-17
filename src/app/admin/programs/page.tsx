@@ -28,7 +28,7 @@ export default function AdminProgramsPage() {
       return;
     }
     createMutation.mutate(
-      { title: newTitle, code: newCode, description: newDescription, status: "PUBLISHED" },
+      { title: newTitle, code: newCode, description: newDescription, status: "DRAFT" },
       {
         onSuccess: () => {
           toast.success("Đã tạo chương trình học mới!");
@@ -118,7 +118,7 @@ export default function AdminProgramsPage() {
                 Hủy
               </Button>
               <Button size="sm" onClick={handleCreate} disabled={createMutation.isPending}>
-                {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Lưu & Xuất bản"}
+                {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Lưu bản nháp"}
               </Button>
             </div>
           </CardContent>
@@ -195,7 +195,7 @@ export default function AdminProgramsPage() {
                       {program.status}
                     </Badge>
                     <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                      <Link href={`/admin/chapters?programId=${program.id}`}>
+                      <Link href={`/admin/programs/${program.id}`}>
                         <ChevronRight className="h-4 w-4" />
                       </Link>
                     </Button>

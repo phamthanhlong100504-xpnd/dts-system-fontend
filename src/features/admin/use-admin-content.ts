@@ -13,6 +13,10 @@ import {
   fetchAdminPrograms,
   createProgramApi,
   deleteProgramApi,
+  fetchAdminProgramDetail,
+  addChapterBlockApi,
+  deleteChapterBlockApi,
+  reorderChapterBlocksApi,
 } from "./admin-programs-service";
 import {
   fetchAdminChapters,
@@ -99,6 +103,44 @@ export function useDeleteProgram() {
     mutationFn: (id: string) => deleteProgramApi(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "programs"] });
+    },
+  });
+}
+
+export function useAdminProgramDetail(programId: string | null) {
+  return useQuery({
+    queryKey: ["admin", "program-detail", programId],
+    queryFn: () => programId ? fetchAdminProgramDetail(programId) : null,
+    enabled: !!programId,
+  });
+}
+
+export function useAddChapterBlock(programId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { chapterId: string; title: string; status?: string }) => addChapterBlockApi(programId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "program-detail", programId] });
+    },
+  });
+}
+
+export function useDeleteChapterBlock(programId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (blockId: string) => deleteChapterBlockApi(programId, blockId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "program-detail", programId] });
+    },
+  });
+}
+
+export function useReorderChapterBlocks(programId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { id: string; sortOrder: number }[]) => reorderChapterBlocksApi(programId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "program-detail", programId] });
     },
   });
 }
