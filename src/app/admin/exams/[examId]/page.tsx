@@ -322,6 +322,8 @@ export default function AdminExamDetailsPage() {
                     <td className="py-4 px-4">
                       {version.status === "PUBLISHED" ? (
                         <Badge className="bg-emerald-100 text-emerald-700">PUBLISHED</Badge>
+                      ) : version.status === "ARCHIVED" ? (
+                        <Badge variant="secondary" className="bg-slate-100 text-slate-700">ARCHIVED</Badge>
                       ) : (
                         <Badge variant="secondary" className="bg-amber-100 text-amber-700">DRAFT</Badge>
                       )}
