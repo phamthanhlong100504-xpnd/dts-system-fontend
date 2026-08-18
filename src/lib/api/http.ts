@@ -58,7 +58,14 @@ export function createApiClient(baseURL: string): ApiClient {
         config!._retried = true;
         const ok = await refreshAccessToken();
         if (ok && config) {
-          // Replay với token mới (request interceptor tự đính kèm)
+          const newToken = useAuthStore.getState().accessToken;
+          if (newToken) {
+            if (config.headers && typeof config.headers.set === "function") {
+              config.headers.set("Authorization", `Bearer ${newToken}`);
+            } else {
+              config.headers.Authorization = `Bearer ${newToken}`;
+            }
+          }
           return instance.request(config);
         }
         useAuthStore.getState().logout();
