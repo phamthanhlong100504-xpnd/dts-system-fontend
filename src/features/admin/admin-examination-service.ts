@@ -88,8 +88,9 @@ export async function fetchAdminExamVersions(examId: string): Promise<ExamVersio
   try {
     const res = await examinationApi.get<any>(`/v1/exams/${examId}/versions?size=100`);
     return Array.isArray(res?.content) ? res.content : Array.isArray(res) ? res : [];
-  } catch {
-    return [];
+  } catch (error) {
+    console.error("FETCH EXAMS ERROR:", error);
+    throw error;
   }
 }
 
@@ -130,8 +131,9 @@ export async function fetchAdminExamStructures() {
   try {
     const res = await examinationApi.get<any>("/v1/exam-structures?size=100");
     return Array.isArray(res?.content) ? res.content : Array.isArray(res) ? res : [];
-  } catch {
-    return [];
+  } catch (error) {
+    console.error("FETCH EXAMS ERROR:", error);
+    throw error;
   }
 }
 
@@ -147,8 +149,17 @@ export async function createExamStructureApi(payload: {
 
 export async function fetchAdminExamRules() {
   try {
-    const res = await examinationApi.get<any>("/v1/exam-rules?size=100");
+    let res = await examinationApi.get<any>("/v1/exam-rules?size=100");
     console.log("FETCH RULES RAW RESPONSE:", res);
+    
+    // If backend returns a string, try parsing it
+    if (typeof res === "string") {
+      try {
+        res = JSON.parse(res);
+      } catch (e) {
+        console.warn("Could not parse string response:", e);
+      }
+    }
     
     if (Array.isArray(res)) return res;
     if (res?.content && Array.isArray(res.content)) return res.content;
@@ -173,7 +184,7 @@ export async function fetchAdminExamRules() {
     if (typeof window !== "undefined") {
       toast.error("Lỗi khi tải Quy chế thi");
     }
-    return [];
+    throw error;
   }
 }
 
