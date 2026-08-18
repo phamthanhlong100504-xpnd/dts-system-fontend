@@ -27,6 +27,8 @@ export interface ExamQuestion {
   content?: string;
   options: QuestionOption[];
   imageUrl?: string;
+  type?: string;
+  questionType?: string;
 }
 
 export interface SubmitAnswerRequest {
