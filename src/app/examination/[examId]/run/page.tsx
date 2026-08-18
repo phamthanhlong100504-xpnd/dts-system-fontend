@@ -72,13 +72,14 @@ export default function ExamRunPage() {
           ) : currentQuestion ? (
             <Card className="rounded-2xl shadow-sm border h-full">
               <CardContent className="p-8 space-y-6">
-                <div className="font-bold text-xl">Câu {currentIndex + 1}: {currentQuestion.questionText}</div>
+                <div className="font-bold text-xl">Câu {currentIndex + 1}: {currentQuestion.content || currentQuestion.questionText}</div>
                 {currentQuestion.imageUrl && (
                   <img src={currentQuestion.imageUrl} alt="Question" className="max-w-full h-auto rounded-xl shadow-sm" />
                 )}
                 <div className="space-y-3 pt-4">
                   {currentQuestion.options?.map((opt: any, i: number) => {
-                    const optionId = opt.id?.toString() || ['A','B','C','D'][i];
+                    const optionId = opt.id;
+                    const optionLabel = ['A','B','C','D','E','F'][i] || (i + 1).toString();
                     const isSelected = answers[currentQuestion.id] === optionId;
                     return (
                       <div 
@@ -86,7 +87,7 @@ export default function ExamRunPage() {
                         className={`p-4 rounded-xl border cursor-pointer transition-all duration-150 ${isSelected ? 'border-primary bg-primary/10 shadow-sm' : 'hover:bg-muted/50 border-border'}`}
                         onClick={() => handleSelect(currentQuestion.id, optionId)}
                       >
-                        <span className="font-bold mr-3 inline-flex items-center justify-center w-8 h-8 rounded-lg bg-background border">{optionId}</span> 
+                        <span className="font-bold mr-3 inline-flex items-center justify-center w-8 h-8 rounded-lg bg-background border">{optionLabel}</span> 
                         {opt.text || opt.label}
                       </div>
                     );
