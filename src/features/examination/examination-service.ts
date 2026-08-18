@@ -23,7 +23,8 @@ export interface QuestionOption {
 
 export interface ExamQuestion {
   id: string;
-  questionText: string;
+  questionText?: string;
+  content?: string;
   options: QuestionOption[];
   imageUrl?: string;
 }
