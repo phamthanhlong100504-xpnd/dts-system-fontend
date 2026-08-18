@@ -17,7 +17,30 @@ export default function ExamRunPage() {
   const saveAnswer = useSaveAnswer();
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  // Initialize answers from paper if any exist
+  useEffect(() => {
+    if (paper && paper.length > 0 && !hasInitialized) {
+      const initialAnswers: Record<string, string[]> = {};
+      paper.forEach((q: any) => {
+        if (q.selectedAnswer) {
+          if (typeof q.selectedAnswer === "string") {
+            initialAnswers[q.id] = q.selectedAnswer.split(",");
+          } else if (Array.isArray(q.selectedAnswer)) {
+            initialAnswers[q.id] = q.selectedAnswer.map(String);
+          } else if (q.selectedAnswer.value) {
+            initialAnswers[q.id] = Array.isArray(q.selectedAnswer.value) ? q.selectedAnswer.value : String(q.selectedAnswer.value).split(",");
+          } else if (q.selectedAnswer.values) {
+            initialAnswers[q.id] = q.selectedAnswer.values.map(String);
+          }
+        }
+      });
+      setAnswers(initialAnswers);
+      setHasInitialized(true);
+    }
+  }, [paper, hasInitialized]);
 
   // Prevent tab switch logic
   useEffect(() => {
@@ -35,9 +58,42 @@ export default function ExamRunPage() {
 
   const currentQuestion = paper[currentIndex];
   
-  const handleSelect = (questionId: string, answerId: string) => {
-    setAnswers(prev => ({ ...prev, [questionId]: answerId }));
-    saveAnswer.mutate({ sessionId, payload: { questionId, selectedAnswer: answerId } });
+  const isMultipleChoice = currentQuestion?.type === "MULTIPLE_CHOICE" || currentQuestion?.questionType === "MULTIPLE_CHOICE" || currentQuestion?.type === "MULTIPLE";
+
+  const handleSelect = (questionId: string, optionId: string) => {
+    setAnswers(prev => {
+      const currentSelection = prev[questionId] || [];
+      let newSelection: string[];
+      
+      if (isMultipleChoice) {
+        if (currentSelection.includes(optionId)) {
+          newSelection = currentSelection.filter(id => id !== optionId);
+        } else {
+          newSelection = [...currentSelection, optionId];
+        }
+      } else {
+        newSelection = [optionId];
+      }
+      
+      saveAnswer.mutate({ sessionId, payload: { questionId, selectedAnswer: newSelection.join(",") } });
+      return { ...prev, [questionId]: newSelection };
+    });
+
+    if (!isMultipleChoice) {
+      if (currentIndex < paper.length - 1) {
+        setTimeout(() => {
+          setCurrentIndex(prev => Math.min(prev + 1, paper.length - 1));
+        }, 300);
+      }
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < paper.length - 1) setCurrentIndex(currentIndex + 1);
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
   };
 
   const handleSubmit = () => {
@@ -78,22 +134,32 @@ export default function ExamRunPage() {
                 )}
                 <div className="space-y-3 pt-4">
                   {currentQuestion.options?.map((opt: any, i: number) => {
-                    const optionId = opt.id;
+                    const optionId = opt.id?.toString();
                     const optionLabel = ['A','B','C','D','E','F'][i] || (i + 1).toString();
-                    const isSelected = answers[currentQuestion.id] === optionId;
+                    const isSelected = (answers[currentQuestion.id] || []).includes(optionId);
                     return (
                       <div 
                         key={i} 
                         className={`p-4 rounded-xl border cursor-pointer transition-all duration-150 ${isSelected ? 'border-primary bg-primary/10 shadow-sm' : 'hover:bg-muted/50 border-border'}`}
                         onClick={() => handleSelect(currentQuestion.id, optionId)}
                       >
-                        <span className="font-bold mr-3 inline-flex items-center justify-center w-8 h-8 rounded-lg bg-background border">{optionLabel}</span> 
+                        <span className={`font-bold mr-3 inline-flex items-center justify-center w-8 h-8 rounded-lg border ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-background'}`}>
+                          {optionLabel}
+                        </span> 
                         {opt.text || opt.label}
                       </div>
                     );
                   })}
                 </div>
               </CardContent>
+              <div className="border-t p-4 bg-muted/20 flex justify-between rounded-b-2xl">
+                <Button variant="outline" onClick={handlePrev} disabled={currentIndex === 0}>
+                  Câu trước
+                </Button>
+                <Button variant="outline" onClick={handleNext} disabled={currentIndex === paper.length - 1}>
+                  Câu sau
+                </Button>
+              </div>
             </Card>
           ) : (
             <div>Loading...</div>
@@ -105,7 +171,7 @@ export default function ExamRunPage() {
           <h3 className="font-bold mb-4 text-center border-b pb-2">Danh sách câu hỏi</h3>
           <div className="grid grid-cols-5 gap-2">
             {paper.map((q: any, i: number) => {
-              const isAnswered = !!answers[q.id];
+              const isAnswered = answers[q.id] && answers[q.id].length > 0;
               const isCurrent = i === currentIndex;
               return (
                 <button
