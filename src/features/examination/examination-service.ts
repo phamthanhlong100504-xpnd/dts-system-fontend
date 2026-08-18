@@ -57,7 +57,12 @@ export async function saveAnswer(sessionId: string, payload: SubmitAnswerRequest
 }
 
 export async function submitExam(sessionId: string) {
-  const data = await examinationApi.post<unknown>(`/v1/exam-sessions/${sessionId}/submit`);
+  const idempotencyKey = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+  const data = await examinationApi.post<unknown>(`/v1/exam-sessions/${sessionId}/submit`, undefined, {
+    headers: {
+      'Idempotency-Key': idempotencyKey
+    }
+  });
   return data;
 }
 
