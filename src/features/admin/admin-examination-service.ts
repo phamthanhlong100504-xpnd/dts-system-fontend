@@ -1,4 +1,5 @@
 import { examinationApi } from "@/lib/api";
+import { toast } from "sonner";
 
 export interface ExamItem {
   id: string;
@@ -147,9 +148,31 @@ export async function createExamStructureApi(payload: {
 export async function fetchAdminExamRules() {
   try {
     const res = await examinationApi.get<any>("/v1/exam-rules?size=100");
-    // Depending on PageResponse format, might be res.content or res.data
-    return Array.isArray(res?.content) ? res.content : Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
-  } catch {
+    console.log("FETCH RULES RAW RESPONSE:", res);
+    
+    if (Array.isArray(res)) return res;
+    if (res?.content && Array.isArray(res.content)) return res.content;
+    if (res?.data && Array.isArray(res.data)) return res.data;
+    if (res?.data?.content && Array.isArray(res.data.content)) return res.data.content;
+    if (res?.items && Array.isArray(res.items)) return res.items;
+
+    // Aggressive fallback: find any array property in the object
+    if (res && typeof res === "object") {
+      for (const key of Object.keys(res)) {
+        if (Array.isArray(res[key])) {
+          console.warn("Found array in unexpected property:", key);
+          return res[key];
+        }
+      }
+    }
+
+    console.warn("FETCH RULES: Could not find array in response", res);
+    return [];
+  } catch (error) {
+    console.error("FETCH RULES ERROR:", error);
+    if (typeof window !== "undefined") {
+      toast.error("Lỗi khi tải Quy chế thi");
+    }
     return [];
   }
 }
