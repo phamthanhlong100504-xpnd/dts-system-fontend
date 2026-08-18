@@ -55,6 +55,7 @@ export function useAdminQuestions() {
     queryKey: ["admin", "questions"],
     queryFn: fetchAdminQuestions,
     staleTime: 30_000,
+    enabled: typeof window !== "undefined",
   });
 }
 
@@ -94,6 +95,7 @@ export function useAdminPrograms() {
     queryKey: ["admin", "programs"],
     queryFn: fetchAdminPrograms,
     staleTime: 30_000,
+    enabled: typeof window !== "undefined",
   });
 }
 
@@ -174,6 +176,7 @@ export function useAdminChapters() {
     queryKey: ["admin", "chapters"],
     queryFn: fetchAdminChapters,
     staleTime: 30_000,
+    enabled: typeof window !== "undefined",
   });
 }
 
@@ -212,6 +215,7 @@ export function useAdminExams() {
     queryKey: ["admin", "exams"],
     queryFn: fetchAdminExams,
     staleTime: 30_000,
+    enabled: typeof window !== "undefined",
   });
 }
 
@@ -335,6 +339,7 @@ export function useAdminExamStructures() {
     queryKey: ["admin", "exam-structures"],
     queryFn: fetchAdminExamStructures,
     staleTime: 30_000,
+    enabled: typeof window !== "undefined",
   });
 }
 
@@ -343,6 +348,7 @@ export function useAdminExamRules() {
     queryKey: ["admin", "exam-rules"],
     queryFn: fetchAdminExamRules,
     staleTime: 30_000,
+    enabled: typeof window !== "undefined",
   });
 }
 
