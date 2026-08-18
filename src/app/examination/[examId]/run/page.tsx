@@ -75,7 +75,20 @@ export default function ExamRunPage() {
         newSelection = [optionId];
       }
       
-      saveAnswer.mutate({ sessionId, payload: { questionId, selectedAnswer: newSelection.join(",") } });
+      saveAnswer.mutate({
+        sessionId,
+        payload: {
+          answers: [
+            {
+              questionId,
+              selectedAnswer: {
+                type: isMultipleChoice ? 'multiple_choice' : 'single_choice',
+                value: newSelection.join(","),
+              },
+            },
+          ],
+        },
+      });
       return { ...prev, [questionId]: newSelection };
     });
 

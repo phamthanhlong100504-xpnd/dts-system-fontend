@@ -31,9 +31,14 @@ export interface ExamQuestion {
   questionType?: string;
 }
 
-export interface SubmitAnswerRequest {
-  questionId: string;
-  selectedAnswer: string;
+export interface SubmitAnswerPayload {
+  answers: {
+    questionId: string;
+    selectedAnswer: {
+      type: string;
+      value: string | string[];
+    };
+  }[];
 }
 
 export async function startExamSession(payload: StartExamSessionRequest) {
@@ -51,8 +56,8 @@ export async function getExamPaper(sessionId: string) {
   return (data.questions || []) as ExamQuestion[];
 }
 
-export async function saveAnswer(sessionId: string, payload: SubmitAnswerRequest) {
-  const data = await examinationApi.put<unknown>(`/v1/exam-sessions/${sessionId}/answers`, payload);
+export async function saveAnswer(sessionId: string, payload: SubmitAnswerPayload) {
+  const data = await examinationApi.post<unknown>(`/v1/exam-sessions/${sessionId}/answers`, payload);
   return data;
 }
 
