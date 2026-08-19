@@ -304,6 +304,17 @@ export function useCreateExamVersion(examId: string) {
   });
 }
 
+export function useUpdateExamVersion(examId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ versionId, payload }: { versionId: string; payload: any }) =>
+      updateExamVersionApi(versionId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exams", examId, "versions"] });
+    },
+  });
+}
+
 export function usePublishExamVersion(examId: string) {
   const queryClient = useQueryClient();
   return useMutation({
