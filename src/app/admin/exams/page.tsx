@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { 
-  ArrowLeft, Plus, Loader2, Send, Trash2, BookOpen, Clock, CheckCircle2, Award, Search, Settings2, Pencil
+  ArrowLeft, Plus, Loader2, Send, Trash2, BookOpen, Clock, CheckCircle2, Award, Search, Settings2, Pencil, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
