@@ -25,7 +25,7 @@ export default function ExamRunPage() {
     if (paper && paper.length > 0 && !hasInitialized) {
       const initialAnswers: Record<string, string[]> = {};
       paper.forEach((q: any) => {
-        const qId = q.questionId || q.id;
+        const qId = (q.questionId || q.id) as string;
         if (q.selectedAnswer && qId) {
           if (typeof q.selectedAnswer === "string") {
             initialAnswers[qId] = q.selectedAnswer.split(",");
@@ -150,7 +150,7 @@ export default function ExamRunPage() {
                   {currentQuestion.options?.map((opt: any, i: number) => {
                     const optionId = opt.id?.toString();
                     const optionLabel = ['A','B','C','D','E','F'][i] || (i + 1).toString();
-                    const qId = currentQuestion.questionId || currentQuestion.id;
+                    const qId = (currentQuestion.questionId || currentQuestion.id) as string;
                     const isSelected = (answers[qId] || []).includes(optionId);
                     return (
                       <div 
@@ -186,7 +186,7 @@ export default function ExamRunPage() {
           <h3 className="font-bold mb-4 text-center border-b pb-2">Danh sách câu hỏi</h3>
           <div className="grid grid-cols-5 gap-2">
             {paper.map((q: any, i: number) => {
-              const qId = q.questionId || q.id;
+              const qId = (q.questionId || q.id) as string;
               const isAnswered = answers[qId] && answers[qId].length > 0;
               const isCurrent = i === currentIndex;
               return (
