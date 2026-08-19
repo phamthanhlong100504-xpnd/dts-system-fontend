@@ -25,15 +25,16 @@ export default function ExamRunPage() {
     if (paper && paper.length > 0 && !hasInitialized) {
       const initialAnswers: Record<string, string[]> = {};
       paper.forEach((q: any) => {
-        if (q.selectedAnswer) {
+        const qId = q.questionId || q.id;
+        if (q.selectedAnswer && qId) {
           if (typeof q.selectedAnswer === "string") {
-            initialAnswers[q.id] = q.selectedAnswer.split(",");
+            initialAnswers[qId] = q.selectedAnswer.split(",");
           } else if (Array.isArray(q.selectedAnswer)) {
-            initialAnswers[q.id] = q.selectedAnswer.map(String);
+            initialAnswers[qId] = q.selectedAnswer.map(String);
           } else if (q.selectedAnswer.value) {
-            initialAnswers[q.id] = Array.isArray(q.selectedAnswer.value) ? q.selectedAnswer.value : String(q.selectedAnswer.value).split(",");
+            initialAnswers[qId] = Array.isArray(q.selectedAnswer.value) ? q.selectedAnswer.value : String(q.selectedAnswer.value).split(",");
           } else if (q.selectedAnswer.values) {
-            initialAnswers[q.id] = q.selectedAnswer.values.map(String);
+            initialAnswers[qId] = q.selectedAnswer.values.map(String);
           }
         }
       });
@@ -149,12 +150,13 @@ export default function ExamRunPage() {
                   {currentQuestion.options?.map((opt: any, i: number) => {
                     const optionId = opt.id?.toString();
                     const optionLabel = ['A','B','C','D','E','F'][i] || (i + 1).toString();
-                    const isSelected = (answers[currentQuestion.id] || []).includes(optionId);
+                    const qId = currentQuestion.questionId || currentQuestion.id;
+                    const isSelected = (answers[qId] || []).includes(optionId);
                     return (
                       <div 
                         key={i} 
                         className={`p-4 rounded-xl border cursor-pointer transition-all duration-150 ${isSelected ? 'border-primary bg-primary/10 shadow-sm' : 'hover:bg-muted/50 border-border'}`}
-                        onClick={() => handleSelect(currentQuestion.id, optionId)}
+                        onClick={() => handleSelect(qId, optionId)}
                       >
                         <span className={`font-bold mr-3 inline-flex items-center justify-center w-8 h-8 rounded-lg border ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-background'}`}>
                           {optionLabel}
@@ -184,11 +186,12 @@ export default function ExamRunPage() {
           <h3 className="font-bold mb-4 text-center border-b pb-2">Danh sách câu hỏi</h3>
           <div className="grid grid-cols-5 gap-2">
             {paper.map((q: any, i: number) => {
-              const isAnswered = answers[q.id] && answers[q.id].length > 0;
+              const qId = q.questionId || q.id;
+              const isAnswered = answers[qId] && answers[qId].length > 0;
               const isCurrent = i === currentIndex;
               return (
                 <button
-                  key={q.id}
+                  key={qId}
                   onClick={() => setCurrentIndex(i)}
                   className={`h-10 w-10 rounded-xl flex items-center justify-center text-sm font-bold border transition-all
                     ${isCurrent ? 'ring-2 ring-primary ring-offset-2' : ''}

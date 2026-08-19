@@ -22,7 +22,8 @@ export interface QuestionOption {
 }
 
 export interface ExamQuestion {
-  id: string;
+  id?: string;
+  questionId?: string;
   questionText?: string;
   content?: string;
   options: QuestionOption[];
