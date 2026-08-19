@@ -152,34 +152,37 @@ export default function ProgramDetailPage() {
               <Badge variant={program.status === "PUBLISHED" ? "default" : "secondary"} className="text-xs">
                 {program.status}
               </Badge>
-              {program.status === "DRAFT" && (
-                <Button 
-                  size="sm" 
-                  variant="default" 
-                  className="h-6 px-2 text-xs" 
-                  disabled={isUpdatingStatus}
-                  onClick={() => handleUpdateStatus("PUBLISHED")}
-                >
-                  {isUpdatingStatus ? <Loader2 className="h-3 w-3 animate-spin" /> : "Xuất bản"}
-                </Button>
-              )}
-              {program.status === "PUBLISHED" && (
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="h-6 px-2 text-xs text-amber-600 hover:text-amber-700" 
-                  disabled={isUpdatingStatus}
-                  onClick={() => handleUpdateStatus("DRAFT")}
-                >
-                  {isUpdatingStatus ? <Loader2 className="h-3 w-3 animate-spin" /> : "Chuyển về Nháp"}
-                </Button>
-              )}
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">{program.title}</h1>
             <p className="text-sm text-muted-foreground mt-1">
               {program.description || "Chưa có mô tả"}
             </p>
           </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          {program.status === "DRAFT" && (
+            <Button 
+              size="sm" 
+              variant="default" 
+              className="gap-2" 
+              disabled={isUpdatingStatus}
+              onClick={() => handleUpdateStatus("PUBLISHED")}
+            >
+              {isUpdatingStatus ? <Loader2 className="h-4 w-4 animate-spin" /> : "Xuất bản"}
+            </Button>
+          )}
+          {program.status === "PUBLISHED" && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="gap-2 text-amber-600 hover:text-amber-700" 
+              disabled={isUpdatingStatus}
+              onClick={() => handleUpdateStatus("DRAFT")}
+            >
+              {isUpdatingStatus ? <Loader2 className="h-4 w-4 animate-spin" /> : "Chuyển về Nháp"}
+            </Button>
+          )}
         </div>
       </div>
 

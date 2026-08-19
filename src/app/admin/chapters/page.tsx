@@ -364,56 +364,137 @@ export default function AdminChaptersPage() {
 
       {/* Add Question Modal */}
       <Dialog open={isAddingQuestion} onOpenChange={setIsAddingQuestion}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>Thêm câu hỏi từ Ngân hàng</DialogTitle>
             <DialogDescription>
               Chọn câu hỏi bạn muốn thêm vào chương {activeChapter?.title}.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Tìm kiếm câu hỏi..." 
-                className="pl-9"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            
-            <div className="max-h-[60vh] overflow-y-auto space-y-2 pr-2">
-              {isLoadingQuestions ? (
-                <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
-              ) : filteredQuestions.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">Không tìm thấy câu hỏi phù hợp.</div>
-              ) : (
-                filteredQuestions.map((q) => (
-                  <div key={q.rawId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium line-clamp-2">{q.title}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-[10px]">{q.id}</Badge>
-                        <Badge variant="secondary" className="text-[10px]">{q.type}</Badge>
-                        {q.isCritical && <Badge variant="destructive" className="text-[10px]">Điểm liệt</Badge>}
+
+          <Tabs defaultValue="custom" className="mt-2">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="custom">Ngân hàng Tùy chỉnh</TabsTrigger>
+              <TabsTrigger value="official">Ngân hàng 600 câu chuẩn</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="custom" className="space-y-4 pt-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Tìm kiếm câu hỏi tùy chỉnh..." 
+                  className="pl-9"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-2">
+                {isLoadingQuestions ? (
+                  <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+                ) : filteredQuestions.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">Không tìm thấy câu hỏi phù hợp.</div>
+                ) : (
+                  filteredQuestions.map((q) => (
+                    <div key={q.rawId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium line-clamp-2">{q.title}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-[10px]">{q.id}</Badge>
+                          <Badge variant="secondary" className="text-[10px]">{q.type}</Badge>
+                          {q.isCritical && <Badge variant="destructive" className="text-[10px]">Điểm liệt</Badge>}
+                        </div>
                       </div>
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleAddQuestion(q)}
+                        disabled={addQuestionMutation.isPending}
+                      >
+                        Thêm
+                      </Button>
                     </div>
-                    <Button 
-                      size="sm" 
-                      onClick={() => handleAddQuestion(q)}
-                      disabled={addQuestionMutation.isPending}
-                    >
-                      Thêm
-                    </Button>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+                  ))
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="official" className="pt-4">
+              <OfficialQuestionsSelector 
+                chapterDetail={chapterDetail} 
+                onAdd={handleAddQuestion} 
+                isPending={addQuestionMutation.isPending} 
+              />
+            </TabsContent>
+          </Tabs>
+
         </DialogContent>
       </Dialog>
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapterDetail: any, onAdd: (q: AdminQuestionItem) => void, isPending: boolean }) {
+  const [selectedChapter, setSelectedChapter] = useState<number>(1);
+  const { data: questions, isLoading } = useQuery({
+    queryKey: ["official-chapter-questions", selectedChapter],
+    queryFn: () => getQuestionsByChapter(selectedChapter),
+    staleTime: Infinity,
+  });
+
+  const filteredQuestions = questions?.filter(q => 
+    !chapterDetail?.questionBlocks?.some((b: any) => b.questionId === q.id.toString())
+  ) || [];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+        {[1, 2, 3, 4, 5, 6].map(c => (
+          <Button 
+            key={c} 
+            variant={selectedChapter === c ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedChapter(c)}
+            className="shrink-0"
+          >
+            Chương {c}
+          </Button>
+        ))}
+      </div>
+      <div className="max-h-[45vh] overflow-y-auto space-y-2 pr-2">
+        {isLoading ? (
+          <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+        ) : filteredQuestions.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">Chương này đã được thêm toàn bộ hoặc không có câu hỏi.</div>
+        ) : (
+          filteredQuestions.map((q) => (
+            <div key={q.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium line-clamp-2">{q.questionText}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="outline" className="text-[10px] text-primary bg-primary/5 border-primary/20">Câu {q.id}</Badge>
+                  {q.isCritical && <Badge variant="destructive" className="text-[10px]">Điểm liệt</Badge>}
+                </div>
+              </div>
+              <Button 
+                size="sm" 
+                onClick={() => onAdd({
+                  id: `CÂU ${q.id}`,
+                  rawId: q.id.toString(),
+                  title: q.questionText,
+                  type: "Trắc nghiệm",
+                  program: `Chương ${selectedChapter}`,
+                  status: "PUBLISHED"
+                })}
+                disabled={isPending}
+              >
+                Thêm
+              </Button>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
