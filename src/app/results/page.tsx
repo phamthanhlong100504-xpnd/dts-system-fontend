@@ -8,6 +8,8 @@ import {
   Gauge,
   Target,
   Trophy,
+  FileCheck,
+  FileText
 } from "lucide-react";
 import { RequireAuth } from "@/components/require-auth";
 import {
@@ -183,9 +185,9 @@ function OverviewCards({
   }
 
   const cards = [
-    { title: "Tổng số lần làm bài", value: String(overview.totalAttempts ?? 0), icon: <Target className="h-4 w-4 text-muted-foreground" /> },
+    { title: "Tổng số bài thi", value: String(overview.totalExamsTaken ?? 0), icon: <FileText className="h-4 w-4 text-muted-foreground" /> },
+    { title: "Số bài thi Đạt", value: String(overview.passedExams ?? 0), icon: <FileCheck className="h-4 w-4 text-emerald-500" /> },
     { title: "Điểm trung bình", value: formatScore(overview.averageScore), icon: <Gauge className="h-4 w-4 text-muted-foreground" /> },
-    { title: "Điểm cao nhất", value: formatScore(overview.bestScore), icon: <Trophy className="h-4 w-4 text-amber-500" /> },
     { title: "Thời gian học", value: formatStudyTime(overview.totalLearningTimeSeconds), icon: <Clock className="h-4 w-4 text-muted-foreground" /> },
     { title: "Chương hoàn thành", value: String(overview.completedChapters ?? 0), icon: <BookOpen className="h-4 w-4 text-muted-foreground" /> },
     { title: "Chương trình hoàn thành", value: String(overview.completedPrograms ?? 0), icon: <Award className="h-4 w-4 text-emerald-500" /> },

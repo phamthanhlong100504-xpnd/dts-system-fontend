@@ -9,6 +9,9 @@ export interface ResultOverview {
   inProgressPrograms: number;
   completedChapters: number;
   completedLessons: number;
+  totalExamsTaken: number;
+  passedExams: number;
+  failedExams: number;
   averageScore: number | null;
   bestScore: number | null;
   totalLearningTimeSeconds: number;
