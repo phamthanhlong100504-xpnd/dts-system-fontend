@@ -31,6 +31,7 @@ import {
 import {
   fetchAdminExams,
   createExamApi,
+  updateExamApi,
   changeExamStatusApi,
   deleteExamApi,
   fetchAdminExamVersions,
@@ -225,6 +226,17 @@ export function useCreateExam() {
   return useMutation({
     mutationFn: (payload: { name?: string; title?: string; code?: string; durationMinutes?: number; passScore?: number; status?: "DRAFT" | "PUBLISHED"; licenseType?: string; questionsCount?: number; }) =>
       createExamApi(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
+    },
+  });
+}
+
+export function useUpdateExam() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: { title?: string; code?: string; durationMinutes?: number; passScore?: number; licenseType?: string; questionsCount?: number; } }) =>
+      updateExamApi(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
     },

@@ -61,6 +61,27 @@ export async function createExamApi(payload: {
   return await examinationApi.post<any>("/v1/exams", body);
 }
 
+export async function updateExamApi(id: string, payload: {
+  title?: string;
+  code?: string;
+  durationMinutes?: number;
+  passScore?: number;
+  licenseType?: string;
+  questionsCount?: number;
+}) {
+  const body = {
+    title: payload.title,
+    metadata: {
+      category: payload.licenseType,
+      code: payload.code,
+      questionsCount: payload.questionsCount,
+      durationMinutes: payload.durationMinutes,
+      passScore: payload.passScore,
+    },
+  };
+  return await examinationApi.patch<any>(`/v1/exams/${id}`, body);
+}
+
 export async function changeExamStatusApi(id: string, status: "DRAFT" | "PUBLISHED" | "ARCHIVED") {
   return await examinationApi.patch<any>(`/v1/exams/${id}/status`, { status });
 }

@@ -1,18 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Plus,
-  Search,
-  Trash2,
-  Settings2,
-  Award,
-  BookOpen,
-  CheckCircle2,
-  Clock,
-  Sparkles,
-  Loader2,
-  Send,
+import { 
+  ArrowLeft, Plus, Loader2, Send, Trash2, BookOpen, Clock, CheckCircle2, Award, Search, Settings2, Pencil
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,11 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useAdminExams, useCreateExam, useChangeExamStatus, useDeleteExam } from "@/features/admin/use-admin-content";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useAdminExams, useCreateExam, useChangeExamStatus, useDeleteExam, useUpdateExam } from "@/features/admin/use-admin-content";
 
 export default function AdminExamsPage() {
   const { data: apiExams = [], isLoading } = useAdminExams();
   const createMutation = useCreateExam();
+  const updateMutation = useUpdateExam();
   const changeStatusMutation = useChangeExamStatus();
   const deleteMutation = useDeleteExam();
 
@@ -40,6 +32,12 @@ export default function AdminExamsPage() {
   const [newTotalQuestions, setNewTotalQuestions] = useState<number>(35);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
+
+  const [editingExam, setEditingExam] = useState<any>(null);
+  const [editName, setEditName] = useState("");
+  const [editCode, setEditCode] = useState("");
+  const [editPassScore, setEditPassScore] = useState<number>(32);
+  const [editTotalQuestions, setEditTotalQuestions] = useState<number>(35);
 
   const examSets = apiExams;
 
@@ -100,6 +98,41 @@ export default function AdminExamsPage() {
         onError: () => {
           toast.error("Xuất bản thất bại. Vui lòng thử lại.");
           setPublishingId(null);
+        },
+      }
+    );
+  };
+
+  const handleOpenEdit = (exam: any) => {
+    setEditingExam(exam);
+    setEditName(exam.title);
+    setEditCode(exam.code);
+    setEditPassScore(exam.passScore || 32);
+    setEditTotalQuestions(exam.questionsCount || 35);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editName.trim() || !editCode.trim()) {
+      toast.error("Vui lòng nhập Tên bộ đề và Mã bộ đề");
+      return;
+    }
+    updateMutation.mutate(
+      { 
+        id: editingExam.id, 
+        payload: {
+          title: editName,
+          code: editCode,
+          passScore: editPassScore,
+          questionsCount: editTotalQuestions
+        } as any
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đã cập nhật bộ đề thi thành công!");
+          setEditingExam(null);
+        },
+        onError: () => {
+          toast.error("Cập nhật bộ đề thi thất bại.");
         },
       }
     );
@@ -359,6 +392,16 @@ export default function AdminExamsPage() {
                           </Button>
                         )}
 
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          title="Chỉnh sửa thông tin"
+                          onClick={() => handleOpenEdit(exam)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
                         <Link href={`/admin/exams/${exam.id}`}>
                           <Button variant="ghost" size="icon" className="h-8 w-8" title="Cấu hình & Phiên bản">
                             <Settings2 className="h-4 w-4" />
@@ -384,6 +427,59 @@ export default function AdminExamsPage() {
           </table>
         </div>
       </Card>
+      {/* Edit Exam Dialog */}
+      <Dialog open={!!editingExam} onOpenChange={(open) => !open && setEditingExam(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Chỉnh sửa thông tin Bộ đề thi</DialogTitle>
+          </DialogHeader>
+          {editingExam && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Tên bộ đề *</label>
+                <Input
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="VD: Đề thi thử B2 - Số 1"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Mã bộ đề *</label>
+                <Input
+                  value={editCode}
+                  onChange={(e) => setEditCode(e.target.value)}
+                  placeholder="VD: EX-B2-01"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Tổng số câu</label>
+                <Input
+                  type="number"
+                  value={editTotalQuestions}
+                  onChange={(e) => setEditTotalQuestions(Number(e.target.value))}
+                  placeholder="35"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Điểm đạt (passScore)</label>
+                <Input
+                  type="number"
+                  value={editPassScore}
+                  onChange={(e) => setEditPassScore(Number(e.target.value))}
+                  placeholder="32"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingExam(null)}>Đóng</Button>
+            <Button onClick={handleSaveEdit} disabled={updateMutation.isPending}>
+              {updateMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Lưu thay đổi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
