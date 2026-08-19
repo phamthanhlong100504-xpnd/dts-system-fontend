@@ -36,6 +36,8 @@ export default function AdminExamsPage() {
 
   const [newName, setNewName] = useState("");
   const [newCode, setNewCode] = useState("");
+  const [newPassScore, setNewPassScore] = useState<number>(32);
+  const [newTotalQuestions, setNewTotalQuestions] = useState<number>(35);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
 
@@ -65,15 +67,18 @@ export default function AdminExamsPage() {
         code: newCode, 
         status: "DRAFT", 
         durationMinutes: 22, 
-        passScore: 32,
+        passScore: newPassScore,
+        questionsCount: newTotalQuestions,
         licenseType: selectedLicense === "ALL" ? "B2" : selectedLicense
-      },
+      } as any,
       {
         onSuccess: () => {
           toast.success("Đã tạo bộ đề thi nháp thành công!");
           setIsCreating(false);
           setNewName("");
           setNewCode("");
+          setNewPassScore(32);
+          setNewTotalQuestions(35);
         },
         onError: () => {
           toast.error("Tạo bộ đề thi thất bại.");
@@ -150,8 +155,8 @@ export default function AdminExamsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="space-y-1.5 md:col-span-2">
                 <label className="text-xs font-semibold text-muted-foreground">Tên bộ đề *</label>
                 <Input
                   value={newName}
@@ -166,6 +171,26 @@ export default function AdminExamsPage() {
                   value={newCode}
                   onChange={(e) => setNewCode(e.target.value)}
                   placeholder="VD: EX-B2-04"
+                  className="bg-background"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Tổng số câu</label>
+                <Input
+                  type="number"
+                  value={newTotalQuestions}
+                  onChange={(e) => setNewTotalQuestions(Number(e.target.value))}
+                  placeholder="35"
+                  className="bg-background"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Điểm đạt (passScore)</label>
+                <Input
+                  type="number"
+                  value={newPassScore}
+                  onChange={(e) => setNewPassScore(Number(e.target.value))}
+                  placeholder="32"
                   className="bg-background"
                 />
               </div>
