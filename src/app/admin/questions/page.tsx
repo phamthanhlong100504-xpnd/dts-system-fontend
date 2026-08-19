@@ -289,11 +289,35 @@ function Official600QuestionsView() {
   }
 
   return (
-    <Card className="rounded-2xl overflow-hidden border">
-      <div className="max-h-[700px] overflow-y-auto p-6 space-y-8">
+    <Card className="rounded-2xl overflow-hidden border flex flex-col h-[750px]">
+      {/* Quick Navigation Header */}
+      <div className="bg-muted/20 border-b p-4 shrink-0">
+        <h4 className="font-semibold mb-3 text-sm text-foreground">Nhảy nhanh đến Chương ({chapters?.length}):</h4>
+        <div className="flex flex-wrap gap-2">
+          {chapters?.map((c) => (
+            <Button
+              key={c.chapter}
+              variant="outline"
+              size="sm"
+              className="bg-background text-xs hover:bg-primary/5 hover:text-primary transition-colors"
+              onClick={() => {
+                const el = document.getElementById(`chapter-${c.chapter}`);
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              title={CHAPTER_META[c.chapter.toString()]?.name}
+            >
+              Chương {c.chapter}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-6 space-y-10 scroll-smooth">
         {chapters?.map(({ chapter, questions }) => (
-          <div key={chapter} className="space-y-4">
-            <h3 className="font-bold text-lg sticky top-0 bg-background/95 backdrop-blur py-2 border-b z-10 shadow-sm">
+          <div key={chapter} id={`chapter-${chapter}`} className="space-y-4">
+            <h3 className="font-bold text-lg sticky top-0 bg-background/95 backdrop-blur py-3 border-b z-10 shadow-sm">
               Chương {chapter}: {CHAPTER_META[chapter.toString()]?.name}
             </h3>
             <div className="space-y-4">
