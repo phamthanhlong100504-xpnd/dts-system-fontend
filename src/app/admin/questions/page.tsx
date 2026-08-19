@@ -9,12 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { getQuestionsByChapter, CHAPTER_META } from "@/features/practice/practice-service";
 
@@ -80,7 +79,6 @@ export default function AdminQuestionsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Official600QuestionsSheet />
           <Link href="/admin/questions/create">
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
@@ -90,8 +88,17 @@ export default function AdminQuestionsPage() {
         </div>
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-xl font-bold tracking-tight mb-4">Các câu hỏi khác</h2>
+      <Tabs defaultValue="official" className="mt-8">
+        <TabsList className="mb-4">
+          <TabsTrigger value="official">Bộ 600 câu hỏi chuẩn</TabsTrigger>
+          <TabsTrigger value="others">Các câu hỏi tùy chỉnh</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="official" className="space-y-4">
+          <Official600QuestionsView />
+        </TabsContent>
+
+        <TabsContent value="others" className="space-y-4">
 
       {/* Filter Toolbar */}
       <Card className="rounded-2xl shadow-sm">
@@ -252,12 +259,13 @@ export default function AdminQuestionsPage() {
           </div>
         </div>
       </Card>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
 
-function Official600QuestionsSheet() {
+function Official600QuestionsView() {
   const { data: chapters, isLoading } = useQuery({
     queryKey: ["official-600-questions"],
     queryFn: async () => {
@@ -272,67 +280,59 @@ function Official600QuestionsSheet() {
     staleTime: Infinity,
   });
 
+  if (isLoading) {
+    return (
+      <Card className="rounded-2xl p-8 border">
+        <div className="flex justify-center"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>
+      </Card>
+    );
+  }
+
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="outline" className="gap-2 bg-primary/5 border-primary/20 hover:bg-primary/10 text-primary">
-          <BookOpen className="h-4 w-4" />
-          Bộ 600 câu hỏi chuẩn
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
-        <SheetHeader className="mb-4">
-          <SheetTitle>Bộ 600 Câu Hỏi Sát Hạch (Cục CSGT)</SheetTitle>
-        </SheetHeader>
-        
-        {isLoading ? (
-          <div className="flex justify-center p-8"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>
-        ) : (
-          <div className="space-y-8 pb-10">
-            {chapters?.map(({ chapter, questions }) => (
-              <div key={chapter} className="space-y-4">
-                <h3 className="font-bold text-lg sticky top-0 bg-background py-2 border-b z-10 shadow-sm">
-                  Chương {chapter}: {CHAPTER_META[chapter.toString()]?.name}
-                </h3>
-                <div className="space-y-4">
-                  {questions.map((q, idx) => (
-                    <div key={q.id} className="border rounded-lg p-4 bg-muted/20">
-                      <div className="flex gap-3">
-                        <span className="font-bold min-w-[48px] text-primary">Câu {q.id}:</span>
-                        <div className="flex-1">
-                          <p className="font-medium">{q.questionText}</p>
-                          {q.isCritical && <Badge variant="destructive" className="mt-1.5 text-[10px] px-1.5 py-0">⚠️ Điểm liệt</Badge>}
-                          
-                          {q.imageUrl && (
-                            <img src={q.imageUrl} alt="Minh họa" className="mt-3 rounded-md max-h-40 object-contain border bg-white" />
-                          )}
-                          
-                          <div className="mt-4 space-y-2">
-                            {q.options?.map((opt, oIdx) => (
-                              <div key={oIdx} className="text-sm flex gap-2">
-                                <span className="font-medium text-muted-foreground">{opt.label}.</span>
-                                <span>{opt.text}</span>
-                              </div>
-                            ))}
+    <Card className="rounded-2xl overflow-hidden border">
+      <div className="max-h-[700px] overflow-y-auto p-6 space-y-8">
+        {chapters?.map(({ chapter, questions }) => (
+          <div key={chapter} className="space-y-4">
+            <h3 className="font-bold text-lg sticky top-0 bg-background/95 backdrop-blur py-2 border-b z-10 shadow-sm">
+              Chương {chapter}: {CHAPTER_META[chapter.toString()]?.name}
+            </h3>
+            <div className="space-y-4">
+              {questions.map((q, idx) => (
+                <div key={q.id} className="border rounded-lg p-4 bg-muted/20">
+                  <div className="flex gap-3">
+                    <span className="font-bold min-w-[48px] text-primary">Câu {q.id}:</span>
+                    <div className="flex-1">
+                      <p className="font-medium">{q.questionText}</p>
+                      {q.isCritical && <Badge variant="destructive" className="mt-1.5 text-[10px] px-1.5 py-0">⚠️ Điểm liệt</Badge>}
+                      
+                      {q.imageUrl && (
+                        <img src={q.imageUrl} alt="Minh họa" className="mt-3 rounded-md max-h-40 object-contain border bg-white" />
+                      )}
+                      
+                      <div className="mt-4 space-y-2">
+                        {q.options?.map((opt, oIdx) => (
+                          <div key={oIdx} className="text-sm flex gap-2">
+                            <span className="font-medium text-muted-foreground">{opt.label}.</span>
+                            <span>{opt.text}</span>
                           </div>
-                          
-                          {(q.correctAnswer || q.explanation) && (
-                            <div className="mt-4 p-3 bg-primary/5 rounded-md text-sm border border-primary/10">
-                              {q.correctAnswer && <p><span className="font-bold text-primary">Đáp án:</span> {q.correctAnswer}</p>}
-                              {q.explanation && <p className="mt-1.5 text-muted-foreground"><span className="font-semibold text-foreground">Giải thích:</span> {q.explanation}</p>}
-                            </div>
-                          )}
-                        </div>
+                        ))}
                       </div>
+                      
+                      {(q.correctAnswer || q.explanation) && (
+                        <div className="mt-4 p-3 bg-primary/5 rounded-md text-sm border border-primary/10">
+                          {q.correctAnswer && <p><span className="font-bold text-primary">Đáp án:</span> {q.correctAnswer}</p>}
+                          {q.explanation && <p className="mt-1.5 text-muted-foreground"><span className="font-semibold text-foreground">Giải thích:</span> {q.explanation}</p>}
+                        </div>
+                      )}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        )}
-      </SheetContent>
-    </Sheet>
+        ))}
+      </div>
+    </Card>
   );
 }
 
