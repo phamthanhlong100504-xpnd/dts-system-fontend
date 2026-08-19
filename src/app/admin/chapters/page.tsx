@@ -444,7 +444,7 @@ function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapte
   });
 
   const filteredQuestions = questions?.filter(q => 
-    !chapterDetail?.questionBlocks?.some((b: any) => b.questionId === q.id.toString())
+    !chapterDetail?.questionBlocks?.some((b: any) => b.questionId === (q.id?.toString() || ""))
   ) || [];
 
   return (
@@ -481,8 +481,8 @@ function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapte
                 size="sm" 
                 onClick={() => onAdd({
                   id: `CÂU ${q.id}`,
-                  rawId: q.id.toString(),
-                  title: q.questionText,
+                  rawId: q.id?.toString() || "",
+                  title: q.questionText || "",
                   type: "Trắc nghiệm",
                   program: `Chương ${selectedChapter}`,
                   status: "PUBLISHED"
