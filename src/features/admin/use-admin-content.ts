@@ -38,6 +38,7 @@ import {
   publishExamVersionApi,
   deleteExamVersionApi,
   archiveExamVersionApi,
+  updateExamVersionApi,
   fetchAdminExamStructures,
   createExamStructureApi,
   updateExamStructureApi,

@@ -22,8 +22,10 @@ import {
   useAdminChapters,
   useAdminPrograms,
   useAdminExamStructures,
-  useAdminExamRules
+  useAdminExamRules,
+  useUpdateExamVersion
 } from "@/features/admin/use-admin-content";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 export default function AdminExamDetailsPage() {
   const params = useParams();
@@ -58,6 +60,15 @@ export default function AdminExamDetailsPage() {
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [unpublishingId, setUnpublishingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const updateVersionMutation = useUpdateExamVersion(examId);
+  const [editingVersion, setEditingVersion] = useState<any>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editExamType, setEditExamType] = useState("PRACTICE");
+  const [editContentType, setEditContentType] = useState("CHAPTER");
+  const [editContentId, setEditContentId] = useState("");
+  const [editExamStructureId, setEditExamStructureId] = useState("");
+  const [editExamRuleId, setEditExamRuleId] = useState("");
 
   const handleCreateVersion = () => {
     if (!newTitle.trim() || !newContentId || !newExamStructureId || !newExamRuleId) {
@@ -130,6 +141,46 @@ export default function AdminExamDetailsPage() {
         setDeletingId(null);
       }
     });
+  };
+
+  const handleOpenEdit = (version: any) => {
+    setEditingVersion(version);
+    setEditTitle(version.title);
+    setEditExamType(version.examType);
+    setEditContentType(version.contentType);
+    setEditContentId(version.contentId);
+    setEditExamStructureId(version.examStructureId || "");
+    setEditExamRuleId(version.examRuleId || "");
+  };
+
+  const handleSaveEdit = () => {
+    if (!editTitle.trim() || !editContentId || !editExamStructureId || !editExamRuleId) {
+      toast.error("Vui lòng điền Tên phiên bản, chọn Nguồn nội dung, Cấu trúc đề thi và Quy chế thi");
+      return;
+    }
+
+    updateVersionMutation.mutate(
+      {
+        versionId: editingVersion.id,
+        payload: {
+          title: editTitle,
+          examType: editExamType,
+          contentType: editContentType,
+          contentId: editContentId,
+          examStructureId: editExamStructureId,
+          examRuleId: editExamRuleId,
+        }
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đã cập nhật cấu hình phiên bản thành công!");
+          setEditingVersion(null);
+        },
+        onError: () => {
+          toast.error("Cập nhật thất bại.");
+        }
+      }
+    );
   };
 
   if (isExamsLoading) {
@@ -342,6 +393,14 @@ export default function AdminExamDetailsPage() {
                             Xuất bản
                           </Button>
                         )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs font-semibold px-3"
+                          onClick={() => handleOpenEdit(version)}
+                        >
+                          Chi tiết / Sửa
+                        </Button>
                         {version.status === "PUBLISHED" && (
                           <Button
                             variant="outline"
@@ -373,6 +432,97 @@ export default function AdminExamDetailsPage() {
           </table>
         </div>
       </Card>
+      {/* Dialog Edit Version */}
+      <Dialog open={!!editingVersion} onOpenChange={(open) => !open && setEditingVersion(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Chi tiết / Cập nhật Phiên bản đề thi</DialogTitle>
+          </DialogHeader>
+          {editingVersion && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Tên phiên bản *</label>
+                <Input 
+                  value={editTitle} 
+                  onChange={(e) => setEditTitle(e.target.value)} 
+                  placeholder="VD: Phiên bản 1.0"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Loại đề (Exam Type) *</label>
+                <select
+                  value={editExamType}
+                  onChange={(e) => setEditExamType(e.target.value)}
+                  className="w-full h-9 rounded-md border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="PRACTICE">Luyện tập (PRACTICE)</option>
+                  <option value="REAL">Thi thật (REAL)</option>
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Loại nguồn câu hỏi *</label>
+                <select
+                  value={editContentType}
+                  onChange={(e) => {
+                    setEditContentType(e.target.value);
+                    setEditContentId("");
+                  }}
+                  className="w-full h-9 rounded-md border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="CHAPTER">Từ Chương học (CHAPTER)</option>
+                  <option value="LEARNING_PROGRAM">Từ Chương trình học (LEARNING_PROGRAM)</option>
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">
+                  Chọn {editContentType === "CHAPTER" ? "Chương học" : "Chương trình học"} *
+                </label>
+                <select
+                  value={editContentId}
+                  onChange={(e) => setEditContentId(e.target.value)}
+                  className="w-full h-9 rounded-md border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="" disabled>-- Vui lòng chọn --</option>
+                  {editContentType === "CHAPTER" ? (
+                    chapters.map(c => <option key={c.id} value={c.id}>{c.title}</option>)
+                  ) : (
+                    programs.map(p => <option key={p.id} value={p.id}>{p.title}</option>)
+                  )}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Cấu trúc đề thi (Ma trận) *</label>
+                <select
+                  value={editExamStructureId}
+                  onChange={(e) => setEditExamStructureId(e.target.value)}
+                  className="w-full h-9 rounded-md border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="" disabled>-- Chọn cấu trúc --</option>
+                  {examStructures.map((s: any) => <option key={s.id} value={s.id}>{s.title}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Quy chế thi (Rule) *</label>
+                <select
+                  value={editExamRuleId}
+                  onChange={(e) => setEditExamRuleId(e.target.value)}
+                  className="w-full h-9 rounded-md border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="" disabled>-- Chọn quy chế --</option>
+                  {examRules.map((r: any) => <option key={r.id} value={r.id}>{r.title || r.code}</option>)}
+                </select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingVersion(null)}>Đóng</Button>
+            <Button onClick={handleSaveEdit} disabled={updateVersionMutation.isPending}>
+              {updateVersionMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Lưu thay đổi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

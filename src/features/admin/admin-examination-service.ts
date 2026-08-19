@@ -79,6 +79,9 @@ export interface ExamVersionItem {
   examType: string;
   contentType: string;
   contentId: string;
+  examStructureId?: string;
+  examRuleId?: string;
+  examCriteriaId?: string;
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   createdAt: string;
 }
@@ -103,6 +106,17 @@ export async function createExamVersionApi(examId: string, payload: {
   examRuleId: string;
 }) {
   return await examinationApi.post<any>(`/v1/exams/${examId}/versions`, payload);
+}
+
+export async function updateExamVersionApi(versionId: string, payload: {
+  title?: string;
+  examType?: string;
+  contentType?: string;
+  contentId?: string;
+  examStructureId?: string;
+  examRuleId?: string;
+}) {
+  return await examinationApi.patch<any>(`/v1/exam-versions/${versionId}`, payload);
 }
 
 export async function publishExamVersionApi(versionId: string) {
