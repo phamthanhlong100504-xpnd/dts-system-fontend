@@ -56,6 +56,24 @@ export function createApiClient(baseURL: string): ApiClient {
 
       if (shouldRefresh) {
         config!._retried = true;
+        
+        // Kiểm tra xem token đã được refresh bởi 1 request khác trong lúc request này đang gọi hay chưa
+        const requestToken = config?.headers?.Authorization?.toString().replace("Bearer ", "");
+        const currentToken = useAuthStore.getState().accessToken;
+        
+        if (requestToken && currentToken && requestToken !== currentToken) {
+          // Token đã được refresh -> dùng luôn token mới để retry
+          if (config && config.headers) {
+            if (typeof config.headers.set === "function") {
+              config.headers.set("Authorization", `Bearer ${currentToken}`);
+            } else {
+              config.headers.Authorization = `Bearer ${currentToken}`;
+            }
+            return instance.request(config);
+          }
+        }
+        
+        // Nếu chưa refresh, tiến hành refresh
         const ok = await refreshAccessToken();
         if (ok && config) {
           const newToken = useAuthStore.getState().accessToken;
