@@ -20,6 +20,7 @@ import {
   useReorderQuestionBlocks,
   useAdminQuestions
 } from "@/features/admin/use-admin-content";
+import { createQuestionApi } from "@/features/admin/admin-content-service";
 import {
   Dialog,
   DialogContent,
@@ -437,18 +438,48 @@ export default function AdminChaptersPage() {
 
 function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapterDetail: any, onAdd: (q: AdminQuestionItem) => void, isPending: boolean }) {
   const [selectedChapter, setSelectedChapter] = useState<number>(1);
+  const [isCloning, setIsCloning] = useState<number | null>(null);
+  
   const { data: questions, isLoading } = useQuery({
     queryKey: ["official-chapter-questions", selectedChapter],
     queryFn: () => getQuestionsByChapter(selectedChapter),
     staleTime: Infinity,
   });
 
-  const padOfficialQuestionId = (id: string | number) => {
-    return "00000000-0000-0000-0000-" + id.toString().padStart(12, "0");
+  const handleAddOfficial = async (q: any) => {
+    setIsCloning(q.id);
+    try {
+      const newQ = await createQuestionApi({
+        content: q.questionText || "Câu hỏi không có nội dung",
+        type: "SINGLE_CHOICE",
+        status: "PUBLISHED",
+        isCritical: q.isCritical,
+        chapterId: selectedChapter,
+        explanation: q.explanation || "",
+        options: q.options?.map((opt: any, idx: number) => ({
+          content: opt.text || "",
+          isCorrect: opt.label === q.correctAnswer,
+          sortOrder: idx + 1,
+        })) || []
+      });
+
+      onAdd({
+        id: `#Q-${newQ.id.substring(0, 6)}`,
+        rawId: newQ.id,
+        title: newQ.content || q.questionText,
+        type: "Trắc nghiệm",
+        program: `Chương ${selectedChapter}`,
+        status: "PUBLISHED"
+      });
+    } catch (err) {
+      toast.error("Không thể nhân bản câu hỏi chuẩn vào thư viện.");
+    } finally {
+      setIsCloning(null);
+    }
   };
 
   const filteredQuestions = questions?.filter(q => 
-    !chapterDetail?.questionBlocks?.some((b: any) => b.questionId === padOfficialQuestionId(q.id || ""))
+    !chapterDetail?.questionBlocks?.some((b: any) => b.title === q.questionText)
   ) || [];
 
   return (
@@ -484,17 +515,10 @@ function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapte
               <Button 
                 size="sm" 
                 className="shrink-0"
-                onClick={() => onAdd({
-                  id: `CÂU ${q.id}`,
-                  rawId: padOfficialQuestionId(q.id!),
-                  title: q.questionText || "",
-                  type: "Trắc nghiệm",
-                  program: `Chương ${selectedChapter}`,
-                  status: "PUBLISHED"
-                })}
-                disabled={isPending}
+                onClick={() => handleAddOfficial(q)}
+                disabled={isPending || isCloning === q.id}
               >
-                Thêm
+                {isCloning === q.id ? <Loader2 className="h-4 w-4 animate-spin" /> : "Thêm"}
               </Button>
             </div>
           ))
