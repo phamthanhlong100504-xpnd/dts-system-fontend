@@ -28,6 +28,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AdminQuestionItem } from "@/features/admin/admin-content-service";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { useQuery } from "@tanstack/react-query";
+import { getQuestionsByChapter, CHAPTER_META } from "@/features/practice/practice-service";
 
 export default function AdminChaptersPage() {
   const { data: chapters = [], isLoading } = useAdminChapters();
@@ -158,6 +166,18 @@ export default function AdminChaptersPage() {
           </Button>
         </div>
       </div>
+
+      <Tabs defaultValue="official" className="mt-8">
+        <TabsList className="mb-4">
+          <TabsTrigger value="official">Chương 600 câu chuẩn</TabsTrigger>
+          <TabsTrigger value="custom">Các chương tùy chỉnh</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="official" className="space-y-4">
+          <OfficialChaptersView />
+        </TabsContent>
+
+        <TabsContent value="custom" className="space-y-4">
 
       {isCreating && (
         <Card className="rounded-2xl border bg-primary/5">
@@ -392,6 +412,122 @@ export default function AdminChaptersPage() {
           </div>
         </DialogContent>
       </Dialog>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function OfficialChaptersView() {
+  const [selectedChapter, setSelectedChapter] = useState<number>(1);
+
+  const { data: questions, isLoading } = useQuery({
+    queryKey: ["official-chapter-questions", selectedChapter],
+    queryFn: () => getQuestionsByChapter(selectedChapter),
+    staleTime: Infinity,
+  });
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-2">
+      {/* Left Panel */}
+      <div className="lg:col-span-4 space-y-4">
+        <Card className="rounded-2xl shadow-sm border">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <FolderTree className="h-4 w-4 text-primary" /> Danh sách Chương chuẩn (6)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {[1, 2, 3, 4, 5, 6].map((chapter) => {
+              const isSelected = selectedChapter === chapter;
+              return (
+                <div
+                  key={chapter}
+                  onClick={() => setSelectedChapter(chapter)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                    isSelected
+                      ? "border-primary bg-primary/5 shadow-sm font-semibold"
+                      : "border-border bg-card hover:bg-accent/50"
+                  }`}
+                >
+                  <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs truncate text-foreground font-medium">
+                      Chương {chapter}: {CHAPTER_META[chapter.toString()]?.name}
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className="text-[10px] uppercase px-1.5 py-0 shrink-0">
+                    OFFICIAL
+                  </Badge>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Right Panel */}
+      <div className="lg:col-span-8 space-y-4">
+        <Card className="rounded-2xl shadow-sm border h-full">
+          <CardHeader className="border-b bg-muted/20 pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-2">
+                  <Badge variant="outline" className="bg-background">READ-ONLY</Badge>
+                  Chương {selectedChapter}
+                </div>
+                <CardTitle className="text-base font-bold">
+                  {CHAPTER_META[selectedChapter.toString()]?.name}
+                </CardTitle>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">
+                  Số lượng câu hỏi: {questions?.length || 0} câu
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {isLoading ? (
+              <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+            ) : (
+              <div className="flex flex-col max-h-[700px] overflow-y-auto p-4 space-y-3 bg-muted/10">
+                {questions?.map((q) => (
+                  <div key={q.id} className="flex gap-3 p-4 bg-background border rounded-xl shadow-sm">
+                    <div className="shrink-0 pt-0.5">
+                       <span className="font-bold text-sm text-primary">Câu {q.id}</span>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <p className="text-sm font-medium leading-relaxed">{q.questionText}</p>
+                      {q.isCritical && <Badge variant="destructive" className="text-[10px] px-1.5 py-0 mt-1">⚠️ Điểm liệt</Badge>}
+                      
+                      {q.imageUrl && (
+                        <img src={q.imageUrl} alt="Minh họa" className="mt-2 rounded-md max-h-40 object-contain border bg-white" />
+                      )}
+                      
+                      <div className="mt-4 space-y-2">
+                        {q.options?.map((opt, i) => (
+                          <div key={i} className="text-sm flex gap-2">
+                            <span className="font-medium text-muted-foreground">{opt.label}.</span>
+                            <span>{opt.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {(q.correctAnswer || q.explanation) && (
+                        <div className="mt-4 p-3 bg-primary/5 rounded-md text-sm border border-primary/10">
+                          {q.correctAnswer && <p><span className="font-bold text-primary">Đáp án:</span> {q.correctAnswer}</p>}
+                          {q.explanation && <p className="mt-1.5 text-muted-foreground"><span className="font-semibold text-foreground">Giải thích:</span> {q.explanation}</p>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
