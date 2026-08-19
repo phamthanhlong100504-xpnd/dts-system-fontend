@@ -17,10 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import { useQuery } from "@tanstack/react-query";
 import { getQuestionsByChapter, CHAPTER_META } from "@/features/practice/practice-service";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import { toast } from "sonner";
 
 import { useAdminQuestions, useDeleteQuestion } from "@/features/admin/use-admin-content";
