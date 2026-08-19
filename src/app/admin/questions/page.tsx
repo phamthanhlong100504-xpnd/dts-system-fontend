@@ -254,7 +254,6 @@ export default function AdminQuestionsPage() {
             <Button variant="outline" size="sm" className="h-8 text-xs">Sau</Button>
           </div>
         </div>
-        </div>
       </Card>
       </div>
     </div>
