@@ -34,7 +34,11 @@ export function createApiClient(baseURL: string): ApiClient {
     // getAccessToken tự hydrate store nếu chưa (chống race request trước Providers)
     const token = getAccessToken();
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      if (config.headers && typeof config.headers.set === "function") {
+        config.headers.set("Authorization", `Bearer ${token}`);
+      } else {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   });
