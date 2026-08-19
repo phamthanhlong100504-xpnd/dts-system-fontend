@@ -443,45 +443,50 @@ function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapte
     staleTime: Infinity,
   });
 
+  const padOfficialQuestionId = (id: string | number) => {
+    return "00000000-0000-0000-0000-" + id.toString().padStart(12, "0");
+  };
+
   const filteredQuestions = questions?.filter(q => 
-    !chapterDetail?.questionBlocks?.some((b: any) => b.questionId === (q.id?.toString() || ""))
+    !chapterDetail?.questionBlocks?.some((b: any) => b.questionId === padOfficialQuestionId(q.id || ""))
   ) || [];
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+      <div className="flex flex-wrap gap-2 pb-2">
         {[1, 2, 3, 4, 5, 6].map(c => (
           <Button 
             key={c} 
             variant={selectedChapter === c ? "default" : "outline"}
             size="sm"
             onClick={() => setSelectedChapter(c)}
-            className="shrink-0"
+            className="shrink-0 text-xs h-8"
           >
             Chương {c}
           </Button>
         ))}
       </div>
-      <div className="max-h-[45vh] overflow-y-auto space-y-2 pr-2">
+      <div className="max-h-[50vh] overflow-y-auto space-y-3 pr-2">
         {isLoading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
         ) : filteredQuestions.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">Chương này đã được thêm toàn bộ hoặc không có câu hỏi.</div>
+          <div className="text-center py-8 text-muted-foreground text-sm">Chương này đã được thêm toàn bộ hoặc không có câu hỏi.</div>
         ) : (
           filteredQuestions.map((q) => (
-            <div key={q.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium line-clamp-2">{q.questionText}</p>
-                <div className="flex items-center gap-2 mt-1">
+            <div key={q.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 p-4 border rounded-xl bg-card hover:border-primary/50 transition-colors">
+              <div className="flex-1 min-w-0 space-y-1.5">
+                <p className="text-sm font-medium leading-relaxed text-foreground">{q.questionText}</p>
+                <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-[10px] text-primary bg-primary/5 border-primary/20">Câu {q.id}</Badge>
                   {q.isCritical && <Badge variant="destructive" className="text-[10px]">Điểm liệt</Badge>}
                 </div>
               </div>
               <Button 
                 size="sm" 
+                className="shrink-0"
                 onClick={() => onAdd({
                   id: `CÂU ${q.id}`,
-                  rawId: q.id?.toString() || "",
+                  rawId: padOfficialQuestionId(q.id!),
                   title: q.questionText || "",
                   type: "Trắc nghiệm",
                   program: `Chương ${selectedChapter}`,
