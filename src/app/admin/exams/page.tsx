@@ -411,10 +411,10 @@ export default function AdminExamsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          disabled={deletingId === exam.id || exam.status === "PUBLISHED"}
+                          disabled={deletingId === exam.id}
                           onClick={() => handleDelete(exam.id, exam.title)}
-                          className={`h-8 w-8 ${exam.status === "PUBLISHED" ? "text-muted-foreground/30" : "text-muted-foreground hover:text-destructive"}`}
-                          title={exam.status === "PUBLISHED" ? "Không thể xóa bộ đề đã xuất bản" : "Xóa"}
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          title="Xóa bộ đề"
                         >
                           {deletingId === exam.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                         </Button>
