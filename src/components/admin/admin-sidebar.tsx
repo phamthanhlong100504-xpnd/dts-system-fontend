@@ -11,7 +11,9 @@ import {
   ShieldCheck,
   LogOut,
   Layers,
-  FileText
+  FileText,
+  Users,
+  Key
 } from "lucide-react";
 
 export interface NavItem {
@@ -60,6 +62,16 @@ const NAV_ITEMS: NavItem[] = [
     name: "Cài đặt",
     href: "/admin/settings",
     icon: Settings,
+  },
+  {
+    name: "Người dùng",
+    href: "/admin/users",
+    icon: Users,
+  },
+  {
+    name: "Vai trò & Quyền",
+    href: "/admin/roles",
+    icon: Key,
   },
 ];
 
