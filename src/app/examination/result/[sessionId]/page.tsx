@@ -14,7 +14,8 @@ export default function ExamResultPage() {
   if (isLoading) return <div className="p-12 text-center text-muted-foreground">Đang tải kết quả...</div>;
   if (!result) return <div className="p-12 text-center text-muted-foreground">Không tìm thấy kết quả.</div>;
 
-  const isPassed = result.passed;
+  const summary = result.summary || {};
+  const isPassed = summary.result === "PASS";
 
   return (
     <div className="container mx-auto max-w-4xl py-12 px-4 flex flex-col items-center min-h-screen">
@@ -42,8 +43,8 @@ export default function ExamResultPage() {
           <div className="grid grid-cols-2 gap-6 w-full max-w-md pt-4">
             <div className="bg-muted/30 p-6 rounded-2xl border flex flex-col items-center justify-center">
               <span className="text-sm font-medium text-muted-foreground mb-1">Điểm số</span>
-              <span className="text-4xl font-black text-foreground">{result.score || result.correctCount || 0}</span>
-              <span className="text-sm text-muted-foreground mt-1">/ {result.totalQuestions || 0}</span>
+              <span className="text-4xl font-black text-foreground">{summary.score || summary.correctQuestions || 0}</span>
+              <span className="text-sm text-muted-foreground mt-1">/ {summary.totalQuestions || 0}</span>
             </div>
             <div className="bg-muted/30 p-6 rounded-2xl border flex flex-col items-center justify-center">
               <span className="text-sm font-medium text-muted-foreground mb-1">Trạng thái</span>
