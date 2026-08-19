@@ -34,19 +34,14 @@ const NAV_ITEMS: NavItem[] = [
     icon: HelpCircle,
   },
   {
-    name: "Chương trình học",
-    href: "/admin/programs",
-    icon: BookOpen,
-  },
-  {
     name: "Quản lý chương",
     href: "/admin/chapters",
     icon: FolderTree,
   },
   {
-    name: "Quản lý đề thi",
-    href: "/admin/exams",
-    icon: ShieldCheck,
+    name: "Chương trình học",
+    href: "/admin/programs",
+    icon: BookOpen,
   },
   {
     name: "Cấu trúc đề thi",
@@ -57,6 +52,11 @@ const NAV_ITEMS: NavItem[] = [
     name: "Quy chế thi",
     href: "/admin/exam-rules",
     icon: FileText,
+  },
+  {
+    name: "Quản lý đề thi",
+    href: "/admin/exams",
+    icon: ShieldCheck,
   },
   {
     name: "Cài đặt",
