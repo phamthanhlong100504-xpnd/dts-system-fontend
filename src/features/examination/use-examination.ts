@@ -12,7 +12,7 @@ import {
   startExamSession,
   submitExam,
   type StartExamSessionRequest,
-  type SubmitAnswerRequest,
+  type SubmitAnswerPayload,
 } from "./examination-service";
 import { ApiError } from "@/lib/api";
 
@@ -72,7 +72,7 @@ export function useSaveAnswer() {
       payload,
     }: {
       sessionId: string;
-      payload: SubmitAnswerRequest;
+      payload: SubmitAnswerPayload;
     }) => saveAnswer(sessionId, payload),
   });
 }
