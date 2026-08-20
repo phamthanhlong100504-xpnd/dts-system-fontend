@@ -54,7 +54,7 @@ export function createApiClient(baseURL: string): ApiClient {
       const status = error.response?.status;
 
       const shouldRefresh =
-        status === 401 &&
+        (status === 401 || status === 403) &&
         !config?._retried &&
         !NO_REFRESH_PATHS.some((p) => url.includes(p));
 
@@ -119,3 +119,4 @@ function extractErrorMessage(error: AxiosError): string {
   if (error.code === "ECONNABORTED") return "Request timeout";
   return error.message || "Unexpected error";
 }
+
