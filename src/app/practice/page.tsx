@@ -33,7 +33,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function PracticePage() {
   return (
     <RequireAuth>
-      <div className="container space-y-6 py-8">
+      <div className="container mx-auto px-4 max-w-7xl space-y-6 py-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Luyện thi lý thuyết</h1>
           <p className="text-sm text-muted-foreground">
@@ -213,3 +213,4 @@ function ChapterList() {
     </div>
   );
 }
+

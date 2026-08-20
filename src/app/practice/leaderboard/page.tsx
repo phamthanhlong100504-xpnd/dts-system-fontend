@@ -48,7 +48,7 @@ export default function LeaderboardPage() {
 
   return (
     <RequireAuth>
-      <div className="container space-y-5 py-8">
+      <div className="container mx-auto px-4 max-w-7xl space-y-5 py-8">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
             <Trophy className="h-6 w-6 text-amber-500" />
@@ -180,3 +180,4 @@ export default function LeaderboardPage() {
     </RequireAuth>
   );
 }
+

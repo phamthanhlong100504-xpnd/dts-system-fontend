@@ -54,7 +54,7 @@ export default function HistoryPage() {
 
   return (
     <RequireAuth>
-      <div className="container space-y-5 py-8">
+      <div className="container mx-auto px-4 max-w-7xl space-y-5 py-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Lịch sử thi</h1>
           <p className="text-sm text-muted-foreground">
@@ -171,3 +171,4 @@ export default function HistoryPage() {
     </RequireAuth>
   );
 }
+
