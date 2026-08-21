@@ -42,7 +42,7 @@ export async function fetchAdminQuestions(): Promise<AdminQuestionItem[]> {
 export interface CreateQuestionPayload {
   content: string;
   type?: string;
-  status?: "DRAFT" | "PUBLISHED";
+  status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   isCritical?: boolean;
   chapterId?: number;
   explanation?: string;
