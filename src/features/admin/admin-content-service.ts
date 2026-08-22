@@ -46,6 +46,7 @@ export interface CreateQuestionPayload {
   isCritical?: boolean;
   chapterId?: number;
   explanation?: string;
+  mediaUrl?: string;
   options?: { content: string; isCorrect: boolean; sortOrder: number }[];
 }
 
@@ -58,6 +59,7 @@ function buildQuestionBody(payload: CreateQuestionPayload) {
     metadata: {
       isCritical: payload.isCritical,
       chapterId: payload.chapterId || 1,
+      mediaUrl: payload.mediaUrl,
     },
     options: payload.options?.map((opt, idx) => ({
       content: opt.content,

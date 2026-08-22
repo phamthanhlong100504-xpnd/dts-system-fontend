@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   ArrowLeft,
   Bold,
@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCreateQuestion } from "@/features/admin/use-admin-content";
+import { uploadFileToMediaService } from "@/features/media/media-service";
 
 interface OptionItem {
   id: string;
@@ -40,6 +41,9 @@ export default function QuestionEditorPage() {
   const [explanation, setExplanation] = useState("");
   const [isCritical, setIsCritical] = useState(false);
   const [chapterId, setChapterId] = useState(1);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Bắt đầu với 2 đáp án trống A và B để người dùng tự nhập
   const [options, setOptions] = useState<OptionItem[]>([
@@ -73,6 +77,7 @@ export default function QuestionEditorPage() {
         isCritical,
         chapterId,
         explanation,
+        mediaUrl: mediaUrl || undefined,
         options: filledOptions.map((o, idx) => ({
           content: o.text,
           isCorrect: o.isCorrect,
@@ -140,6 +145,33 @@ export default function QuestionEditorPage() {
           label: String.fromCharCode(65 + idx),
         }))
     );
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check size < 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Dung lượng file không được vượt quá 5MB");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const res = await uploadFileToMediaService(file, "QUESTION", "PUBLIC");
+      setMediaUrl(res.url);
+      toast.success("Tải ảnh thành công!");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Có lỗi xảy ra khi tải ảnh lên. Vui lòng thử lại.");
+    } finally {
+      setIsUploading(false);
+      // Reset input so the same file can be uploaded again if needed
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   return (
@@ -251,13 +283,38 @@ export default function QuestionEditorPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="border-2 border-dashed rounded-xl p-8 text-center flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors cursor-pointer bg-muted/20">
-                <UploadCloud className="h-10 w-10 text-muted-foreground" />
-                <p className="text-sm font-semibold">Tải lên hình ảnh minh họa</p>
-                <p className="text-xs text-muted-foreground">
-                  Hỗ trợ PNG, JPG, GIF dung lượng tối đa 5MB (Tích hợp Media Service)
-                </p>
-              </div>
+              <input
+                type="file"
+                accept="image/png, image/jpeg, image/gif"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+              />
+              {mediaUrl ? (
+                <div className="relative border rounded-xl overflow-hidden group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={mediaUrl} alt="Minh họa" className="w-full h-auto max-h-[300px] object-contain bg-muted/20" />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
+                      Đổi ảnh
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => setMediaUrl(null)}>
+                      Xóa
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div 
+                  className={`border-2 border-dashed rounded-xl p-8 text-center flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors cursor-pointer bg-muted/20 ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <UploadCloud className={`h-10 w-10 text-muted-foreground ${isUploading ? "animate-pulse" : ""}`} />
+                  <p className="text-sm font-semibold">{isUploading ? "Đang tải lên..." : "Tải lên hình ảnh minh họa"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Hỗ trợ PNG, JPG, GIF dung lượng tối đa 5MB (Tích hợp Media Service)
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

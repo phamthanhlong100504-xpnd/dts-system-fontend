@@ -8,6 +8,7 @@ export const progressApi = createApiClient(PROGRESS_API_BASE);
 export const contentBuilderApi = createApiClient("/api/content-builder");
 export const examinationApi = createApiClient("/api/examination");
 export const resultApi = createApiClient("/api/result");
+export const mediaApi = createApiClient("/api/v1/media");
 
 
 export * from "./envelope";
