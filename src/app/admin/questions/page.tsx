@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Plus, Search, Pencil, Trash2, Filter, Loader2, BookOpen } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Filter, Loader2, BookOpen, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,6 +26,7 @@ export default function AdminQuestionsPage() {
   const [activeTab, setActiveTab] = useState<"ALL" | "PUBLISHED" | "DRAFT">("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [viewingQuestion, setViewingQuestion] = useState<any>(null);
 
   const { data: questions = [], isLoading } = useAdminQuestions();
   const deleteMutation = useDeleteQuestion();
@@ -212,6 +214,17 @@ export default function AdminQuestionsPage() {
                     </td>
                     <td className="py-4 px-4 text-right">
                       <div className="flex items-center justify-end gap-1">
+                        {/* View */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          title="Xem chi tiết"
+                          onClick={() => setViewingQuestion(q)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+
                         {/* Edit — trỏ đến trang edit với UUID thật */}
                         <Link href={`/admin/questions/edit/${q.rawId}`}>
                           <Button
@@ -261,6 +274,74 @@ export default function AdminQuestionsPage() {
       </Card>
         </TabsContent>
       </Tabs>
+
+      {/* View Detail Dialog */}
+      <Dialog open={!!viewingQuestion} onOpenChange={(open) => !open && setViewingQuestion(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Chi tiết câu hỏi {viewingQuestion?.id}</DialogTitle>
+            <DialogDescription className="sr-only">Chi tiết câu hỏi</DialogDescription>
+          </DialogHeader>
+          
+          {viewingQuestion && (
+            <div className="space-y-6 mt-4">
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm text-muted-foreground uppercase">Nội dung câu hỏi</h4>
+                <p className="text-base font-medium leading-relaxed">{viewingQuestion.title}</p>
+                {viewingQuestion.isCritical && <Badge variant="destructive" className="mt-1">⚠️ Câu điểm liệt</Badge>}
+              </div>
+
+              {viewingQuestion.imageUrl && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm text-muted-foreground uppercase">Hình ảnh minh họa</h4>
+                  <img src={viewingQuestion.imageUrl} alt="Hình ảnh minh họa" className="max-h-[300px] rounded-md border object-contain bg-muted/20" />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm text-muted-foreground uppercase">Các lựa chọn</h4>
+                <div className="space-y-2 mt-2">
+                  {viewingQuestion.options?.map((opt: any, idx: number) => {
+                    const isCorrect = opt.isCorrect || opt.is_correct || opt.correct;
+                    return (
+                      <div key={idx} className={`p-3 rounded-md border text-sm flex gap-2 ${isCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/50 dark:border-emerald-900 dark:text-emerald-200 font-medium' : 'bg-background'}`}>
+                        <span className="font-bold">{opt.label || String.fromCharCode(65 + idx)}.</span>
+                        <span>{opt.content || opt.text}</span>
+                        {isCorrect && <span className="ml-auto text-emerald-600 dark:text-emerald-400">✓ Đáp án đúng</span>}
+                      </div>
+                    );
+                  })}
+                  {(!viewingQuestion.options || viewingQuestion.options.length === 0) && (
+                    <p className="text-sm text-muted-foreground italic">Không có lựa chọn nào.</p>
+                  )}
+                </div>
+              </div>
+
+              {viewingQuestion.explanation && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm text-muted-foreground uppercase">Giải thích / Mẹo nhớ</h4>
+                  <div className="p-3 bg-primary/5 rounded-md text-sm border border-primary/10 leading-relaxed text-muted-foreground">
+                    {viewingQuestion.explanation}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Trạng thái</p>
+                  <Badge variant={viewingQuestion.status === 'PUBLISHED' ? 'default' : 'secondary'}>
+                    {viewingQuestion.status}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Chương trình / Môn</p>
+                  <p className="text-sm font-medium">{viewingQuestion.program}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

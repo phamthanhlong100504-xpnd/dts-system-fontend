@@ -11,6 +11,7 @@ export interface AdminQuestionItem {
   chapter?: number;
   options?: any[];
   explanation?: string;
+  imageUrl?: string;
 }
 
 export async function fetchAdminQuestions(): Promise<AdminQuestionItem[]> {
@@ -27,8 +28,9 @@ export async function fetchAdminQuestions(): Promise<AdminQuestionItem[]> {
         status: q.status || "PUBLISHED",
         isCritical: Boolean(q.metadata?.isCritical),
         chapter: q.metadata?.chapterId,
-        explanation: q.explanations?.text,
+        explanation: q.explanations?.text || q.explanation,
         options: q.options,
+        imageUrl: q.mediaUrl || q.metadata?.mediaUrl || q.metadata?.imageUrl || q.imageUrl,
       }));
     }
   } catch {
