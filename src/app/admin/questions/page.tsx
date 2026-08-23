@@ -20,15 +20,16 @@ import { getQuestionsByChapter, CHAPTER_META } from "@/features/practice/practic
 
 import { toast } from "sonner";
 
-import { useAdminQuestions, useDeleteQuestion } from "@/features/admin/use-admin-content";
+import { useAdminQuestions, useDeleteQuestion, useAdminQuestionDetail } from "@/features/admin/use-admin-content";
 
 export default function AdminQuestionsPage() {
   const [activeTab, setActiveTab] = useState<"ALL" | "PUBLISHED" | "DRAFT">("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [viewingQuestion, setViewingQuestion] = useState<any>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
 
   const { data: questions = [], isLoading } = useAdminQuestions();
+  const { data: viewingQuestionDetail, isLoading: isLoadingDetail } = useAdminQuestionDetail(viewingId);
   const deleteMutation = useDeleteQuestion();
 
   const filteredQuestions = questions.filter((q) => {
@@ -220,7 +221,7 @@ export default function AdminQuestionsPage() {
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-primary"
                           title="Xem chi tiết"
-                          onClick={() => setViewingQuestion(q)}
+                          onClick={() => setViewingId(q.rawId)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -276,32 +277,34 @@ export default function AdminQuestionsPage() {
       </Tabs>
 
       {/* View Detail Dialog */}
-      <Dialog open={!!viewingQuestion} onOpenChange={(open) => !open && setViewingQuestion(null)}>
+      <Dialog open={!!viewingId} onOpenChange={(open) => !open && setViewingId(null)}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl">Chi tiết câu hỏi {viewingQuestion?.id}</DialogTitle>
+            <DialogTitle className="text-xl">Chi tiết câu hỏi</DialogTitle>
             <DialogDescription className="sr-only">Chi tiết câu hỏi</DialogDescription>
           </DialogHeader>
           
-          {viewingQuestion && (
+          {isLoadingDetail ? (
+            <div className="flex justify-center py-12"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>
+          ) : viewingQuestionDetail ? (
             <div className="space-y-6 mt-4">
               <div className="space-y-2">
                 <h4 className="font-semibold text-sm text-muted-foreground uppercase">Nội dung câu hỏi</h4>
-                <p className="text-base font-medium leading-relaxed">{viewingQuestion.title}</p>
-                {viewingQuestion.isCritical && <Badge variant="destructive" className="mt-1">⚠️ Câu điểm liệt</Badge>}
+                <p className="text-base font-medium leading-relaxed">{viewingQuestionDetail.title}</p>
+                {viewingQuestionDetail.isCritical && <Badge variant="destructive" className="mt-1">⚠️ Câu điểm liệt</Badge>}
               </div>
 
-              {viewingQuestion.imageUrl && (
+              {viewingQuestionDetail.imageUrl && (
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm text-muted-foreground uppercase">Hình ảnh minh họa</h4>
-                  <img src={viewingQuestion.imageUrl} alt="Hình ảnh minh họa" className="max-h-[300px] rounded-md border object-contain bg-muted/20" />
+                  <img src={viewingQuestionDetail.imageUrl} alt="Hình ảnh minh họa" className="max-h-[300px] rounded-md border object-contain bg-muted/20" />
                 </div>
               )}
 
               <div className="space-y-2">
                 <h4 className="font-semibold text-sm text-muted-foreground uppercase">Các lựa chọn</h4>
                 <div className="space-y-2 mt-2">
-                  {viewingQuestion.options?.map((opt: any, idx: number) => {
+                  {viewingQuestionDetail.options?.map((opt: any, idx: number) => {
                     const isCorrect = opt.isCorrect || opt.is_correct || opt.correct;
                     return (
                       <div key={idx} className={`p-3 rounded-md border text-sm flex gap-2 ${isCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/50 dark:border-emerald-900 dark:text-emerald-200 font-medium' : 'bg-background'}`}>
@@ -311,17 +314,17 @@ export default function AdminQuestionsPage() {
                       </div>
                     );
                   })}
-                  {(!viewingQuestion.options || viewingQuestion.options.length === 0) && (
+                  {(!viewingQuestionDetail.options || viewingQuestionDetail.options.length === 0) && (
                     <p className="text-sm text-muted-foreground italic">Không có lựa chọn nào.</p>
                   )}
                 </div>
               </div>
 
-              {viewingQuestion.explanation && (
+              {viewingQuestionDetail.explanation && (
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm text-muted-foreground uppercase">Giải thích / Mẹo nhớ</h4>
                   <div className="p-3 bg-primary/5 rounded-md text-sm border border-primary/10 leading-relaxed text-muted-foreground">
-                    {viewingQuestion.explanation}
+                    {viewingQuestionDetail.explanation}
                   </div>
                 </div>
               )}
@@ -329,16 +332,18 @@ export default function AdminQuestionsPage() {
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Trạng thái</p>
-                  <Badge variant={viewingQuestion.status === 'PUBLISHED' ? 'default' : 'secondary'}>
-                    {viewingQuestion.status}
+                  <Badge variant={viewingQuestionDetail.status === 'PUBLISHED' ? 'default' : 'secondary'}>
+                    {viewingQuestionDetail.status}
                   </Badge>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Chương trình / Môn</p>
-                  <p className="text-sm font-medium">{viewingQuestion.program}</p>
+                  <p className="text-sm font-medium">{viewingQuestionDetail.program}</p>
                 </div>
               </div>
             </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">Không tải được dữ liệu chi tiết.</div>
           )}
         </DialogContent>
       </Dialog>

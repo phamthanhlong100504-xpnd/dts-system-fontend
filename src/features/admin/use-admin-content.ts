@@ -6,6 +6,7 @@ import {
   updateQuestionApi,
   deleteQuestionApi,
   fetchAdminQuestions,
+  fetchAdminQuestionDetail,
   CreateQuestionPayload,
   UpdateQuestionPayload,
 } from "./admin-content-service";
@@ -58,6 +59,15 @@ export function useAdminQuestions() {
     queryFn: fetchAdminQuestions,
     staleTime: 30_000,
     enabled: typeof window !== "undefined",
+  });
+}
+
+export function useAdminQuestionDetail(rawId: string | null) {
+  return useQuery({
+    queryKey: ["admin", "question", rawId],
+    queryFn: () => fetchAdminQuestionDetail(rawId!),
+    enabled: !!rawId,
+    staleTime: 0, // Always fetch latest to get options
   });
 }
 

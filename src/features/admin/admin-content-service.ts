@@ -40,6 +40,31 @@ export async function fetchAdminQuestions(): Promise<AdminQuestionItem[]> {
   return [];
 }
 
+export async function fetchAdminQuestionDetail(rawId: string): Promise<AdminQuestionItem | null> {
+  if (!rawId) return null;
+  try {
+    const q = await contentBuilderApi.get<any>(`/v1/questions/${rawId}`);
+    if (q) {
+      return {
+        id: q.id ? `#Q-${q.id.substring(0, 6)}` : "#Q-DRAFT",
+        rawId: q.id || "",
+        title: q.content || q.questionText || q.title || "Câu hỏi chưa có nội dung",
+        type: q.type === "SINGLE_CHOICE" || q.type === "MULTIPLE_CHOICE" ? "Trắc nghiệm" : "Tự luận",
+        program: q.metadata?.chapterId ? `Chương ${q.metadata.chapterId}` : "BỘ ĐỀ GPLX",
+        status: q.status || "PUBLISHED",
+        isCritical: Boolean(q.metadata?.isCritical),
+        chapter: q.metadata?.chapterId,
+        explanation: q.explanations?.text || q.explanation,
+        options: q.options,
+        imageUrl: q.mediaUrl || q.metadata?.mediaUrl || q.metadata?.imageUrl || q.imageUrl,
+      };
+    }
+  } catch (e) {
+    console.error("Failed to fetch question details", e);
+  }
+  return null;
+}
+
 /* ==================== CREATE ==================== */
 export interface CreateQuestionPayload {
   content: string;
