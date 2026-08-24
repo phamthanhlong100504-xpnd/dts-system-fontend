@@ -20,7 +20,7 @@ export function MediaImage({ src, alt, className }: { src?: string; alt?: string
     const fetchUrl = async () => {
       try {
         setLoading(true);
-        const res = await mediaApi.get<any>(/);
+        const res = await mediaApi.get<any>(`/${src}`);
         if (res && res.url) {
           setUrl(res.url);
         } else {
@@ -40,11 +40,11 @@ export function MediaImage({ src, alt, className }: { src?: string; alt?: string
   if (!src) return null;
 
   if (loading) {
-    return <div className={lex items-center justify-center bg-muted/20 }><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
+    return <div className={`flex items-center justify-center bg-muted/20 ${className || ""}`}><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
   }
 
   if (error || !url) {
-    return <div className={lex items-center justify-center bg-muted/20 text-muted-foreground text-xs }>[Lỗi tải hình ảnh]</div>;
+    return <div className={`flex items-center justify-center bg-muted/20 text-muted-foreground text-xs ${className || ""}`}>[Lỗi tải hình ảnh]</div>;
   }
 
   return <img src={url} alt={alt} className={className} />;
