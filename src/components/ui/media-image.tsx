@@ -12,30 +12,40 @@ export function MediaImage({ src, alt, className }: { src?: string; alt?: string
     
     // Nếu src là URL hợp lệ (bắt đầu bằng http)
     if (src.startsWith("http")) {
+      // KIỂM TRA: Nếu đây là một presigned URL của MinIO đã hết hạn (có chứa UUID)
+      // thì cố gắng bóc tách UUID (mediaId) ra để lấy URL mới nhất
+      const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/;
+      const match = src.match(uuidRegex);
+      if (match && src.includes("X-Amz-Signature")) {
+        // Đây là presigned URL, bỏ qua URL cũ và đi fetch URL mới bằng mediaId vừa tìm được
+        fetchMediaUrl(match[1]);
+        return;
+      }
+      
       setUrl(src);
       return;
     }
 
     // Nếu src là UUID (mediaId)
-    const fetchUrl = async () => {
-      try {
-        setLoading(true);
-        const res = await mediaApi.get<any>(`/${src}`);
-        if (res && res.url) {
-          setUrl(res.url);
-        } else {
-          setError(true);
-        }
-      } catch (err) {
-        console.error("Failed to load media URL", err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUrl();
+    fetchMediaUrl(src);
   }, [src]);
+
+  const fetchMediaUrl = async (mediaId: string) => {
+    try {
+      setLoading(true);
+      const res = await mediaApi.get<any>(`/${mediaId}`);
+      if (res && res.url) {
+        setUrl(res.url);
+      } else {
+        setError(true);
+      }
+    } catch (err) {
+      console.error("Failed to load media URL", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!src) return null;
 
