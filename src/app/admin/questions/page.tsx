@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MediaImage } from "@/components/ui/media-image";
 import {
   Tabs,
   TabsContent,
@@ -297,7 +298,7 @@ export default function AdminQuestionsPage() {
               {viewingQuestionDetail.imageUrl && (
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm text-muted-foreground uppercase">Hình ảnh minh họa</h4>
-                  <img src={viewingQuestionDetail.imageUrl} alt="Hình ảnh minh họa" className="max-h-[300px] rounded-md border object-contain bg-muted/20" />
+                  <MediaImage src={viewingQuestionDetail.imageUrl} alt="Hình ảnh minh họa" className="max-h-[300px] w-auto rounded-md border object-contain bg-muted/20" />
                 </div>
               )}
 

@@ -43,7 +43,7 @@ export async function fetchAdminQuestions(): Promise<AdminQuestionItem[]> {
 export async function fetchAdminQuestionDetail(rawId: string): Promise<AdminQuestionItem | null> {
   if (!rawId) return null;
   try {
-    const q = await contentBuilderApi.get<any>(`/v1/questions/${rawId}`);
+    const q = await contentBuilderApi.get<any>(`/v1/questions/${rawId}?includeOptions=true`);
     if (q) {
       return {
         id: q.id ? `#Q-${q.id.substring(0, 6)}` : "#Q-DRAFT",
@@ -56,7 +56,7 @@ export async function fetchAdminQuestionDetail(rawId: string): Promise<AdminQues
         chapter: q.metadata?.chapterId,
         explanation: q.explanations?.text || q.explanation,
         options: q.options,
-        imageUrl: q.mediaUrl || q.metadata?.mediaUrl || q.metadata?.imageUrl || q.imageUrl,
+        imageUrl: (q.mediaFileIds && q.mediaFileIds.length > 0) ? q.mediaFileIds[0] : (q.mediaUrl || q.metadata?.mediaUrl || q.metadata?.imageUrl || q.imageUrl),
       };
     }
   } catch (e) {
@@ -83,10 +83,10 @@ function buildQuestionBody(payload: CreateQuestionPayload) {
     content: payload.content,
     status: payload.status || "PUBLISHED",
     explanations: payload.explanation ? { text: payload.explanation } : undefined,
+    mediaFileIds: payload.mediaUrl ? [payload.mediaUrl] : undefined,
     metadata: {
       isCritical: payload.isCritical,
       chapterId: payload.chapterId || 1,
-      mediaUrl: payload.mediaUrl,
     },
     options: payload.options?.map((opt, idx) => ({
       content: opt.content,
