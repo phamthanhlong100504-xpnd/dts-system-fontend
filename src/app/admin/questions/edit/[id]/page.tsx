@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Plus, Trash2, AlertTriangle, CheckCircle, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ interface OptionItem {
   isCorrect: boolean;
 }
 
+
 const LABELS = ["A", "B", "C", "D", "E", "F"];
 
 export default function EditQuestionPage() {
@@ -40,7 +41,7 @@ export default function EditQuestionPage() {
   const [currentStatus, setCurrentStatus] = useState<string>("");
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isPublished = currentStatus === "PUBLISHED";
 

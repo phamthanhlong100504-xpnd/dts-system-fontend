@@ -6,7 +6,7 @@ export interface AdminQuestionItem {
   title: string;
   type: string;
   program: string;
-  status: "PUBLISHED" | "DRAFT";
+  status: "PUBLISHED" | "DRAFT" | "ARCHIVED";
   isCritical?: boolean;
   chapter?: number;
   options?: any[];
