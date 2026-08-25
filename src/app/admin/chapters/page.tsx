@@ -52,7 +52,6 @@ export default function AdminChaptersPage() {
   const [newDescription, setNewDescription] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const activeChapter = chapters.find((c) => c.id === selectedChapterId) || chapters[0];
   const { data: chapterDetail, isLoading: isLoadingDetail } = useAdminChapterDetail(activeChapter?.id || null);
 
   const addQuestionMutation = useAddQuestionBlock(activeChapter?.id || "");
