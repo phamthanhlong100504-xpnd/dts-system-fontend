@@ -309,8 +309,8 @@ export default function AdminChaptersPage() {
                   size="sm" 
                   variant={activeChapter.status === "ARCHIVED" ? "outline" : "secondary"}
                   onClick={() => handleUpdateStatus(activeChapter.status === "ARCHIVED" ? "DRAFT" : "ARCHIVED")}
-                  disabled={updateMutation.isPending || activeChapter.status === "PUBLISHED"}
-                  title={activeChapter.status === "PUBLISHED" ? "Không thể chuyển trạng thái từ PUBLISHED sang ARCHIVED. Phải chuyển DRAFT trước (theo business logic)" : ""}
+                  disabled={updateMutation.isPending}
+                  title={activeChapter.status === "PUBLISHED" ? "Lưu trữ chương này" : ""}
                 >
                   {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
                   {activeChapter.status === "ARCHIVED" ? "Khôi phục (DRAFT)" : "Lưu trữ (ARCHIVE)"}
