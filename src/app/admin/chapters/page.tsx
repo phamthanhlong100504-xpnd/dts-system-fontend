@@ -139,6 +139,7 @@ export default function AdminChaptersPage() {
   };
 
   const filteredQuestions = bankQuestions.filter(q => 
+    q.status === "PUBLISHED" &&
     q.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
     // Lọc bỏ những câu đã có trong chương
     !chapterDetail?.questionBlocks?.some(b => b.questionId === q.rawId)
@@ -389,6 +390,9 @@ export default function AdminChaptersPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+              <p className="text-[11px] text-muted-foreground italic px-1">
+                * Chỉ hiển thị các câu hỏi đã Xuất bản (PUBLISHED). Đã ẩn các câu hỏi đã có sẵn trong chương này.
+              </p>
               
               <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-2">
                 {isLoadingQuestions ? (
