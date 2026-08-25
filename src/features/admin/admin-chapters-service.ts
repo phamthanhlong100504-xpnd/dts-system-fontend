@@ -3,7 +3,7 @@ import { contentBuilderApi } from "@/lib/api";
 export interface ChapterItem {
   id: string;
   title: string;
-  status: "PUBLISHED" | "DRAFT";
+  status: "PUBLISHED" | "DRAFT" | "ARCHIVED";
   createdAt?: string;
   description?: string;
 }
@@ -35,6 +35,16 @@ export async function createChapterApi(payload: { title: string; status?: "DRAFT
 export async function deleteChapterApi(id: string) {
   return await contentBuilderApi.delete<void>(`/v1/chapters/${id}`);
 }
+
+export async function updateChapterApi(id: string, payload: { title: string; status: string; description?: string }) {
+  const body = {
+    title: payload.title,
+    status: payload.status,
+    metadata: { description: payload.description }
+  };
+  return await contentBuilderApi.put<any>(`/v1/chapters/${id}`, body);
+}
+
 
 /* ==================== CHAPTER DETAILS & QUESTION BLOCKS ==================== */
 

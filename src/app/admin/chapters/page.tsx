@@ -14,6 +14,7 @@ import {
   useAdminChapters,
   useCreateChapter,
   useDeleteChapter,
+  useUpdateChapter,
   useAdminChapterDetail,
   useAddQuestionBlock,
   useDeleteQuestionBlock,
@@ -44,6 +45,8 @@ export default function AdminChaptersPage() {
   const deleteMutation = useDeleteChapter();
 
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
+  const activeChapter = chapters.find((c) => c.id === selectedChapterId) || chapters[0];
+  const updateMutation = useUpdateChapter(activeChapter?.id || "");
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
@@ -66,7 +69,7 @@ export default function AdminChaptersPage() {
       return;
     }
     createMutation.mutate(
-      { title: newTitle, description: newDescription, status: "PUBLISHED" },
+      { title: newTitle, description: newDescription, status: "DRAFT" },
       {
         onSuccess: () => {
           toast.success("Đã tạo chương mới thành công!");
@@ -95,6 +98,17 @@ export default function AdminChaptersPage() {
         setDeletingId(null);
       },
     });
+  };
+
+  const handleUpdateStatus = (newStatus: string) => {
+    if (!activeChapter) return;
+    updateMutation.mutate(
+      { title: activeChapter.title, status: newStatus, description: activeChapter.description },
+      {
+        onSuccess: () => toast.success(`Đã đổi trạng thái thành ${newStatus}`),
+        onError: () => toast.error("Đổi trạng thái thất bại"),
+      }
+    );
   };
 
   const handleAddQuestion = (question: AdminQuestionItem) => {
@@ -261,6 +275,8 @@ export default function AdminChaptersPage() {
                         variant="ghost"
                         size="icon"
                         className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                        disabled={deletingId === chapter.id || chapter.status !== "DRAFT"}
+                        title={chapter.status !== "DRAFT" ? "Chỉ có thể xóa chương DRAFT" : "Xóa chương"}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(chapter.id, chapter.title);
@@ -287,13 +303,37 @@ export default function AdminChaptersPage() {
                 <CardTitle className="text-base font-bold">
                   {activeChapter ? activeChapter.title : "Chọn chương để xem chi tiết"}
                 </CardTitle>
-              </div>
-              {activeChapter && (
-                <Button size="sm" onClick={() => setIsAddingQuestion(true)} className="gap-2">
+            </div>
+            {activeChapter && (
+              <div className="flex items-center gap-2">
+                <Button 
+                  size="sm" 
+                  variant={activeChapter.status === "ARCHIVED" ? "outline" : "secondary"}
+                  onClick={() => handleUpdateStatus(activeChapter.status === "ARCHIVED" ? "DRAFT" : "ARCHIVED")}
+                  disabled={updateMutation.isPending || activeChapter.status === "PUBLISHED"}
+                  title={activeChapter.status === "PUBLISHED" ? "Không thể chuyển trạng thái từ PUBLISHED sang ARCHIVED. Phải chuyển DRAFT trước (theo business logic)" : ""}
+                >
+                  {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                  {activeChapter.status === "ARCHIVED" ? "Khôi phục (DRAFT)" : "Lưu trữ (ARCHIVE)"}
+                </Button>
+                
+                {activeChapter.status === "DRAFT" && (
+                  <Button 
+                    size="sm" 
+                    variant="default"
+                    onClick={() => handleUpdateStatus("PUBLISHED")}
+                    disabled={updateMutation.isPending}
+                  >
+                    Xuất bản
+                  </Button>
+                )}
+
+                <Button size="sm" onClick={() => setIsAddingQuestion(true)} className="gap-2" disabled={activeChapter.status === "ARCHIVED"}>
                   <Plus className="h-4 w-4" /> Thêm câu hỏi
                 </Button>
-              )}
-            </CardHeader>
+              </div>
+            )}
+          </CardHeader>
             <CardContent className="space-y-6 pt-6">
               {activeChapter ? (
                 <>

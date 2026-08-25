@@ -24,6 +24,7 @@ import {
   fetchAdminChapters,
   createChapterApi,
   deleteChapterApi,
+  updateChapterApi,
   fetchAdminChapterDetail,
   addQuestionBlockApi,
   deleteQuestionBlockApi,
@@ -199,6 +200,18 @@ export function useCreateChapter() {
       createChapterApi(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "chapters"] });
+    },
+  });
+}
+
+export function useUpdateChapter(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { title: string; status: string; description?: string }) =>
+      updateChapterApi(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "chapters"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "chapters", id] });
     },
   });
 }
