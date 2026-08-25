@@ -33,7 +33,6 @@ export default function EditQuestionPage() {
   const [questionTitle, setQuestionTitle] = useState("");
   const [explanation, setExplanation] = useState("");
   const [isCritical, setIsCritical] = useState(false);
-  const [chapterId, setChapterId] = useState(1);
   const [questionType, setQuestionType] = useState("SINGLE_CHOICE");
   const [options, setOptions] = useState<OptionItem[]>([]);
   const [currentStatus, setCurrentStatus] = useState<string>("");
@@ -50,7 +49,6 @@ export default function EditQuestionPage() {
         setQuestionTitle(q.content || "");
         setExplanation(q.explanations?.text || "");
         setIsCritical(Boolean(q.metadata?.isCritical));
-        setChapterId(q.metadata?.chapterId || 1);
         setQuestionType(q.type || "SINGLE_CHOICE");
         setCurrentStatus(q.status || "");
         const rawOptions: any[] = Array.isArray(q.options) ? q.options : [];
@@ -97,7 +95,6 @@ export default function EditQuestionPage() {
         type: questionType,
         status,
         isCritical,
-        chapterId,
         explanation,
         options: options.map((o, idx) => ({ content: o.text, isCorrect: o.isCorrect, sortOrder: idx + 1 })),
       },
@@ -161,19 +158,7 @@ export default function EditQuestionPage() {
             className="min-h-[100px] text-sm resize-none"
             disabled={isPublished}
           />
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Chương</label>
-              <Input
-                type="number"
-                min={1}
-                max={9}
-                value={chapterId}
-                onChange={(e) => setChapterId(Number(e.target.value))}
-                className="h-9"
-                disabled={isPublished}
-              />
-            </div>
+          <div className="grid grid-cols-1 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Câu hỏi điểm liệt</label>
               <button

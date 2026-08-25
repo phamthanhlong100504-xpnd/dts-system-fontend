@@ -454,7 +454,6 @@ function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapte
         type: "SINGLE_CHOICE",
         status: "PUBLISHED",
         isCritical: q.isCritical,
-        chapterId: selectedChapter,
         explanation: q.explanation || "",
         options: q.options?.map((opt: any, idx: number) => ({
           content: opt.text || "",
