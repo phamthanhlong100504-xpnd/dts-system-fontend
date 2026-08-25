@@ -249,8 +249,8 @@ export default function AdminQuestionsPage() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          title={q.status === "PUBLISHED" ? "Không thể xóa câu hỏi đã xuất bản. Vui lòng Archive." : "Xóa"}
-                          disabled={deletingId === q.rawId || !q.rawId || q.status === "PUBLISHED"}
+                          title={q.status === "PUBLISHED" ? "Không thể xóa câu hỏi đã xuất bản. Vui lòng Archive." : q.status === "ARCHIVED" ? "Không thể xóa vì dữ liệu đã là archived tức bị đóng băng." : "Xóa"}
+                          disabled={deletingId === q.rawId || !q.rawId || q.status === "PUBLISHED" || q.status === "ARCHIVED"}
                           onClick={() => handleDelete(q.rawId, q.title)}
                         >
                           {deletingId === q.rawId ? (
