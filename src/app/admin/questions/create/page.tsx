@@ -42,7 +42,6 @@ export default function QuestionEditorPage() {
   const [questionTitle, setQuestionTitle] = useState("");
   const [explanation, setExplanation] = useState("");
   const [isCritical, setIsCritical] = useState(false);
-  const [chapterId, setChapterId] = useState(1);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,9 +74,9 @@ export default function QuestionEditorPage() {
     createMutation.mutate(
       {
         content: questionTitle,
-        status,
+        type: "SINGLE_CHOICE",
+        status: status,
         isCritical,
-        chapterId,
         explanation,
         mediaUrl: mediaUrl || undefined,
         options: filledOptions.map((o, idx) => ({
@@ -328,24 +327,6 @@ export default function QuestionEditorPage() {
               <CardTitle className="text-base font-bold">Cấu hình câu hỏi</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">
-                  Thuộc Chương
-                </label>
-                <select
-                  value={chapterId}
-                  onChange={(e) => setChapterId(Number(e.target.value))}
-                  className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                >
-                  <option value={1}>Chương 1: Quy tắc giao thông đường bộ</option>
-                  <option value={2}>Chương 2: Văn hóa & Đạo đức lái xe</option>
-                  <option value={3}>Chương 3: Kỹ thuật lái xe</option>
-                  <option value={4}>Chương 4: Cấu tạo & Sửa chữa</option>
-                  <option value={5}>Chương 5: Hệ thống Biển báo đường bộ</option>
-                  <option value={6}>Chương 6: Sa hình & Xử lý tình huống</option>
-                </select>
-              </div>
-
               {/* Critical Toggle Card */}
               <div className="flex items-center justify-between p-3.5 rounded-xl border border-destructive/30 bg-destructive/5">
                 <div className="flex items-center gap-2.5">

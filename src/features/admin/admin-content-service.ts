@@ -24,7 +24,7 @@ export async function fetchAdminQuestions(): Promise<AdminQuestionItem[]> {
         rawId: q.id || "",
         title: q.content || q.questionText || q.title || "Câu hỏi chưa có nội dung",
         type: q.type === "SINGLE_CHOICE" || q.type === "MULTIPLE_CHOICE" ? "Trắc nghiệm" : "Tự luận",
-        program: q.metadata?.chapterId ? `Chương ${q.metadata.chapterId}` : "Bộ đề GPLX",
+        program: q.metadata?.chapterId ? `Chương ${q.metadata.chapterId}` : "Chưa phân chương",
         status: q.status || "PUBLISHED",
         isCritical: Boolean(q.metadata?.isCritical),
         chapter: q.metadata?.chapterId,
@@ -50,7 +50,7 @@ export async function fetchAdminQuestionDetail(rawId: string): Promise<AdminQues
         rawId: q.id || "",
         title: q.content || q.questionText || q.title || "Câu hỏi chưa có nội dung",
         type: q.type === "SINGLE_CHOICE" || q.type === "MULTIPLE_CHOICE" ? "Trắc nghiệm" : "Tự luận",
-        program: q.metadata?.chapterId ? `Chương ${q.metadata.chapterId}` : "BỘ ĐỀ GPLX",
+        program: q.metadata?.chapterId ? `Chương ${q.metadata.chapterId}` : "Chưa phân chương",
         status: q.status || "PUBLISHED",
         isCritical: Boolean(q.metadata?.isCritical),
         chapter: q.metadata?.chapterId,
@@ -71,7 +71,6 @@ export interface CreateQuestionPayload {
   type?: string;
   status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   isCritical?: boolean;
-  chapterId?: number;
   explanation?: string;
   mediaUrl?: string;
   options?: { content: string; isCorrect: boolean; sortOrder: number }[];
@@ -86,7 +85,6 @@ function buildQuestionBody(payload: CreateQuestionPayload) {
     mediaFileIds: payload.mediaUrl ? [payload.mediaUrl] : undefined,
     metadata: {
       isCritical: payload.isCritical,
-      chapterId: payload.chapterId || 1,
     },
     options: payload.options?.map((opt, idx) => ({
       content: opt.content,
