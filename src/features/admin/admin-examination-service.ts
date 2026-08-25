@@ -321,7 +321,18 @@ export interface ExamCriteriaPayload {
 export async function fetchAdminExamCriterias(): Promise<ExamCriteriaPayload[]> {
   try {
     const res = await examinationApi.get<any>("/v1/exam-criterias?size=100");
-    return Array.isArray(res?.content) ? res.content : Array.isArray(res) ? res : [];
+    if (Array.isArray(res)) return res;
+    if (res?.content && Array.isArray(res.content)) return res.content;
+    if (res?.data && Array.isArray(res.data)) return res.data;
+    if (res?.data?.content && Array.isArray(res.data.content)) return res.data.content;
+    if (res?.items && Array.isArray(res.items)) return res.items;
+    
+    if (res && typeof res === "object") {
+      for (const key of Object.keys(res)) {
+        if (Array.isArray(res[key])) return res[key];
+      }
+    }
+    return [];
   } catch (error) {
     console.error("Error fetching admin exam criterias", error);
     return [];
