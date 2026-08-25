@@ -12,6 +12,7 @@ import {
   LogOut,
   Layers,
   FileText,
+  Scale,
   Users,
   Key
 } from "lucide-react";
@@ -47,6 +48,11 @@ const NAV_ITEMS: NavItem[] = [
     name: "Cấu trúc đề thi",
     href: "/admin/exam-structures",
     icon: Layers,
+  },
+  {
+    name: "Tiêu chí chấm thi",
+    href: "/admin/exam-criteria",
+    icon: Scale,
   },
   {
     name: "Quy chế thi",

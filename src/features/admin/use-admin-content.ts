@@ -51,6 +51,11 @@ import {
   updateExamRuleApi,
   deleteExamRuleApi,
   ExamRulePayload,
+  fetchAdminExamCriterias,
+  createExamCriteriaApi,
+  updateExamCriteriaApi,
+  deleteExamCriteriaApi,
+  ExamCriteriaPayload,
 } from "./admin-examination-service";
 
 /* ==================== QUESTIONS ==================== */
@@ -424,9 +429,48 @@ export function useUpdateExamRule() {
 export function useDeleteExamRule() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteExamRuleApi(id),
+    mutationFn: deleteExamRuleApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exam-rules"] });
+    },
+  });
+}
+
+/* ==================== EXAM CRITERIA ==================== */
+export function useAdminExamCriterias() {
+  return useQuery({
+    queryKey: ["admin", "exam-criterias"],
+    queryFn: fetchAdminExamCriterias,
+  });
+}
+
+export function useCreateExamCriteria() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createExamCriteriaApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exam-criterias"] });
+    },
+  });
+}
+
+export function useUpdateExamCriteria() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: ExamCriteriaPayload }) =>
+      updateExamCriteriaApi(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exam-criterias"] });
+    },
+  });
+}
+
+export function useDeleteExamCriteria() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteExamCriteriaApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "exam-criterias"] });
     },
   });
 }

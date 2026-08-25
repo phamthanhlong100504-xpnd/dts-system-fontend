@@ -277,3 +277,65 @@ export async function updateExamStructureApi(structureId: string, payload: {
 export async function deleteExamStructureApi(structureId: string) {
   return await examinationApi.delete<void>(`/v1/exam-structures/${structureId}`);
 }
+
+/* ==================== EXAM CRITERIA ==================== */
+
+export interface MandatoryRule {
+  type: "MUST_CORRECT" | "MUST_ATTEMPT" | "AT_LEAST_ONE" | "MAX_WRONG";
+  questionIds: string[];
+}
+
+export interface SectionRule {
+  sectionId: string;
+  minScore: number;
+}
+
+export interface Penalty {
+  type: "UNANSWERED" | "WRONG_ANSWER";
+  deduct: number;
+}
+
+export interface RoundingRule {
+  mode: string;
+  precision: number;
+}
+
+export interface ExamCriteriaLogic {
+  passScore: number;
+  totalScore: number;
+  gradingMethod: "SUM" | "WEIGHTED" | "PERCENTAGE" | "BEST_OF" | "AVERAGE";
+  rounding?: RoundingRule;
+  mandatoryRules?: MandatoryRule[];
+  sectionRules?: SectionRule[];
+  penalties?: Penalty[];
+}
+
+export interface ExamCriteriaPayload {
+  id?: string;
+  title: string;
+  criteria: ExamCriteriaLogic;
+  metadata?: Record<string, any>;
+  status?: string;
+}
+
+export async function fetchAdminExamCriterias(): Promise<ExamCriteriaPayload[]> {
+  try {
+    const res = await examinationApi.get<any>("/v1/exam-criterias?size=100");
+    return Array.isArray(res?.content) ? res.content : Array.isArray(res) ? res : [];
+  } catch (error) {
+    console.error("Error fetching admin exam criterias", error);
+    return [];
+  }
+}
+
+export async function createExamCriteriaApi(payload: ExamCriteriaPayload) {
+  return await examinationApi.post<any>("/v1/exam-criterias", payload);
+}
+
+export async function updateExamCriteriaApi(criteriaId: string, payload: ExamCriteriaPayload) {
+  return await examinationApi.patch<any>(`/v1/exam-criterias/${criteriaId}`, payload);
+}
+
+export async function deleteExamCriteriaApi(criteriaId: string) {
+  return await examinationApi.delete<void>(`/v1/exam-criterias/${criteriaId}`);
+}
