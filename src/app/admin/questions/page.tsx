@@ -208,6 +208,10 @@ export default function AdminQuestionsPage() {
                         <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
                           PUBLISHED
                         </Badge>
+                      ) : q.status === "ARCHIVED" ? (
+                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                          ARCHIVED
+                        </Badge>
                       ) : (
                         <Badge variant="secondary" className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
                           DRAFT

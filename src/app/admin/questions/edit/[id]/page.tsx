@@ -12,6 +12,8 @@ import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 import { useUpdateQuestion } from "@/features/admin/use-admin-content";
 import { contentBuilderApi } from "@/lib/api";
+import { uploadFileToMediaService } from "@/features/media/media-service";
+import { MediaImage } from "@/components/ui/media-image";
 
 interface OptionItem {
   id: string;
@@ -36,6 +38,9 @@ export default function EditQuestionPage() {
   const [questionType, setQuestionType] = useState("SINGLE_CHOICE");
   const [options, setOptions] = useState<OptionItem[]>([]);
   const [currentStatus, setCurrentStatus] = useState<string>("");
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const isPublished = currentStatus === "PUBLISHED";
 
@@ -51,6 +56,7 @@ export default function EditQuestionPage() {
         setIsCritical(Boolean(q.metadata?.isCritical));
         setQuestionType(q.type || "SINGLE_CHOICE");
         setCurrentStatus(q.status || "");
+        setMediaUrl((q.mediaFileIds && q.mediaFileIds.length > 0) ? q.mediaFileIds[0] : (q.mediaUrl || q.metadata?.mediaUrl || q.metadata?.imageUrl || q.imageUrl || null));
         const rawOptions: any[] = Array.isArray(q.options) ? q.options : [];
         setOptions(
           rawOptions.map((opt: any, idx: number) => ({
@@ -66,6 +72,31 @@ export default function EditQuestionPage() {
       })
       .finally(() => setLoading(false));
   }, [questionId]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Dung lượng file không được vượt quá 5MB");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const res = await uploadFileToMediaService(file, "QUESTION", "PUBLIC");
+      setMediaUrl(res.mediaId);
+      toast.success("Tải ảnh thành công!");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Có lỗi xảy ra khi tải ảnh lên. Vui lòng thử lại.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
 
   const addOption = () => {
     if (options.length >= 6) { toast.error("Tối đa 6 đáp án"); return; }
@@ -96,6 +127,7 @@ export default function EditQuestionPage() {
         status,
         isCritical,
         explanation,
+        mediaUrl: mediaUrl || undefined,
         options: options.map((o, idx) => ({ content: o.text, isCorrect: o.isCorrect, sortOrder: idx + 1 })),
       },
       {
@@ -176,6 +208,49 @@ export default function EditQuestionPage() {
               </button>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Media File Upload Card */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Hình ảnh đính kèm (Sa hình / Biển báo)</CardTitle></CardHeader>
+        <CardContent>
+          <input
+            type="file"
+            accept="image/png, image/jpeg, image/gif"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            disabled={isPublished}
+          />
+          {mediaUrl ? (
+            <div className="relative border rounded-xl overflow-hidden group">
+              <MediaImage src={mediaUrl} alt="Minh họa" className="w-full h-auto max-h-[300px] object-contain bg-muted/20" />
+              {!isPublished && (
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                  <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
+                    Đổi ảnh
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={() => setMediaUrl(null)}>
+                    Xóa
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div 
+              className={`border-2 border-dashed rounded-xl p-8 text-center flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors bg-muted/20 ${isUploading ? "opacity-50 pointer-events-none" : ""} ${isPublished ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              onClick={() => !isPublished && fileInputRef.current?.click()}
+            >
+              <div className="h-10 w-10 text-muted-foreground flex items-center justify-center">
+                {isUploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Plus className="h-6 w-6" />}
+              </div>
+              <p className="text-sm font-semibold">{isUploading ? "Đang tải lên..." : "Tải lên hình ảnh minh họa"}</p>
+              <p className="text-xs text-muted-foreground">
+                Hỗ trợ PNG, JPG, GIF dung lượng tối đa 5MB
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
