@@ -179,6 +179,8 @@ export default function ExamStructuresPage() {
                   ))}
                   <div className="text-sm font-medium text-right text-muted-foreground pr-10">
                     Tổng số câu: <span className="text-foreground">{sections.reduce((acc, s) => acc + (s.questionCount || 0), 0)}</span>
+                    <span className="mx-3 text-muted-foreground/30">|</span>
+                    Tổng điểm: <span className="text-foreground">{sections.reduce((acc, s) => acc + ((s.questionCount || 0) * (s.score || 0)), 0)}</span>
                   </div>
                 </div>
               )}
@@ -200,17 +202,18 @@ export default function ExamStructuresPage() {
                 <TableHead>Tên cấu trúc</TableHead>
                 <TableHead>Số phần thi</TableHead>
                 <TableHead>Tổng số câu</TableHead>
+                <TableHead>Tổng điểm</TableHead>
                 <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">Đang tải dữ liệu...</TableCell>
+                  <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">Đang tải dữ liệu...</TableCell>
                 </TableRow>
               ) : structures.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">Chưa có dữ liệu</TableCell>
+                  <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">Chưa có dữ liệu</TableCell>
                 </TableRow>
               ) : (
                 structures.map((structure: any) => (
@@ -219,6 +222,9 @@ export default function ExamStructuresPage() {
                     <TableCell>{structure.sections?.length || 0}</TableCell>
                     <TableCell>
                       {structure.sections?.reduce((acc: number, s: any) => acc + (s.questionCount || 0), 0) || 0}
+                    </TableCell>
+                    <TableCell>
+                      {structure.sections?.reduce((acc: number, s: any) => acc + ((s.questionCount || 0) * (s.score || 0)), 0) || 0}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(structure)}>
