@@ -27,6 +27,56 @@ import {
   useUpdateExamVersion
 } from "@/features/admin/use-admin-content";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { contentBuilderApi } from "@/lib/api";
+import { fetchAdminProgramDetail } from "@/features/admin/admin-programs-service";
+
+const validateContentSelection = async (
+  contentType: string,
+  contentId: string,
+  totalRequiredQuestions: number,
+  chapters: any[],
+  programs: any[]
+): Promise<string | null> => {
+  if (contentType === "CHAPTER") {
+    const selectedChapter = chapters.find((c: any) => c.id === contentId);
+    if (!selectedChapter) return "Không tìm thấy chương học";
+    if (selectedChapter.status !== "PUBLISHED") return "Chương học được chọn phải ở trạng thái Đã xuất bản (PUBLISHED)";
+    
+    try {
+      const res = await contentBuilderApi.get<any>(`/v1/questions?chapterId=${contentId}&size=1`);
+      const totalQuestionsAvailable = res.totalElements || res.content?.length || 0;
+      if (totalQuestionsAvailable < totalRequiredQuestions) {
+        return `Chương học được chọn chỉ có ${totalQuestionsAvailable} câu hỏi, trong khi cấu trúc đề thi yêu cầu ${totalRequiredQuestions} câu!`;
+      }
+    } catch {
+      return "Không thể kiểm tra số lượng câu hỏi của chương học";
+    }
+  } else if (contentType === "LEARNING_PROGRAM") {
+    const selectedProgram = programs.find((p: any) => p.id === contentId);
+    if (!selectedProgram) return "Không tìm thấy chương trình học";
+    if (selectedProgram.status !== "PUBLISHED") return "Chương trình học được chọn phải ở trạng thái Đã xuất bản (PUBLISHED)";
+    
+    try {
+      const detail = await fetchAdminProgramDetail(contentId);
+      if (!detail) return "Không thể tải chi tiết chương trình học";
+      
+      let totalQuestionsAvailable = 0;
+      for (const block of detail.chapterBlocks || []) {
+        if (block.chapterId) {
+          const res = await contentBuilderApi.get<any>(`/v1/questions?chapterId=${block.chapterId}&size=1`);
+          totalQuestionsAvailable += (res.totalElements || res.content?.length || 0);
+        }
+      }
+      
+      if (totalQuestionsAvailable < totalRequiredQuestions) {
+        return `Chương trình học được chọn chỉ có tổng ${totalQuestionsAvailable} câu hỏi, trong khi cấu trúc đề thi yêu cầu ${totalRequiredQuestions} câu!`;
+      }
+    } catch {
+      return "Không thể kiểm tra số lượng câu hỏi của chương trình học";
+    }
+  }
+  return null;
+};
 
 export default function AdminExamDetailsPage() {
   const params = useParams();
@@ -74,7 +124,7 @@ export default function AdminExamDetailsPage() {
   const [editExamRuleId, setEditExamRuleId] = useState("");
   const [editExamCriteriaId, setEditExamCriteriaId] = useState("");
 
-  const handleCreateVersion = () => {
+  const handleCreateVersion = async () => {
     if (!newTitle.trim() || !newContentId || !newExamStructureId || !newExamRuleId || !newExamCriteriaId) {
       toast.error("Vui lòng điền đầy đủ Tên, Nguồn nội dung, Cấu trúc, Tiêu chí và Quy chế thi");
       return;
@@ -84,13 +134,21 @@ export default function AdminExamDetailsPage() {
     const selectedStructure = examStructures.find((s: any) => s.id === newExamStructureId);
     const selectedCriteria = examCriterias.find((c: any) => c.id === newExamCriteriaId);
     
+    let totalQuestions = 0;
     if (selectedStructure && selectedCriteria) {
-      const totalQuestions = selectedStructure.sections?.reduce((sum: number, sec: any) => sum + (sec.questionCount || 0), 0) || 0;
+      totalQuestions = selectedStructure.sections?.reduce((sum: number, sec: any) => sum + (sec.questionCount || 0), 0) || 0;
       const totalScore = selectedCriteria.criteria?.totalScore || 0;
       if (totalQuestions !== totalScore) {
         toast.error(`Cấu trúc đề thi có ${totalQuestions} câu, không khớp với tổng điểm ${totalScore} của Tiêu chí chấm thi!`);
         return;
       }
+    }
+    
+    // Validate Content Selection (Status & Total Questions)
+    const contentError = await validateContentSelection(newContentType, newContentId, totalQuestions, chapters, programs);
+    if (contentError) {
+      toast.error(contentError);
+      return;
     }
     
     createVersionMutation.mutate(
@@ -172,7 +230,7 @@ export default function AdminExamDetailsPage() {
     setEditExamCriteriaId(version.examCriteriaId || "");
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editTitle.trim() || !editContentId || !editExamStructureId || !editExamRuleId || !editExamCriteriaId) {
       toast.error("Vui lòng điền đầy đủ Tên, Nguồn nội dung, Cấu trúc, Tiêu chí và Quy chế thi");
       return;
@@ -182,13 +240,21 @@ export default function AdminExamDetailsPage() {
     const selectedStructure = examStructures.find((s: any) => s.id === editExamStructureId);
     const selectedCriteria = examCriterias.find((c: any) => c.id === editExamCriteriaId);
     
+    let totalQuestions = 0;
     if (selectedStructure && selectedCriteria) {
-      const totalQuestions = selectedStructure.sections?.reduce((sum: number, sec: any) => sum + (sec.questionCount || 0), 0) || 0;
+      totalQuestions = selectedStructure.sections?.reduce((sum: number, sec: any) => sum + (sec.questionCount || 0), 0) || 0;
       const totalScore = selectedCriteria.criteria?.totalScore || 0;
       if (totalQuestions !== totalScore) {
         toast.error(`Cấu trúc đề thi có ${totalQuestions} câu, không khớp với tổng điểm ${totalScore} của Tiêu chí chấm thi!`);
         return;
       }
+    }
+
+    // Validate Content Selection (Status & Total Questions)
+    const contentError = await validateContentSelection(editContentType, editContentId, totalQuestions, chapters, programs);
+    if (contentError) {
+      toast.error(contentError);
+      return;
     }
 
     updateVersionMutation.mutate(
