@@ -28,12 +28,14 @@ export default function AdminExamsPage() {
 
   const [newName, setNewName] = useState("");
   const [newCode, setNewCode] = useState("");
+  const [newThumbnailId, setNewThumbnailId] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
 
   const [editingExam, setEditingExam] = useState<any>(null);
   const [editName, setEditName] = useState("");
   const [editCode, setEditCode] = useState("");
+  const [editThumbnailId, setEditThumbnailId] = useState("");
 
   const examSets = apiExams;
 
@@ -60,7 +62,8 @@ export default function AdminExamsPage() {
         title: newName, 
         code: newCode, 
         status: "DRAFT", 
-        licenseType: selectedLicense === "ALL" ? "B2" : selectedLicense
+        licenseType: selectedLicense === "ALL" ? "B2" : selectedLicense,
+        thumbnailId: newThumbnailId
       } as any,
       {
         onSuccess: () => {
@@ -68,6 +71,7 @@ export default function AdminExamsPage() {
           setIsCreating(false);
           setNewName("");
           setNewCode("");
+          setNewThumbnailId("");
         },
         onError: () => {
           toast.error("Tạo bộ đề thi thất bại.");
@@ -98,6 +102,7 @@ export default function AdminExamsPage() {
     setEditingExam(exam);
     setEditName(exam.title);
     setEditCode(exam.code);
+    setEditThumbnailId(exam.thumbnailId || "");
   };
 
   const handleSaveEdit = () => {
@@ -110,7 +115,9 @@ export default function AdminExamsPage() {
         id: editingExam.id, 
         payload: {
           title: editName,
-          code: editCode
+          code: editCode,
+          status: editingExam.status,
+          thumbnailId: editThumbnailId
         } as any
       },
       {
@@ -175,22 +182,31 @@ export default function AdminExamsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="space-y-1.5 md:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1.5 md:col-span-1">
                 <label className="text-xs font-semibold text-muted-foreground">Tên bộ đề *</label>
                 <Input
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  placeholder="VD: Đề thi sát hạch lý thuyết B2 — Bộ đề 04"
+                  placeholder="VD: Đề thi sát hạch B2"
                   className="bg-background"
                 />
               </div>
-              <div className="space-y-1.5 md:col-span-2">
+              <div className="space-y-1.5 md:col-span-1">
                 <label className="text-xs font-semibold text-muted-foreground">Mã đề (Code) *</label>
                 <Input
                   value={newCode}
                   onChange={(e) => setNewCode(e.target.value)}
                   placeholder="VD: EX-B2-04"
+                  className="bg-background"
+                />
+              </div>
+              <div className="space-y-1.5 md:col-span-1">
+                <label className="text-xs font-semibold text-muted-foreground">Thumbnail ID (Ảnh bìa)</label>
+                <Input
+                  value={newThumbnailId}
+                  onChange={(e) => setNewThumbnailId(e.target.value)}
+                  placeholder="ID File ảnh (vd: 3e839e...)"
                   className="bg-background"
                 />
               </div>
@@ -416,6 +432,14 @@ export default function AdminExamsPage() {
                   value={editCode}
                   onChange={(e) => setEditCode(e.target.value)}
                   placeholder="VD: EX-B2-01"
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-xs font-semibold text-muted-foreground">Thumbnail ID (Ảnh bìa)</label>
+                <Input
+                  value={editThumbnailId}
+                  onChange={(e) => setEditThumbnailId(e.target.value)}
+                  placeholder="ID File ảnh (vd: 3e839e...)"
                 />
               </div>
             </div>

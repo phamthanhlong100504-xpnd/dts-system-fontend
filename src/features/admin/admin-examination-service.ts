@@ -12,6 +12,7 @@ export interface ExamItem {
   status: "PUBLISHED" | "DRAFT" | "ARCHIVED";
   createdAt?: string;
   updatedAt?: string;
+  thumbnailId?: string;
 }
 
 export async function fetchAdminExams(): Promise<ExamItem[]> {
@@ -28,6 +29,7 @@ export async function fetchAdminExams(): Promise<ExamItem[]> {
         durationMinutes: e.metadata?.durationMinutes || e.durationMinutes || 22,
         passScore: e.metadata?.passScore || e.passScore || 32,
         status: e.status || "DRAFT",
+        thumbnailId: e.metadata?.thumbnailId || "",
         createdAt: e.createdAt,
         updatedAt: e.updatedAt || e.createdAt,
       }));
@@ -45,27 +47,33 @@ export async function createExamApi(payload: {
   code?: string;
   status?: "DRAFT" | "PUBLISHED";
   licenseType?: string;
+  thumbnailId?: string;
 }) {
   const body = {
     title: payload.title || payload.name || "Bộ đề thi mới",
     metadata: {
       category: payload.licenseType || "B2",
       code: payload.code || "EX-B2-NEW",
+      thumbnailId: payload.thumbnailId || "",
     },
   };
   return await examinationApi.post<any>("/v1/exams", body);
 }
 
 export async function updateExamApi(id: string, payload: {
-  title?: string;
+  title: string;
   code?: string;
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   licenseType?: string;
+  thumbnailId?: string;
 }) {
   const body = {
     title: payload.title,
+    status: payload.status,
     metadata: {
-      category: payload.licenseType,
+      category: payload.licenseType || "B2",
       code: payload.code,
+      thumbnailId: payload.thumbnailId || "",
     },
   };
   return await examinationApi.patch<any>(`/v1/exams/${id}`, body);
