@@ -263,7 +263,7 @@ export function useCreateExam() {
 export function useUpdateExam() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: { title?: string; code?: string; durationMinutes?: number; passScore?: number; licenseType?: string; questionsCount?: number; } }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: { title: string; code?: string; status: "DRAFT" | "PUBLISHED" | "ARCHIVED"; licenseType?: string; thumbnailId?: string; } }) =>
       updateExamApi(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
