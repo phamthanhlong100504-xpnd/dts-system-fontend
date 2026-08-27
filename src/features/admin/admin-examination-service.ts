@@ -114,6 +114,7 @@ export async function createExamVersionApi(examId: string, payload: {
   contentId: string;
   examStructureId: string;
   examRuleId: string;
+  examCriteriaId?: string;
 }) {
   return await examinationApi.post<any>(`/v1/exams/${examId}/versions`, payload);
 }
@@ -125,6 +126,7 @@ export async function updateExamVersionApi(versionId: string, payload: {
   contentId?: string;
   examStructureId?: string;
   examRuleId?: string;
+  examCriteriaId?: string;
 }) {
   return await examinationApi.patch<any>(`/v1/exam-versions/${versionId}`, payload);
 }

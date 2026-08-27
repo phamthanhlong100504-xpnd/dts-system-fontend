@@ -336,7 +336,7 @@ export function useAdminExamVersions(examId: string) {
 export function useCreateExamVersion(examId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { title: string; examType: string; contentType: string; contentId: string; examStructureId: string; examRuleId: string; }) =>
+    mutationFn: (payload: { title: string; examType: string; contentType: string; contentId: string; examStructureId: string; examRuleId: string; examCriteriaId?: string; }) =>
       createExamVersionApi(examId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams", examId, "versions"] });
