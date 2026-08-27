@@ -61,7 +61,7 @@ export interface ProgramDetail {
   title: string;
   code: string;
   description?: string;
-  status: string;
+  status: "PUBLISHED" | "DRAFT" | "ARCHIVED";
   chapterBlocks: ChapterBlockItem[];
 }
 
