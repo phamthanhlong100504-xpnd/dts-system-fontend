@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { 
-  ArrowLeft, Plus, Loader2, Send, Trash2, BookOpen, Clock, CheckCircle2, Award, Search, Settings2, Pencil, Sparkles
+  ArrowLeft, Plus, Loader2, Send, Trash2, BookOpen, Clock, CheckCircle2, Award, Search, Settings2, Pencil, Sparkles, UploadCloud, Image as ImageIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useAdminExams, useCreateExam, useChangeExamStatus, useDeleteExam, useUpdateExam } from "@/features/admin/use-admin-content";
+import { uploadFileToMediaService } from "@/features/media/media-service";
+import { MediaImage } from "@/components/ui/media-image";
 
 export default function AdminExamsPage() {
   const { data: apiExams = [], isLoading } = useAdminExams();
@@ -37,6 +39,11 @@ export default function AdminExamsPage() {
   const [editCode, setEditCode] = useState("");
   const [editThumbnailId, setEditThumbnailId] = useState("");
 
+  const [isUploadingNewThumb, setIsUploadingNewThumb] = useState(false);
+  const [isUploadingEditThumb, setIsUploadingEditThumb] = useState(false);
+  const newFileInputRef = useRef<HTMLInputElement>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
+
   const examSets = apiExams;
 
   const filteredExams = examSets.filter((item) => {
@@ -51,6 +58,48 @@ export default function AdminExamsPage() {
     }
     return true;
   });
+
+  const handleUploadNewThumb = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Dung lượng file không được vượt quá 5MB");
+      return;
+    }
+    try {
+      setIsUploadingNewThumb(true);
+      const res = await uploadFileToMediaService(file, "EXAM", "PUBLIC");
+      setNewThumbnailId(res.mediaId);
+      toast.success("Tải ảnh lên thành công");
+    } catch (error) {
+      console.error(error);
+      toast.error("Tải ảnh thất bại");
+    } finally {
+      setIsUploadingNewThumb(false);
+      if (newFileInputRef.current) newFileInputRef.current.value = "";
+    }
+  };
+
+  const handleUploadEditThumb = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Dung lượng file không được vượt quá 5MB");
+      return;
+    }
+    try {
+      setIsUploadingEditThumb(true);
+      const res = await uploadFileToMediaService(file, "EXAM", "PUBLIC");
+      setEditThumbnailId(res.mediaId);
+      toast.success("Tải ảnh lên thành công");
+    } catch (error) {
+      console.error(error);
+      toast.error("Tải ảnh thất bại");
+    } finally {
+      setIsUploadingEditThumb(false);
+      if (editFileInputRef.current) editFileInputRef.current.value = "";
+    }
+  };
 
   const handleCreate = () => {
     if (!newName.trim() || !newCode.trim()) {
@@ -182,33 +231,68 @@ export default function AdminExamsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-1.5 md:col-span-1">
-                <label className="text-xs font-semibold text-muted-foreground">Tên bộ đề *</label>
-                <Input
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="VD: Đề thi sát hạch B2"
-                  className="bg-background"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Tên bộ đề *</label>
+                  <Input
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="VD: Đề thi sát hạch B2"
+                    className="bg-background"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Mã đề (Code) *</label>
+                  <Input
+                    value={newCode}
+                    onChange={(e) => setNewCode(e.target.value)}
+                    placeholder="VD: EX-B2-04"
+                    className="bg-background"
+                  />
+                </div>
               </div>
-              <div className="space-y-1.5 md:col-span-1">
-                <label className="text-xs font-semibold text-muted-foreground">Mã đề (Code) *</label>
-                <Input
-                  value={newCode}
-                  onChange={(e) => setNewCode(e.target.value)}
-                  placeholder="VD: EX-B2-04"
-                  className="bg-background"
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground flex justify-between">
+                  <span>Ảnh bìa (Thumbnail)</span>
+                  {newThumbnailId && (
+                    <span 
+                      className="text-destructive cursor-pointer hover:underline" 
+                      onClick={() => setNewThumbnailId("")}
+                    >
+                      Xóa ảnh
+                    </span>
+                  )}
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={newFileInputRef}
+                  onChange={handleUploadNewThumb}
                 />
-              </div>
-              <div className="space-y-1.5 md:col-span-1">
-                <label className="text-xs font-semibold text-muted-foreground">Thumbnail ID (Ảnh bìa)</label>
-                <Input
-                  value={newThumbnailId}
-                  onChange={(e) => setNewThumbnailId(e.target.value)}
-                  placeholder="ID File ảnh (vd: 3e839e...)"
-                  className="bg-background"
-                />
+                <div 
+                  className={`border-2 border-dashed rounded-xl h-[120px] flex flex-col items-center justify-center gap-2 transition-colors overflow-hidden relative ${isUploadingNewThumb ? "opacity-50 pointer-events-none" : "cursor-pointer hover:border-primary/50"} ${newThumbnailId ? "bg-muted/10 border-solid" : "bg-muted/20"}`}
+                  onClick={() => !newThumbnailId && newFileInputRef.current?.click()}
+                >
+                  {isUploadingNewThumb ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  ) : newThumbnailId ? (
+                    <div className="relative w-full h-full group">
+                      <MediaImage src={newThumbnailId} alt="Thumbnail" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); newFileInputRef.current?.click(); }}>
+                          Đổi ảnh
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <UploadCloud className="h-6 w-6 text-muted-foreground" />
+                      <p className="text-xs font-medium text-muted-foreground">Tải ảnh lên</p>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
@@ -434,13 +518,50 @@ export default function AdminExamsPage() {
                   placeholder="VD: EX-B2-01"
                 />
               </div>
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-xs font-semibold text-muted-foreground">Thumbnail ID (Ảnh bìa)</label>
-                <Input
-                  value={editThumbnailId}
-                  onChange={(e) => setEditThumbnailId(e.target.value)}
-                  placeholder="ID File ảnh (vd: 3e839e...)"
+              <div className="space-y-1.5 sm:col-span-2 mt-2">
+                <label className="text-xs font-semibold text-muted-foreground flex justify-between">
+                  <span>Ảnh bìa (Thumbnail)</span>
+                  {editThumbnailId && (
+                    <span 
+                      className="text-destructive cursor-pointer hover:underline" 
+                      onClick={() => setEditThumbnailId("")}
+                    >
+                      Xóa ảnh
+                    </span>
+                  )}
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={editFileInputRef}
+                  onChange={handleUploadEditThumb}
                 />
+                <div 
+                  className={`border-2 border-dashed rounded-xl h-[160px] flex flex-col items-center justify-center gap-2 transition-colors overflow-hidden relative ${isUploadingEditThumb ? "opacity-50 pointer-events-none" : "cursor-pointer hover:border-primary/50"} ${editThumbnailId ? "bg-muted/10 border-solid" : "bg-muted/20"}`}
+                  onClick={() => !editThumbnailId && editFileInputRef.current?.click()}
+                >
+                  {isUploadingEditThumb ? (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                      <p className="text-xs">Đang tải...</p>
+                    </div>
+                  ) : editThumbnailId ? (
+                    <div className="relative w-full h-full group">
+                      <MediaImage src={editThumbnailId} alt="Thumbnail" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); editFileInputRef.current?.click(); }}>
+                          Đổi ảnh
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <UploadCloud className="h-8 w-8 text-muted-foreground" />
+                      <p className="text-sm font-medium text-muted-foreground">Tải ảnh lên (Max 5MB)</p>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           )}
