@@ -33,7 +33,7 @@ export function MediaImage({ src, alt, className }: { src?: string; alt?: string
   const fetchMediaUrl = async (mediaId: string) => {
     try {
       setLoading(true);
-      const res = await mediaApi.get<any>(`/${mediaId}`);
+      const res = await mediaApi.get<any>(`${mediaId}`);
       if (res && res.url) {
         setUrl(res.url);
       } else {
