@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  FolderTree, Plus, GripVertical, Trash2, Sparkles, Loader2, FileText, ArrowUp, ArrowDown, Search
+  FolderTree, Plus, GripVertical, Trash2, Sparkles, Loader2, FileText, ArrowUp, ArrowDown, Search, Edit2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +51,10 @@ export default function AdminChaptersPage() {
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
 
   const { data: chapterDetail, isLoading: isLoadingDetail } = useAdminChapterDetail(activeChapter?.id || null);
 
@@ -157,6 +161,33 @@ export default function AdminChaptersPage() {
     // Lọc bỏ những câu đã có trong chương
     !chapterDetail?.questionBlocks?.some(b => b.questionId === q.rawId)
   );
+
+  const handleOpenEditInfo = () => {
+    if (activeChapter) {
+      setEditTitle(activeChapter.title);
+      setEditDescription(activeChapter.description || "");
+      setIsEditingInfo(true);
+    }
+  };
+
+  const handleSaveEditInfo = () => {
+    if (!editTitle.trim()) {
+      toast.error("Vui lòng nhập tên chương");
+      return;
+    }
+    if (activeChapter) {
+      updateMutation.mutate(
+        { title: editTitle, description: editDescription, status: activeChapter.status },
+        {
+          onSuccess: () => {
+            toast.success("Đã cập nhật thông tin chương");
+            setIsEditingInfo(false);
+          },
+          onError: () => toast.error("Cập nhật thất bại"),
+        }
+      );
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -299,8 +330,13 @@ export default function AdminChaptersPage() {
                 <Badge variant="outline" className="text-[10px] mb-1">
                   ĐANG BIÊN TẬP
                 </Badge>
-                <CardTitle className="text-base font-bold">
+                <CardTitle className="text-base font-bold flex items-center gap-2">
                   {activeChapter ? activeChapter.title : "Chọn chương để xem chi tiết"}
+                  {activeChapter && activeChapter.status !== "ARCHIVED" && (
+                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={handleOpenEditInfo}>
+                      <Edit2 className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                 </CardTitle>
             </div>
             {activeChapter && (
@@ -336,16 +372,36 @@ export default function AdminChaptersPage() {
             <CardContent className="space-y-6 pt-6">
               {activeChapter ? (
                 <>
-                  <div className="p-4 rounded-xl border bg-muted/20 space-y-2">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                      <span className="font-semibold uppercase tracking-wider flex items-center gap-1">
-                        <FileText className="h-3.5 w-3.5" /> Mô tả chương
-                      </span>
+                  {isEditingInfo ? (
+                    <div className="p-4 rounded-xl border bg-muted/20 space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Tên chương</label>
+                        <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Mô tả chương</label>
+                        <Input value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="sm" onClick={() => setIsEditingInfo(false)}>Hủy</Button>
+                        <Button size="sm" onClick={handleSaveEditInfo} disabled={updateMutation.isPending}>
+                          {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                          Lưu thay đổi
+                        </Button>
+                      </div>
                     </div>
-                    <p className="text-sm leading-relaxed text-foreground">
-                      {activeChapter.description || "Chương này chưa có mô tả."}
-                    </p>
-                  </div>
+                  ) : (
+                    <div className="p-4 rounded-xl border bg-muted/20 space-y-2 group">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                        <span className="font-semibold uppercase tracking-wider flex items-center gap-1">
+                          <FileText className="h-3.5 w-3.5" /> Mô tả chương
+                        </span>
+                      </div>
+                      <p className="text-sm leading-relaxed text-foreground">
+                        {activeChapter.description || "Chương này chưa có mô tả."}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="space-y-3">
                     <h3 className="font-semibold text-sm">Danh sách câu hỏi trong chương</h3>

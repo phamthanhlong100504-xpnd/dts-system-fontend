@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  ArrowLeft, FolderTree, Plus, GripVertical, Trash2, Loader2, Sparkles, ArrowUp, ArrowDown, BookOpen
+  ArrowLeft, FolderTree, Plus, GripVertical, Trash2, Loader2, Sparkles, ArrowUp, ArrowDown, BookOpen, Edit2
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +28,13 @@ export default function ProgramDetailPage() {
 
   const { data: program, isLoading: isLoadingProgram } = useAdminProgramDetail(programId);
   const { data: allChapters = [], isLoading: isLoadingChapters } = useAdminChapters();
+
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editCode, setEditCode] = useState("");
+
+  const updateProgramMutation = useUpdateProgram();
 
   const addChapterBlock = useAddChapterBlock(programId);
   const deleteChapterBlock = useDeleteChapterBlock(programId);
@@ -130,6 +138,34 @@ export default function ProgramDetailPage() {
     );
   }
 
+  const handleOpenEditInfo = () => {
+    if (program) {
+      setEditTitle(program.title);
+      setEditDescription(program.description || "");
+      setEditCode(program.code || "");
+      setIsEditingInfo(true);
+    }
+  };
+
+  const handleSaveEditInfo = () => {
+    if (!editTitle.trim() || !editCode.trim()) {
+      toast.error("Vui lòng nhập tên và mã chương trình học");
+      return;
+    }
+    if (program) {
+      updateProgramMutation.mutate(
+        { id: program.id, payload: { title: editTitle, code: editCode, description: editDescription, status: program.status } },
+        {
+          onSuccess: () => {
+            toast.success("Đã cập nhật thông tin chương trình học");
+            setIsEditingInfo(false);
+          },
+          onError: () => toast.error("Cập nhật thất bại"),
+        }
+      );
+    }
+  };
+
   const existingChapterIds = new Set(program.chapterBlocks?.map(b => b.chapterId) || []);
   const availableChapters = allChapters.filter(c => !existingChapterIds.has(c.id));
   const chapterBlocks = program.chapterBlocks || [];
@@ -153,10 +189,44 @@ export default function ProgramDetailPage() {
                 {program.status}
               </Badge>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">{program.title}</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {program.description || "Chưa có mô tả"}
-            </p>
+            
+            {isEditingInfo ? (
+              <div className="mt-4 p-4 rounded-xl border bg-muted/20 space-y-4 min-w-[300px]">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Mã chương trình</label>
+                  <Input value={editCode} onChange={(e) => setEditCode(e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Tên chương trình</label>
+                  <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Mô tả chương trình</label>
+                  <Input value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button variant="outline" size="sm" onClick={() => setIsEditingInfo(false)}>Hủy</Button>
+                  <Button size="sm" onClick={handleSaveEditInfo} disabled={updateProgramMutation.isPending}>
+                    {updateProgramMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                    Lưu thay đổi
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                  {program.title}
+                  {program.status !== "ARCHIVED" && (
+                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={handleOpenEditInfo}>
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {program.description || "Chưa có mô tả"}
+                </p>
+              </>
+            )}
           </div>
         </div>
         
