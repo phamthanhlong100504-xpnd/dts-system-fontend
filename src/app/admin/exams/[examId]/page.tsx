@@ -23,6 +23,7 @@ import {
   useAdminPrograms,
   useAdminExamStructures,
   useAdminExamRules,
+  useAdminExamCriterias,
   useUpdateExamVersion
 } from "@/features/admin/use-admin-content";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -48,6 +49,7 @@ export default function AdminExamDetailsPage() {
   const { data: programs = [], isLoading: isProgramsLoading } = useAdminPrograms();
   const { data: examStructures = [], isLoading: isStructuresLoading } = useAdminExamStructures();
   const { data: examRules = [], isLoading: isRulesLoading } = useAdminExamRules();
+  const { data: examCriterias = [], isLoading: isCriteriasLoading } = useAdminExamCriterias();
 
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -56,6 +58,7 @@ export default function AdminExamDetailsPage() {
   const [newContentId, setNewContentId] = useState("");
   const [newExamStructureId, setNewExamStructureId] = useState("");
   const [newExamRuleId, setNewExamRuleId] = useState("");
+  const [newExamCriteriaId, setNewExamCriteriaId] = useState("");
 
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [unpublishingId, setUnpublishingId] = useState<string | null>(null);
@@ -69,11 +72,25 @@ export default function AdminExamDetailsPage() {
   const [editContentId, setEditContentId] = useState("");
   const [editExamStructureId, setEditExamStructureId] = useState("");
   const [editExamRuleId, setEditExamRuleId] = useState("");
+  const [editExamCriteriaId, setEditExamCriteriaId] = useState("");
 
   const handleCreateVersion = () => {
-    if (!newTitle.trim() || !newContentId || !newExamStructureId || !newExamRuleId) {
-      toast.error("Vui lòng điền Tên phiên bản, chọn Nguồn nội dung, Cấu trúc đề thi và Quy chế thi");
+    if (!newTitle.trim() || !newContentId || !newExamStructureId || !newExamRuleId || !newExamCriteriaId) {
+      toast.error("Vui lòng điền đầy đủ Tên, Nguồn nội dung, Cấu trúc, Tiêu chí và Quy chế thi");
       return;
+    }
+    
+    // Validate Compatibility between Structure and Criteria
+    const selectedStructure = examStructures.find((s: any) => s.id === newExamStructureId);
+    const selectedCriteria = examCriterias.find((c: any) => c.id === newExamCriteriaId);
+    
+    if (selectedStructure && selectedCriteria) {
+      const totalQuestions = selectedStructure.sections?.reduce((sum: number, sec: any) => sum + (sec.questionCount || 0), 0) || 0;
+      const totalScore = selectedCriteria.criteria?.totalScore || 0;
+      if (totalQuestions !== totalScore) {
+        toast.error(`Cấu trúc đề thi có ${totalQuestions} câu, không khớp với tổng điểm ${totalScore} của Tiêu chí chấm thi!`);
+        return;
+      }
     }
     
     createVersionMutation.mutate(
@@ -84,6 +101,7 @@ export default function AdminExamDetailsPage() {
         contentId: newContentId,
         examStructureId: newExamStructureId,
         examRuleId: newExamRuleId,
+        examCriteriaId: newExamCriteriaId,
       },
       {
         onSuccess: () => {
@@ -151,12 +169,26 @@ export default function AdminExamDetailsPage() {
     setEditContentId(version.contentId);
     setEditExamStructureId(version.examStructureId || "");
     setEditExamRuleId(version.examRuleId || "");
+    setEditExamCriteriaId(version.examCriteriaId || "");
   };
 
   const handleSaveEdit = () => {
-    if (!editTitle.trim() || !editContentId || !editExamStructureId || !editExamRuleId) {
-      toast.error("Vui lòng điền Tên phiên bản, chọn Nguồn nội dung, Cấu trúc đề thi và Quy chế thi");
+    if (!editTitle.trim() || !editContentId || !editExamStructureId || !editExamRuleId || !editExamCriteriaId) {
+      toast.error("Vui lòng điền đầy đủ Tên, Nguồn nội dung, Cấu trúc, Tiêu chí và Quy chế thi");
       return;
+    }
+    
+    // Validate Compatibility between Structure and Criteria
+    const selectedStructure = examStructures.find((s: any) => s.id === editExamStructureId);
+    const selectedCriteria = examCriterias.find((c: any) => c.id === editExamCriteriaId);
+    
+    if (selectedStructure && selectedCriteria) {
+      const totalQuestions = selectedStructure.sections?.reduce((sum: number, sec: any) => sum + (sec.questionCount || 0), 0) || 0;
+      const totalScore = selectedCriteria.criteria?.totalScore || 0;
+      if (totalQuestions !== totalScore) {
+        toast.error(`Cấu trúc đề thi có ${totalQuestions} câu, không khớp với tổng điểm ${totalScore} của Tiêu chí chấm thi!`);
+        return;
+      }
     }
 
     updateVersionMutation.mutate(
@@ -169,6 +201,7 @@ export default function AdminExamDetailsPage() {
           contentId: editContentId,
           examStructureId: editExamStructureId,
           examRuleId: editExamRuleId,
+          examCriteriaId: editExamCriteriaId,
         }
       },
       {
@@ -323,6 +356,18 @@ export default function AdminExamDetailsPage() {
                   {examRules.map((r: any) => <option key={r.id} value={r.id}>{r.title || r.code}</option>)}
                 </select>
                 {isRulesLoading && <span className="text-xs text-muted-foreground">Đang tải...</span>}
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Tiêu chí chấm thi (Criteria) *</label>
+                <select
+                  value={newExamCriteriaId}
+                  onChange={(e) => setNewExamCriteriaId(e.target.value)}
+                  className="w-full h-9 rounded-md border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="" disabled>-- Chọn tiêu chí --</option>
+                  {examCriterias.map((c: any) => <option key={c.id} value={c.id}>{c.title}</option>)}
+                </select>
+                {isCriteriasLoading && <span className="text-xs text-muted-foreground">Đang tải...</span>}
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
@@ -510,6 +555,17 @@ export default function AdminExamDetailsPage() {
                 >
                   <option value="" disabled>-- Chọn quy chế --</option>
                   {examRules.map((r: any) => <option key={r.id} value={r.id}>{r.title || r.code}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Tiêu chí chấm thi (Criteria) *</label>
+                <select
+                  value={editExamCriteriaId}
+                  onChange={(e) => setEditExamCriteriaId(e.target.value)}
+                  className="w-full h-9 rounded-md border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="" disabled>-- Chọn tiêu chí --</option>
+                  {examCriterias.map((c: any) => <option key={c.id} value={c.id}>{c.title}</option>)}
                 </select>
               </div>
             </div>

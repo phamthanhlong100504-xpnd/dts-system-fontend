@@ -498,6 +498,7 @@ function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapte
         status: "PUBLISHED",
         isCritical: q.isCritical,
         explanation: q.explanation || "",
+        mediaUrl: q.imageUrl,
         options: q.options?.map((opt: any, idx: number) => ({
           content: opt.text || "",
           isCorrect: opt.label === q.correctAnswer,

@@ -43,8 +43,6 @@ export async function createExamApi(payload: {
   name?: string;
   title?: string;
   code?: string;
-  durationMinutes?: number;
-  passScore?: number;
   status?: "DRAFT" | "PUBLISHED";
   licenseType?: string;
 }) {
@@ -53,9 +51,6 @@ export async function createExamApi(payload: {
     metadata: {
       category: payload.licenseType || "B2",
       code: payload.code || "EX-B2-NEW",
-      questionsCount: 35,
-      durationMinutes: payload.durationMinutes || 22,
-      passScore: payload.passScore || 32,
     },
   };
   return await examinationApi.post<any>("/v1/exams", body);
@@ -64,19 +59,13 @@ export async function createExamApi(payload: {
 export async function updateExamApi(id: string, payload: {
   title?: string;
   code?: string;
-  durationMinutes?: number;
-  passScore?: number;
   licenseType?: string;
-  questionsCount?: number;
 }) {
   const body = {
     title: payload.title,
     metadata: {
       category: payload.licenseType,
       code: payload.code,
-      questionsCount: payload.questionsCount,
-      durationMinutes: payload.durationMinutes,
-      passScore: payload.passScore,
     },
   };
   return await examinationApi.patch<any>(`/v1/exams/${id}`, body);
