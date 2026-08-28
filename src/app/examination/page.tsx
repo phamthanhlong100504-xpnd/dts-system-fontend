@@ -49,18 +49,15 @@ export default function ExaminationListPage() {
                   
                   <CardContent className="p-6 space-y-4 flex-1 flex flex-col justify-between">
                     <div className="space-y-4">
-                      <div className="flex items-start justify-between">
-                        <Badge variant="outline" className="font-mono font-bold text-xs">
-                          {exam.code}
-                        </Badge>
-                        <Badge className="bg-primary/10 text-primary font-bold">
-                          {exam.status === "PUBLISHED" ? "ĐANG MỞ" : exam.status}
-                        </Badge>
-                      </div>
                       <div>
-                        <h3 className="font-bold text-lg text-foreground leading-snug line-clamp-2">
-                          {exam.title}
-                        </h3>
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="font-bold text-lg text-foreground leading-snug line-clamp-2">
+                            {exam.title}
+                          </h3>
+                          <Badge className="bg-primary/10 text-primary font-bold shrink-0">
+                            {exam.status === "PUBLISHED" ? "ĐANG MỞ" : exam.status}
+                          </Badge>
+                        </div>
                         <p className="text-xs text-muted-foreground mt-2 flex items-center gap-3">
                           <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {exam.metadata?.durationMinutes || 20} phút</span>
                           <span className="flex items-center gap-1"><Award className="h-3.5 w-3.5" /> Bắt buộc</span>
