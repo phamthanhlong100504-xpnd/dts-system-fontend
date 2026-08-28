@@ -2,9 +2,10 @@
 
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useStartExamSessionAndGo } from "@/features/examination/use-examination";
+import { useStartExamSessionAndGo, useAvailableExams } from "@/features/examination/use-examination";
 import { AlertCircle, Clock, ShieldAlert } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { MediaImage } from "@/components/ui/media-image";
 
 export default function ExamWaitingRoom() {
   const { examId } = useParams() as { examId: string };
@@ -14,12 +15,27 @@ export default function ExamWaitingRoom() {
     startMutation.mutate({ examId });
   };
 
+  const { data: availableExams } = useAvailableExams();
+  const examInfo = availableExams?.content?.find((e: any) => e.id === examId);
+  const thumbnailId = examInfo?.metadata?.thumbnailId || examInfo?.thumbnailId;
+
   return (
-    <div 
-      className="min-h-screen bg-cover bg-center bg-fixed bg-no-repeat w-full relative"
-      style={{ backgroundImage: "url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1920&auto=format&fit=crop')" }}
-    >
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-lg"></div>
+    <div className="min-h-screen w-full relative bg-muted">
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {thumbnailId ? (
+          <MediaImage 
+            src={thumbnailId} 
+            alt="Exam Background" 
+            className="w-full h-full object-cover opacity-60 blur-sm scale-105" 
+          />
+        ) : (
+          <div 
+            className="w-full h-full bg-cover bg-center bg-fixed bg-no-repeat"
+            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1920&auto=format&fit=crop')" }}
+          />
+        )}
+      </div>
+      <div className="absolute inset-0 z-0 bg-background/80 backdrop-blur-lg"></div>
       
       <div className="relative z-10 container mx-auto max-w-4xl py-12 px-4 flex flex-col min-h-screen justify-center">
         <Card className="rounded-2xl border shadow-sm bg-card/95 backdrop-blur">

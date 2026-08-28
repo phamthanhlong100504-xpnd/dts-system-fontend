@@ -1,11 +1,12 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useExamSessionInfo, useExamPaper, useSaveAnswer, useSubmitExam } from "@/features/examination/use-examination";
+import { useExamSessionInfo, useExamPaper, useSaveAnswer, useSubmitExam, useAvailableExams } from "@/features/examination/use-examination";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import { MediaImage } from "@/components/ui/media-image";
 
 export default function ExamRunPage() {
   const searchParams = useSearchParams();
@@ -116,12 +117,32 @@ export default function ExamRunPage() {
     }
   };
 
+  const params = useParams();
+  const urlExamId = params?.examId as string;
+  const { data: availableExams } = useAvailableExams();
+  
+  // Use sessionInfo's examId if available, fallback to url param
+  const actualExamId = sessionInfo?.examId || urlExamId;
+  const examInfo = availableExams?.content?.find((e: any) => e.id === actualExamId);
+  const thumbnailId = examInfo?.metadata?.thumbnailId || examInfo?.thumbnailId;
+
   return (
-    <div 
-      className="min-h-screen bg-cover bg-center bg-fixed bg-no-repeat w-full relative"
-      style={{ backgroundImage: "url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1920&auto=format&fit=crop')" }}
-    >
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-lg"></div>
+    <div className="min-h-screen w-full relative bg-muted">
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {thumbnailId ? (
+          <MediaImage 
+            src={thumbnailId} 
+            alt="Exam Background" 
+            className="w-full h-full object-cover opacity-60 blur-sm scale-105" 
+          />
+        ) : (
+          <div 
+            className="w-full h-full bg-cover bg-center bg-fixed bg-no-repeat"
+            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1920&auto=format&fit=crop')" }}
+          />
+        )}
+      </div>
+      <div className="absolute inset-0 z-0 bg-background/80 backdrop-blur-lg"></div>
       
       <div className="relative z-10 container mx-auto max-w-6xl py-8 px-4 flex flex-col min-h-screen">
         <header className="flex items-center justify-between bg-card/90 backdrop-blur p-4 rounded-xl border shadow-sm mb-6 shrink-0">
