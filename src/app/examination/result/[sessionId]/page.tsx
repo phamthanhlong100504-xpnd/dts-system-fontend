@@ -18,8 +18,14 @@ export default function ExamResultPage() {
   const isPassed = summary.result === "PASS";
 
   return (
-    <div className="container mx-auto max-w-4xl py-12 px-4 flex flex-col items-center min-h-screen">
-      <Card className="w-full rounded-3xl border shadow-sm mt-8">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-fixed bg-no-repeat w-full relative"
+      style={{ backgroundImage: "url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1920&auto=format&fit=crop')" }}
+    >
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-lg"></div>
+      
+      <div className="relative z-10 container mx-auto max-w-4xl py-12 px-4 flex flex-col items-center min-h-screen">
+      <Card className="w-full rounded-3xl border shadow-sm mt-8 bg-card/95 backdrop-blur">
         <CardContent className="p-12 space-y-8 flex flex-col items-center text-center">
           {isPassed ? (
             <div className="h-28 w-28 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
@@ -64,6 +70,7 @@ export default function ExamResultPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

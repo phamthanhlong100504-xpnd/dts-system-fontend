@@ -15,9 +15,15 @@ export default function ExamWaitingRoom() {
   };
 
   return (
-    <div className="container mx-auto max-w-4xl py-12 px-4">
-      <Card className="rounded-2xl border shadow-sm">
-        <CardContent className="p-8 space-y-8">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-fixed bg-no-repeat w-full relative"
+      style={{ backgroundImage: "url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1920&auto=format&fit=crop')" }}
+    >
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-lg"></div>
+      
+      <div className="relative z-10 container mx-auto max-w-4xl py-12 px-4 flex flex-col min-h-screen justify-center">
+        <Card className="rounded-2xl border shadow-sm bg-card/95 backdrop-blur">
+          <CardContent className="p-8 space-y-8">
           <div className="text-center space-y-4">
             <h1 className="text-3xl font-bold text-foreground">Kỳ thi Chính thức</h1>
             <p className="text-muted-foreground">ID Kỳ thi: {examId}</p>
@@ -47,6 +53,7 @@ export default function ExamWaitingRoom() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

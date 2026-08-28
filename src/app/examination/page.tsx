@@ -15,7 +15,7 @@ export default function ExaminationListPage() {
 
   return (
     <RequireAuth>
-      <div className="container space-y-6 py-8">
+      <div className="container mx-auto max-w-7xl space-y-6 py-8 px-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Kỳ thi Chính thức</h1>
           <p className="text-sm text-muted-foreground">

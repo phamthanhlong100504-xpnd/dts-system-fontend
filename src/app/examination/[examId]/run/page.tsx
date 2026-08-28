@@ -117,8 +117,14 @@ export default function ExamRunPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-6xl py-8 px-4 flex flex-col min-h-screen">
-      <header className="flex items-center justify-between bg-card p-4 rounded-xl border shadow-sm mb-6 shrink-0">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-fixed bg-no-repeat w-full relative"
+      style={{ backgroundImage: "url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1920&auto=format&fit=crop')" }}
+    >
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-lg"></div>
+      
+      <div className="relative z-10 container mx-auto max-w-6xl py-8 px-4 flex flex-col min-h-screen">
+        <header className="flex items-center justify-between bg-card/90 backdrop-blur p-4 rounded-xl border shadow-sm mb-6 shrink-0">
         <div>
           <h2 className="font-bold text-xl">Kỳ thi Chính thức</h2>
           <p className="text-sm text-muted-foreground">Tuân thủ nghiêm ngặt quy chế phòng thi</p>
@@ -204,6 +210,7 @@ export default function ExamRunPage() {
             })}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
