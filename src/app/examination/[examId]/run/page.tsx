@@ -47,16 +47,42 @@ export default function ExamRunPage() {
     }
   }, [paper, hasInitialized]);
 
-  // Prevent tab switch logic
+  // Prevent tab switch and devtools logic
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        toast.error("Bạn đã chuyển tab! Hành vi này đã được ghi lại.");
+        toast.error("Bạn đã chuyển tab hoặc thoát ứng dụng! Bài thi sẽ tự động nộp.");
+        submitExam.mutate(sessionId);
       }
     };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === "F12" || 
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i" || e.key === "J" || e.key === "j" || e.key === "C" || e.key === "c")) ||
+        (e.ctrlKey && (e.key === "U" || e.key === "u"))
+      ) {
+        e.preventDefault();
+        toast.error("Hành vi gian lận: Không được phép mở công cụ dành cho nhà phát triển.");
+        submitExam.mutate(sessionId);
+      }
+    };
+
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      toast.error("Hành vi gian lận: Không được phép sử dụng chuột phải.");
+    };
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, []);
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("contextmenu", handleContextMenu);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, [sessionId, submitExam]);
 
   if (loadingSession || loadingPaper) return <div className="p-8 text-center text-muted-foreground">Đang tải đề thi...</div>;
   if (!sessionInfo || !paper) return <div className="p-8 text-center text-muted-foreground">Không tìm thấy thông tin phiên thi.</div>;
