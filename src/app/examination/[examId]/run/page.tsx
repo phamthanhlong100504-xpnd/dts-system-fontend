@@ -170,7 +170,7 @@ export default function ExamRunPage() {
               <CardContent className="p-8 space-y-6">
                 <div className="font-bold text-xl">Câu {currentIndex + 1}: {currentQuestion.content || currentQuestion.questionText}</div>
                 {currentQuestion.imageUrl && (
-                  <img src={currentQuestion.imageUrl} alt="Question" className="max-w-full h-auto rounded-xl shadow-sm" />
+                  <MediaImage src={currentQuestion.imageUrl} alt="Question" className="max-w-full max-h-52 rounded-xl shadow-sm border" />
                 )}
                 <div className="space-y-3 pt-4">
                   {currentQuestion.options?.map((opt: any, i: number) => {

@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RequireAuth } from "@/components/require-auth";
+import { MediaImage } from "@/components/ui/media-image";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -374,8 +375,7 @@ export default function StudentExamRunnerPage() {
                 </h2>
 
                 {q.imageUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <MediaImage
                     src={q.imageUrl}
                     alt=""
                     className="mt-2 max-h-52 rounded-lg border"
