@@ -9,9 +9,21 @@ import Link from "next/link";
 
 export default function ExamResultPage() {
   const { sessionId } = useParams() as { sessionId: string };
-  const { data: result, isLoading } = useExamResultData(sessionId) as any;
+  const { data: result, isLoading, error } = useExamResultData(sessionId) as any;
 
   if (isLoading) return <div className="p-12 text-center text-muted-foreground">Đang tải kết quả...</div>;
+  if (error) {
+    const errorMessage = error?.message || error?.response?.data?.message || "Đã xảy ra lỗi khi tải kết quả.";
+    return (
+      <div className="p-12 text-center text-destructive">
+        <h2 className="text-xl font-bold mb-2">Lỗi</h2>
+        <p>{errorMessage}</p>
+        <Link href="/">
+          <Button className="mt-4">Về trang chủ</Button>
+        </Link>
+      </div>
+    );
+  }
   if (!result) return <div className="p-12 text-center text-muted-foreground">Không tìm thấy kết quả.</div>;
 
   const summary = result.summary || {};
