@@ -23,6 +23,7 @@ export default function ExamRunPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [violationReason, setViolationReason] = useState<string | null>(null);
 
   // Initialize answers from paper if any exist
   useEffect(() => {
@@ -51,8 +52,8 @@ export default function ExamRunPage() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        toast.error("Bạn đã chuyển tab hoặc thoát ứng dụng! Bài thi sẽ tự động nộp.");
-        submitExam.mutate(sessionId);
+        setViolationReason("Bạn đã chuyển tab hoặc rời khỏi màn hình ứng dụng.");
+        toast.error("Phát hiện hành vi rời khỏi bài thi!");
       }
     };
 
@@ -63,8 +64,8 @@ export default function ExamRunPage() {
         (e.ctrlKey && (e.key === "U" || e.key === "u"))
       ) {
         e.preventDefault();
-        toast.error("Hành vi gian lận: Không được phép mở công cụ dành cho nhà phát triển.");
-        submitExam.mutate(sessionId);
+        setViolationReason("Không được phép mở công cụ phát triển (DevTools).");
+        toast.error("Phát hiện hành vi gian lận!");
       }
     };
 
@@ -82,7 +83,7 @@ export default function ExamRunPage() {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("contextmenu", handleContextMenu);
     };
-  }, [sessionId, submitExam]);
+  }, []);
 
   if (loadingSession || loadingPaper) return <div className="p-8 text-center text-muted-foreground">Đang tải đề thi...</div>;
   if (!sessionInfo || !paper) return <div className="p-8 text-center text-muted-foreground">Không tìm thấy thông tin phiên thi.</div>;
@@ -153,7 +154,30 @@ export default function ExamRunPage() {
 
   return (
     <div className="min-h-screen w-full relative bg-muted">
-      <div className="absolute inset-0 z-0 overflow-hidden">
+      {violationReason && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
+          <Card className="w-full max-w-md shadow-lg border-destructive">
+            <CardContent className="pt-6 text-center space-y-4">
+              <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                <span className="text-2xl">⚠️</span>
+              </div>
+              <h2 className="text-xl font-bold text-destructive">Vi Phạm Quy Chế Thi</h2>
+              <p className="text-muted-foreground">{violationReason}</p>
+              <p className="text-sm font-medium">Hệ thống đã khóa bài thi. Vui lòng nộp bài để kết thúc.</p>
+              <Button 
+                variant="destructive" 
+                className="w-full mt-4" 
+                onClick={() => submitExam.mutate(sessionId)}
+                disabled={submitExam.isPending}
+              >
+                {submitExam.isPending ? "Đang nộp bài..." : "Nộp bài ngay"}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+      
+      <div className={`absolute inset-0 z-0 overflow-hidden ${violationReason ? 'blur-sm pointer-events-none' : ''}`}>
         {thumbnailId ? (
           <MediaImage 
             src={thumbnailId} 
