@@ -84,7 +84,7 @@ const STATUS_LABEL: Record<string, string> = {
 export default function ResultsPage() {
   return (
     <RequireAuth>
-      <div className="container space-y-6 py-8">
+      <div className="container mx-auto max-w-7xl px-4 space-y-6 py-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Kết quả & Thống kê</h1>
