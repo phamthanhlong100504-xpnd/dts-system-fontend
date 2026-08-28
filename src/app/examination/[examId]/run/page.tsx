@@ -11,6 +11,9 @@ import { MediaImage } from "@/components/ui/media-image";
 export default function ExamRunPage() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId") || "";
+  const params = useParams();
+  const urlExamId = params?.examId as string;
+  const { data: availableExams } = useAvailableExams();
   
   const { data: sessionInfo, isLoading: loadingSession } = useExamSessionInfo(sessionId);
   const { data: paper, isLoading: loadingPaper } = useExamPaper(sessionId);
@@ -117,10 +120,6 @@ export default function ExamRunPage() {
     }
   };
 
-  const params = useParams();
-  const urlExamId = params?.examId as string;
-  const { data: availableExams } = useAvailableExams();
-  
   // Use sessionInfo's examId if available, fallback to url param
   const actualExamId = sessionInfo?.examId || urlExamId;
   const examInfo = availableExams?.content?.find((e: any) => e.id === actualExamId);
