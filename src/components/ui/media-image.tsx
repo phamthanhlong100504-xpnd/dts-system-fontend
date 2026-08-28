@@ -26,6 +26,12 @@ export function MediaImage({ src, alt, className }: { src?: string; alt?: string
       return;
     }
 
+    // Nếu src là đường dẫn local hoặc proxy (ví dụ: /question-images/...)
+    if (src.startsWith("/")) {
+      setUrl(src);
+      return;
+    }
+
     // Nếu src là UUID (mediaId)
     fetchMediaUrl(src);
   }, [src]);
