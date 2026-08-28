@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, FileText, Clock, Award } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { MediaImage } from "@/components/ui/media-image";
 import { RequireAuth } from "@/components/require-auth";
 
 export default function ExaminationListPage() {
@@ -29,37 +30,56 @@ export default function ExaminationListPage() {
           <div className="text-center text-muted-foreground py-10">Hiện tại không có kỳ thi nào đang mở.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {exams.map((exam: any) => (
-              <Card key={exam.id} className="rounded-2xl border shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-start justify-between">
-                    <Badge variant="outline" className="font-mono font-bold text-xs">
-                      {exam.code}
-                    </Badge>
-                    <Badge className="bg-primary/10 text-primary font-bold">
-                      {exam.status === "PUBLISHED" ? "ĐANG MỞ" : exam.status}
-                    </Badge>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-base text-foreground leading-snug line-clamp-2">
-                      {exam.title}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-2 flex items-center gap-3">
-                      <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> Bắt buộc</span>
-                    </p>
-                  </div>
+            {exams.map((exam: any) => {
+              const thumbnailId = exam.metadata?.thumbnailId || exam.thumbnailId;
+              return (
+                <Card key={exam.id} className="rounded-2xl border shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between overflow-hidden">
+                  {thumbnailId ? (
+                    <div className="h-48 w-full relative shrink-0">
+                      <MediaImage src={thumbnailId} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="h-48 w-full shrink-0 bg-gradient-to-tr from-muted to-muted/50 flex items-center justify-center">
+                      <div className="flex flex-col items-center opacity-50">
+                        <FileText className="h-10 w-10 mb-2" />
+                        <span className="text-sm font-medium">Chưa có ảnh bìa</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <CardContent className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex items-start justify-between">
+                        <Badge variant="outline" className="font-mono font-bold text-xs">
+                          {exam.code}
+                        </Badge>
+                        <Badge className="bg-primary/10 text-primary font-bold">
+                          {exam.status === "PUBLISHED" ? "ĐANG MỞ" : exam.status}
+                        </Badge>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg text-foreground leading-snug line-clamp-2">
+                          {exam.title}
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-2 flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {exam.metadata?.durationMinutes || 20} phút</span>
+                          <span className="flex items-center gap-1"><Award className="h-3.5 w-3.5" /> Bắt buộc</span>
+                        </p>
+                      </div>
+                    </div>
 
-                  <div className="block pt-2">
-                    <Link href={`/examination/${exam.id}`}>
-                      <Button className="w-full gap-2 font-bold">
-                        Vào phòng chờ
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="block pt-2">
+                      <Link href={`/examination/${exam.id}`}>
+                        <Button className="w-full gap-2 font-bold h-11">
+                          Vào phòng chờ
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
