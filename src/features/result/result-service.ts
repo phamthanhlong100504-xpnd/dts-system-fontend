@@ -117,6 +117,7 @@ export interface ResultHistoryDetail extends ResultHistoryItem {
 export interface RecentResultActivity {
   targetType: string;
   targetId: string;
+  sourceId: string;
   result: string;
   score: number | null;
   completedAt: string | null;
