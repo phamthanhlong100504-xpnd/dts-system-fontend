@@ -306,7 +306,7 @@ function RecentList({
   items,
   loading,
 }: {
-  items?: { targetType: string; result: string; score: number | null; completedAt: string | null }[];
+  items?: { targetType: string; result: string; score: number | null; completedAt: string | null; sessionId?: string }[];
   loading: boolean;
 }) {
   if (loading) return <Skeleton className="h-32 w-full" />;
@@ -321,17 +321,26 @@ function RecentList({
   return (
     <ul className="divide-y">
       {list.map((r, i) => (
-        <li key={i} className="flex items-center justify-between py-2">
-          <div className="flex items-center gap-2">
+        <li key={i} className="flex items-center justify-between py-3">
+          <div className="flex items-center gap-3">
             <Badge variant={statusTone(r.result)}>
               {r.result}
             </Badge>
-            <span className="text-sm">{r.targetType}</span>
+            <span className="text-sm font-medium">{r.targetType}</span>
           </div>
-          <span className="text-sm text-muted-foreground">
-            {r.score != null ? `${formatScore(r.score)} điểm` : "—"}
-            {r.completedAt ? ` • ${formatDate(r.completedAt)}` : ""}
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground text-right hidden sm:block">
+              {r.score != null ? <span className="font-semibold text-foreground mr-1">{formatScore(r.score)} điểm</span> : "—"}
+              {r.completedAt ? <span className="text-xs ml-2 opacity-70">• {formatDate(r.completedAt)}</span> : ""}
+            </span>
+            {r.targetType === "EXAM" && r.sessionId && (
+              <Link href={`/examination/result/${r.sessionId}/review`}>
+                <Button variant="outline" size="sm" className="h-8 text-xs px-3">
+                  Chi tiết
+                </Button>
+              </Link>
+            )}
+          </div>
         </li>
       ))}
     </ul>
