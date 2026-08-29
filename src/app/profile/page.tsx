@@ -63,7 +63,7 @@ function ProfileContent() {
 
   if (isLoading) {
     return (
-      <div className="container max-w-2xl space-y-6 py-8">
+      <div className="container mx-auto max-w-2xl space-y-6 py-8">
         <Skeleton className="h-24 rounded-2xl" />
         <Skeleton className="h-48 rounded-2xl" />
       </div>
@@ -72,7 +72,7 @@ function ProfileContent() {
 
   if (isError || !me) {
     return (
-      <div className="container max-w-2xl py-8">
+      <div className="container mx-auto max-w-2xl py-8">
         <p className="text-sm text-destructive">
           Không tải được hồ sơ. Kiểm tra service dts-identity.
         </p>
@@ -83,7 +83,7 @@ function ProfileContent() {
   const emailVerified = !!me.emailVerifiedAt;
 
   return (
-    <div className="container max-w-2xl py-8">
+    <div className="container mx-auto max-w-2xl py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Hồ sơ & Bảo mật</h1>
       </div>
