@@ -24,6 +24,7 @@ export default function ExamRunPage() {
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
   const [hasInitialized, setHasInitialized] = useState(false);
   const [violationReason, setViolationReason] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   
   const tabSwitchCountRef = useRef(0);
   const [isFullscreenWarning, setIsFullscreenWarning] = useState(false);
@@ -48,9 +49,37 @@ export default function ExamRunPage() {
         }
       });
       setAnswers(initialAnswers);
-      setHasInitialized(true);
     }
   }, [paper, hasInitialized]);
+
+  // Initialize and tick timer
+  useEffect(() => {
+    if (sessionInfo?.remainingSeconds !== undefined && timeLeft === null) {
+      setTimeLeft(sessionInfo.remainingSeconds);
+    }
+  }, [sessionInfo, timeLeft]);
+
+  useEffect(() => {
+    if (timeLeft === null || timeLeft <= 0) return;
+    
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev === null) return prev;
+        const newTime = prev - 1;
+        if (newTime <= 0) {
+          clearInterval(timer);
+          toast.info("Hết thời gian làm bài, hệ thống đang tự động nộp bài!");
+          if (!submitExam.isPending) {
+            submitExam.mutate(sessionId);
+          }
+          return 0;
+        }
+        return newTime;
+      });
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [timeLeft, submitExam.isPending, sessionId, submitExam]);
 
   // Fullscreen requirement
   useEffect(() => {
@@ -208,7 +237,9 @@ export default function ExamRunPage() {
               <Button 
                 variant="destructive" 
                 className="w-full mt-4" 
-                onClick={() => submitExam.mutate(sessionId)}
+                onClick={() => {
+                  if (!submitExam.isPending) submitExam.mutate(sessionId);
+                }}
                 disabled={submitExam.isPending}
               >
                 {submitExam.isPending ? "Đang nộp bài..." : "Nộp bài ngay"}
@@ -252,13 +283,23 @@ export default function ExamRunPage() {
       <div className="absolute inset-0 z-0 bg-background/80 backdrop-blur-lg"></div>
       
       <div className="relative z-10 container mx-auto max-w-6xl py-8 px-4 flex flex-col min-h-screen">
-        <header className="flex items-center justify-between bg-card/90 backdrop-blur p-4 rounded-xl border shadow-sm mb-6 shrink-0">
+        <header className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-card/90 backdrop-blur p-4 rounded-xl border shadow-sm mb-6 shrink-0">
         <div>
           <h2 className="font-bold text-xl">Kỳ thi Chính thức</h2>
           <p className="text-sm text-muted-foreground">Tuân thủ nghiêm ngặt quy chế phòng thi</p>
         </div>
+        
+        {timeLeft !== null && (
+          <div className="flex flex-col items-center justify-center">
+            <span className="text-xs uppercase font-bold text-muted-foreground mb-1">Thời gian còn lại</span>
+            <div className={`font-mono text-2xl font-bold px-4 py-1.5 rounded-lg border ${timeLeft < 60 ? 'bg-destructive/10 text-destructive border-destructive/20 animate-pulse' : 'bg-muted border-border'}`}>
+              {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}
+            </div>
+          </div>
+        )}
+
         <div className="flex gap-4 items-center">
-          <Button variant="destructive" onClick={handleSubmit} disabled={submitExam.isPending} size="lg" className="font-bold">
+          <Button variant="destructive" onClick={handleSubmit} disabled={submitExam.isPending || (timeLeft !== null && timeLeft <= 0)} size="lg" className="font-bold">
             {submitExam.isPending ? "Đang nộp..." : "Nộp bài thi"}
           </Button>
         </div>
