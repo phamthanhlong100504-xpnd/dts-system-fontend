@@ -9,6 +9,9 @@ export interface ExamSession {
   expiresAt: string;
   completedAt?: string;
   durationSeconds?: number;
+  remainingSeconds?: number;
+  answeredQuestions?: number;
+  totalQuestions?: number;
   examRule?: {
     id: string;
     title: string;
