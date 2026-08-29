@@ -77,6 +77,11 @@ export async function getExamResult(sessionId: string) {
   return data;
 }
 
+export async function getExamReview(sessionId: string) {
+  const data = await examinationApi.get<unknown>(`/v1/exam-sessions/${sessionId}/review`);
+  return data;
+}
+
 export async function getAvailableExams() {
   const data = await examinationApi.get<unknown>("/v1/exams?status=PUBLISHED");
   return data as any;

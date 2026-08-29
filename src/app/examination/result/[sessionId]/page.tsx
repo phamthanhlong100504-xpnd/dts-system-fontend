@@ -72,7 +72,12 @@ export default function ExamResultPage() {
             </div>
           </div>
 
-          <div className="pt-8">
+          <div className="pt-8 flex gap-4">
+            <Link href={`/examination/result/${sessionId}/review`}>
+              <Button size="lg" variant="outline" className="gap-2 font-bold px-8 h-12 text-base bg-background/50 hover:bg-background">
+                Xem lại bài thi
+              </Button>
+            </Link>
             <Link href="/">
               <Button size="lg" className="gap-2 font-bold px-8 h-12 text-base">
                 <Home className="h-5 w-5" />

@@ -7,6 +7,7 @@ import {
   getAvailableExams,
   getExamPaper,
   getExamResult,
+  getExamReview,
   getExamSession,
   saveAnswer,
   startExamSession,
@@ -21,6 +22,7 @@ export const examinationKeys = {
   session: (sessionId: string) => ["examination", "session", sessionId] as const,
   paper: (sessionId: string) => ["examination", "paper", sessionId] as const,
   result: (sessionId: string) => ["examination", "result", sessionId] as const,
+  review: (sessionId: string) => ["examination", "review", sessionId] as const,
 };
 
 export function useAvailableExams() {
@@ -99,6 +101,15 @@ export function useExamResultData(sessionId: string) {
   return useQuery({
     queryKey: examinationKeys.result(sessionId),
     queryFn: () => getExamResult(sessionId),
+    enabled: !!sessionId,
+    retry: false,
+  });
+}
+
+export function useExamReview(sessionId: string) {
+  return useQuery({
+    queryKey: examinationKeys.review(sessionId),
+    queryFn: () => getExamReview(sessionId),
     enabled: !!sessionId,
     retry: false,
   });
