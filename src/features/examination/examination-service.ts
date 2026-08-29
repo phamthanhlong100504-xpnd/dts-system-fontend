@@ -9,6 +9,13 @@ export interface ExamSession {
   expiresAt: string;
   completedAt?: string;
   durationSeconds?: number;
+  examRule?: {
+    id: string;
+    title: string;
+    requireFullscreen: boolean;
+    preventTabSwitch: boolean;
+    maxTabSwitchCount: number;
+  };
 }
 
 export interface StartExamSessionRequest {

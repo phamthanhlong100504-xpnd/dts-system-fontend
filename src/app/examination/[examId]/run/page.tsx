@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useExamSessionInfo, useExamPaper, useSaveAnswer, useSubmitExam, useAvailableExams } from "@/features/examination/use-examination";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,6 +24,10 @@ export default function ExamRunPage() {
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
   const [hasInitialized, setHasInitialized] = useState(false);
   const [violationReason, setViolationReason] = useState<string | null>(null);
+  
+  const tabSwitchCountRef = useRef(0);
+  const [isFullscreenWarning, setIsFullscreenWarning] = useState(false);
+  const hasEnforcedFullscreen = useRef(false);
 
   // Initialize answers from paper if any exist
   useEffect(() => {
@@ -48,12 +52,49 @@ export default function ExamRunPage() {
     }
   }, [paper, hasInitialized]);
 
+  // Fullscreen requirement
+  useEffect(() => {
+    if (!sessionInfo?.examRule?.requireFullscreen) return;
+    
+    const checkFullscreen = () => {
+      if (!document.fullscreenElement) {
+        setIsFullscreenWarning(true);
+      } else {
+        setIsFullscreenWarning(false);
+      }
+    };
+    
+    document.addEventListener("fullscreenchange", checkFullscreen);
+    if (!document.fullscreenElement) setIsFullscreenWarning(true);
+    hasEnforcedFullscreen.current = true;
+    
+    return () => document.removeEventListener("fullscreenchange", checkFullscreen);
+  }, [sessionInfo?.examRule]);
+
+  const enterFullscreen = () => {
+    document.documentElement.requestFullscreen().catch(err => {
+      toast.error(`Không thể vào chế độ toàn màn hình: ${err.message}`);
+    });
+  };
+
   // Prevent tab switch and devtools logic
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        setViolationReason("Bạn đã chuyển tab hoặc rời khỏi màn hình ứng dụng.");
-        toast.error("Phát hiện hành vi rời khỏi bài thi!");
+        if (sessionInfo?.examRule?.preventTabSwitch) {
+          tabSwitchCountRef.current += 1;
+          const maxSwitches = sessionInfo.examRule.maxTabSwitchCount || 0;
+          
+          if (tabSwitchCountRef.current > maxSwitches) {
+            setViolationReason(`Bạn đã chuyển tab ${tabSwitchCountRef.current} lần (Tối đa: ${maxSwitches}). Bài thi đã bị khóa do vi phạm quy chế.`);
+            toast.error("Phát hiện hành vi rời khỏi bài thi vượt quá số lần cho phép!");
+            if (!submitExam.isPending) {
+              submitExam.mutate(sessionId);
+            }
+          } else {
+            toast.warning(`Cảnh báo chuyển tab lần ${tabSwitchCountRef.current}/${maxSwitches}. Không được rời khỏi màn hình thi!`);
+          }
+        }
       }
     };
 
@@ -83,7 +124,7 @@ export default function ExamRunPage() {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("contextmenu", handleContextMenu);
     };
-  }, []);
+  }, [sessionInfo?.examRule, sessionId, submitExam.isPending, submitExam]);
 
   if (loadingSession || loadingPaper) return <div className="p-8 text-center text-muted-foreground">Đang tải đề thi...</div>;
   if (!sessionInfo || !paper) return <div className="p-8 text-center text-muted-foreground">Không tìm thấy thông tin phiên thi.</div>;
@@ -163,7 +204,7 @@ export default function ExamRunPage() {
               </div>
               <h2 className="text-xl font-bold text-destructive">Vi Phạm Quy Chế Thi</h2>
               <p className="text-muted-foreground">{violationReason}</p>
-              <p className="text-sm font-medium">Hệ thống đã khóa bài thi. Vui lòng nộp bài để kết thúc.</p>
+              <p className="text-sm font-medium">Hệ thống đã khóa bài thi. Bài thi sẽ tự động được nộp.</p>
               <Button 
                 variant="destructive" 
                 className="w-full mt-4" 
@@ -171,6 +212,23 @@ export default function ExamRunPage() {
                 disabled={submitExam.isPending}
               >
                 {submitExam.isPending ? "Đang nộp bài..." : "Nộp bài ngay"}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+      
+      {isFullscreenWarning && !violationReason && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
+          <Card className="w-full max-w-md shadow-lg border-primary">
+            <CardContent className="pt-6 text-center space-y-4">
+              <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-2xl">🖥️</span>
+              </div>
+              <h2 className="text-xl font-bold text-primary">Yêu cầu Toàn màn hình</h2>
+              <p className="text-muted-foreground">Quy chế thi yêu cầu bạn phải làm bài ở chế độ toàn màn hình để đảm bảo tính công bằng.</p>
+              <Button onClick={enterFullscreen} className="w-full mt-4">
+                Bật Toàn Màn Hình
               </Button>
             </CardContent>
           </Card>
