@@ -193,8 +193,8 @@ export default function ExamRulesPage() {
                       <Label>Cho phép làm lại</Label>
                       <Switch checked={form.allowRetry} onCheckedChange={(v) => updateField("allowRetry", v)} />
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className={!form.allowRetry ? "text-muted" : ""}>Số lần làm lại tối đa</Label>
+                    <div className="space-y-2">
+                      <Label className={!form.allowRetry ? "text-muted" : ""}>Số lần làm lại tối đa <span className="text-muted-foreground font-normal text-xs">(Nhập 0 để không giới hạn)</span></Label>
                       <Input type="number" disabled={!form.allowRetry} value={form.maxRetry} onChange={(e) => updateField("maxRetry", parseInt(e.target.value) || 0)} />
                     </div>
 
