@@ -10,7 +10,7 @@ FROM node:22-alpine AS builder
 # Phải khai báo ARG TRONG stage builder — ARG nằm giữa 2 FROM không vào được stage
 # (mở rộng ${ARG} thành chuỗi rỗng → destination bake thành relative /api/:path* → 404).
 # Truyền qua --build-arg trong deploy.yml; default = internal Docker network URLs.
-ARG GATEWAY_API_URL=http://103.75.182.249:8888
+ARG GATEWAY_API_URL=http://103.20.96.56:8888
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .

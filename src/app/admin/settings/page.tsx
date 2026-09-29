@@ -58,7 +58,7 @@ function systemInfo(): { label: string; value: string }[] {
     { label: "Next.js", value: "16.x" },
     {
       label: "API Gateway",
-      value: isProd ? "103.75.182.249:8888" : "localhost:8888",
+      value: isProd ? "103.20.96.56:8888" : "localhost:8888",
     },
   ];
 }
