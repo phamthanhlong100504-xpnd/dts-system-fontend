@@ -27,7 +27,7 @@ jobs:
 
       - run: |
           docker build \
-            --build-arg GATEWAY_API_URL=http://103.75.182.249:8888 \
+            --build-arg GATEWAY_API_URL=http://103.20.96.56:8888 \
             -t $IMAGE:latest \
             -t $IMAGE:${{ github.sha }} .
           docker push $IMAGE:latest
