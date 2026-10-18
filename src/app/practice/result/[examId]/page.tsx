@@ -1,295 +1,514 @@
 "use client";
 
-import { useEffect } from "react";
+import { type ReactNode, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import {
-  CheckCircle2,
-  XCircle,
-  Clock,
-  RotateCcw,
-  ArrowLeft,
-  BookOpen,
-  AlertTriangle,
-  HelpCircle,
-  MinusCircle,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useParams, useRouter } from "next/navigation";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
+
 import { RequireAuth } from "@/components/require-auth";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ResultQuestionCard } from "@/features/practice/components/result/result-question-card";
+import { ResultSummary } from "@/features/practice/components/result/result-summary";
+import type { ExamAnswerResult } from "@/features/practice/practice-service";
 import {
   useExamResult,
-  useStartExamAndGo,
+  useRetryExamAndGo,
 } from "@/features/practice/use-practice";
-import {
-  type ExamAnswerResult,
-  type QuestionOption,
-} from "@/features/practice/practice-service";
-import { logStudySession } from "@/features/progress/progress-service";
+import { cn } from "@/lib/utils";
 
-const labels = ["A", "B", "C", "D"];
+type ResultFilter =
+  | "all"
+  | "wrong"
+  | "critical"
+  | "unanswered";
 
-interface OptionView {
-  label: string;
-  text: string;
-}
+function formatElapsedTime(
+  startedAt?: string,
+  completedAt?: string
+) {
+  if (!startedAt || !completedAt) {
+    return "—";
+  }
 
-/** Options backend có thể là mảng string hoặc mảng {label, text} — chuẩn hóa về 1 dạng. */
-function normalizeOptions(raw: ExamAnswerResult["options"]): OptionView[] {
-  const list = Array.isArray(raw) ? (raw as unknown[]) : [];
-  return list.map((opt, i) => {
-    if (typeof opt === "string") {
-      return { label: labels[i] ?? String.fromCharCode(65 + i), text: opt };
-    }
-    const o = opt as QuestionOption;
-    return {
-      label: o.label ?? labels[i] ?? String.fromCharCode(65 + i),
-      text: o.text ?? "",
-    };
-  });
+  const startedTime =
+    new Date(startedAt).getTime();
+
+  const completedTime =
+    new Date(completedAt).getTime();
+
+  if (
+    Number.isNaN(startedTime) ||
+    Number.isNaN(completedTime)
+  ) {
+    return "—";
+  }
+
+  const totalSeconds =
+    Math.max(
+      0,
+      Math.round(
+        (completedTime - startedTime) /
+          1000
+      )
+    );
+
+  const minutes =
+    Math.floor(
+      totalSeconds / 60
+    );
+
+  const seconds =
+    totalSeconds % 60;
+
+  return `${String(minutes).padStart(
+    2,
+    "0"
+  )}:${String(seconds).padStart(
+    2,
+    "0"
+  )}`;
 }
 
 export default function StudentExamResultPage() {
-  const { examId } = useParams<{ examId: string }>();
-  const resultQuery = useExamResult(examId);
-  const startAndGo = useStartExamAndGo();
+  const router =
+    useRouter();
 
-  const result = resultQuery.data;
+  const { examId } =
+    useParams<{
+      examId: string;
+    }>();
 
-  useEffect(() => {
-    if (!result || !result.examId) return;
-    const key = `dts_logged_${result.examId}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "true");
+  const resultQuery =
+    useExamResult(examId);
 
-    const startedAt = result.startedAt ? new Date(result.startedAt).getTime() : Date.now();
-    const completedAt = result.completedAt ? new Date(result.completedAt).getTime() : Date.now();
-    const durationSeconds = Math.max(1, Math.round((completedAt - startedAt) / 1000));
+  const retryAndGo =
+    useRetryExamAndGo();
 
-    logStudySession({
-      sessionType: result.mode === "PRACTICE" ? "PRACTICE" : "EXAM",
-      examType: result.examType ?? "B2",
-      mode: result.mode ?? "EXAM",
-      examId: result.examId,
-      questionsCount: result.totalQuestions ?? 25,
-      correctCount: result.correctCount ?? 0,
-      wrongCount: result.wrongCount ?? 0,
-      durationSeconds,
-    }).catch((err) => console.error("Progress log error:", err));
-  }, [result]);
+  const [
+    activeFilter,
+    setActiveFilter,
+  ] =
+    useState<ResultFilter>(
+      "all"
+    );
+
+  const result =
+    resultQuery.data;
 
   if (resultQuery.isLoading) {
     return (
       <RequireAuth>
-        <div className="container mx-auto max-w-4xl py-8 px-4 space-y-4">
-          <Skeleton className="h-32 rounded-2xl" />
-          <Skeleton className="h-48 rounded-2xl" />
+        <div className="font-dts min-h-screen bg-[#f7f6fb]">
+          <div className="w-full px-6 py-8 lg:px-[38px]">
+            <Skeleton className="h-8 w-36" />
+
+            <Skeleton className="mx-auto mt-6 h-[360px] w-full max-w-[860px] rounded-[18px]" />
+
+            <div className="mx-auto mt-12 w-full max-w-[1240px]">
+              <Skeleton className="h-10 w-64" />
+
+              <Skeleton className="mt-5 h-[420px] rounded-[16px]" />
+            </div>
+          </div>
         </div>
       </RequireAuth>
     );
   }
 
-  const isPassed = result?.passed ?? true;
-  const score = result?.correctCount ?? 33;
-  const total = result?.totalQuestions ?? 35;
-  const timeSpent = result?.durationMinutes ? `${result.durationMinutes} phút` : "14 phút 20 giây";
-  const answers: ExamAnswerResult[] = result?.answers ?? [];
+  if (
+    resultQuery.isError ||
+    !result
+  ) {
+    return (
+      <RequireAuth>
+        <div className="font-dts flex min-h-[calc(100vh-64px)] items-center justify-center bg-[#f7f6fb] px-6">
+          <div className="max-w-md text-center">
+            <AlertTriangle className="mx-auto size-9 text-[#d92d20]" />
+
+            <h1 className="mt-4 text-[20px] font-bold text-[#101828]">
+              Không thể tải kết quả
+            </h1>
+
+            <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">
+              Kết quả bài làm hiện chưa thể
+              hiển thị. Bạn có thể quay lại
+              trang Ôn luyện và thử lại.
+            </p>
+
+            <Button
+              type="button"
+              className="mt-5 bg-[#0758d9] hover:bg-[#064fc3]"
+              onClick={() =>
+                router.push(
+                  "/practice"
+                )
+              }
+            >
+              Quay về Ôn luyện
+            </Button>
+          </div>
+        </div>
+      </RequireAuth>
+    );
+  }
+
+  const answers:
+    ExamAnswerResult[] =
+    result.answers ?? [];
+
+  const isPassed =
+    result.passed === true;
+
+  const correctCount =
+    result.correctCount ?? 0;
+
+  const totalQuestions =
+    result.totalQuestions ?? 0;
+
+  const answeredWrongCount =
+    result.answeredWrongCount ?? 0;
+
+  const unansweredCount =
+    result.unansweredCount ?? 0;
+
+  const criticalCount =
+    answers.filter(
+      (answer) =>
+        answer.isCritical === true
+    ).length;
+
+  const criticalWrongCount =
+    answers.filter(
+      (answer) =>
+        answer.isCritical === true &&
+        answer.isCorrect !== true
+    ).length;
+
+  const filteredAnswers =
+    answers
+      .map(
+        (
+          answer,
+          originalIndex
+        ) => ({
+          answer,
+          originalIndex,
+        })
+      )
+      .filter(
+        ({ answer }) => {
+          if (
+            activeFilter ===
+            "wrong"
+          ) {
+            return (
+              Boolean(
+                answer.selectedAnswer
+              ) &&
+              answer.isCorrect !== true
+            );
+          }
+
+          if (
+            activeFilter ===
+            "critical"
+          ) {
+            return (
+              answer.isCritical === true
+            );
+          }
+
+          if (
+            activeFilter ===
+            "unanswered"
+          ) {
+            return !answer.selectedAnswer;
+          }
+
+          return true;
+        }
+      );
+
+  const timeSpent =
+    formatElapsedTime(
+      result.startedAt,
+      result.completedAt
+    );
+
+  function scrollToResultDetail() {
+    window.requestAnimationFrame(
+      () => {
+        document
+          .getElementById(
+            "result-detail"
+          )
+          ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+      }
+    );
+  }
 
   return (
     <RequireAuth>
-      <div className="container mx-auto max-w-4xl py-8 px-4 space-y-8">
-        {/* Back Button */}
-        <div>
-          <Link href="/practice/exams">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ArrowLeft className="h-4 w-4" /> Quay về danh sách bài thi
-            </Button>
-          </Link>
-        </div>
+      <div className="font-dts min-h-screen bg-[#f7f6fb] text-[#101828]">
+        <main className="w-full px-6 pb-14 pt-6 lg:px-[38px]">
+          <div>
+            <Link
+              href="/practice"
+              className="-ml-2 inline-flex items-center gap-2 rounded-[8px] px-2 py-1.5 text-[14px] font-semibold text-[#536078] transition hover:bg-[#eef1f7] hover:text-[#101828]"
+            >
+              <ArrowLeft className="size-4" />
 
-        {/* Hero Result Banner */}
-        <Card className={`rounded-3xl border-2 shadow-md ${isPassed ? "border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20" : "border-destructive/30 bg-destructive/5"}`}>
-          <CardContent className="p-8 text-center space-y-6">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full shadow-md bg-white dark:bg-card">
-              {isPassed ? (
-                <CheckCircle2 className="h-12 w-12 text-emerald-500" />
-              ) : (
-                <XCircle className="h-12 w-12 text-destructive" />
-              )}
-            </div>
+              Quay về Ôn luyện
+            </Link>
+          </div>
 
-            <div className="space-y-2">
-              <Badge
-                className={`text-sm px-4 py-1 font-bold ${
-                  isPassed ? "bg-emerald-500 text-white" : "bg-destructive text-white"
-                }`}
-              >
-                {isPassed ? "ĐÃ ĐẠT YÊU CẦU SÁT HẠCH" : "KHÔNG ĐẠT YÊU CẦU"}
-              </Badge>
-              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
-                {score} / {total} câu đúng
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Kỳ thi sát hạch lý thuyết GPLX Hạng {result?.examType ?? "B2"} — Bộ đề {examId}
+          <div className="mt-5">
+            <ResultSummary
+              passed={isPassed}
+              correctCount={
+                correctCount
+              }
+              wrongCount={
+                answeredWrongCount
+              }
+              totalQuestions={
+                totalQuestions
+              }
+              criticalWrongCount={
+                criticalWrongCount
+              }
+              timeSpent={
+                timeSpent
+              }
+              retryPending={
+                retryAndGo.isPending
+              }
+              onRetry={() => {
+                retryAndGo.mutate(
+                  examId
+                );
+              }}
+              onNextExam={() => {
+                router.push(
+                  "/practice/exams"
+                );
+              }}
+              onViewWrong={() => {
+                setActiveFilter(
+                  "wrong"
+                );
+
+                scrollToResultDetail();
+              }}
+            />
+          </div>
+
+          <section
+            id="result-detail"
+            className="mx-auto mt-12 w-full max-w-[1240px] scroll-mt-24"
+          >
+            <div>
+              <h2 className="text-[24px] font-bold tracking-[-0.015em] text-[#101828]">
+                Chi tiết bài làm
+              </h2>
+
+              <p className="mt-1 text-[14px] font-medium leading-6 text-[#667085]">
+                Xem lại toàn bộ đáp án,
+                đối chiếu câu chọn và giải
+                thích chi tiết từng câu.
               </p>
             </div>
 
-            {/* Metrics summary cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto pt-4 border-t border-border/50">
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Thời gian làm</p>
-                <p className="font-bold text-sm flex items-center justify-center gap-1">
-                  <Clock className="h-4 w-4 text-primary" /> {timeSpent}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Số câu đúng</p>
-                <p className="font-bold text-sm text-emerald-600">{score} / {total} câu</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Số câu sai</p>
-                <p className="font-bold text-sm text-destructive">{result?.wrongCount ?? (total - score)} câu</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Câu điểm liệt</p>
-                <p className="font-bold text-sm text-emerald-600">Đạt</p>
-              </div>
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex flex-wrap justify-center gap-3 pt-4">
-              <Button
-                variant="outline"
-                className="gap-2 font-bold"
-                onClick={() =>
-                  startAndGo.mutate({
-                    examType: result?.examType ?? "B2",
-                    totalQuestions: total,
-                    durationMinutes: result?.durationMinutes ?? 22,
-                    mode: result?.mode ?? "EXAM",
-                  })
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <ResultFilterButton
+                active={
+                  activeFilter ===
+                  "all"
                 }
-                disabled={startAndGo.isPending}
+                onClick={() =>
+                  setActiveFilter(
+                    "all"
+                  )
+                }
               >
-                <RotateCcw className="h-4 w-4" /> {startAndGo.isPending ? "Đang khởi tạo..." : "Thi lại bộ đề này"}
-              </Button>
-              <Link href="/practice/exams">
-                <Button className="gap-2 font-bold">
-                  <BookOpen className="h-4 w-4" /> Làm đề tiếp theo
-                </Button>
-              </Link>
+                Tất cả ({answers.length})
+              </ResultFilterButton>
+
+              <ResultFilterButton
+                active={
+                  activeFilter ===
+                  "wrong"
+                }
+                tone="danger"
+                disabled={
+                  answeredWrongCount === 0
+                }
+                onClick={() =>
+                  setActiveFilter(
+                    "wrong"
+                  )
+                }
+              >
+                Câu sai (
+                {answeredWrongCount})
+              </ResultFilterButton>
+
+              <ResultFilterButton
+                active={
+                  activeFilter ===
+                  "critical"
+                }
+                tone="blue"
+                disabled={
+                  criticalCount === 0
+                }
+                onClick={() =>
+                  setActiveFilter(
+                    "critical"
+                  )
+                }
+              >
+                Câu điểm liệt (
+                {criticalCount})
+              </ResultFilterButton>
+
+              <ResultFilterButton
+                active={
+                  activeFilter ===
+                  "unanswered"
+                }
+                disabled={
+                  unansweredCount === 0
+                }
+                onClick={() =>
+                  setActiveFilter(
+                    "unanswered"
+                  )
+                }
+              >
+                Chưa trả lời (
+                {unansweredCount})
+              </ResultFilterButton>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Detailed Review Section Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <HelpCircle className="h-5 w-5 text-primary" /> Chi tiết từng câu hỏi & Giải thích
-          </h2>
-          <span className="text-xs text-muted-foreground font-semibold">
-            {answers.length} câu · Hiển thị đáp án đúng / sai
-          </span>
-        </div>
-
-        {/* Questions Review List */}
-        <div className="space-y-6">
-          {answers.length === 0 ? (
-            <Card className="rounded-2xl shadow-sm border">
-              <CardContent className="p-8 text-center text-sm text-muted-foreground space-y-2">
-                <MinusCircle className="h-8 w-8 mx-auto text-muted-foreground/50" />
-                <p>Không có dữ liệu chi tiết cho kỳ thi này.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            answers.map((qa, idx) => {
-              const opts = normalizeOptions(qa.options);
-              const correct = qa.correctAnswer ?? "";
-              const selected = qa.selectedAnswer ?? "";
-              const isSkipped = !selected;
-              const isCorrectQuestion = qa.isCorrect === true;
-              return (
-                <Card key={qa.questionId ?? idx} className="rounded-2xl shadow-sm border overflow-hidden">
-                  <CardHeader className="pb-3 border-b bg-muted/20">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {isSkipped ? (
-                          <Badge variant="outline" className="font-bold">— CHƯA TRẢ LỜI</Badge>
-                        ) : (
-                          <Badge variant={isCorrectQuestion ? "default" : "destructive"} className="font-bold">
-                            {isCorrectQuestion ? "✓ CÂU ĐÚNG" : "✕ CÂU SAI"}
-                          </Badge>
-                        )}
-                        <span className="font-bold text-sm">Câu {idx + 1}</span>
-                      </div>
-                      {qa.imageUrl && (
-                        <Badge variant="secondary" className="font-bold">
-                          <AlertTriangle className="h-3.5 w-3.5" /> Có hình
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6 space-y-4">
-                    <h3 className="font-bold text-base text-foreground leading-relaxed">
-                      {qa.questionText}
-                    </h3>
-
-                    {qa.imageUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={qa.imageUrl}
-                        alt=""
-                        className="max-h-52 rounded-lg border"
-                      />
-                    )}
-
-                    {/* Options List */}
-                    <div className="space-y-2 pt-2">
-                      {opts.length === 0 && (
-                        <p className="text-sm text-muted-foreground">Câu hỏi này chưa có đáp án.</p>
-                      )}
-                      {opts.map((opt) => {
-                        const isCorrectOption = opt.label === correct;
-                        const isUserChoice = opt.label === selected;
-                        let borderStyle = "border-border bg-card";
-                        if (isCorrectOption) {
-                          borderStyle = "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 font-bold";
-                        } else if (isUserChoice && !isCorrectOption) {
-                          borderStyle = "border-destructive bg-destructive/10 text-destructive line-through";
-                        }
-                        return (
-                          <div key={opt.label} className={`p-3 rounded-xl border flex items-center justify-between text-sm ${borderStyle}`}>
-                            <div className="flex items-center gap-3">
-                              <span className="font-bold text-xs">{opt.label}.</span>
-                              <span>{opt.text}</span>
-                            </div>
-                            {isCorrectOption && <Badge className="bg-emerald-500 text-white text-[10px]">ĐÁP ÁN ĐÚNG</Badge>}
-                            {isUserChoice && !isCorrectOption && <Badge variant="destructive" className="text-[10px]">BẠN CHỌN SAI</Badge>}
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Explanation Card */}
-                    {qa.explanation ? (
-                      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 space-y-1">
-                        <p className="font-bold text-amber-700 dark:text-amber-300">💡 Lời giải thích & Mẹo nhớ nhanh:</p>
-                        <p className="leading-relaxed">{qa.explanation}</p>
-                      </div>
-                    ) : (
-                      <p className="text-xs text-muted-foreground">
-                        Câu hỏi này chưa có lời giải thích.
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })
-          )}
-        </div>
+            <div className="mt-5 space-y-4">
+              {answers.length === 0 ? (
+                <EmptyResultMessage>
+                  Không có dữ liệu chi tiết
+                  cho bài này.
+                </EmptyResultMessage>
+              ) : filteredAnswers.length ===
+                0 ? (
+                <EmptyResultMessage>
+                  Không có câu hỏi phù hợp
+                  với bộ lọc này.
+                </EmptyResultMessage>
+              ) : (
+                filteredAnswers.map(
+                  ({
+                    answer,
+                    originalIndex,
+                  }) => (
+                    <ResultQuestionCard
+                      key={
+                        answer.questionId ??
+                        originalIndex
+                      }
+                      answer={
+                        answer
+                      }
+                      index={
+                        originalIndex
+                      }
+                      totalQuestions={
+                        totalQuestions
+                      }
+                    />
+                  )
+                )
+              )}
+            </div>
+          </section>
+        </main>
       </div>
     </RequireAuth>
+  );
+}
+
+function ResultFilterButton({
+  active,
+  disabled = false,
+  tone = "neutral",
+  onClick,
+  children,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  tone?:
+    | "neutral"
+    | "danger"
+    | "blue";
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        "inline-flex h-9 items-center justify-center gap-2 rounded-full border px-4 text-[14px] font-semibold transition",
+        active &&
+          "border-[#0758d9] bg-[#0758d9] text-white shadow-[0_1px_3px_rgba(7,88,217,0.14)]",
+        !active &&
+          tone === "danger" &&
+          "border-[#e2e5ec] bg-white text-[#b42318] hover:border-[#f0b9b5] hover:bg-[#fff7f6]",
+        !active &&
+          tone === "blue" &&
+          "border-[#e2e5ec] bg-white text-[#536078] hover:border-[#b7c9ed] hover:bg-[#f5f8ff]",
+        !active &&
+          tone === "neutral" &&
+          "border-[#e2e5ec] bg-white text-[#536078] hover:bg-[#f7f8fb]",
+        disabled &&
+          "cursor-not-allowed border-transparent bg-transparent text-[#c0c6d0] shadow-none hover:border-transparent hover:bg-transparent"
+      )}
+    >
+      {!active &&
+        !disabled &&
+        tone === "danger" && (
+          <span className="size-1.5 rounded-full bg-[#d92d20]" />
+        )}
+
+      {!active &&
+        !disabled &&
+        tone === "blue" && (
+          <span className="size-1.5 rounded-full bg-[#0758d9]" />
+        )}
+
+      {!active &&
+        disabled && (
+          <span className="size-1.5 rounded-full bg-[#cbd1dc]" />
+        )}
+
+      {children}
+    </button>
+  );
+}
+
+function EmptyResultMessage({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  return (
+    <div className="rounded-[16px] border border-[#e1e4eb] bg-white px-6 py-10 text-center">
+      <p className="text-[14px] font-medium text-[#667085]">
+        {children}
+      </p>
+    </div>
   );
 }
