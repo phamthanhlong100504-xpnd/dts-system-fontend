@@ -237,7 +237,7 @@ function PermissionsTab() {
               <TableRow>
                 <TableHead>Tên</TableHead>
                 <TableHead>Hiển thị</TableHead>
-                <TableHead>Resource</TableHead>
+                <TableHead>Nhóm chức năng</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -316,7 +316,7 @@ function CreateRoleDialog() {
 const createPermissionSchema = z.object({
   name: z.string().min(1, "Vui lòng nhập tên quyền").max(100, "Tối đa 100 ký tự"),
   displayName: z.string().min(1, "Vui lòng nhập tên hiển thị").max(100, "Tối đa 100 ký tự"),
-  resource: z.string().min(1, "Vui lòng nhập resource").max(50, "Tối đa 50 ký tự"),
+  resource: z.string().min(1, "Vui lòng nhập nhóm chức năng").max(50, "Tối đa 50 ký tự"),
 });
 
 function CreatePermissionDialog() {
@@ -354,7 +354,7 @@ function CreatePermissionDialog() {
             {errors.displayName && <p className="text-sm text-destructive">{errors.displayName.message}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="perm-resource">Resource</Label>
+            <Label htmlFor="perm-resource">Nhóm chức năng</Label>
             <Input id="perm-resource" className="h-11" placeholder="courses" {...register("resource")} />
             {errors.resource && <p className="text-sm text-destructive">{errors.resource.message}</p>}
           </div>

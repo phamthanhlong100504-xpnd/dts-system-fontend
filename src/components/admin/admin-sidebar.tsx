@@ -112,7 +112,7 @@ export function AdminSidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-150 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-[15px] transition-all duration-150 ${
                   isActive
                     ? "bg-primary text-primary-foreground font-semibold shadow-sm scale-[0.98]"
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
@@ -128,7 +128,7 @@ export function AdminSidebar() {
         <div className="mt-auto space-y-4">
           <Link
             href="/"
-            className="flex items-center gap-3 px-4 py-2 mx-2 rounded-xl font-medium text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-150"
+            className="flex items-center gap-3 px-4 py-2 mx-2 rounded-xl font-medium text-[15px] text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-150"
           >
             <LogOut className="h-5 w-5 shrink-0" />
             <span>Giao diện học viên</span>

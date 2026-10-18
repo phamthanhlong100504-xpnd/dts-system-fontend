@@ -9,7 +9,7 @@ const settingsSections = [
   {
     icon: Bell,
     title: "Thông báo",
-    description: "Cấu hình email, push notification và cảnh báo hệ thống",
+    description: "Thiết lập thông báo và cảnh báo hệ thống",
     badge: null,
     color: "text-blue-500",
     bg: "bg-blue-500/10",
@@ -25,7 +25,7 @@ const settingsSections = [
   {
     icon: Database,
     title: "Dữ liệu & Sao lưu",
-    description: "Quản lý backup tự động, export dữ liệu và lịch sử thay đổi",
+    description: "Quản lý bản sao lưu, xuất dữ liệu và lịch sử thay đổi",
     badge: null,
     color: "text-orange-500",
     bg: "bg-orange-500/10",
@@ -33,15 +33,15 @@ const settingsSections = [
   {
     icon: Palette,
     title: "Giao diện",
-    description: "Tùy chỉnh theme, ngôn ngữ và bố cục trang admin",
+    description: "Tùy chỉnh màu sắc, ngôn ngữ và bố cục giao diện quản trị",
     badge: null,
     color: "text-purple-500",
     bg: "bg-purple-500/10",
   },
   {
     icon: Globe,
-    title: "API & Tích hợp",
-    description: "Quản lý API keys, webhook và kết nối với hệ thống bên ngoài",
+    title: "Kết nối hệ thống",
+    description: "Quản lý các kết nối và dịch vụ tích hợp",
     badge: "Beta",
     color: "text-cyan-500",
     bg: "bg-cyan-500/10",
@@ -57,7 +57,7 @@ function systemInfo(): { label: string; value: string }[] {
     { label: "Môi trường", value: isProd ? "Production" : "Development" },
     { label: "Next.js", value: "16.x" },
     {
-      label: "API Gateway",
+      label: "Cổng kết nối",
       value: isProd ? "103.20.96.56:8888" : "localhost:8888",
     },
   ];

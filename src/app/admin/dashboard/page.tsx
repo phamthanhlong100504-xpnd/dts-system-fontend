@@ -4,8 +4,6 @@ import {
   School,
   HelpCircle,
   CheckCircle2,
-  Calendar,
-  Download,
   FolderTree,
   Plus,
 } from "lucide-react";
@@ -17,15 +15,14 @@ import Link from "next/link";
 import { useAdminQuestions, useAdminPrograms, useAdminChapters } from "@/features/admin/use-admin-content";
 
 export default function AdminDashboardPage() {
-  const { data: questions = [], isLoading: isLoadingQ } = useAdminQuestions();
-  const { data: programs = [], isLoading: isLoadingP } = useAdminPrograms();
-  const { data: chapters = [], isLoading: isLoadingC } = useAdminChapters();
+  const { data: questions = [], isLoading: isLoadingQ, isError: questionError } = useAdminQuestions();
+  const { data: programs = [], isLoading: isLoadingP, isError: programError } = useAdminPrograms();
+  const { data: chapters = [], isLoading: isLoadingC, isError: chapterError } = useAdminChapters();
 
   const totalQuestions = questions.length;
   const publishedQuestions = questions.filter((q) => q.status === "PUBLISHED").length;
   const publishedPercent = totalQuestions > 0 ? Math.round((publishedQuestions / totalQuestions) * 100) : 0;
 
-  const isLoading = isLoadingQ || isLoadingP || isLoadingC;
 
   return (
     <div className="space-y-6">
@@ -33,10 +30,10 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl bg-card p-6 shadow-sm border">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Overview Dashboard
+            Tổng quan hệ thống
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Tổng quan dữ liệu thời gian thực từ Content Builder Service.
+            Theo dõi chương trình học, chương và câu hỏi đã tạo. Tra cứu bộ câu hỏi chuẩn tại mục Ngân hàng câu hỏi.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -49,6 +46,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
+      {(questionError || programError || chapterError) && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">Một số dữ liệu chưa tải được. Vui lòng kiểm tra quyền truy cập hoặc thử lại. Số liệu chưa có được hiển thị bằng dấu gạch ngang.</p>}
       {/* Metrics Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Programs */}
@@ -59,17 +57,17 @@ export default function AdminDashboardPage() {
                 <School className="h-5 w-5" />
               </div>
               <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                Live API
+                Nội dung quản lý
               </Badge>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                Learning Programs
+                Chương trình học
               </p>
               {isLoadingP ? (
                 <Skeleton className="h-8 w-16" />
               ) : (
-                <p className="text-3xl font-bold text-foreground">{programs.length}</p>
+                <p className="text-3xl font-bold text-foreground">{programError ? "—" : programs.length}</p>
               )}
             </div>
           </CardContent>
@@ -85,14 +83,14 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                Total Questions
+                Câu hỏi tự tạo
               </p>
               {isLoadingQ ? (
                 <Skeleton className="h-8 w-16" />
               ) : (
                 <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-bold text-foreground">{totalQuestions}</p>
-                  <span className="text-xs text-muted-foreground">Từ Database</span>
+                  <p className="text-3xl font-bold text-foreground">{questionError ? "—" : totalQuestions}</p>
+                  <span className="text-xs text-muted-foreground">Không tính câu hỏi chuẩn</span>
                 </div>
               )}
             </div>
@@ -109,18 +107,18 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                Total Chapters
+                Chương tự tạo
               </p>
               {isLoadingC ? (
                 <Skeleton className="h-8 w-16" />
               ) : (
-                <p className="text-3xl font-bold text-foreground">{chapters.length}</p>
+                <p className="text-3xl font-bold text-foreground">{chapterError ? "—" : chapters.length}</p>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Card 4: Published Rate */}
+        {/* Card 4: Tỷ lệ công bố */}
         <Card className="rounded-2xl shadow-sm">
           <CardContent className="p-5 flex flex-col justify-between h-full">
             <div className="flex items-start justify-between mb-4">
@@ -130,15 +128,15 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                Published Rate
+                Tỷ lệ công bố
               </p>
               {isLoadingQ ? (
                 <Skeleton className="h-8 w-16" />
               ) : (
                 <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-bold text-foreground">{publishedPercent}%</p>
+                  <p className="text-3xl font-bold text-foreground">{questionError ? "—" : `${publishedPercent}%`}</p>
                   <span className="text-xs font-medium text-emerald-600">
-                    ({publishedQuestions}/{totalQuestions})
+                    {!questionError && `(${publishedQuestions}/${totalQuestions})`}
                   </span>
                 </div>
               )}
@@ -168,7 +166,7 @@ export default function AdminDashboardPage() {
                   <p className="text-xs text-muted-foreground mt-0.5">{q.id} · {q.program}</p>
                 </div>
                 <Badge variant={q.status === "PUBLISHED" ? "default" : "secondary"}>
-                  {q.status}
+                  {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ" } as Record<string, string>)[q.status ?? ""] ?? q.status}
                 </Badge>
               </div>
             ))}

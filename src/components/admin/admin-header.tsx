@@ -10,7 +10,7 @@ interface AdminHeaderProps {
 export function AdminHeader({ title }: AdminHeaderProps) {
   return (
     <header className="fixed top-0 right-0 left-0 md:left-[260px] z-40 bg-background/80 backdrop-blur-md border-b border-border flex justify-between items-center h-16 px-6">
-      <div className="flex items-center gap-4 flex-1 max-w-md">
+      <div className="flex min-w-0 flex-1 items-center mr-[0.6cm]">
         {title ? (
           <h2 className="text-lg font-bold tracking-tight text-foreground hidden sm:block">
             {title}
@@ -27,7 +27,7 @@ export function AdminHeader({ title }: AdminHeaderProps) {
         )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         <button
           type="button"
           className="relative rounded-full p-2 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
