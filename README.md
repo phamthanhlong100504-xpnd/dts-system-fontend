@@ -1,59 +1,46 @@
 # DTS Frontend
 
-Frontend cho hệ thống luyện thi bằng lái xe (DTS). Next.js 16 (App Router) + TypeScript + Tailwind v4 + shadcn/ui + TanStack Query + Zustand + React Hook Form + Zod.
+Giao diện học lý thuyết và thi GPLX của DTS, gồm khu học viên và quản trị. Source đang dùng Next.js 16.3.0, React 19.2.8, TypeScript, Tailwind v4, TanStack Query và Zustand. Giữ nguyên `package.json` cùng `package-lock.json` đã được sử dụng local; Node 22 phù hợp với Dockerfile của repo.
 
-## Kiến trúc
+## Đọc theo thứ tự
 
-```
-dts-frontend/
-├─ api-specs/                  → OpenAPI của 3 backend (identity/practice/progress)
-├─ src/
-│  ├─ types/*.generated.ts     → Type sinh tự động từ OpenAPI (KHÔNG sửa tay)
-│  ├─ lib/api/                 → Axios client + interceptor (token, refresh queue, unwrap envelope)
-│  ├─ lib/auth/                → Refresh token logic
-│  ├─ stores/auth-store.ts     → Zustand: accessToken, refreshToken, user (persist localStorage)
-│  ├─ features/                → Mỗi service một module: auth, practice, progress
-│  └─ app/                     → App Router pages
-```
+- [Chạy local](docs/LOCAL_SETUP.md): cài dependency, biến môi trường, Gateway và dịch vụ cần có.
+- [Nghiệp vụ từng chức năng](docs/FRONTEND_FEATURES.md) và [route thực tế](docs/ROUTES.md).
+- [Kiến trúc và cách phát triển](docs/ARCHITECTURE.md).
+- [Phiên bản backend cần đồng bộ](docs/BACKEND_COMPATIBILITY.md).
+- [API blueprint theo nhóm trang](docs/api-blueprint/README.md).
 
-### Cách FE gọi backend (không cần CORS)
+## Chạy nhanh khi backend đã sẵn sàng
 
-Không có CORS/gateway ở backend hiện tại, nên Next proxy mọi request `/api/...` tới từng service qua `rewrites` trong `next.config.ts` (browser gọi cùng origin → không bị chặn). Khi có API Gateway, chỉ cần đổi `IDENTITY_API_URL`/`PRACTICE_API_URL`/`PROGRESS_API_URL`.
-
-| FE gọi | Proxy sang | Backend |
-|---|---|---|
-| `/api/identity/*` | `IDENTITY_API_URL` (8081) | dts-identity |
-| `/api/practice/*` | `PRACTICE_API_URL` (8087) | dts-practice |
-| `/api/progress/*` | `PROGRESS_API_URL` (8083) | dts-progress |
-
-### Luồng dữ liệu
-
-Mọi response đều bọc trong envelope `ApiResponse<T> = { success, message, data, errorCode, timestamp }`. Axios interceptor:
-1. Gắn `Authorization: Bearer <token>` từ auth store.
-2. Bóc envelope → component nhận thẳng `data`.
-3. Nhận 401 → tự refresh token (chỉ gọi refresh 1 lần, queue các request đang chờ) → replay. Refresh fail → logout.
-
-## Chạy local
-
-```bash
-# 1. Chạy các backend (mỗi service có docker-compose.infra.yml / docker-compose.yml riêng)
-#    dts-identity: 8081, dts-practice: 8087, dts-progress: 8083
-
-# 2. Frontend
-npm install
-npm run dev        # http://localhost:3000
+```powershell
+Set-Location 'D:\DTS\dts-system-fontend'
+if (-not (Test-Path -LiteralPath '.env.local')) {
+    Copy-Item -LiteralPath '.env.example' -Destination '.env.local'
+}
+npm ci
+npm run dev -- --port 3000
 ```
 
-## Sinh lại types khi backend đổi
+Mở `http://localhost:3000`. `.env.local` đặt `GATEWAY_API_URL=http://localhost:8888`. Browser gọi cùng origin của Next; Next proxy đến Gateway, Gateway định tuyến sang backend. Không còn dùng các biến `IDENTITY_API_URL`, `PRACTICE_API_URL`, `PROGRESS_API_URL` trong `next.config.ts` hiện hành.
 
-Cập nhật spec mới vào `api-specs/` rồi chạy:
+Pull source không mang theo database, người dùng, phiên làm bài, media trong MinIO hay credential của máy người phát triển. Phải dùng đúng backend, chạy migration/import theo tài liệu từng repo và được cấp cấu hình tương ứng. Không bật chế độ tự sửa schema để thay cho migration.
 
-```bash
-npm run gen:types
-```
+## Cấu trúc
 
-## Project structure — thêm feature mới
+| Thư mục | Trách nhiệm |
+| --- | --- |
+| `src/app/` | Route App Router, layout và điều phối trang |
+| `src/features/` | Service gọi API, kiểu dữ liệu, hook và component theo nghiệp vụ |
+| `src/components/` | UI dùng chung, app shell, xác thực và quản trị |
+| `src/config/` | Danh mục điều hướng và ánh xạ danh mục GPLX từ backend |
+| `src/stores/` | Cache trình duyệt cho auth, GPLX và phiên Practice |
+| `src/lib/api/`, `src/lib/auth/` | Client HTTP, envelope, error và refresh token |
+| `api-specs/`, `src/types/` | OpenAPI đã có và kiểu sinh tự động |
+| `public/` | Asset tĩnh của frontend |
+| `docs/` | Hướng dẫn và contract của bản source hiện hành |
 
-1. Tạo `src/features/<name>/<name>-service.ts` — gọi API qua `identityApi`/`practiceApi`/`progressApi`.
-2. Tạo hook trong `src/features/<name>/use-<name>.ts` — React Query (`useQuery`/`useMutation`).
-3. Tạo page trong `src/app/<route>/page.tsx`, bọc `RequireAuth` nếu cần đăng nhập.
+Các API spec cũ không bao phủ mọi DTO được bổ sung; kiểu feature chuyên biệt vẫn nằm cạnh service. Không chạy `gen:types` chỉ để chuẩn bị commit. `DTS-HUONG-DAN-DU-AN.md` là tài liệu tổng hệ thống đã có, được giữ nguyên; cấu hình frontend hiện hành xem trong `docs/LOCAL_SETUP.md`.
+
+## Giới hạn hiện có
+
+Backend quyết định danh tính, quyền, chấm điểm, số lần thi, thời gian và phát hành kết quả. Guard hoặc hiển thị nút của frontend không thay thế kiểm tra backend. Trang `/admin/settings` hiện trình bày các mục cấu hình; chưa có API lưu cấu hình cho các nút đó. Việc đóng gói Git không bổ sung logic cho những mục này.
