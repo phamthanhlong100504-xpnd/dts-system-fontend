@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { isAxiosError } from "axios";
 import { FileText, Plus, Pencil, Trash2 } from "lucide-react";
 import { useAdminExamRules, useCreateExamRule, useUpdateExamRule, useDeleteExamRule } from "@/features/admin/use-admin-content";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,14 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ExamRulePayload } from "@/features/admin/admin-examination-service";
+import type { ExamRulePayload } from "@/features/admin/admin-examination-service";
+
+function apiErrorMessage(error: unknown, fallback: string): string {
+  if (isAxiosError<{ message?: string }>(error)) {
+    return error.response?.data?.message || fallback;
+  }
+  return fallback;
+}
 
 const defaultRule: ExamRulePayload = {
   title: "",
@@ -62,14 +70,14 @@ export default function ExamRulesPage() {
     setEditingId(null);
   };
 
-  const handleEdit = (rule: any) => {
-    // Map missing fields from rule to defaultRule just in case
-    setForm({ ...defaultRule, ...rule });
-    setEditingId(rule.id);
+  const handleEdit = (rule: ExamRulePayload & { id: string }) => {
+    const { id, ...ruleValues } = rule;
+    setForm({ ...defaultRule, ...ruleValues });
+    setEditingId(id);
     setIsCreating(true);
   };
 
-  const updateField = (field: keyof ExamRulePayload, value: any) => {
+  const updateField = <K extends keyof ExamRulePayload>(field: K, value: ExamRulePayload[K]) => {
     setForm(prev => {
       const next = { ...prev, [field]: value };
       
@@ -111,7 +119,7 @@ export default function ExamRulesPage() {
             toast.success("Cập nhật thành công");
             resetForm();
           },
-          onError: (err: any) => toast.error(err?.response?.data?.message || "Cập nhật thất bại"),
+          onError: (err: unknown) => toast.error(apiErrorMessage(err, "Cập nhật thất bại")),
         }
       );
     } else {
@@ -120,7 +128,7 @@ export default function ExamRulesPage() {
           toast.success("Tạo mới thành công");
           resetForm();
         },
-        onError: (err: any) => toast.error(err?.response?.data?.message || "Tạo mới thất bại"),
+        onError: (err: unknown) => toast.error(apiErrorMessage(err, "Tạo mới thất bại")),
       });
     }
   };
@@ -163,7 +171,7 @@ export default function ExamRulesPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label className="text-muted-foreground font-semibold">Tên quy chế *</Label>
-                  <Input value={form.title} onChange={(e) => updateField("title", e.target.value)} placeholder="VD: Quy chế thi sát hạch B2" />
+                  <Input value={form.title} onChange={(e) => updateField("title", e.target.value)} placeholder="Ví dụ: Quy chế thi chính thức hạng B" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-muted-foreground font-semibold">Thời gian làm bài (giây) *</Label>
@@ -200,7 +208,7 @@ export default function ExamRulesPage() {
 
                     <div className="space-y-1.5">
                       <Label>Chế độ điều hướng</Label>
-                      <select value={form.navigationMode} onChange={(e) => updateField("navigationMode", e.target.value)} className="w-full h-9 rounded-md border px-3 text-sm">
+                      <select value={form.navigationMode} onChange={(e) => updateField("navigationMode", e.target.value as ExamRulePayload["navigationMode"])} className="w-full h-9 rounded-md border px-3 text-sm">
                         <option value="FREE">Tự do (FREE)</option>
                         <option value="SEQUENTIAL">Tuần tự (SEQUENTIAL)</option>
                       </select>
@@ -216,7 +224,7 @@ export default function ExamRulesPage() {
                 <TabsContent value="display" className="space-y-4 p-4 border rounded-md mt-2 bg-background">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex items-center justify-between">
-                      <Label>Đảo phần thi (Sections)</Label>
+                      <Label>Đảo thứ tự các phần thi</Label>
                       <Switch checked={form.shuffleSections} onCheckedChange={(v) => updateField("shuffleSections", v)} disabled={form.shuffleQuestionsAcrossSections} />
                     </div>
                     <div className="flex items-center justify-between">
@@ -228,17 +236,17 @@ export default function ExamRulesPage() {
                       <Switch checked={form.shuffleQuestionsAcrossSections} onCheckedChange={(v) => updateField("shuffleQuestionsAcrossSections", v)} />
                     </div>
                     <div className="flex items-center justify-between">
-                      <Label>Đảo đáp án (Options)</Label>
+                      <Label>Đảo thứ tự đáp án</Label>
                       <Switch checked={form.shuffleOptions} onCheckedChange={(v) => updateField("shuffleOptions", v)} />
                     </div>
 
                     <div className="space-y-1.5 md:col-span-2">
-                      <Label>Chế độ hiển thị kết quả (Result Release Mode)</Label>
-                      <select value={form.resultReleaseMode} onChange={(e) => updateField("resultReleaseMode", e.target.value)} className="w-full h-9 rounded-md border px-3 text-sm">
-                        <option value="IMMEDIATE">Ngay lập tức (IMMEDIATE)</option>
-                        <option value="AFTER_SUBMIT">Sau khi nộp (AFTER_SUBMIT)</option>
-                        <option value="AFTER_EXAM_END">Sau khi kỳ thi kết thúc (AFTER_EXAM_END)</option>
-                        <option value="MANUAL">Thủ công (MANUAL)</option>
+                      <Label>Thời điểm công bố kết quả</Label>
+                      <select value={form.resultReleaseMode} onChange={(e) => updateField("resultReleaseMode", e.target.value as ExamRulePayload["resultReleaseMode"])} className="w-full h-9 rounded-md border px-3 text-sm">
+                        <option value="IMMEDIATE">Ngay sau khi nộp bài</option>
+                        <option value="AFTER_SUBMIT">Sau khi hoàn thành bài thi</option>
+                        <option value="AFTER_EXAM_END">Sau khi kỳ thi kết thúc</option>
+                        <option value="MANUAL">Do quản trị viên công bố</option>
                       </select>
                     </div>
                   </div>
@@ -247,7 +255,7 @@ export default function ExamRulesPage() {
                 <TabsContent value="security" className="space-y-4 p-4 border rounded-md mt-2 bg-background">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex items-center justify-between">
-                      <Label>Yêu cầu toàn màn hình (Fullscreen)</Label>
+                      <Label>Yêu cầu làm bài toàn màn hình</Label>
                       <Switch checked={form.requireFullscreen} onCheckedChange={(v) => updateField("requireFullscreen", v)} />
                     </div>
                     <div className="flex items-center justify-between">
@@ -278,8 +286,8 @@ export default function ExamRulesPage() {
               <TableRow>
                 <TableHead>Tên quy chế</TableHead>
                 <TableHead>Thời gian</TableHead>
-                <TableHead>Chế độ hiển thị</TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
+                <TableHead>Công bố kết quả</TableHead>
+                <TableHead className="w-28 whitespace-nowrap text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -292,18 +300,20 @@ export default function ExamRulesPage() {
                   <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">Chưa có dữ liệu</TableCell>
                 </TableRow>
               ) : (
-                rules.map((rule: any) => (
+                rules.map((rule) => (
                   <TableRow key={rule.id}>
                     <TableCell className="font-medium">{rule.title}</TableCell>
                     <TableCell>{Math.floor(rule.durationSeconds / 60)} phút</TableCell>
-                    <TableCell>{rule.resultReleaseMode}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell>{({ IMMEDIATE: "Ngay sau khi nộp", AFTER_SUBMIT: "Sau khi nộp bài", AFTER_EXAM_END: "Khi kỳ thi kết thúc", MANUAL: "Công bố thủ công" } as Record<string, string>)[rule.resultReleaseMode] ?? rule.resultReleaseMode}</TableCell>
+                    <TableCell className="whitespace-nowrap text-right">
+                      <div className="inline-flex items-center justify-end gap-1">
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(rule)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDelete(rule.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

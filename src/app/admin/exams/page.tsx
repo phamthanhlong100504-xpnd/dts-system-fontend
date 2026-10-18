@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import type { ExamItem } from "@/features/admin/admin-examination-service";
+import { useLicenseCatalog } from "@/features/license/use-license";
 import { 
-  ArrowLeft, Plus, Loader2, Send, Trash2, BookOpen, Clock, CheckCircle2, Award, Search, Settings2, Pencil, Sparkles, UploadCloud, Image as ImageIcon
+  Plus, Loader2, Send, Trash2, BookOpen, Clock, CheckCircle2, Award, Search, Settings2, Pencil, Sparkles, UploadCloud
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,15 +15,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { useAdminExams, useCreateExam, useChangeExamStatus, useDeleteExam, useUpdateExam } from "@/features/admin/use-admin-content";
+import { useAdminExams, useCreateExam, useDeleteExam, useUpdateExam } from "@/features/admin/use-admin-content";
 import { uploadFileToMediaService } from "@/features/media/media-service";
 import { MediaImage } from "@/components/ui/media-image";
 
 export default function AdminExamsPage() {
-  const { data: apiExams = [], isLoading } = useAdminExams();
+  const router = useRouter();
+  const { data: apiExams = [], isLoading, isError: examsError } = useAdminExams();
+  const licenseCatalog = useLicenseCatalog();
+  const licenseOptions = licenseCatalog.data ?? [];
   const createMutation = useCreateExam();
   const updateMutation = useUpdateExam();
-  const changeStatusMutation = useChangeExamStatus();
   const deleteMutation = useDeleteExam();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,11 +35,11 @@ export default function AdminExamsPage() {
 
   const [newName, setNewName] = useState("");
   const [newCode, setNewCode] = useState("");
+  const [newLicenseClass, setNewLicenseClass] = useState("");
   const [newThumbnailId, setNewThumbnailId] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [publishingId, setPublishingId] = useState<string | null>(null);
 
-  const [editingExam, setEditingExam] = useState<any>(null);
+  const [editingExam, setEditingExam] = useState<ExamItem | null>(null);
   const [editName, setEditName] = useState("");
   const [editCode, setEditCode] = useState("");
   const [editThumbnailId, setEditThumbnailId] = useState("");
@@ -102,8 +107,8 @@ export default function AdminExamsPage() {
   };
 
   const handleCreate = () => {
-    if (!newName.trim() || !newCode.trim()) {
-      toast.error("Vui lòng nhập Tên bộ đề và Mã bộ đề");
+    if (!newName.trim() || !newCode.trim() || !licenseOptions.some((item) => item.code === newLicenseClass)) {
+      toast.error("Vui lòng nhập Tên kỳ thi, Mã kỳ thi và Hạng GPLX");
       return;
     }
     createMutation.mutate(
@@ -111,15 +116,16 @@ export default function AdminExamsPage() {
         title: newName, 
         code: newCode, 
         status: "DRAFT", 
-        licenseType: selectedLicense === "ALL" ? "B2" : selectedLicense,
+        licenseType: newLicenseClass.trim().toUpperCase(),
         thumbnailId: newThumbnailId
-      } as any,
+      },
       {
         onSuccess: () => {
           toast.success("Đã tạo bộ đề thi nháp thành công!");
           setIsCreating(false);
           setNewName("");
           setNewCode("");
+          setNewLicenseClass("");
           setNewThumbnailId("");
         },
         onError: () => {
@@ -129,25 +135,12 @@ export default function AdminExamsPage() {
     );
   };
 
-  const handlePublish = (id: string, title: string) => {
-    if (!window.confirm(`Xuất bản bộ đề "${title}" lên hệ thống?`)) return;
-    setPublishingId(id);
-    changeStatusMutation.mutate(
-      { id, status: "PUBLISHED" },
-      {
-        onSuccess: () => {
-          toast.success("Đã xuất bản bộ đề thi thành công!");
-          setPublishingId(null);
-        },
-        onError: () => {
-          toast.error("Xuất bản thất bại. Vui lòng thử lại.");
-          setPublishingId(null);
-        },
-      }
-    );
+  const handlePublish = (id: string) => {
+    toast.info("Để công bố kỳ thi, hãy tạo và xuất bản ít nhất một phiên bản đề thi hợp lệ.");
+    router.push(`/admin/exams/${id}`);
   };
 
-  const handleOpenEdit = (exam: any) => {
+  const handleOpenEdit = (exam: ExamItem) => {
     setEditingExam(exam);
     setEditName(exam.title);
     setEditCode(exam.code);
@@ -155,7 +148,7 @@ export default function AdminExamsPage() {
   };
 
   const handleSaveEdit = () => {
-    if (!editName.trim() || !editCode.trim()) {
+    if (!editingExam || !editName.trim() || !editCode.trim()) {
       toast.error("Vui lòng nhập Tên bộ đề và Mã bộ đề");
       return;
     }
@@ -166,8 +159,9 @@ export default function AdminExamsPage() {
           title: editName,
           code: editCode,
           status: editingExam.status,
+          licenseType: editingExam.licenseType === "—" ? undefined : editingExam.licenseType,
           thumbnailId: editThumbnailId
-        } as any
+        }
       },
       {
         onSuccess: () => {
@@ -189,8 +183,8 @@ export default function AdminExamsPage() {
         toast.success("Đã xóa bộ đề thi thành công.");
         setDeletingId(null);
       },
-      onError: (err: any) => {
-        toast.error(err.message || "Xóa bộ đề thi thất bại.");
+      onError: (err: unknown) => {
+        toast.error(err instanceof Error ? err.message : "Xóa bộ đề thi thất bại.");
         setDeletingId(null);
       },
     });
@@ -227,7 +221,7 @@ export default function AdminExamsPage() {
         <Card className="rounded-2xl border bg-primary/5">
           <CardHeader>
             <CardTitle className="text-base font-bold flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" /> Tạo bộ đề thi mới (Tự động lưu dạng Bản nháp DRAFT)
+              <Sparkles className="h-4 w-4 text-primary" /> Tạo kỳ thi mới
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -243,11 +237,19 @@ export default function AdminExamsPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Mã đề (Code) *</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Hạng GPLX *</label>
+                  <select value={newLicenseClass} onChange={(e) => setNewLicenseClass(e.target.value)} disabled={!licenseCatalog.isSuccess} className="h-10 w-full rounded-lg border bg-background px-3 text-sm">
+                    <option value="">{licenseCatalog.isLoading ? "Đang tải danh mục GPLX..." : "Chọn hạng GPLX từ danh mục"}</option>
+                    {licenseOptions.map((item) => <option key={item.code} value={item.code}>{item.code} — {item.title}</option>)}
+                  </select>
+                  {licenseCatalog.isError && <p className="text-xs text-destructive">Không tải được danh mục hạng GPLX. Vui lòng thử lại.</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Mã đề thi *</label>
                   <Input
                     value={newCode}
                     onChange={(e) => setNewCode(e.target.value)}
-                    placeholder="VD: EX-B2-04"
+                    placeholder="VD: EX-B-04"
                     className="bg-background"
                   />
                 </div>
@@ -299,7 +301,7 @@ export default function AdminExamsPage() {
               <Button variant="outline" size="sm" onClick={() => setIsCreating(false)}>
                 Hủy
               </Button>
-              <Button size="sm" onClick={handleCreate} disabled={createMutation.isPending}>
+              <Button size="sm" onClick={handleCreate} disabled={createMutation.isPending || !licenseCatalog.isSuccess}>
                 {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Lưu bản nháp"}
               </Button>
             </div>
@@ -307,35 +309,21 @@ export default function AdminExamsPage() {
         </Card>
       )}
 
-      {/* KPI Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Parent exam state and published versions are different entities. */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         {[
-          { label: "Tổng số bộ đề", value: examSets.length, icon: BookOpen, color: "text-primary" },
-          { label: "Đã xuất bản", value: examSets.filter((e) => e.status === "PUBLISHED").length, icon: CheckCircle2, color: "text-emerald-500" },
-          { label: "Bản nháp", value: examSets.filter((e) => e.status === "DRAFT").length, icon: Clock, color: "text-amber-500" },
-          {
-            label: "Tổng câu hỏi trong các bộ đề",
-            value: examSets.reduce((sum, e) => sum + (e.questionsCount || 0), 0).toLocaleString("vi-VN"),
-            icon: Award,
-            color: "text-purple-500",
-          },
+          { label: "Tổng kỳ thi", value: examSets.length, icon: BookOpen, color: "text-primary" },
+          { label: "Kỳ thi đang công bố", value: examSets.filter((e) => e.status === "PUBLISHED").length, icon: CheckCircle2, color: "text-emerald-500" },
+          { label: "Kỳ thi bản nháp", value: examSets.filter((e) => e.status === "DRAFT").length, icon: Clock, color: "text-amber-500" },
+          { label: "Phiên bản đã xuất bản", value: examSets.reduce((sum, e) => sum + e.publishedVersionCount, 0), icon: Award, color: "text-violet-500" },
+          { label: "Số câu đề đã cấu hình", value: examSets.reduce((sum, e) => sum + e.questionsCount, 0).toLocaleString("vi-VN"), icon: BookOpen, color: "text-primary" },
         ].map((stat) => {
           const Icon = stat.icon;
-          return (
-            <Card key={stat.label}>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className={`p-2 rounded-xl bg-muted ${stat.color}`}>
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                </div>
-              </CardContent>
-            </Card>
-          );
+          return <Card key={stat.label}><CardContent className="flex items-center gap-3 p-4"><div className={`rounded-xl bg-muted p-2 ${stat.color}`}><Icon className="size-5" /></div><div><p className="text-xs text-muted-foreground">{stat.label}</p><p className="text-2xl font-bold">{stat.value}</p></div></CardContent></Card>;
         })}
       </div>
+      <p className="text-xs text-muted-foreground">Trạng thái kỳ thi và phiên bản đề được quản lý riêng. Kỳ thi đang ẩn sẽ không hiển thị cho học viên.</p>
+      {examsError && <p role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">Không tải được dữ liệu kỳ thi. Vui lòng kiểm tra kết nối hoặc quyền truy cập.</p>}
 
       {/* Filter Toolbar */}
       <Card className="rounded-2xl shadow-sm">
@@ -356,11 +344,7 @@ export default function AdminExamsPage() {
               className="h-9 rounded-lg border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="ALL">Hạng bằng (Tất cả)</option>
-              <option value="A1">Hạng A1</option>
-              <option value="A2">Hạng A2</option>
-              <option value="B1">Hạng B1</option>
-              <option value="B2">Hạng B2</option>
-              <option value="C">Hạng C</option>
+              {licenseOptions.map((item) => <option key={item.code} value={item.code}>Hạng {item.code}</option>)}
             </select>
             <select
               value={selectedStatus}
@@ -370,6 +354,8 @@ export default function AdminExamsPage() {
               <option value="ALL">Trạng thái (Tất cả)</option>
               <option value="PUBLISHED">Đã xuất bản</option>
               <option value="DRAFT">Bản nháp</option>
+              <option value="HIDDEN">Đang ẩn</option>
+              <option value="ARCHIVED">Đã lưu trữ</option>
             </select>
           </div>
         </CardContent>
@@ -387,7 +373,7 @@ export default function AdminExamsPage() {
                 <th className="py-3.5 px-4 w-44">Cấu trúc</th>
                 <th className="py-3.5 px-4 w-32">Trạng thái</th>
                 <th className="py-3.5 px-4 w-32">Cập nhật</th>
-                <th className="py-3.5 px-4 w-36 text-right">Thao tác</th>
+                <th className="min-w-[250px] py-3.5 px-4 text-right whitespace-nowrap">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -424,38 +410,26 @@ export default function AdminExamsPage() {
                       </Badge>
                     </td>
                     <td className="py-4 px-4 text-xs text-muted-foreground">
-                      {exam.questionsCount} câu · {exam.durationMinutes}p · Đạt ≥{exam.passScore}
+                      {exam.versionCount === 0 ? "Chưa tạo phiên bản" : <>{exam.questionsCount ? `${exam.questionsCount} câu` : "Chưa có cấu trúc"} · {exam.durationMinutes ? `${exam.durationMinutes} phút` : "Chưa có quy chế"} · {exam.passScore ? `Đạt ≥${exam.passScore}` : "Chưa có tiêu chí"}<span className="mt-1 block font-medium text-foreground">{exam.examType === "OFFICIAL" ? "Thi chính thức" : exam.examType ?? "—"} · {exam.versionCount} phiên bản</span></>}
                     </td>
                     <td className="py-4 px-4">
-                      {exam.status === "PUBLISHED" ? (
-                        <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                          PUBLISHED
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                          DRAFT
-                        </Badge>
-                      )}
+                      <Badge variant="secondary" className={exam.status === "PUBLISHED" ? "bg-emerald-100 text-emerald-700" : exam.status === "HIDDEN" ? "bg-slate-200 text-slate-700" : exam.status === "ARCHIVED" ? "bg-gray-200 text-gray-700" : "bg-amber-100 text-amber-700"}>{({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", HIDDEN: "Đang ẩn", ARCHIVED: "Đã lưu trữ" } as Record<string, string>)[exam.status] ?? exam.status}</Badge>
+                      {exam.status === "HIDDEN" && exam.publishedVersionCount > 0 && <p className="mt-1 text-xs text-amber-700">Phiên bản đã xuất bản nhưng kỳ thi đang ẩn</p>}
                     </td>
                     <td className="py-4 px-4 text-xs text-muted-foreground">{exam.updatedAt}</td>
-                    <td className="py-4 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
+                    <td className="py-4 px-4 text-right whitespace-nowrap">
+                      <div className="flex flex-nowrap items-center justify-end gap-1.5">
                         {/* Nút Xuất bản nếu đang là DRAFT */}
                         {exam.status === "DRAFT" && (
                           <Button
                             variant="default"
                             size="sm"
-                            className="h-8 text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
-                            disabled={publishingId === exam.id}
-                            onClick={() => handlePublish(exam.id, exam.title)}
-                            title="Xuất bản bộ đề thi này"
+                            className="h-8 shrink-0 whitespace-nowrap gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs"
+                            onClick={() => handlePublish(exam.id)}
+                            title="Mở trang phiên bản để xuất bản kỳ thi đúng nghiệp vụ"
                           >
-                            {publishingId === exam.id ? (
-                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            ) : (
-                              <Send className="h-3.5 w-3.5" />
-                            )}
-                            Xuất bản
+                            <Send className="h-3.5 w-3.5" />
+                            Thiết lập đề thi
                           </Button>
                         )}
 
@@ -507,7 +481,7 @@ export default function AdminExamsPage() {
                 <Input
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  placeholder="VD: Đề thi thử B2 - Số 1"
+                  placeholder="VD: Đề thi chính thức hạng B"
                 />
               </div>
               <div className="space-y-1.5">
@@ -515,7 +489,7 @@ export default function AdminExamsPage() {
                 <Input
                   value={editCode}
                   onChange={(e) => setEditCode(e.target.value)}
-                  placeholder="VD: EX-B2-01"
+                  placeholder="VD: EX-B-01"
                 />
               </div>
               <div className="space-y-1.5 sm:col-span-2 mt-2">

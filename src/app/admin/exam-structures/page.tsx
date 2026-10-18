@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Layers, Plus, Pencil, Trash2, X, PlusCircle } from "lucide-react";
 import { useAdminExamStructures, useCreateExamStructure, useUpdateExamStructure, useDeleteExamStructure } from "@/features/admin/use-admin-content";
 import { Button } from "@/components/ui/button";
@@ -8,9 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ExamStructureSection } from "@/features/admin/admin-examination-service";
+import type { ExamStructureSection, ExamStructureItem } from "@/features/admin/admin-examination-service";
 
 export default function ExamStructuresPage() {
+  const router = useRouter();
   const { data: structures = [], isLoading } = useAdminExamStructures();
   const createStructure = useCreateExamStructure();
   const updateStructure = useUpdateExamStructure();
@@ -30,7 +32,11 @@ export default function ExamStructuresPage() {
     setEditingId(null);
   };
 
-  const handleEdit = (structure: any) => {
+  const handleEdit = (structure: ExamStructureItem) => {
+    if (typeof structure.metadata?.licenseClass === "string" && structure.metadata.licenseClass) {
+      router.push(`/admin/exams/structures/create?edit=${encodeURIComponent(structure.id)}`);
+      return;
+    }
     setTitle(structure.title || "");
     setSections(structure.sections || []);
     setEditingId(structure.id);
@@ -44,7 +50,7 @@ export default function ExamStructuresPage() {
     ]);
   };
 
-  const handleUpdateSection = (index: number, field: keyof ExamStructureSection, value: any) => {
+  const handleUpdateSection = <K extends keyof ExamStructureSection>(index: number, field: K, value: ExamStructureSection[K]) => {
     const updated = [...sections];
     updated[index] = { ...updated[index], [field]: value };
     setSections(updated);
@@ -63,7 +69,7 @@ export default function ExamStructuresPage() {
     }
 
     if (sections.length === 0) {
-      toast.error("Vui lòng thêm ít nhất 1 phần thi (section)");
+      toast.error("Vui lòng thêm ít nhất một phần thi");
       return;
     }
 
@@ -112,14 +118,14 @@ export default function ExamStructuresPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
           <Layers className="h-6 w-6 text-primary" />
-          Quản lý Cấu trúc ma trận đề thi
+          Quản lý cấu trúc đề thi
         </h1>
       </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between border-b bg-muted/20">
           <CardTitle className="text-base font-semibold">
-            Danh sách Cấu trúc đề thi
+            Danh sách cấu trúc đề thi
           </CardTitle>
           <Button size="sm" onClick={() => { resetForm(); setIsCreating(true); }}>
             <Plus className="h-4 w-4 mr-2" /> Thêm mới
@@ -134,13 +140,13 @@ export default function ExamStructuresPage() {
               </h3>
               <div className="space-y-1.5 max-w-xl">
                 <label className="text-xs font-semibold text-muted-foreground">Tên cấu trúc (Ma trận) *</label>
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="VD: Cấu trúc đề thi B2 (35 câu)" />
+                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ví dụ: Ma trận đề thi hạng B" />
               </div>
             </div>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-foreground">Cấu hình các phần thi (Sections)</h4>
+                <h4 className="text-sm font-semibold text-foreground">Phân bổ câu hỏi theo phần thi</h4>
                 <Button size="sm" variant="outline" onClick={handleAddSection}>
                   <PlusCircle className="h-4 w-4 mr-1.5" /> Thêm phần thi
                 </Button>
@@ -148,13 +154,13 @@ export default function ExamStructuresPage() {
               
               {sections.length === 0 ? (
                 <div className="text-sm text-muted-foreground text-center py-4 bg-muted/20 rounded-md border border-dashed">
-                  Chưa có phần thi nào. Hãy bấm "Thêm phần thi".
+                  Chưa có phần thi nào. Hãy bấm &quot;Thêm phần thi&quot;.
                 </div>
               ) : (
                 <div className="space-y-3">
                   {sections.map((section, idx) => (
                     <div key={idx} className="flex items-start gap-3 p-3 bg-background border rounded-lg shadow-sm relative">
-                      <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-3">
+                      <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
                           <label className="text-xs text-muted-foreground">Mã phần thi *</label>
                           <Input value={section.code} onChange={(e) => handleUpdateSection(idx, "code", e.target.value)} placeholder="VD: KHAI_NIEM" className="h-8 text-sm" />
@@ -203,7 +209,7 @@ export default function ExamStructuresPage() {
                 <TableHead>Số phần thi</TableHead>
                 <TableHead>Tổng số câu</TableHead>
                 <TableHead>Tổng điểm</TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
+                <TableHead className="w-28 whitespace-nowrap text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -216,23 +222,25 @@ export default function ExamStructuresPage() {
                   <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">Chưa có dữ liệu</TableCell>
                 </TableRow>
               ) : (
-                structures.map((structure: any) => (
+                structures.map((structure) => (
                   <TableRow key={structure.id}>
                     <TableCell className="font-medium">{structure.title}</TableCell>
                     <TableCell>{structure.sections?.length || 0}</TableCell>
                     <TableCell>
-                      {structure.sections?.reduce((acc: number, s: any) => acc + (s.questionCount || 0), 0) || 0}
+                      {structure.sections?.reduce((acc, section) => acc + (section.questionCount || 0), 0) || 0}
                     </TableCell>
                     <TableCell>
-                      {structure.sections?.reduce((acc: number, s: any) => acc + ((s.questionCount || 0) * (s.score || 0)), 0) || 0}
+                      {structure.sections?.reduce((acc, section) => acc + ((section.questionCount || 0) * (section.score || 0)), 0) || 0}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="whitespace-nowrap text-right">
+                      <div className="inline-flex items-center justify-end gap-1">
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(structure)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDelete(structure.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

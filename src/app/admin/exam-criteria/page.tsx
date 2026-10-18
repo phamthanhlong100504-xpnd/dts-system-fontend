@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Scale, Plus, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { 
   useAdminExamCriterias, 
   useCreateExamCriteria, 
@@ -10,12 +10,12 @@ import {
 } from "@/features/admin/use-admin-content";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { ExamCriteriaPayload, MandatoryRule, SectionRule, Penalty } from "@/features/admin/admin-examination-service";
+import type { ExamCriteriaPayload, MandatoryRule, SectionRule, Penalty, RoundingRule } from "@/features/admin/admin-examination-service";
 
 const defaultCriteria: ExamCriteriaPayload = {
   title: "",
@@ -52,7 +52,11 @@ export default function ExamCriteriaPage() {
     setEditingId(null);
   };
 
-  const handleEdit = (criteria: any) => {
+  const handleEdit = (criteria: ExamCriteriaPayload) => {
+    if (!criteria.id) {
+      toast.error("Không xác định được tiêu chí cần chỉnh sửa.");
+      return;
+    }
     setForm({
       title: criteria.title || "",
       criteria: {
@@ -70,23 +74,26 @@ export default function ExamCriteriaPage() {
     setIsCreating(true);
   };
 
-  const updateField = (field: keyof ExamCriteriaPayload, value: any) => {
+  const updateField = <K extends keyof ExamCriteriaPayload>(field: K, value: ExamCriteriaPayload[K]) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
-  const updateCriteriaField = (field: keyof typeof defaultCriteria.criteria, value: any) => {
+  const updateCriteriaField = <K extends keyof ExamCriteriaPayload["criteria"]>(
+    field: K,
+    value: ExamCriteriaPayload["criteria"][K]
+  ) => {
     setForm(prev => ({
       ...prev,
       criteria: { ...prev.criteria, [field]: value }
     }));
   };
 
-  const updateRoundingField = (field: "mode" | "precision", value: any) => {
+  const updateRoundingField = <K extends keyof RoundingRule>(field: K, value: RoundingRule[K]) => {
     setForm(prev => ({
       ...prev,
       criteria: {
         ...prev.criteria,
-        rounding: { ...prev.criteria.rounding, [field]: value } as any
+        rounding: { mode: "HALF_UP", precision: 0, ...prev.criteria.rounding, [field]: value }
       }
     }));
   };
@@ -96,7 +103,7 @@ export default function ExamCriteriaPage() {
     const newRule: MandatoryRule = { type: "MUST_CORRECT", questionIds: [] };
     updateCriteriaField("mandatoryRules", [...(form.criteria.mandatoryRules || []), newRule]);
   };
-  const updateMandatoryRule = (index: number, field: keyof MandatoryRule, value: any) => {
+  const updateMandatoryRule = <K extends keyof MandatoryRule>(index: number, field: K, value: MandatoryRule[K]) => {
     const arr = [...(form.criteria.mandatoryRules || [])];
     arr[index] = { ...arr[index], [field]: value };
     updateCriteriaField("mandatoryRules", arr);
@@ -111,7 +118,7 @@ export default function ExamCriteriaPage() {
     const newRule: SectionRule = { sectionId: "", minScore: 0 };
     updateCriteriaField("sectionRules", [...(form.criteria.sectionRules || []), newRule]);
   };
-  const updateSectionRule = (index: number, field: keyof SectionRule, value: any) => {
+  const updateSectionRule = <K extends keyof SectionRule>(index: number, field: K, value: SectionRule[K]) => {
     const arr = [...(form.criteria.sectionRules || [])];
     arr[index] = { ...arr[index], [field]: value };
     updateCriteriaField("sectionRules", arr);
@@ -126,7 +133,7 @@ export default function ExamCriteriaPage() {
     const newPenalty: Penalty = { type: "WRONG_ANSWER", deduct: 0 };
     updateCriteriaField("penalties", [...(form.criteria.penalties || []), newPenalty]);
   };
-  const updatePenalty = (index: number, field: keyof Penalty, value: any) => {
+  const updatePenalty = <K extends keyof Penalty>(index: number, field: K, value: Penalty[K]) => {
     const arr = [...(form.criteria.penalties || [])];
     arr[index] = { ...arr[index], [field]: value };
     updateCriteriaField("penalties", arr);
@@ -233,26 +240,26 @@ export default function ExamCriteriaPage() {
                     
                     <div className="space-y-1.5 md:col-span-2">
                       <Label>Phương pháp chấm (Grading Method) *</Label>
-                      <select value={form.criteria.gradingMethod} onChange={(e) => updateCriteriaField("gradingMethod", e.target.value)} className="w-full h-9 rounded-md border px-3 text-sm">
-                        <option value="SUM">Tổng điểm (SUM)</option>
-                        <option value="WEIGHTED">Có trọng số (WEIGHTED)</option>
-                        <option value="PERCENTAGE">Phần trăm (PERCENTAGE)</option>
+                      <select value={form.criteria.gradingMethod} onChange={(e) => updateCriteriaField("gradingMethod", e.target.value as ExamCriteriaPayload["criteria"]["gradingMethod"])} className="w-full h-9 rounded-md border px-3 text-sm">
+                        <option value="SUM">Cộng điểm từng câu</option>
+                        <option value="WEIGHTED">Tính theo trọng số</option>
+                        <option value="PERCENTAGE">Tính theo tỷ lệ phần trăm</option>
                         <option value="BEST_OF">Lấy điểm cao nhất (BEST_OF)</option>
                         <option value="AVERAGE">Trung bình (AVERAGE)</option>
                       </select>
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label>Chế độ làm tròn (Rounding Mode)</Label>
+                      <Label>Cách làm tròn điểm</Label>
                       <select value={form.criteria.rounding?.mode} onChange={(e) => updateRoundingField("mode", e.target.value)} className="w-full h-9 rounded-md border px-3 text-sm">
-                        <option value="HALF_UP">HALF_UP</option>
-                        <option value="UP">UP</option>
-                        <option value="DOWN">DOWN</option>
-                        <option value="NONE">NONE</option>
+                        <option value="HALF_UP">Làm tròn gần nhất</option>
+                        <option value="UP">Làm tròn lên</option>
+                        <option value="DOWN">Làm tròn xuống</option>
+                        <option value="NONE">Không làm tròn</option>
                       </select>
                     </div>
                     <div className="space-y-1.5">
-                      <Label>Độ chính xác (Precision - số thập phân)</Label>
+                      <Label>Số chữ số thập phân</Label>
                       <Input type="number" min={0} value={form.criteria.rounding?.precision} onChange={(e) => updateRoundingField("precision", parseInt(e.target.value) || 0)} />
                     </div>
                   </div>
@@ -270,17 +277,17 @@ export default function ExamCriteriaPage() {
                         <div className="flex-1 space-y-3">
                           <div className="space-y-1.5">
                             <Label>Loại quy tắc</Label>
-                            <select value={rule.type} onChange={(e) => updateMandatoryRule(idx, "type", e.target.value)} className="w-full h-9 rounded-md border px-3 text-sm">
-                              <option value="MUST_CORRECT">Phải trả lời đúng (MUST_CORRECT)</option>
-                              <option value="MUST_ATTEMPT">Phải trả lời (MUST_ATTEMPT)</option>
-                              <option value="AT_LEAST_ONE">Đúng ít nhất 1 câu (AT_LEAST_ONE)</option>
-                              <option value="MAX_WRONG">Sai tối đa (MAX_WRONG)</option>
+                            <select value={rule.type} onChange={(e) => updateMandatoryRule(idx, "type", e.target.value as MandatoryRule["type"])} className="w-full h-9 rounded-md border px-3 text-sm">
+                              <option value="MUST_CORRECT">Bắt buộc trả lời đúng</option>
+                              <option value="MUST_ATTEMPT">Bắt buộc trả lời</option>
+                              <option value="AT_LEAST_ONE">Đúng ít nhất một câu</option>
+                              <option value="MAX_WRONG">Giới hạn số câu sai</option>
                             </select>
                           </div>
                           <div className="space-y-1.5">
-                            <Label>Danh sách ID câu hỏi (Ngăn cách bởi dấu phẩy)</Label>
+                            <Label>Mã các câu hỏi áp dụng (cách nhau bằng dấu phẩy)</Label>
                             <Input 
-                              placeholder="ID_1, ID_2" 
+                              placeholder="Mã câu hỏi 1, Mã câu hỏi 2" 
                               value={rule.questionIds.join(", ")} 
                               onChange={(e) => updateMandatoryRule(idx, "questionIds", e.target.value.split(",").map(id => id.trim()).filter(Boolean))} 
                             />
@@ -298,13 +305,13 @@ export default function ExamCriteriaPage() {
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label className="text-base">Quy tắc Phần thi (Section Rules)</Label>
+                      <Label className="text-base">Điều kiện đạt theo phần thi</Label>
                       <Button size="sm" variant="outline" onClick={addSectionRule}>Thêm quy tắc phần thi</Button>
                     </div>
                     {form.criteria.sectionRules?.map((rule, idx) => (
                       <div key={idx} className="flex gap-4 items-end p-3 border rounded-md">
                         <div className="flex-1 space-y-1.5">
-                          <Label>Mã phần thi (Section ID)</Label>
+                          <Label>Mã phần thi</Label>
                           <Input value={rule.sectionId} onChange={(e) => updateSectionRule(idx, "sectionId", e.target.value)} />
                         </div>
                         <div className="w-32 space-y-1.5">
@@ -323,7 +330,7 @@ export default function ExamCriteriaPage() {
                 <TabsContent value="penalties" className="space-y-4 p-4 border rounded-md mt-2 bg-background">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label className="text-base">Quy tắc Phạt điểm</Label>
+                      <Label className="text-base">Quy tắc trừ điểm</Label>
                       <Button size="sm" variant="outline" onClick={addPenalty}>Thêm mức phạt</Button>
                     </div>
                     
@@ -331,7 +338,7 @@ export default function ExamCriteriaPage() {
                       <div key={idx} className="flex gap-4 items-end p-3 border rounded-md">
                         <div className="flex-1 space-y-1.5">
                           <Label>Loại vi phạm</Label>
-                          <select value={penalty.type} onChange={(e) => updatePenalty(idx, "type", e.target.value)} className="w-full h-9 rounded-md border px-3 text-sm">
+                          <select value={penalty.type} onChange={(e) => updatePenalty(idx, "type", e.target.value as Penalty["type"])} className="w-full h-9 rounded-md border px-3 text-sm">
                             <option value="WRONG_ANSWER">Trả lời sai (WRONG_ANSWER)</option>
                             <option value="UNANSWERED">Bỏ trống (UNANSWERED)</option>
                           </select>
@@ -368,7 +375,7 @@ export default function ExamCriteriaPage() {
                 <TableHead>Phương pháp chấm</TableHead>
                 <TableHead>Điểm đỗ</TableHead>
                 <TableHead>Quy tắc</TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
+                <TableHead className="w-28 whitespace-nowrap text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -381,7 +388,7 @@ export default function ExamCriteriaPage() {
                   <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">Chưa có dữ liệu</TableCell>
                 </TableRow>
               ) : (
-                criterias.map((criteria: any) => (
+                criterias.map((criteria) => (
                   <TableRow key={criteria.id}>
                     <TableCell className="font-medium">{criteria.title}</TableCell>
                     <TableCell>{criteria.criteria?.gradingMethod}</TableCell>
@@ -391,13 +398,15 @@ export default function ExamCriteriaPage() {
                         {criteria.criteria?.mandatoryRules?.length || 0} QC bắt buộc, {criteria.criteria?.penalties?.length || 0} QC phạt
                       </span>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="whitespace-nowrap text-right">
+                      <div className="inline-flex items-center justify-end gap-1">
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(criteria)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDelete(criteria.id)}>
+                      <Button variant="ghost" size="icon" className="text-red-500" onClick={() => { if (criteria.id) handleDelete(criteria.id); }} disabled={!criteria.id}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
