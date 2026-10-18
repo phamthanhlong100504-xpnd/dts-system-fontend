@@ -1,386 +1,265 @@
 "use client";
 
-import { useSearchParams, useParams } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
-import { useExamSessionInfo, useExamPaper, useSaveAnswer, useSubmitExam, useAvailableExams } from "@/features/examination/use-examination";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { AlertTriangle, Expand, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { MediaImage } from "@/components/ui/media-image";
+import { RequireAuth } from "@/components/require-auth";
+import { SessionConfirmationModal, type SessionConfirmationVariant } from "@/components/session-confirmation-modal";
+import { OfficialExamSessionContent } from "@/features/examination/components/official-exam-session/official-exam-session-content";
+import {
+  markExamQuestion, navigateExamQuestion, reportExamViolation, getExamPaper, getExamSession,
+  type ExamQuestion, type SelectedAnswer, type VersionedResult,
+} from "@/features/examination/examination-service";
+import { examinationKeys, useExamPaper, useExamSessionInfo, useSubmitExam } from "@/features/examination/use-examination";
+import { useOfficialExamDetail } from "@/features/examination/use-official-exam-detail";
+import { useLicenseStore } from "@/stores/license-store";
+import { useQueryClient } from "@tanstack/react-query";
+import { ApiError } from "@/lib/api";
 
-export default function ExamRunPage() {
-  const searchParams = useSearchParams();
-  const sessionId = searchParams.get("sessionId") || "";
-  const params = useParams();
-  const urlExamId = params?.examId as string;
-  const { data: availableExams } = useAvailableExams();
-  
-  const { data: sessionInfo, isLoading: loadingSession } = useExamSessionInfo(sessionId);
-  const { data: paper, isLoading: loadingPaper } = useExamPaper(sessionId);
-  const submitExam = useSubmitExam();
-  const saveAnswer = useSaveAnswer();
+export default function ExamRunPage() {return <RequireAuth><ExamRunContent /></RequireAuth>;}
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string[]>>({});
-  const [hasInitialized, setHasInitialized] = useState(false);
-  const [violationReason, setViolationReason] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number | null>(null);
-  
-  const tabSwitchCountRef = useRef(0);
-  const [isFullscreenWarning, setIsFullscreenWarning] = useState(false);
-  const hasEnforcedFullscreen = useRef(false);
-
-  // Initialize answers from paper if any exist
-  useEffect(() => {
-    if (paper && paper.length > 0 && !hasInitialized) {
-      const initialAnswers: Record<string, string[]> = {};
-      paper.forEach((q: any) => {
-        const qId = (q.questionId || q.id) as string;
-        if (q.selectedAnswer && qId) {
-          if (typeof q.selectedAnswer === "string") {
-            initialAnswers[qId] = q.selectedAnswer.split(",");
-          } else if (Array.isArray(q.selectedAnswer)) {
-            initialAnswers[qId] = q.selectedAnswer.map(String);
-          } else if (q.selectedAnswer.value) {
-            initialAnswers[qId] = Array.isArray(q.selectedAnswer.value) ? q.selectedAnswer.value : String(q.selectedAnswer.value).split(",");
-          } else if (q.selectedAnswer.values) {
-            initialAnswers[qId] = q.selectedAnswer.values.map(String);
-          }
-        }
-      });
-      setAnswers(initialAnswers);
-    }
-  }, [paper, hasInitialized]);
-
-  // Initialize and tick timer
-  useEffect(() => {
-    if (sessionInfo?.remainingSeconds !== undefined && timeLeft === null) {
-      setTimeLeft(sessionInfo.remainingSeconds);
-    }
-  }, [sessionInfo, timeLeft]);
-
-  useEffect(() => {
-    if (timeLeft === null || timeLeft <= 0) return;
-    
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev === null) return prev;
-        const newTime = prev - 1;
-        if (newTime <= 0) {
-          clearInterval(timer);
-          toast.info("Hết thời gian làm bài, hệ thống đang tự động nộp bài!");
-          if (!submitExam.isPending) {
-            submitExam.mutate(sessionId);
-          }
-          return 0;
-        }
-        return newTime;
-      });
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [timeLeft, submitExam.isPending, sessionId, submitExam]);
-
-  // Fullscreen requirement
-  useEffect(() => {
-    if (!sessionInfo?.examRule?.requireFullscreen) return;
-    
-    const checkFullscreen = () => {
-      if (!document.fullscreenElement) {
-        setIsFullscreenWarning(true);
-      } else {
-        setIsFullscreenWarning(false);
-      }
-    };
-    
-    document.addEventListener("fullscreenchange", checkFullscreen);
-    if (!document.fullscreenElement) setIsFullscreenWarning(true);
-    hasEnforcedFullscreen.current = true;
-    
-    return () => document.removeEventListener("fullscreenchange", checkFullscreen);
-  }, [sessionInfo?.examRule]);
-
-  const enterFullscreen = () => {
-    document.documentElement.requestFullscreen().catch(err => {
-      toast.error(`Không thể vào chế độ toàn màn hình: ${err.message}`);
-    });
-  };
-
-  // Prevent tab switch and devtools logic
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        if (sessionInfo?.examRule?.preventTabSwitch) {
-          tabSwitchCountRef.current += 1;
-          const maxSwitches = sessionInfo.examRule.maxTabSwitchCount || 0;
-          
-          if (tabSwitchCountRef.current > maxSwitches) {
-            setViolationReason(`Bạn đã chuyển tab ${tabSwitchCountRef.current} lần (Tối đa: ${maxSwitches}). Bài thi đã bị khóa do vi phạm quy chế.`);
-            toast.error("Phát hiện hành vi rời khỏi bài thi vượt quá số lần cho phép!");
-            if (!submitExam.isPending) {
-              submitExam.mutate(sessionId);
-            }
-          } else {
-            toast.warning(`Cảnh báo chuyển tab lần ${tabSwitchCountRef.current}/${maxSwitches}. Không được rời khỏi màn hình thi!`);
-          }
-        }
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.key === "F12" || 
-        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i" || e.key === "J" || e.key === "j" || e.key === "C" || e.key === "c")) ||
-        (e.ctrlKey && (e.key === "U" || e.key === "u"))
-      ) {
-        e.preventDefault();
-        setViolationReason("Không được phép mở công cụ phát triển (DevTools).");
-        toast.error("Phát hiện hành vi gian lận!");
-      }
-    };
-
-    const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-      toast.error("Hành vi gian lận: Không được phép sử dụng chuột phải.");
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("contextmenu", handleContextMenu);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("contextmenu", handleContextMenu);
-    };
-  }, [sessionInfo?.examRule, sessionId, submitExam.isPending, submitExam]);
-
-  if (loadingSession || loadingPaper) return <div className="p-8 text-center text-muted-foreground">Đang tải đề thi...</div>;
-  if (!sessionInfo || !paper) return <div className="p-8 text-center text-muted-foreground">Không tìm thấy thông tin phiên thi.</div>;
-
-  const currentQuestion = paper[currentIndex];
-  
-  const isMultipleChoice = currentQuestion?.type === "MULTIPLE_CHOICE" || currentQuestion?.questionType === "MULTIPLE_CHOICE" || currentQuestion?.type === "MULTIPLE";
-
-  const handleSelect = (questionId: string, optionId: string) => {
-    setAnswers(prev => {
-      const currentSelection = prev[questionId] || [];
-      let newSelection: string[];
-      
-      if (isMultipleChoice) {
-        if (currentSelection.includes(optionId)) {
-          newSelection = currentSelection.filter(id => id !== optionId);
-        } else {
-          newSelection = [...currentSelection, optionId];
-        }
-      } else {
-        newSelection = [optionId];
-      }
-      
-      saveAnswer.mutate({
-        sessionId,
-        payload: {
-          answers: [
-            {
-              questionId,
-              selectedAnswer: {
-                type: isMultipleChoice ? 'multiple_choice' : 'single_choice',
-                value: newSelection.join(","),
-              },
-            },
-          ],
-        },
-      });
-      return { ...prev, [questionId]: newSelection };
-    });
-
-    if (!isMultipleChoice) {
-      if (currentIndex < paper.length - 1) {
-        setTimeout(() => {
-          setCurrentIndex(prev => Math.min(prev + 1, paper.length - 1));
-        }, 300);
-      }
-    }
-  };
-
-  const handleNext = () => {
-    if (currentIndex < paper.length - 1) setCurrentIndex(currentIndex + 1);
-  };
-
-  const handlePrev = () => {
-    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
-  };
-
-  const handleSubmit = () => {
-    if (confirm("Bạn có chắc chắn muốn nộp bài? Bài thi không thể sửa lại sau khi nộp.")) {
-      submitExam.mutate(sessionId);
-    }
-  };
-
-  // Use sessionInfo's examId if available, fallback to url param
-  const actualExamId = sessionInfo?.examId || urlExamId;
-  const examInfo = availableExams?.content?.find((e: any) => e.id === actualExamId);
-  const thumbnailId = examInfo?.metadata?.thumbnailId || examInfo?.thumbnailId;
-
-  return (
-    <div className="min-h-screen w-full relative bg-muted">
-      {violationReason && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
-          <Card className="w-full max-w-md shadow-lg border-destructive">
-            <CardContent className="pt-6 text-center space-y-4">
-              <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
-                <span className="text-2xl">⚠️</span>
-              </div>
-              <h2 className="text-xl font-bold text-destructive">Vi Phạm Quy Chế Thi</h2>
-              <p className="text-muted-foreground">{violationReason}</p>
-              <p className="text-sm font-medium">Hệ thống đã khóa bài thi. Bài thi sẽ tự động được nộp.</p>
-              <Button 
-                variant="destructive" 
-                className="w-full mt-4" 
-                onClick={() => {
-                  if (!submitExam.isPending) submitExam.mutate(sessionId);
-                }}
-                disabled={submitExam.isPending}
-              >
-                {submitExam.isPending ? "Đang nộp bài..." : "Nộp bài ngay"}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-      
-      {isFullscreenWarning && !violationReason && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
-          <Card className="w-full max-w-md shadow-lg border-primary">
-            <CardContent className="pt-6 text-center space-y-4">
-              <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-2xl">🖥️</span>
-              </div>
-              <h2 className="text-xl font-bold text-primary">Yêu cầu Toàn màn hình</h2>
-              <p className="text-muted-foreground">Quy chế thi yêu cầu bạn phải làm bài ở chế độ toàn màn hình để đảm bảo tính công bằng.</p>
-              <Button onClick={enterFullscreen} className="w-full mt-4">
-                Bật Toàn Màn Hình
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-      
-      <div className={`absolute inset-0 z-0 overflow-hidden ${violationReason ? 'blur-sm pointer-events-none' : ''}`}>
-        {thumbnailId ? (
-          <MediaImage 
-            src={thumbnailId} 
-            alt="Exam Background" 
-            className="w-full h-full object-cover opacity-60 blur-sm scale-105" 
-          />
-        ) : (
-          <div 
-            className="w-full h-full bg-cover bg-center bg-fixed bg-no-repeat"
-            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1920&auto=format&fit=crop')" }}
-          />
-        )}
-      </div>
-      <div className="absolute inset-0 z-0 bg-background/80 backdrop-blur-lg"></div>
-      
-      <div className="relative z-10 container mx-auto max-w-6xl py-8 px-4 flex flex-col min-h-screen">
-        <header className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-card/90 backdrop-blur p-4 rounded-xl border shadow-sm mb-6 shrink-0">
-        <div>
-          <h2 className="font-bold text-xl">Kỳ thi Chính thức</h2>
-          <p className="text-sm text-muted-foreground">Tuân thủ nghiêm ngặt quy chế phòng thi</p>
-        </div>
-        
-        {timeLeft !== null && (
-          <div className="flex flex-col items-center justify-center">
-            <span className="text-xs uppercase font-bold text-muted-foreground mb-1">Thời gian còn lại</span>
-            <div className={`font-mono text-2xl font-bold px-4 py-1.5 rounded-lg border ${timeLeft < 60 ? 'bg-destructive/10 text-destructive border-destructive/20 animate-pulse' : 'bg-muted border-border'}`}>
-              {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}
-            </div>
-          </div>
-        )}
-
-        <div className="flex gap-4 items-center">
-          <Button variant="destructive" onClick={handleSubmit} disabled={submitExam.isPending || (timeLeft !== null && timeLeft <= 0)} size="lg" className="font-bold">
-            {submitExam.isPending ? "Đang nộp..." : "Nộp bài thi"}
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex-1 flex flex-col md:flex-row gap-6">
-        <div className="flex-1">
-          {paper.length === 0 ? (
-            <Card className="rounded-2xl shadow-sm border h-full flex items-center justify-center p-8">
-              <div className="text-center space-y-4">
-                <div className="text-xl font-bold text-muted-foreground">Bài thi này chưa có câu hỏi nào</div>
-                <p className="text-sm text-muted-foreground">Vui lòng liên hệ quản trị viên để cập nhật đề thi.</p>
-              </div>
-            </Card>
-          ) : currentQuestion ? (
-            <Card className="rounded-2xl shadow-sm border h-full">
-              <CardContent className="p-8 space-y-6">
-                <div className="font-bold text-xl">Câu {currentIndex + 1}: {currentQuestion.content || currentQuestion.questionText}</div>
-                {currentQuestion.imageUrl && (
-                  <MediaImage src={currentQuestion.imageUrl} alt="Question" className="max-w-full max-h-52 rounded-xl shadow-sm border" />
-                )}
-                <div className="space-y-3 pt-4">
-                  {currentQuestion.options?.map((opt: any, i: number) => {
-                    const optionId = opt.id?.toString();
-                    const optionLabel = ['A','B','C','D','E','F'][i] || (i + 1).toString();
-                    const qId = (currentQuestion.questionId || currentQuestion.id) as string;
-                    const isSelected = (answers[qId] || []).includes(optionId);
-                    return (
-                      <div 
-                        key={i} 
-                        className={`p-4 rounded-xl border cursor-pointer transition-all duration-150 ${isSelected ? 'border-primary bg-primary/10 shadow-sm' : 'hover:bg-muted/50 border-border'}`}
-                        onClick={() => handleSelect(qId, optionId)}
-                      >
-                        <span className={`font-bold mr-3 inline-flex items-center justify-center w-8 h-8 rounded-lg border ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-background'}`}>
-                          {optionLabel}
-                        </span> 
-                        {opt.text || opt.label}
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-              <div className="border-t p-4 bg-muted/20 flex justify-between rounded-b-2xl">
-                <Button variant="outline" onClick={handlePrev} disabled={currentIndex === 0}>
-                  Câu trước
-                </Button>
-                <Button variant="outline" onClick={handleNext} disabled={currentIndex === paper.length - 1}>
-                  Câu sau
-                </Button>
-              </div>
-            </Card>
-          ) : (
-            <div>Loading...</div>
-          )}
-        </div>
-        
-        {/* Navigation Sidebar */}
-        <div className="w-full md:w-80 shrink-0 bg-card border rounded-2xl p-6 shadow-sm h-fit">
-          <h3 className="font-bold mb-4 text-center border-b pb-2">Danh sách câu hỏi</h3>
-          <div className="grid grid-cols-5 gap-2">
-            {paper.map((q: any, i: number) => {
-              const qId = (q.questionId || q.id) as string;
-              const isAnswered = answers[qId] && answers[qId].length > 0;
-              const isCurrent = i === currentIndex;
-              return (
-                <button
-                  key={qId}
-                  onClick={() => setCurrentIndex(i)}
-                  className={`h-10 w-10 rounded-xl flex items-center justify-center text-sm font-bold border transition-all
-                    ${isCurrent ? 'ring-2 ring-primary ring-offset-2' : ''}
-                    ${isAnswered ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-background hover:bg-muted'}
-                  `}
-                >
-                  {i + 1}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      </div>
-    </div>
-  );
+function selectionFromAnswer(answer?: SelectedAnswer | null): string[] {
+  if (answer?.value == null || answer.value === "") return [];
+  return answer.value.split(",").map((id) => id.trim()).filter(Boolean);
 }
+function readAnswers(questions: ExamQuestion[]) {
+  const result: Record<string,string[]> = {};
+  for (const q of questions) result[q.questionId] = selectionFromAnswer(q.selectedAnswer);
+  return result;
+}
+function readMarked(questions: ExamQuestion[]) {
+  return new Set(questions.filter((q) => q.display?.marked).map((q) => q.questionId));
+}
+function isMultiple(q: ExamQuestion) {return q.type === "MULTIPLE_CHOICE" || q.type === "MULTIPLE";}
+function errorCode(error: unknown): string | undefined {
+  if (error instanceof ApiError) return error.errorCode;
+  return undefined;
+}
+
+function ExamRunContent() {
+  const router = useRouter();
+  const params = useParams<{examId:string}>();
+  const search = useSearchParams();
+  const qc = useQueryClient();
+  const sessionId = search.get("sessionId") ?? "";
+  const selectedLicense = useLicenseStore((s) => s.selectedLicense);
+  const sessionQuery = useExamSessionInfo(sessionId);
+  const paperQuery = useExamPaper(sessionId);
+  const detailQuery = useOfficialExamDetail(params.examId, selectedLicense ?? "");
+  const submit = useSubmitExam();
+  const [currentIndex,setCurrentIndex] = useState(0);
+  const [answers,setAnswers] = useState<Record<string,string[]>>({});
+  const [flaggedQuestionIds,setFlaggedQuestionIds] = useState<Set<string>>(new Set());
+  const [timerReading,setTimerReading] = useState<{key:string;remaining:number}|null>(null);
+  const [confirmVariant,setConfirmVariant] = useState<SessionConfirmationVariant|null>(null);
+  const [isPendingSave,setIsPendingSave] = useState(false);
+  const [saveError,setSaveError] = useState<string|null>(null);
+  const [fullscreenWarning,setFullscreenWarning] = useState(false);
+  const [isReportingViolation,setIsReportingViolation] = useState(false);
+  const hydratedRef = useRef<string|null>(null);
+  const versionRef = useRef<number|null>(null);
+  const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const answerRef = useRef<Record<string,string[]>>({});
+  const pendingCountRef = useRef(0);
+  const saveErrorRef = useRef(false);
+  const timeAnchorRef = useRef<{remaining:number;timestamp:number}|null>(null);
+  const wasFullscreenRef = useRef(false);
+  const submittedRef = useRef(false);
+  const session = sessionQuery.data;
+  const paper = paperQuery.data;
+  const questions = useMemo(()=> paper?.questions ?? [],[paper?.questions]);
+  const isActive = session?.status === "IN_PROGRESS";
+  const refetchSession = sessionQuery.refetch;
+  const refetchPaper = paperQuery.refetch;
+  // Giá trị timerState chỉ hợp lệ với đúng snapshot thời gian server hiện tại.
+  const timerKey = `${sessionId}:${session?.serverNow ?? ""}:${session?.version ?? ""}:${session?.remainingSeconds ?? ""}`;
+  const timeLeft = timerReading?.key === timerKey
+    ? timerReading.remaining
+    : (session?.remainingSeconds ?? paper?.remainingSeconds ?? null);
+
+  const refreshState = useCallback(async () => {
+    if (!sessionId) return;
+    try {
+      const latestSession = await getExamSession(sessionId);
+      versionRef.current = latestSession.version;
+      qc.setQueryData(examinationKeys.session(sessionId), latestSession);
+      if (latestSession.status === "IN_PROGRESS") {
+        const latestPaper = await getExamPaper(sessionId);
+        qc.setQueryData(examinationKeys.paper(sessionId), latestPaper);
+        answerRef.current = readAnswers(latestPaper.questions);
+        setAnswers({...answerRef.current});
+        setFlaggedQuestionIds(readMarked(latestPaper.questions));
+        setCurrentIndex(Math.max(0,(latestPaper.currentPosition || latestSession.currentPosition || 1)-1));
+      }
+    } catch (error) {toast.error(error instanceof Error ? error.message : "Không thể đồng bộ phiên thi.");}
+  },[qc,sessionId]);
+
+  useEffect(()=>{
+    if (!session || !paper || hydratedRef.current === sessionId) return;
+    hydratedRef.current = sessionId;
+    versionRef.current = Math.max(session.version ?? 0,paper.version ?? 0);
+    answerRef.current = readAnswers(paper.questions);
+    setAnswers({...answerRef.current});
+    setFlaggedQuestionIds(readMarked(paper.questions));
+    setCurrentIndex(Math.max(0,(paper.currentPosition || session.currentPosition || 1)-1));
+  },[paper,session,sessionId]);
+
+  useEffect(()=>{
+    if (!isActive) return;
+    const remaining=Math.max(0,session?.remainingSeconds ?? paper?.remainingSeconds ?? 0);
+    timeAnchorRef.current={remaining,timestamp:Date.now()};
+  },[session?.serverNow,session?.remainingSeconds,session?.status,session?.version,paper?.remainingSeconds,isActive]);
+
+  useEffect(()=>{
+    if (!isActive || !timeAnchorRef.current) return;
+    const timer=window.setInterval(()=>{
+      const clock=timeAnchorRef.current;
+      if (!clock) return;
+      const seconds=Math.max(0,clock.remaining-Math.floor((Date.now()-clock.timestamp)/1000));
+      setTimerReading({key:timerKey,remaining:seconds});
+      if (seconds === 0) {void refetchSession();}
+    },1000);
+    return ()=>window.clearInterval(timer);
+  },[isActive,timerKey,refetchSession]);
+
+  useEffect(()=>{
+    const onFocus=()=>{void refetchSession();if(isActive)void refetchPaper();};
+    window.addEventListener("focus",onFocus);
+    return ()=>window.removeEventListener("focus",onFocus);
+  },[refetchSession,refetchPaper,isActive]);
+
+  function enqueue(task:(version:number)=>Promise<VersionedResult>) {
+    pendingCountRef.current++;
+    setIsPendingSave(true);
+    const next=saveQueueRef.current.catch(()=>undefined).then(async()=>{
+      if (versionRef.current == null) throw new Error("Chưa có phiên bản session.");
+      const response=await task(versionRef.current);
+      if (typeof response.version !== "number") {
+        const fresh=await getExamSession(sessionId);
+        versionRef.current=fresh.version;
+        qc.setQueryData(examinationKeys.session(sessionId),fresh);
+      } else versionRef.current=response.version;
+    }).catch(async(error:unknown)=>{
+      saveErrorRef.current=true;
+      const conflict=errorCode(error)==="VERSION_CONFLICT" || (error instanceof ApiError && error.status===409);
+      setSaveError(conflict?"Phiên thi đã thay đổi ở nơi khác. Đã đồng bộ; hãy kiểm tra và chọn lại đáp án nếu cần.":(error instanceof Error?error.message:"Không lưu được thao tác."));
+      await refreshState();
+    }).finally(()=>{
+      pendingCountRef.current=Math.max(0,pendingCountRef.current-1);
+      setIsPendingSave(pendingCountRef.current>0);
+    });
+    saveQueueRef.current=next;
+    return next;
+  }
+
+  function handleSelectAnswer(questionId:string,optionId:string) {
+    if(!isActive || isPendingSave && saveErrorRef.current || timeLeft===0 || submit.isPending) return;
+    const question=questions.find(q=>q.questionId===questionId);
+    if(!question) return;
+    const existing=answerRef.current[questionId] ?? [];
+    const multiple=isMultiple(question);
+    const next=multiple?(existing.includes(optionId)?existing.filter(x=>x!==optionId):[...existing,optionId]):[optionId];
+    answerRef.current={...answerRef.current,[questionId]:next};
+    setAnswers({...answerRef.current});
+    void enqueue(async(version)=>{
+      const type:SelectedAnswer["type"]=question.type==="TRUE_FALSE"?"true_false":multiple?"multiple_choice":"single_choice";
+      const {saveAnswer}=await import("@/features/examination/examination-service");
+      return saveAnswer(sessionId,{version,answers:[{questionId,selectedAnswer:{type,value:next.length?next.join(","):null}}]});
+    });
+  }
+  function handleGoToQuestion(index:number) {
+    if (!isActive || index<0 || index>=questions.length || timeLeft===0) return;
+    setCurrentIndex(index);
+    void enqueue(version=>navigateExamQuestion(sessionId,index+1,version));
+  }
+  function handleToggleFlag(questionId:string) {
+    if(!isActive || timeLeft===0) return;
+    const marked=!flaggedQuestionIds.has(questionId);
+    setFlaggedQuestionIds(old=>{const next=new Set(old);if(marked)next.add(questionId);else next.delete(questionId);return next;});
+    void enqueue(version=>markExamQuestion(sessionId,questionId,version,marked));
+  }
+  async function doSubmit() {
+    if(!sessionId || submit.isPending || submittedRef.current) return;
+    setConfirmVariant(null);
+    await saveQueueRef.current;
+    if (saveErrorRef.current) {toast.error("Có thao tác chưa lưu thành công; vui lòng kiểm tra lại trước khi nộp.");return;}
+    submittedRef.current=true;
+    try {await submit.mutateAsync(sessionId);} catch {submittedRef.current=false;}
+  }
+  const reportViolation = useCallback((eventType:"TAB_SWITCH"|"FULLSCREEN_EXIT") => {
+    if (!sessionId || !isActive || isReportingViolation) return;
+    const eventId=crypto.randomUUID();
+    setIsReportingViolation(true);
+    void reportExamViolation(sessionId,eventId,eventType).then(async(result)=>{
+      if(result.status && result.status!=="IN_PROGRESS") {await refreshState();router.replace(`/examination/result/${sessionId}`);}
+      else {await refetchSession();}
+    }).catch((error)=>{toast.error(error instanceof Error?error.message:"Không ghi nhận được sự kiện giám sát.");}).finally(()=>setIsReportingViolation(false));
+  },[sessionId,isActive,isReportingViolation,refreshState,router,refetchSession]);
+  useEffect(()=>{
+    if(!isActive || !session?.examRule?.preventTabSwitch) return;
+    const onVisibility=()=>{if(document.hidden)reportViolation("TAB_SWITCH");};
+    document.addEventListener("visibilitychange",onVisibility);
+    return ()=>document.removeEventListener("visibilitychange",onVisibility);
+  },[isActive,session?.examRule?.preventTabSwitch,reportViolation]);
+  useEffect(()=>{
+    if(!isActive || !session?.examRule?.requireFullscreen) return;
+    const onFullscreen=()=>{
+      const active=Boolean(document.fullscreenElement);
+      if(wasFullscreenRef.current && !active) reportViolation("FULLSCREEN_EXIT");
+      wasFullscreenRef.current=active;
+      setFullscreenWarning(!active);
+    };
+    document.addEventListener("fullscreenchange",onFullscreen);
+    onFullscreen();
+    return ()=>document.removeEventListener("fullscreenchange",onFullscreen);
+  },[isActive,session?.examRule?.requireFullscreen,reportViolation]);
+
+  if(!sessionId || sessionId.startsWith("preview-")) return <ErrorPanel text="Không tìm thấy phiên thi hợp lệ. Vui lòng mở kỳ thi từ danh sách." onBack={()=>router.push("/examination")}/>;
+  if(sessionQuery.isLoading || paperQuery.isLoading) return <div className="flex min-h-screen items-center justify-center gap-3 bg-[#f7f6fb]"><Loader2 className="size-6 animate-spin"/>Đang tải đề và phiên thi...</div>;
+  if(sessionQuery.isError || !session) return <ErrorPanel text={sessionQuery.error instanceof Error?sessionQuery.error.message:"Không tải được phiên thi."} onBack={()=>router.push("/examination")}/>;
+  if(session.status === "READY") return <div className="mx-auto max-w-xl p-10 text-center"><h1 className="mb-4 text-2xl font-bold">Phiên thi đã tạm dừng</h1><button type="button" className="rounded-lg bg-[#0758d9] px-5 py-3 text-white" onClick={async()=>{const {resumeExamSession}=await import("@/features/examination/examination-service");await resumeExamSession(sessionId);await refreshState();}}>Tiếp tục thi</button></div>;
+  
+  if (session.status !== "IN_PROGRESS")
+    return (
+      <div className="mx-auto max-w-xl space-y-4 p-10 text-center">
+        <h1 className="text-2xl font-bold">
+          {session.status === "SUBMITTED"
+            ? "Bài thi đã được nộp"
+            : session.status === "EXPIRED"
+              ? "Thời gian làm bài đã kết thúc"
+              : "Bài thi đã kết thúc"}
+        </h1>
+
+        <p className="text-sm text-[#667085]">
+          {session.status === "SUBMITTED"
+            ? "Bài thi của bạn đã được ghi nhận. Kết quả sẽ hiển thị khi được công bố."
+            : session.status === "EXPIRED"
+              ? "Thời gian làm bài đã hết. Bạn có thể kiểm tra kết quả khi được công bố."
+              : "Bạn có thể kiểm tra thông tin và kết quả bài thi tại đây."}
+        </p>
+
+        <button
+          className="rounded-lg bg-[#0758d9] px-5 py-3 text-white"
+          onClick={() => router.push(`/examination/result/${sessionId}`)}
+        >
+          Xem kết quả
+        </button>
+      </div>
+    );
+
+  if(paperQuery.isError || !paper || !questions.length) return <ErrorPanel text="Không thể tải nội dung đề thi lúc này. Vui lòng thử lại hoặc quay lại danh sách kỳ thi." onBack={()=>router.push("/examination")}/>;
+
+  const displayedTime=timeLeft ?? session.remainingSeconds ?? paper.remainingSeconds;
+  const answeredCount=questions.filter(q=>(answers[q.questionId]?.length??0)>0).length;
+  const title=detailQuery.data?.title ?? "Kỳ thi chính thức";
+  return <>
+    <OfficialExamSessionContent examTitle={title} questions={questions.map(q=>({...q,categoryName:q.display?.sectionTitle}))} currentIndex={Math.min(currentIndex,questions.length-1)} answers={answers} timeLeft={displayedTime} flaggedQuestionIds={flaggedQuestionIds} isSubmitting={submit.isPending || isPendingSave || displayedTime<=0} onExit={()=>setConfirmVariant("EXIT")} onSubmit={()=>{if(displayedTime>0)setConfirmVariant("SUBMIT");}} onSelectAnswer={handleSelectAnswer} onGoToQuestion={handleGoToQuestion} onToggleFlag={handleToggleFlag}/>
+    {isPendingSave && <div role="status" className="fixed bottom-4 right-4 z-40 rounded-lg bg-white px-4 py-2 text-sm shadow">Đang lưu thao tác...</div>}
+    {saveError && <div role="alert" className="fixed bottom-4 left-4 z-40 max-w-xl rounded-lg border border-rose-300 bg-white p-4 text-sm text-rose-700 shadow"><AlertTriangle className="mr-2 inline size-4"/>{saveError}<button className="ml-3 underline" onClick={()=>{setSaveError(null);saveErrorRef.current=false;void refreshState();}}>Đồng bộ lại</button></div>}
+    <SessionConfirmationModal open={confirmVariant!==null} variant={confirmVariant??"SUBMIT"} answeredCount={answeredCount} totalQuestions={questions.length} isPending={submit.isPending || isPendingSave} onClose={()=>setConfirmVariant(null)} onConfirm={()=>{if(confirmVariant==="EXIT"){setConfirmVariant(null);router.push(`/examination/${params.examId}`);}else void doSubmit();}} />
+    {session.examRule?.requireFullscreen && fullscreenWarning && <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-6"><div className="max-w-md rounded-2xl bg-white p-7 text-center"><Expand className="mx-auto mb-4 size-8 text-[#0758d9]"/><h2 className="text-xl font-bold">Yêu cầu toàn màn hình</h2><p className="mt-2 text-sm text-[#667085]">Quy chế thi yêu cầu chế độ toàn màn hình. Rời chế độ này có thể được ghi nhận là vi phạm.</p><button className="mt-5 rounded-lg bg-[#0758d9] px-5 py-3 text-white" onClick={()=>void document.documentElement.requestFullscreen().catch(()=>toast.error("Trình duyệt không cho phép toàn màn hình."))}>Bật toàn màn hình</button></div></div>}
+  </>;
+}
+
+function ErrorPanel({text,onBack}:{text:string;onBack:()=>void}) {return <div className="flex min-h-screen items-center justify-center bg-[#f7f6fb] p-6"><div className="max-w-lg rounded-2xl border bg-white p-8 text-center"><AlertTriangle className="mx-auto size-8 text-rose-600"/><h1 className="mt-4 text-xl font-bold">Không thể mở phiên thi</h1><p className="mt-3 text-sm text-[#667085]">{text}</p><button className="mt-5 rounded-lg bg-[#0758d9] px-5 py-3 text-white" onClick={onBack}>Quay lại danh sách</button></div></div>;}

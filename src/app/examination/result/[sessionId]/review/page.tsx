@@ -1,123 +1,108 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useExamReview } from "@/features/examination/use-examination";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { RequireAuth } from "@/components/require-auth";
 import { MediaImage } from "@/components/ui/media-image";
-import { cn } from "@/lib/utils";
+import { useExamReview } from "@/features/examination/use-examination";
+
+type ReviewOption = { id: string; content?: string | null; isCorrect?: boolean | null };
+type ReviewQuestion = { id?: string; content?: string; isCritical?: boolean; mediaFileIds?: string[]; isCorrect?: boolean | null; options?: ReviewOption[]; userAnswer?: { value?: string | null } | null; explanation?: string | null };
 
 export default function ExamReviewPage() {
-  const { sessionId } = useParams() as { sessionId: string };
-  const router = useRouter();
-  const { data: review, isLoading, error } = useExamReview(sessionId) as any;
+  return <RequireAuth><ReviewContent /></RequireAuth>;
+}
 
-  if (isLoading) return <div className="p-12 text-center text-muted-foreground">Đang tải chi tiết bài làm...</div>;
-  if (error) {
-    const errorMessage = error?.message || error?.response?.data?.message || "Đã xảy ra lỗi khi tải kết quả.";
+function ReviewContent() {
+  const { sessionId } = useParams<{ sessionId: string }>();
+  const router = useRouter();
+  const query = useExamReview(sessionId);
+
+  if (query.isLoading) {
+    return <main className="font-dts min-h-[calc(100vh-64px)] bg-[#f7f6fb] p-12 text-center text-[15px] text-[#667085]">Đang tải nội dung bài thi được phép xem lại...</main>;
+  }
+
+  if (query.isError || !query.data) {
     return (
-      <div className="p-12 text-center text-destructive">
-        <h2 className="text-xl font-bold mb-2">Lỗi</h2>
-        <p>{errorMessage}</p>
-        <Button className="mt-4" onClick={() => router.back()}>Quay lại</Button>
-      </div>
+      <main className="font-dts min-h-[calc(100vh-64px)] bg-[#f7f6fb] px-5 py-12 text-[#101828]">
+        <section className="mx-auto max-w-[800px] rounded-[18px] border border-[#dedfea] bg-white px-7 py-12 text-center shadow-[0_4px_14px_rgba(31,41,55,0.055)]">
+          <h1 className="text-[23px] font-bold">Chưa thể xem lại bài thi</h1>
+          <p className="mx-auto mt-3 max-w-[570px] text-[15px] leading-7 text-[#667085]">{query.error instanceof Error ? query.error.message : "Bài thi hiện chưa được phép xem lại theo quy chế."}</p>
+          <button type="button" onClick={() => router.push(`/examination/result/${sessionId}`)} className="mt-6 min-h-11 rounded-[10px] bg-[#0758d9] px-6 text-[14px] font-semibold text-white hover:bg-[#064fc3]">Quay lại kết quả</button>
+        </section>
+      </main>
     );
   }
-  if (!review) return <div className="p-12 text-center text-muted-foreground">Không tìm thấy chi tiết bài làm.</div>;
+
+  const questions = (query.data.questions ?? []) as ReviewQuestion[];
 
   return (
-    <div className="min-h-screen bg-muted/30 pb-12">
-      <div className="bg-background border-b sticky top-0 z-10 shadow-sm">
-        <div className="container max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => router.back()}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-lg font-bold">Xem lại chi tiết bài làm</h1>
-          </div>
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <span className="text-emerald-600">Đúng: {review.correctCount}</span>
-            <span className="text-muted-foreground">/</span>
-            <span>Tổng: {review.totalQuestions}</span>
-          </div>
-        </div>
+    <main className="font-dts min-h-[calc(100vh-64px)] bg-[#f7f6fb] pb-16 pt-7 text-[#101828]">
+      <div className="px-5 lg:px-[1cm]">
+        <button type="button" onClick={() => router.push(`/examination/result/${sessionId}`)} className="inline-flex items-center gap-2 rounded-[8px] py-2 text-[14px] font-medium text-[#475467] transition hover:text-[#0758d9]">
+          <ArrowLeft className="size-4" /> Quay lại kết quả
+        </button>
       </div>
 
-      <div className="container max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {review.questions?.map((q: any, index: number) => {
-          const isCorrect = q.isCorrect;
-          
-          return (
-            <Card key={q.id} className={cn("overflow-hidden border-l-4", isCorrect ? "border-l-emerald-500" : "border-l-destructive")}>
-              <CardHeader className="bg-muted/50 pb-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-1">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      Câu {index + 1}
-                      {isCorrect ? (
-                        <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                      ) : (
-                        <XCircle className="h-5 w-5 text-destructive" />
-                      )}
-                    </CardTitle>
-                    <div className="text-sm prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: q.content }} />
-                  </div>
+      <div className="mx-auto mt-6 w-full max-w-[1200px] px-5 sm:px-7">
+        <header className="mb-7">
+          <h1 className="text-[27px] font-bold tracking-[-0.025em]">Xem lại bài thi</h1>
+          <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">Xem lại các câu hỏi, đáp án và giải thích được phép hiển thị theo quy chế thi.</p>
+        </header>
+
+        <div className="space-y-5">
+          {questions.map((q, index) => {
+            const selected = (q.userAnswer?.value ?? "").split(",").filter(Boolean);
+            return (
+              <article key={q.id ?? index} className="rounded-[18px] border border-[#dedfea] bg-white px-6 py-7 shadow-[0_4px_14px_rgba(31,41,55,0.055)] sm:px-8">
+                <div className="mb-5 flex flex-nowrap items-center gap-2">
+                  <h2 className="inline-flex shrink-0 whitespace-nowrap rounded-[8px] bg-[#eaf1ff] px-3 py-1.5 text-[12px] font-bold text-[#0758d9]">Câu {index + 1}</h2>
+                  {q.isCritical === true && (
+                    <span className="inline-flex shrink-0 whitespace-nowrap rounded-[8px] bg-[#fff2dc] px-3 py-1.5 text-[12px] font-semibold text-[#b54708]">Câu điểm liệt</span>
+                  )}
                 </div>
-                {q.mediaFileIds && q.mediaFileIds.length > 0 && (
-                  <div className="mt-4 grid grid-cols-2 gap-4">
-                    {q.mediaFileIds.map((mediaId: string) => (
-                      <MediaImage key={mediaId} src={mediaId} className="w-full h-auto rounded-lg border" />
-                    ))}
-                  </div>
-                )}
-              </CardHeader>
-              
-              <CardContent className="pt-6 space-y-3">
-                {q.options?.map((opt: any) => {
-                  let userSelectedValues: string[] = [];
-                  if (q.userAnswer && q.userAnswer.value) {
-                    if (typeof q.userAnswer.value === 'string') {
-                      userSelectedValues = q.userAnswer.value.split(",");
-                    } else if (Array.isArray(q.userAnswer.value)) {
-                      userSelectedValues = q.userAnswer.value.map(String);
-                    }
-                  }
 
-                  const isSelected = userSelectedValues.includes(opt.id);
-                  const isOptionCorrect = opt.isCorrect;
-                  
-                  let bgClass = "bg-background border";
-                  if (isOptionCorrect && isSelected) {
-                    bgClass = "bg-emerald-50 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800";
-                  } else if (isOptionCorrect && !isSelected) {
-                    bgClass = "bg-emerald-50/50 border-emerald-200 border-dashed dark:bg-emerald-950/20 dark:border-emerald-800";
-                  } else if (!isOptionCorrect && isSelected) {
-                    bgClass = "bg-destructive/10 border-destructive/30 dark:bg-destructive/20 dark:border-destructive/40";
-                  }
+                <p className="whitespace-pre-line text-[16px] font-semibold leading-[1.65] text-[#101828]">{q.content}</p>
+                {(q.mediaFileIds ?? []).map(id => (
+                  <MediaImage key={id} src={id} alt={`Ảnh câu ${index + 1}`} className="mx-auto mt-5 max-h-[340px] max-w-full rounded-[10px] border border-[#e5e8ee] object-contain" />
+                ))}
 
-                  return (
-                    <div key={opt.id} className={cn("p-4 rounded-lg flex gap-3 transition-colors", bgClass)}>
-                      <div className="flex-1 text-sm" dangerouslySetInnerHTML={{ __html: opt.content }} />
-                      <div className="flex items-center gap-2">
-                        {isOptionCorrect && <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-1 rounded dark:bg-emerald-900 dark:text-emerald-300">Đáp án đúng</span>}
-                        {isSelected && <span className="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded dark:bg-blue-900 dark:text-blue-300">Bạn chọn</span>}
+                <div className="mt-6 space-y-3">
+                  {(q.options ?? []).map((option, optionIndex) => {
+                    const chosen = selected.includes(option.id);
+                    const correctOption = option.isCorrect === true;
+                    const wrongChoice = chosen && option.isCorrect === false;
+                    return (
+                      <div
+                        key={option.id}
+                        className={`flex items-start gap-3 rounded-[12px] border px-4 py-4 text-[15px] font-medium leading-[1.55] ${correctOption ? "border-[#18a566] bg-[#effaf4] text-[#126b46]" : wrongChoice ? "border-[#e34848] bg-[#fff3f2] text-[#9f1f25]" : chosen ? "border-[#0758d9] bg-[#f3f6ff] text-[#101828]" : "border-[#e3e3ee] bg-[#f5f4fb] text-[#27364f]"}`}
+                      >
+                        <span className={`inline-flex size-8 shrink-0 items-center justify-center rounded-[8px] text-[14px] font-semibold ${correctOption ? "bg-[#dcf7e8] text-[#087443]" : wrongChoice ? "bg-[#ffe5e3] text-[#b42318]" : chosen ? "bg-[#e3ebff] text-[#0758d9]" : "bg-[#e8edff] text-[#56647a]"}`}>
+                          {String.fromCharCode(65 + optionIndex)}
+                        </span>
+                        <span className="min-w-0 flex-1">{option.content}</span>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
 
                 {q.explanation && (
-                  <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-900">
-                    <h4 className="font-semibold text-blue-800 dark:text-blue-300 text-sm mb-2">Giải thích:</h4>
-                    <div className="text-sm text-blue-900/80 dark:text-blue-200" dangerouslySetInnerHTML={{ __html: q.explanation }} />
+                  <div className="mt-6 rounded-[12px] border border-[#dfe8ff] bg-[#f0f5ff] px-5 py-4 text-[15px] font-medium leading-7 text-[#475467]">
+                    <h3 className="font-bold text-[#101828]">Giải thích</h3>
+                    <p className="mt-2 whitespace-pre-line">{q.explanation}</p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          );
-        })}
+              </article>
+            );
+          })}
+        </div>
+
+        {!questions.length && (
+          <div className="rounded-[18px] border border-[#dedfea] bg-white px-8 py-12 text-center text-[15px] text-[#667085]">
+            Hiện không có câu hỏi nào được phép xem lại theo quy chế thi.
+          </div>
+        )}
       </div>
-    </div>
+    </main>
   );
 }
