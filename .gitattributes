@@ -1,0 +1,4 @@
+# Documentation and environment templates added by the reviewed handoff.
+# Application source, API specs, lockfile and existing deployment files retain their current rules.
+/docs/** text eol=lf
+/.env.example text eol=lf
