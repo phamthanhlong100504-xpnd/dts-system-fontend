@@ -183,10 +183,6 @@ export function OfficialExamSessionContent({
     currentQuestion.type ===
       "MULTIPLE";
 
-  const categoryLabel =
-    currentQuestion.categoryName ??
-    currentQuestion.chapterName;
-
   const progressPercent =
     totalQuestions > 0
       ? Math.round(
@@ -218,30 +214,17 @@ export function OfficialExamSessionContent({
 
       <QuestionSessionShell>
         <section className="flex min-h-[570px] flex-col rounded-[16px] border border-[#dedfea] bg-white px-6 py-7 sm:px-8 shadow-[0_4px_14px_rgba(31,41,55,0.055)]">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-3 border-b border-[#eef0f4] pb-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)_minmax(0,1fr)] xl:items-center">
-            <div className="col-start-1 row-start-1 flex flex-nowrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eef0f4] pb-5">
+            <div className="flex flex-nowrap items-center gap-2">
               <span className="shrink-0 whitespace-nowrap rounded-[6px] bg-[#eaf1ff] px-2.5 py-1 text-[12px] font-bold uppercase text-[#0758d9]">
                 Câu{" "}
                 {currentIndex + 1} /{" "}
                 {totalQuestions}
               </span>
 
-              {currentQuestion.isCritical && (
-                <span className="shrink-0 whitespace-nowrap rounded-[6px] bg-[#fff2dc] px-2.5 py-1 text-[12px] font-semibold text-[#b54708]">
-                  Câu điểm liệt
-                </span>
-              )}
             </div>
 
-            <div className="col-span-2 row-start-2 flex min-w-0 justify-center text-center xl:col-span-1 xl:col-start-2 xl:row-start-1">
-              {categoryLabel && (!currentQuestion.isCritical || !categoryLabel.toLocaleLowerCase("vi-VN").includes("điểm liệt")) && (
-                <span className="inline-flex max-w-full items-center justify-center rounded-[7px] bg-[#f1f3fa] px-3 py-1.5 text-[13px] font-medium leading-5 text-[#344054]">
-                  {categoryLabel}
-                </span>
-              )}
-            </div>
-
-            <div className="col-start-2 row-start-1 flex justify-end xl:col-start-3">
+            <div className="flex justify-end">
               <button
                 type="button"
                 onClick={() =>
@@ -511,13 +494,6 @@ export function OfficialExamSessionContent({
                           <span className="absolute bottom-1 size-1 rounded-full bg-[#0758d9]" />
                         )}
 
-                      {navQuestion.isCritical && (
-                        <span
-                          className="absolute right-1 top-1 size-1.5 rounded-full bg-[#f59e0b]"
-                          title="Câu điểm liệt"
-                        />
-                      )}
-
                       {isNavFlagged && (
                         <span
                           className={cn(
@@ -551,10 +527,6 @@ export function OfficialExamSessionContent({
                 Chưa làm
               </span>
 
-              <span className="inline-flex items-center gap-1.5">
-                <span className="size-2 rounded-full bg-[#f59e0b]" />
-                Câu điểm liệt
-              </span>
             </div>
           </div>
         </aside>
