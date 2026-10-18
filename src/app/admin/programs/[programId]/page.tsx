@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  ArrowLeft, FolderTree, Plus, GripVertical, Trash2, Loader2, Sparkles, ArrowUp, ArrowDown, BookOpen, Edit2
+  ArrowLeft, FolderTree, Plus, Trash2, Loader2, Sparkles, ArrowUp, ArrowDown, BookOpen, Edit2
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -186,7 +186,7 @@ export default function ProgramDetailPage() {
                 {program.code}
               </Badge>
               <Badge variant={program.status === "PUBLISHED" ? "default" : "secondary"} className="text-xs">
-                {program.status}
+                {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ", HIDDEN: "Đang ẩn" } as Record<string, string>)[program.status ?? ""] ?? program.status}
               </Badge>
             </div>
             
@@ -314,7 +314,7 @@ export default function ProgramDetailPage() {
                 <div className="text-center py-12 border-2 border-dashed rounded-xl">
                   <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-3 opacity-50" />
                   <p className="text-sm text-muted-foreground">Lộ trình trống.</p>
-                  <p className="text-xs text-muted-foreground mt-1">Hãy bấm "Thêm" từ danh sách bên trái để thiết kế lộ trình.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Hãy bấm &quot;Thêm&quot; từ danh sách bên trái để thiết kế lộ trình.</p>
                 </div>
               ) : (
                 sortedBlocks.map((block, index) => (

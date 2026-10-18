@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useAdminPrograms, useCreateProgram, useDeleteProgram } from "@/features/admin/use-admin-content";
 
 export default function AdminProgramsPage() {
-  const { data: programs = [], isLoading } = useAdminPrograms();
+  const { data: programs = [], isLoading, isError } = useAdminPrograms();
   const createMutation = useCreateProgram();
   const deleteMutation = useDeleteProgram();
 
@@ -66,12 +66,12 @@ export default function AdminProgramsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Chương trình học</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Quản lý các chương trình đào tạo và bộ đề thi trong hệ thống.
+            Tạo, chỉnh sửa và quản lý các chương trình học. Bộ câu hỏi chuẩn được tra cứu tại mục Ngân hàng câu hỏi.
           </p>
         </div>
         <Button onClick={() => setIsCreating(!isCreating)} size="sm" className="gap-2 shrink-0">
           <Plus className="h-4 w-4" />
-          {isCreating ? "Đóng form" : "Thêm chương trình"}
+          {isCreating ? "Đóng biểu mẫu" : "Thêm chương trình"}
         </Button>
       </div>
 
@@ -90,16 +90,16 @@ export default function AdminProgramsPage() {
                 <Input
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="VD: Hạng B2 — Ô tô số sàn"
+                  placeholder="VD: Hạng B — Ô tô"
                   className="bg-background"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Mã chương trình (Code) *</label>
+                <label className="text-xs font-semibold text-muted-foreground">Mã chương trình *</label>
                 <Input
                   value={newCode}
                   onChange={(e) => setNewCode(e.target.value)}
-                  placeholder="VD: B2_CLASSIC"
+                  placeholder="VD: CHUONG_TRINH_B"
                   className="bg-background"
                 />
               </div>
@@ -128,10 +128,10 @@ export default function AdminProgramsPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Tổng chương trình", value: programs.length, icon: GraduationCap },
-          { label: "Đã xuất bản", value: programs.filter((p) => p.status === "PUBLISHED").length, icon: BookOpen },
-          { label: "Bản nháp", value: programs.filter((p) => p.status === "DRAFT").length, icon: ChevronRight },
-          { label: "Tổng khối chương", value: programs.reduce((s, p) => s + (p.chapterBlocksCount || 0), 0), icon: BookOpen },
+          { label: "Tổng chương trình", value: isError ? "—" : programs.length, icon: GraduationCap },
+          { label: "Đã xuất bản", value: isError ? "—" : programs.filter((p) => p.status === "PUBLISHED").length, icon: BookOpen },
+          { label: "Bản nháp", value: isError ? "—" : programs.filter((p) => p.status === "DRAFT").length, icon: ChevronRight },
+          { label: "Tổng số chương", value: isError ? "—" : programs.reduce((s, p) => s + (p.chapterBlocksCount || 0), 0), icon: BookOpen },
         ].map((stat) => {
           const Icon = stat.icon;
           return (
@@ -153,11 +153,13 @@ export default function AdminProgramsPage() {
       {/* Programs List */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Danh sách chương trình từ API</CardTitle>
+          <CardTitle className="text-base">Danh sách chương trình học</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="divide-y">
-            {isLoading ? (
+            {isError ? (
+              <div role="alert" className="p-6 text-sm text-destructive">Không thể tải danh sách chương trình học. Vui lòng thử lại hoặc kiểm tra quyền truy cập của tài khoản.</div>
+            ) : isLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="p-6">
                   <Skeleton className="h-6 w-1/3 mb-2" />
@@ -166,7 +168,7 @@ export default function AdminProgramsPage() {
               ))
             ) : programs.length === 0 ? (
               <div className="p-12 text-center text-muted-foreground text-sm">
-                Chưa có chương trình học nào. Nhấn "Thêm chương trình" để tạo chương trình đầu tiên!
+                Chưa có chương trình học nào. Nhấn &quot;Thêm chương trình&quot; để tạo chương trình đầu tiên!
               </div>
             ) : (
               programs.map((program) => (
@@ -192,7 +194,7 @@ export default function AdminProgramsPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge variant={program.status === "PUBLISHED" ? "default" : "secondary"} className="text-xs">
-                      {program.status}
+                      {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ", HIDDEN: "Đang ẩn" } as Record<string, string>)[program.status ?? ""] ?? program.status}
                     </Badge>
                     <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
                       <Link href={`/admin/programs/${program.id}`}>

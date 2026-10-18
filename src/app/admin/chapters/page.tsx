@@ -21,7 +21,6 @@ import {
   useReorderQuestionBlocks,
   useAdminQuestions
 } from "@/features/admin/use-admin-content";
-import { createQuestionApi } from "@/features/admin/admin-content-service";
 import {
   Dialog,
   DialogContent,
@@ -29,18 +28,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { AdminQuestionItem } from "@/features/admin/admin-content-service";
+import type { AdminQuestionItem } from "@/features/admin/admin-content-service";
+import type { ChapterDetail } from "@/features/admin/admin-chapters-service";
+import { OfficialBankBrowser } from "@/features/admin/components/official-bank-browser";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
-import { getQuestionsByChapter, CHAPTER_META } from "@/features/practice/practice-service";
 
 export default function AdminChaptersPage() {
-  const { data: chapters = [], isLoading } = useAdminChapters();
+  const { data: chapters = [], isLoading, isError: chaptersError } = useAdminChapters();
   const createMutation = useCreateChapter();
   const deleteMutation = useDeleteChapter();
 
@@ -62,7 +61,7 @@ export default function AdminChaptersPage() {
   const deleteQuestionMutation = useDeleteQuestionBlock(activeChapter?.id || "");
   const reorderQuestionsMutation = useReorderQuestionBlocks(activeChapter?.id || "");
 
-  const { data: bankQuestions = [], isLoading: isLoadingQuestions } = useAdminQuestions();
+  const { data: bankQuestions = [], isLoading: isLoadingQuestions, isError: questionsError } = useAdminQuestions();
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -108,7 +107,7 @@ export default function AdminChaptersPage() {
     updateMutation.mutate(
       { title: activeChapter.title, status: newStatus, description: activeChapter.description },
       {
-        onSuccess: () => toast.success(`Đã đổi trạng thái thành ${newStatus}`),
+        onSuccess: () => toast.success(`Đã chuyển chương sang trạng thái ${({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ" } as Record<string, string>)[newStatus] ?? newStatus}`),
         onError: () => toast.error("Đổi trạng thái thất bại"),
       }
     );
@@ -195,14 +194,14 @@ export default function AdminChaptersPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="outline" className="text-xs">
-              CONTENT BUILDER
+              QUẢN LÝ NỘI DUNG
             </Badge>
             <h1 className="text-xl font-bold tracking-tight text-foreground">
-              Quản lý Chương học (Chapters)
+              Quản lý chương học
             </h1>
           </div>
           <p className="text-sm text-muted-foreground">
-            Biên tập cấu trúc các chương và phân bổ bài học trong hệ thống
+Quản lý các chương câu hỏi theo hạng GPLX và những chương học do bạn biên soạn.
           </p>
         </div>
 
@@ -213,10 +212,11 @@ export default function AdminChaptersPage() {
         </div>
       </div>
 
+      {chaptersError && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">Không thể tải danh sách chương tự tạo. Vui lòng thử lại hoặc kiểm tra quyền truy cập. Bạn vẫn có thể xem Ngân hàng chuẩn.</p>}
       <Tabs defaultValue="official" className="mt-8">
         <TabsList className="mb-4">
-          <TabsTrigger value="official">Chương 600 câu chuẩn</TabsTrigger>
-          <TabsTrigger value="custom">Các chương tùy chỉnh</TabsTrigger>
+          <TabsTrigger value="official">Chương ngân hàng theo hạng</TabsTrigger>
+          <TabsTrigger value="custom">Chương tự biên soạn</TabsTrigger>
         </TabsList>
 
         <TabsContent value="official" className="space-y-4">
@@ -256,7 +256,7 @@ export default function AdminChaptersPage() {
                 Hủy
               </Button>
               <Button size="sm" onClick={handleCreate} disabled={createMutation.isPending}>
-                {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Lưu & Xuất bản"}
+                {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Lưu bản nháp"}
               </Button>
             </div>
           </CardContent>
@@ -299,14 +299,14 @@ export default function AdminChaptersPage() {
                         </p>
                       </div>
                       <Badge variant="secondary" className="text-[10px] uppercase px-1.5 py-0 shrink-0">
-                        {chapter.status}
+                        {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ", HIDDEN: "Đang ẩn" } as Record<string, string>)[chapter.status] ?? chapter.status}
                       </Badge>
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
                         disabled={deletingId === chapter.id || chapter.status !== "DRAFT"}
-                        title={chapter.status !== "DRAFT" ? "Chỉ có thể xóa chương DRAFT" : "Xóa chương"}
+                        title={chapter.status !== "DRAFT" ? "Chỉ có thể xóa chương đang ở trạng thái bản nháp" : "Xóa chương"}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(chapter.id, chapter.title);
@@ -349,7 +349,7 @@ export default function AdminChaptersPage() {
                   title={activeChapter.status === "PUBLISHED" ? "Lưu trữ chương này" : ""}
                 >
                   {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
-                  {activeChapter.status === "ARCHIVED" ? "Khôi phục (DRAFT)" : "Lưu trữ (ARCHIVE)"}
+                  {activeChapter.status === "ARCHIVED" ? "Khôi phục bản nháp" : "Lưu trữ"}
                 </Button>
                 
                 {activeChapter.status === "DRAFT" && (
@@ -409,7 +409,7 @@ export default function AdminChaptersPage() {
                        <Skeleton className="h-20 w-full rounded-xl" />
                     ) : chapterDetail?.questionBlocks?.length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground text-sm border rounded-xl border-dashed">
-                        Chưa có câu hỏi nào. Bấm "Thêm câu hỏi" để lấy từ Ngân hàng.
+                        Chưa có câu hỏi nào. Bấm &quot;Thêm câu hỏi&quot; để lấy từ Ngân hàng.
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -463,7 +463,7 @@ export default function AdminChaptersPage() {
       <Dialog open={isAddingQuestion} onOpenChange={setIsAddingQuestion}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Thêm câu hỏi từ Ngân hàng</DialogTitle>
+            <DialogTitle>Chọn câu hỏi từ ngân hàng</DialogTitle>
             <DialogDescription>
               Chọn câu hỏi bạn muốn thêm vào chương {activeChapter?.title}.
             </DialogDescription>
@@ -476,6 +476,7 @@ export default function AdminChaptersPage() {
             </TabsList>
 
             <TabsContent value="custom" className="space-y-4 pt-4">
+              {questionsError && <p role="alert" className="rounded-lg border border-destructive/30 p-3 text-sm text-destructive">Không thể tải danh sách câu hỏi để lựa chọn. Vui lòng thử lại.</p>}
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input 
@@ -486,7 +487,7 @@ export default function AdminChaptersPage() {
                 />
               </div>
               <p className="text-[11px] text-muted-foreground italic px-1">
-                * Chỉ hiển thị các câu hỏi đã Xuất bản (PUBLISHED). Đã ẩn các câu hỏi đã có sẵn trong chương này.
+                * Chỉ hiển thị câu hỏi đã xuất bản và chưa có trong chương này.
               </p>
               
               <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-2">
@@ -535,208 +536,22 @@ export default function AdminChaptersPage() {
   );
 }
 
-function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapterDetail: any, onAdd: (q: AdminQuestionItem) => void, isPending: boolean }) {
-  const [selectedChapter, setSelectedChapter] = useState<number>(1);
-  const [isCloning, setIsCloning] = useState<number | null>(null);
-  
-  const { data: questions, isLoading } = useQuery({
-    queryKey: ["official-chapter-questions", selectedChapter],
-    queryFn: () => getQuestionsByChapter(selectedChapter),
-    staleTime: Infinity,
-  });
-
-  const handleAddOfficial = async (q: any) => {
-    setIsCloning(q.id);
-    try {
-      const newQ = await createQuestionApi({
-        content: q.questionText || "Câu hỏi không có nội dung",
-        type: "SINGLE_CHOICE",
-        status: "PUBLISHED",
-        isCritical: q.isCritical,
-        explanation: q.explanation || "",
-        mediaUrl: q.imageUrl,
-        options: q.options?.map((opt: any, idx: number) => ({
-          content: opt.text || "",
-          isCorrect: opt.label === q.correctAnswer,
-          sortOrder: idx + 1,
-        })) || []
-      });
-
-      onAdd({
-        id: `#Q-${newQ.id.substring(0, 6)}`,
-        rawId: newQ.id,
-        title: newQ.content || q.questionText,
-        type: "Trắc nghiệm",
-        program: `Chương ${selectedChapter}`,
-        status: "PUBLISHED"
-      });
-    } catch (err) {
-      toast.error("Không thể nhân bản câu hỏi chuẩn vào thư viện.");
-    } finally {
-      setIsCloning(null);
-    }
-  };
-
-  const filteredQuestions = questions?.filter(q => 
-    !chapterDetail?.questionBlocks?.some((b: any) => b.title === q.questionText)
-  ) || [];
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-2 pb-2">
-        {[1, 2, 3, 4, 5, 6].map(c => (
-          <Button 
-            key={c} 
-            variant={selectedChapter === c ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedChapter(c)}
-            className="shrink-0 text-xs h-8"
-          >
-            Chương {c}
-          </Button>
-        ))}
-      </div>
-      <div className="max-h-[50vh] overflow-y-auto space-y-3 pr-2">
-        {isLoading ? (
-          <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
-        ) : filteredQuestions.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground text-sm">Chương này đã được thêm toàn bộ hoặc không có câu hỏi.</div>
-        ) : (
-          filteredQuestions.map((q) => (
-            <div key={q.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 p-4 border rounded-xl bg-card hover:border-primary/50 transition-colors">
-              <div className="flex-1 min-w-0 space-y-1.5">
-                <p className="text-sm font-medium leading-relaxed text-foreground">{q.questionText}</p>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-[10px] text-primary bg-primary/5 border-primary/20">Câu {q.id}</Badge>
-                  {q.isCritical && <Badge variant="destructive" className="text-[10px]">Điểm liệt</Badge>}
-                </div>
-              </div>
-              <Button 
-                size="sm" 
-                className="shrink-0"
-                onClick={() => handleAddOfficial(q)}
-                disabled={isPending || isCloning === q.id}
-              >
-                {isCloning === q.id ? <Loader2 className="h-4 w-4 animate-spin" /> : "Thêm"}
-              </Button>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
+function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapterDetail: ChapterDetail | null | undefined; onAdd: (q: AdminQuestionItem) => void; isPending: boolean }) {
+  return <OfficialBankBrowser
+    view="questions"
+    isPicking={isPending}
+    excludedIds={(chapterDetail?.questionBlocks ?? []).map((block) => block.questionId ?? "").filter(Boolean)}
+    onPick={(question) => onAdd({
+      id: `#Q-${question.id.slice(0, 6)}`,
+      rawId: question.id,
+      title: question.content,
+      type: "Trắc nghiệm",
+      program: "Ngân hàng câu hỏi chuẩn",
+      status: "PUBLISHED",
+    })}
+  />;
 }
 
 function OfficialChaptersView() {
-  const [selectedChapter, setSelectedChapter] = useState<number>(1);
-
-  const { data: questions, isLoading } = useQuery({
-    queryKey: ["official-chapter-questions", selectedChapter],
-    queryFn: () => getQuestionsByChapter(selectedChapter),
-    staleTime: Infinity,
-  });
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-2">
-      {/* Left Panel */}
-      <div className="lg:col-span-4 space-y-4">
-        <Card className="rounded-2xl shadow-sm border">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-bold flex items-center gap-2">
-              <FolderTree className="h-4 w-4 text-primary" /> Danh sách Chương chuẩn (6)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {[1, 2, 3, 4, 5, 6].map((chapter) => {
-              const isSelected = selectedChapter === chapter;
-              return (
-                <div
-                  key={chapter}
-                  onClick={() => setSelectedChapter(chapter)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                    isSelected
-                      ? "border-primary bg-primary/5 shadow-sm font-semibold"
-                      : "border-border bg-card hover:bg-accent/50"
-                  }`}
-                >
-                  <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs truncate text-foreground font-medium">
-                      Chương {chapter}: {CHAPTER_META[chapter.toString()]?.name}
-                    </p>
-                  </div>
-                  <Badge variant="secondary" className="text-[10px] uppercase px-1.5 py-0 shrink-0">
-                    OFFICIAL
-                  </Badge>
-                </div>
-              );
-            })}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Right Panel */}
-      <div className="lg:col-span-8 space-y-4">
-        <Card className="rounded-2xl shadow-sm border h-full">
-          <CardHeader className="border-b bg-muted/20 pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-2">
-                  <Badge variant="outline" className="bg-background">READ-ONLY</Badge>
-                  Chương {selectedChapter}
-                </div>
-                <CardTitle className="text-base font-bold">
-                  {CHAPTER_META[selectedChapter.toString()]?.name}
-                </CardTitle>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">
-                  Số lượng câu hỏi: {questions?.length || 0} câu
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            {isLoading ? (
-              <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-            ) : (
-              <div className="flex flex-col max-h-[700px] overflow-y-auto p-4 space-y-3 bg-muted/10">
-                {questions?.map((q) => (
-                  <div key={q.id} className="flex gap-3 p-4 bg-background border rounded-xl shadow-sm">
-                    <div className="shrink-0 pt-0.5">
-                       <span className="font-bold text-sm text-primary">Câu {q.id}</span>
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <p className="text-sm font-medium leading-relaxed">{q.questionText}</p>
-                      {q.isCritical && <Badge variant="destructive" className="text-[10px] px-1.5 py-0 mt-1">⚠️ Điểm liệt</Badge>}
-                      
-                      {q.imageUrl && (
-                        <img src={q.imageUrl} alt="Minh họa" className="mt-2 rounded-md max-h-40 object-contain border bg-white" />
-                      )}
-                      
-                      <div className="mt-4 space-y-2">
-                        {q.options?.map((opt, i) => (
-                          <div key={i} className="text-sm flex gap-2">
-                            <span className="font-medium text-muted-foreground">{opt.label}.</span>
-                            <span>{opt.text}</span>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {(q.correctAnswer || q.explanation) && (
-                        <div className="mt-4 p-3 bg-primary/5 rounded-md text-sm border border-primary/10">
-                          {q.correctAnswer && <p><span className="font-bold text-primary">Đáp án:</span> {q.correctAnswer}</p>}
-                          {q.explanation && <p className="mt-1.5 text-muted-foreground"><span className="font-semibold text-foreground">Giải thích:</span> {q.explanation}</p>}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+  return <OfficialBankBrowser view="chapters" />;
 }

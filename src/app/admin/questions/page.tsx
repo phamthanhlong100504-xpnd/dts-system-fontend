@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Plus, Search, Pencil, Trash2, Filter, Loader2, BookOpen, Eye } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Loader2, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
-import { getQuestionsByChapter, CHAPTER_META } from "@/features/practice/practice-service";
+import { OfficialBankBrowser } from "@/features/admin/components/official-bank-browser";
 
 import { toast } from "sonner";
 
@@ -29,7 +28,7 @@ export default function AdminQuestionsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [viewingId, setViewingId] = useState<string | null>(null);
 
-  const { data: questions = [], isLoading } = useAdminQuestions();
+  const { data: questions = [], isLoading, isError: questionsError } = useAdminQuestions();
   const { data: viewingQuestionDetail, isLoading: isLoadingDetail } = useAdminQuestionDetail(viewingId);
   const deleteMutation = useDeleteQuestion();
 
@@ -51,7 +50,7 @@ export default function AdminQuestionsPage() {
 
   const handleDelete = (rawId: string, title: string) => {
     if (!rawId) {
-      toast.error("Không tìm thấy ID câu hỏi");
+      toast.error("Không tìm thấy câu hỏi cần chỉnh sửa");
       return;
     }
     const confirmed = window.confirm(`Xóa câu hỏi:\n"${title.substring(0, 80)}..."?\n\nHành động này không thể hoàn tác.`);
@@ -79,7 +78,7 @@ export default function AdminQuestionsPage() {
             Ngân hàng Câu hỏi
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Quản lý và biên tập các câu hỏi trong hệ thống
+            Tra cứu ngân hàng câu hỏi chuẩn theo hạng GPLX và quản lý câu hỏi tự biên soạn.
           </p>
         </div>
         <div className="flex gap-2">
@@ -94,7 +93,7 @@ export default function AdminQuestionsPage() {
 
       <Tabs defaultValue="official" className="mt-8">
         <TabsList className="mb-4">
-          <TabsTrigger value="official">Bộ 600 câu hỏi chuẩn</TabsTrigger>
+          <TabsTrigger value="official">Ngân hàng chuẩn theo hạng GPLX</TabsTrigger>
           <TabsTrigger value="others">Các câu hỏi tùy chỉnh</TabsTrigger>
         </TabsList>
 
@@ -146,9 +145,6 @@ export default function AdminQuestionsPage() {
                 className="pl-9 h-9 text-sm"
               />
             </div>
-            <Button variant="outline" size="sm" className="gap-1.5 shrink-0">
-              <Filter className="h-4 w-4" /> Lọc
-            </Button>
           </div>
         </CardContent>
       </Card>
@@ -168,7 +164,9 @@ export default function AdminQuestionsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {isLoading ? (
+              {questionsError ? (
+                <tr><td colSpan={6} className="p-6 text-sm text-destructive">Không tải được danh sách câu hỏi tự biên soạn. Vui lòng kiểm tra quyền truy cập hoặc thử lại.</td></tr>
+              ) : isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}>
                     <td className="py-4 px-4"><Skeleton className="h-4 w-20" /></td>
@@ -182,7 +180,7 @@ export default function AdminQuestionsPage() {
               ) : filteredQuestions.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-muted-foreground text-sm">
-                    {searchQuery ? "Không tìm thấy câu hỏi phù hợp" : "Chưa có câu hỏi nào. Hãy tạo câu hỏi đầu tiên!"}
+                    {searchQuery ? "Không tìm thấy câu hỏi phù hợp" : "Chưa có câu hỏi tự tạo. Chuyển sang mục Ngân hàng chuẩn để xem các câu hỏi đã công bố."}
                   </td>
                 </tr>
               ) : (
@@ -206,15 +204,15 @@ export default function AdminQuestionsPage() {
                     <td className="py-4 px-4">
                       {q.status === "PUBLISHED" ? (
                         <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                          PUBLISHED
+                          Đã xuất bản
                         </Badge>
                       ) : q.status === "ARCHIVED" ? (
                         <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                          ARCHIVED
+                          Đã lưu trữ
                         </Badge>
                       ) : (
                         <Badge variant="secondary" className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                          DRAFT
+                          Bản nháp
                         </Badge>
                       )}
                     </td>
@@ -249,7 +247,7 @@ export default function AdminQuestionsPage() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          title={q.status === "PUBLISHED" ? "Không thể xóa câu hỏi đã xuất bản. Vui lòng Archive." : q.status === "ARCHIVED" ? "Không thể xóa vì dữ liệu đã là archived tức bị đóng băng." : "Xóa"}
+                          title={q.status === "PUBLISHED" ? "Không thể xóa câu hỏi đã xuất bản. Hãy lưu trữ câu hỏi trước." : q.status === "ARCHIVED" ? "Không thể xóa câu hỏi đã lưu trữ." : "Xóa"}
                           disabled={deletingId === q.rawId || !q.rawId || q.status === "PUBLISHED" || q.status === "ARCHIVED"}
                           onClick={() => handleDelete(q.rawId, q.title)}
                         >
@@ -302,14 +300,14 @@ export default function AdminQuestionsPage() {
               {viewingQuestionDetail.imageUrl && (
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm text-muted-foreground uppercase">Hình ảnh minh họa</h4>
-                  <MediaImage src={viewingQuestionDetail.imageUrl} alt="Hình ảnh minh họa" className="max-h-[300px] w-auto rounded-md border object-contain bg-muted/20" />
+                  <MediaImage src={viewingQuestionDetail.imageUrl} alt="Hình ảnh minh họa" className="mx-auto block max-h-[300px] max-w-full w-auto rounded-md border object-contain bg-muted/20" />
                 </div>
               )}
 
               <div className="space-y-2">
                 <h4 className="font-semibold text-sm text-muted-foreground uppercase">Các lựa chọn</h4>
                 <div className="space-y-2 mt-2">
-                  {viewingQuestionDetail.options?.map((opt: any, idx: number) => {
+                  {viewingQuestionDetail.options?.map((opt, idx: number) => {
                     const isCorrect = opt.isCorrect || opt.is_correct || opt.correct;
                     return (
                       <div key={idx} className={`p-3 rounded-md border text-sm flex gap-2 ${isCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/50 dark:border-emerald-900 dark:text-emerald-200 font-medium' : 'bg-background'}`}>
@@ -338,7 +336,7 @@ export default function AdminQuestionsPage() {
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Trạng thái</p>
                   <Badge variant={viewingQuestionDetail.status === 'PUBLISHED' ? 'default' : 'secondary'}>
-                    {viewingQuestionDetail.status}
+                    {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ", HIDDEN: "Đang ẩn" } as Record<string, string>)[viewingQuestionDetail.status] ?? viewingQuestionDetail.status}
                   </Badge>
                 </div>
                 <div>
@@ -357,97 +355,5 @@ export default function AdminQuestionsPage() {
 }
 
 function Official600QuestionsView() {
-  const { data: chapters, isLoading } = useQuery({
-    queryKey: ["official-600-questions"],
-    queryFn: async () => {
-      const allQs = await Promise.all(
-        [1, 2, 3, 4, 5, 6].map(async (ch) => {
-          const qs = await getQuestionsByChapter(ch);
-          return { chapter: ch, questions: qs };
-        })
-      );
-      return allQs;
-    },
-    staleTime: Infinity,
-  });
-
-  if (isLoading) {
-    return (
-      <Card className="rounded-2xl p-8 border">
-        <div className="flex justify-center"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="rounded-2xl overflow-hidden border flex flex-col h-[750px]">
-      {/* Quick Navigation Header */}
-      <div className="bg-muted/20 border-b p-4 shrink-0">
-        <h4 className="font-semibold mb-3 text-sm text-foreground">Nhảy nhanh đến Chương ({chapters?.length}):</h4>
-        <div className="flex flex-wrap gap-2">
-          {chapters?.map((c) => (
-            <Button
-              key={c.chapter}
-              variant="outline"
-              size="sm"
-              className="bg-background text-xs hover:bg-primary/5 hover:text-primary transition-colors"
-              onClick={() => {
-                const el = document.getElementById(`chapter-${c.chapter}`);
-                if (el) {
-                  el.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
-              title={CHAPTER_META[c.chapter.toString()]?.name}
-            >
-              Chương {c.chapter}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6 space-y-10 scroll-smooth">
-        {chapters?.map(({ chapter, questions }) => (
-          <div key={chapter} id={`chapter-${chapter}`} className="space-y-4">
-            <h3 className="font-bold text-lg sticky top-0 bg-background/95 backdrop-blur py-3 border-b z-10 shadow-sm">
-              Chương {chapter}: {CHAPTER_META[chapter.toString()]?.name}
-            </h3>
-            <div className="space-y-4">
-              {questions.map((q, idx) => (
-                <div key={q.id} className="border rounded-lg p-4 bg-muted/20">
-                  <div className="flex gap-3">
-                    <span className="font-bold min-w-[48px] text-primary">Câu {q.id}:</span>
-                    <div className="flex-1">
-                      <p className="font-medium">{q.questionText}</p>
-                      {q.isCritical && <Badge variant="destructive" className="mt-1.5 text-[10px] px-1.5 py-0">⚠️ Điểm liệt</Badge>}
-                      
-                      {q.imageUrl && (
-                        <img src={q.imageUrl} alt="Minh họa" className="mt-3 rounded-md max-h-40 object-contain border bg-white" />
-                      )}
-                      
-                      <div className="mt-4 space-y-2">
-                        {q.options?.map((opt, oIdx) => (
-                          <div key={oIdx} className="text-sm flex gap-2">
-                            <span className="font-medium text-muted-foreground">{opt.label}.</span>
-                            <span>{opt.text}</span>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {(q.correctAnswer || q.explanation) && (
-                        <div className="mt-4 p-3 bg-primary/5 rounded-md text-sm border border-primary/10">
-                          {q.correctAnswer && <p><span className="font-bold text-primary">Đáp án:</span> {q.correctAnswer}</p>}
-                          {q.explanation && <p className="mt-1.5 text-muted-foreground"><span className="font-semibold text-foreground">Giải thích:</span> {q.explanation}</p>}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
+  return <OfficialBankBrowser view="questions" />;
 }
-

@@ -56,6 +56,8 @@ import {
   updateExamCriteriaApi,
   deleteExamCriteriaApi,
   ExamCriteriaPayload,
+  type OfficialExamVersionPayload,
+  type ExamStructureSection,
 } from "./admin-examination-service";
 
 /* ==================== QUESTIONS ==================== */
@@ -252,7 +254,7 @@ export function useAdminExams() {
 export function useCreateExam() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { name?: string; title?: string; code?: string; durationMinutes?: number; passScore?: number; status?: "DRAFT" | "PUBLISHED"; licenseType?: string; questionsCount?: number; }) =>
+    mutationFn: (payload: Parameters<typeof createExamApi>[0]) =>
       createExamApi(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
@@ -263,7 +265,7 @@ export function useCreateExam() {
 export function useUpdateExam() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: { title: string; code?: string; status: "DRAFT" | "PUBLISHED" | "ARCHIVED"; licenseType?: string; thumbnailId?: string; } }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: Parameters<typeof updateExamApi>[1] }) =>
       updateExamApi(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
@@ -274,7 +276,7 @@ export function useUpdateExam() {
 export function useChangeExamStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: "DRAFT" | "PUBLISHED" | "ARCHIVED" }) =>
+    mutationFn: ({ id, status }: { id: string; status: "DRAFT" | "PUBLISHED" | "HIDDEN" | "ARCHIVED" }) =>
       changeExamStatusApi(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams"] });
@@ -336,7 +338,7 @@ export function useAdminExamVersions(examId: string) {
 export function useCreateExamVersion(examId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { title: string; examType: string; contentType: string; contentId: string; examStructureId: string; examRuleId: string; examCriteriaId?: string; }) =>
+    mutationFn: (payload: OfficialExamVersionPayload) =>
       createExamVersionApi(examId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams", examId, "versions"] });
@@ -347,7 +349,7 @@ export function useCreateExamVersion(examId: string) {
 export function useUpdateExamVersion(examId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ versionId, payload }: { versionId: string; payload: any }) =>
+    mutationFn: ({ versionId, payload }: { versionId: string; payload: Parameters<typeof updateExamVersionApi>[1] }) =>
       updateExamVersionApi(versionId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exams", examId, "versions"] });
@@ -478,7 +480,7 @@ export function useDeleteExamCriteria() {
 export function useCreateExamStructure() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { title: string; sections: any[]; metadata?: any }) =>
+    mutationFn: (payload: { title: string; sections: ExamStructureSection[]; metadata?: Record<string, unknown> }) =>
       createExamStructureApi(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exam-structures"] });
@@ -489,7 +491,7 @@ export function useCreateExamStructure() {
 export function useUpdateExamStructure() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: { title: string; sections: any[]; metadata?: any } }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: { title: string; sections: ExamStructureSection[]; metadata?: Record<string, unknown> } }) =>
       updateExamStructureApi(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "exam-structures"] });

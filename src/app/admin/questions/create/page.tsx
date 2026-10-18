@@ -24,7 +24,6 @@ import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCreateQuestion } from "@/features/admin/use-admin-content";
-import { Checkbox } from "@/components/ui/checkbox";
 import { uploadFileToMediaService } from "@/features/media/media-service";
 import { MediaImage } from "@/components/ui/media-image";
 
@@ -293,7 +292,7 @@ export default function QuestionEditorPage() {
               />
               {mediaUrl ? (
                 <div className="relative border rounded-xl overflow-hidden group">
-                  <MediaImage src={mediaUrl} alt="Minh họa" className="w-full h-auto max-h-[300px] object-contain bg-muted/20" />
+                  <MediaImage src={mediaUrl} alt="Minh họa" className="mx-auto block h-auto max-h-[300px] max-w-full object-contain bg-muted/20" />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                     <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
                       Đổi ảnh

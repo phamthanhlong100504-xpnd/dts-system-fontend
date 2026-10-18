@@ -22,6 +22,24 @@ interface OptionItem {
   isCorrect: boolean;
 }
 
+interface QuestionOptionResponse {
+  id?: string;
+  content?: string;
+  isCorrect?: boolean;
+}
+
+interface QuestionDetailResponse {
+  content?: string;
+  explanations?: { text?: string } | null;
+  metadata?: { isCritical?: boolean; mediaUrl?: string; imageUrl?: string } | null;
+  type?: string;
+  status?: string;
+  mediaFileIds?: string[];
+  mediaUrl?: string;
+  imageUrl?: string;
+  options?: QuestionOptionResponse[];
+}
+
 
 const LABELS = ["A", "B", "C", "D", "E", "F"];
 
@@ -32,7 +50,8 @@ export default function EditQuestionPage() {
 
   const updateMutation = useUpdateQuestion();
 
-  const [loading, setLoading] = useState(true);
+  const [loadedQuestionId, setLoadedQuestionId] = useState<string | null>(null);
+  const loading = loadedQuestionId !== questionId;
   const [questionTitle, setQuestionTitle] = useState("");
   const [explanation, setExplanation] = useState("");
   const [isCritical, setIsCritical] = useState(false);
@@ -45,22 +64,23 @@ export default function EditQuestionPage() {
 
   const isPublished = currentStatus === "PUBLISHED";
 
-  // Tải dữ liệu câu hỏi từ API
+  // Loading được suy ra từ ID đã tải; không gọi setState đồng bộ trong effect.
   useEffect(() => {
     if (!questionId) return;
-    setLoading(true);
+    let active = true;
     contentBuilderApi
-      .get<any>(`/v1/questions/${questionId}?includeOptions=true`)
-      .then((q: any) => {
+      .get<QuestionDetailResponse>(`/v1/questions/${questionId}?includeOptions=true`)
+      .then((q) => {
+        if (!active) return;
         setQuestionTitle(q.content || "");
         setExplanation(q.explanations?.text || "");
         setIsCritical(Boolean(q.metadata?.isCritical));
         setQuestionType(q.type || "SINGLE_CHOICE");
         setCurrentStatus(q.status || "");
         setMediaUrl((q.mediaFileIds && q.mediaFileIds.length > 0) ? q.mediaFileIds[0] : (q.mediaUrl || q.metadata?.mediaUrl || q.metadata?.imageUrl || q.imageUrl || null));
-        const rawOptions: any[] = Array.isArray(q.options) ? q.options : [];
+        const rawOptions = Array.isArray(q.options) ? q.options : [];
         setOptions(
-          rawOptions.map((opt: any, idx: number) => ({
+          rawOptions.map((opt, idx) => ({
             id: opt.id || String(idx),
             label: LABELS[idx] || String(idx + 1),
             text: opt.content || "",
@@ -69,9 +89,12 @@ export default function EditQuestionPage() {
         );
       })
       .catch(() => {
-        toast.error("Không thể tải câu hỏi. Kiểm tra kết nối hoặc đăng nhập lại.");
+        if (active) toast.error("Không thể tải câu hỏi. Kiểm tra kết nối hoặc đăng nhập lại.");
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (active) setLoadedQuestionId(questionId);
+      });
+    return () => { active = false; };
   }, [questionId]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -226,7 +249,7 @@ export default function EditQuestionPage() {
           />
           {mediaUrl ? (
             <div className="relative border rounded-xl overflow-hidden group">
-              <MediaImage src={mediaUrl} alt="Minh họa" className="w-full h-auto max-h-[300px] object-contain bg-muted/20" />
+              <MediaImage src={mediaUrl} alt="Minh họa" className="mx-auto block h-auto max-h-[300px] max-w-full object-contain bg-muted/20" />
               {!isPublished && (
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                   <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
@@ -267,7 +290,7 @@ export default function EditQuestionPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           {options.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">Chưa có đáp án. Nhấn "Thêm đáp án" để bắt đầu.</p>
+            <p className="text-sm text-muted-foreground text-center py-4">Chưa có đáp án. Nhấn &quot;Thêm đáp án&quot; để bắt đầu.</p>
           )}
           {options.map((opt) => (
             <div
