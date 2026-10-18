@@ -24,7 +24,7 @@ export function SiteHeader() {
   const logoutMutation = useLogout();
 
   // Đóng SiteHeader khi ở các trang /admin (vì Admin Layout có Header/Sidebar riêng)
-  if (pathname.startsWith("/admin")) {
+  if (pathname === "/" || pathname.startsWith("/admin")) {
     return null;
   }
 

@@ -1,33 +1,65 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import {
+  Be_Vietnam_Pro,
+  Inter,
+} from "next/font/google";
+
+import { AppChrome } from "@/components/app-shell/app-chrome";
+import { AppFooter } from "@/components/app-shell/app-footer";
+
 import { Providers } from "./providers";
-import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-sans",
-  subsets: ["latin", "vietnamese"],
+  subsets: [
+    "latin",
+    "vietnamese",
+  ],
 });
 
+const beVietnamPro =
+  Be_Vietnam_Pro({
+    variable: "--font-dts",
+    subsets: [
+      "latin",
+      "vietnamese",
+    ],
+    weight: [
+      "400",
+      "500",
+      "600",
+      "700",
+    ],
+  });
+
 export const metadata: Metadata = {
-  title: "DTS Lái xe — Luyện thi lý thuyết",
-  description: "Hệ thống luyện thi bằng lái xe",
+  title: "DTS",
+  description:
+    "Hệ thống luyện thi bằng lái xe",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: LayoutProps<"/">) {
   return (
     <html
       lang="vi"
       suppressHydrationWarning
-      className={`${inter.variable} h-full antialiased`}
+      className={`${inter.variable} ${beVietnamPro.variable} h-full antialiased`}
     >
       <body
-        className="min-h-full flex flex-col"
+        className="flex min-h-full flex-col"
         suppressHydrationWarning
       >
         <Providers>
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
+          <AppChrome />
+
+          <main className="flex-1">
+            {children}
+          </main>
+
+          <AppFooter />
         </Providers>
       </body>
     </html>

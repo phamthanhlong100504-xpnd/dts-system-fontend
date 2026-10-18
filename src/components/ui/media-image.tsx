@@ -1,67 +1,206 @@
-import { useEffect, useState } from "react";
-import { mediaApi } from "@/lib/api";
+"use client";
+
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Loader2 } from "lucide-react";
 
-export function MediaImage({ src, alt, className }: { src?: string; alt?: string; className?: string }) {
-  const [url, setUrl] = useState<string | undefined>(undefined);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+import { mediaApi } from "@/lib/api";
+
+interface MediaImageProps {
+  src?: string;
+  alt?: string;
+  className?: string;
+}
+
+interface MediaUrlResponse {
+  url?: string | null;
+}
+
+interface LoadedMedia {
+  mediaId: string;
+  url?: string;
+  error: boolean;
+}
+
+const UUID_REGEX =
+  /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/;
+
+function resolveSource(
+  src?: string
+) {
+  if (!src) {
+    return {
+      directUrl: undefined,
+      mediaId: undefined,
+    };
+  }
+
+  if (src.startsWith("http")) {
+    const match =
+      src.match(UUID_REGEX);
+
+    if (
+      match?.[1] &&
+      src.includes(
+        "X-Amz-Signature"
+      )
+    ) {
+      return {
+        directUrl: undefined,
+        mediaId: match[1],
+      };
+    }
+
+    return {
+      directUrl: src,
+      mediaId: undefined,
+    };
+  }
+
+  if (src.startsWith("/")) {
+    return {
+      directUrl: src,
+      mediaId: undefined,
+    };
+  }
+
+  return {
+    directUrl: undefined,
+    mediaId: src,
+  };
+}
+
+export function MediaImage({
+  src,
+  alt = "",
+  className,
+}: MediaImageProps) {
+  const {
+    directUrl,
+    mediaId,
+  } = useMemo(
+    () => resolveSource(src),
+    [src]
+  );
+
+  const [
+    loadedMedia,
+    setLoadedMedia,
+  ] =
+    useState<LoadedMedia | null>(
+      null
+    );
 
   useEffect(() => {
-    if (!src) return;
-    
-    // Nếu src là URL hợp lệ (bắt đầu bằng http)
-    if (src.startsWith("http")) {
-      // KIỂM TRA: Nếu đây là một presigned URL của MinIO đã hết hạn (có chứa UUID)
-      // thì cố gắng bóc tách UUID (mediaId) ra để lấy URL mới nhất
-      const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/;
-      const match = src.match(uuidRegex);
-      if (match && src.includes("X-Amz-Signature")) {
-        // Đây là presigned URL, bỏ qua URL cũ và đi fetch URL mới bằng mediaId vừa tìm được
-        fetchMediaUrl(match[1]);
-        return;
-      }
-      
-      setUrl(src);
+    if (!mediaId) {
       return;
     }
 
-    // Nếu src là đường dẫn local hoặc proxy (ví dụ: /question-images/...)
-    if (src.startsWith("/")) {
-      setUrl(src);
-      return;
-    }
+    let cancelled = false;
 
-    // Nếu src là UUID (mediaId)
-    fetchMediaUrl(src);
-  }, [src]);
+    void mediaApi
+      .get<MediaUrlResponse>(
+        mediaId
+      )
+      .then((response) => {
+        if (cancelled) {
+          return;
+        }
 
-  const fetchMediaUrl = async (mediaId: string) => {
-    try {
-      setLoading(true);
-      const res = await mediaApi.get<any>(`${mediaId}`);
-      if (res && res.url) {
-        setUrl(res.url);
-      } else {
-        setError(true);
-      }
-    } catch (err) {
-      console.error("Failed to load media URL", err);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+        setLoadedMedia({
+          mediaId,
+          url:
+            response?.url ??
+            undefined,
+          error:
+            !response?.url,
+        });
+      })
+      .catch((error: unknown) => {
+        if (cancelled) {
+          return;
+        }
 
-  if (!src) return null;
+        console.error(
+          "Failed to load media URL",
+          error
+        );
+
+        setLoadedMedia({
+          mediaId,
+          error: true,
+        });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mediaId]);
+
+  if (!src) {
+    return null;
+  }
+
+  const matchesCurrentMedia =
+    Boolean(
+      mediaId &&
+        loadedMedia?.mediaId ===
+          mediaId
+    );
+
+  const url =
+    directUrl ??
+    (matchesCurrentMedia
+      ? loadedMedia?.url
+      : undefined);
+
+  const loading =
+    Boolean(
+      mediaId &&
+        !matchesCurrentMedia
+    );
+
+  const error =
+    Boolean(
+      mediaId &&
+        matchesCurrentMedia &&
+        loadedMedia?.error
+    );
 
   if (loading) {
-    return <div className={`flex items-center justify-center bg-muted/20 ${className || ""}`}><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
+    return (
+      <div
+        className={`flex items-center justify-center bg-muted/20 ${
+          className ?? ""
+        }`}
+      >
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
   }
 
   if (error || !url) {
-    return <div className={`flex items-center justify-center bg-muted/20 text-muted-foreground text-xs ${className || ""}`}>[Lỗi tải hình ảnh]</div>;
+    return (
+      <div
+        className={`flex items-center justify-center bg-muted/20 text-xs text-muted-foreground ${
+          className ?? ""
+        }`}
+      >
+        [Lỗi tải hình ảnh]
+      </div>
+    );
   }
 
-  return <img src={url} alt={alt} className={className} />;
+  return (
+    // Dynamic signed/local media URLs are intentionally rendered directly.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={url}
+      alt={alt}
+      className={className}
+    />
+  );
 }
