@@ -23,7 +23,7 @@ import {
 import { toast } from "sonner";
 
 import { RequireAuth } from "@/components/require-auth";
-import { MediaImage } from "@/components/ui/media-image";
+import { QuestionImage } from "@/components/ui/question-image";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import {
@@ -1287,7 +1287,7 @@ function QuestionSessionContent({
                   "/practice"
                 )
               }
-              className="flex shrink-0 items-center gap-2 text-[13px] font-semibold text-[#5f6c80] transition hover:text-[#101828]"
+              className="flex shrink-0 items-center gap-2 text-[13.5px] font-semibold text-[#475467] transition hover:text-[#101828]"
             >
               <ArrowLeft className="size-4" />
 
@@ -1304,14 +1304,14 @@ function QuestionSessionContent({
               }
             </h1>
 
-            <span className="shrink-0 rounded-full bg-[#eaf1ff] px-2.5 py-1 text-[11px] font-semibold text-[#0758d9]">
+            <span className="shrink-0 rounded-full bg-[#eaf1ff] px-2.5 py-1 text-[11.5px] font-semibold text-[#0758d9]">
               {
                 modeLabel
               }
             </span>
 
             {isPaused && (
-              <span className="shrink-0 rounded-full bg-[#fff2dc] px-2.5 py-1 text-[11px] font-semibold text-[#b54708]">
+              <span className="shrink-0 rounded-full bg-[#fff2dc] px-2.5 py-1 text-[11.5px] font-semibold text-[#b54708]">
                 Đang tạm dừng
               </span>
             )}
@@ -1319,7 +1319,7 @@ function QuestionSessionContent({
 
           {/* Right */}
           <div className="flex shrink-0 items-center justify-end gap-3">
-            <span className="text-[13px] font-semibold text-[#3f4d63]">
+            <span className="text-[13.5px] font-semibold text-[#3f4d63]">
               {
                 answeredCount
               }
@@ -1357,7 +1357,7 @@ function QuestionSessionContent({
               disabled={
                 isBusy
               }
-              className="flex h-9 items-center gap-1.5 rounded-[9px] border border-[#d9dee8] bg-white px-3.5 text-[13px] font-semibold text-[#536078] transition hover:bg-[#f7f8fb] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-9 items-center gap-1.5 rounded-[9px] border border-[#d9dee8] bg-white px-3.5 text-[13.5px] font-semibold text-[#344054] transition hover:bg-[#f7f8fb] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {pauseMutation.isPending ||
               resumeMutation.isPending ? (
@@ -1382,7 +1382,7 @@ function QuestionSessionContent({
                 isPaused ||
                 isBusy
               }
-              className="flex h-9 min-w-[92px] items-center justify-center rounded-[9px] bg-[#0758d9] px-4 text-[13px] font-semibold text-white shadow-[0_2px_5px_rgba(7,88,217,0.18)] transition hover:bg-[#064fc3] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-9 min-w-[92px] items-center justify-center rounded-[9px] bg-[#0758d9] px-4 text-[13.5px] font-semibold text-white shadow-[0_2px_5px_rgba(7,88,217,0.18)] transition hover:bg-[#064fc3] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {finishMutation.isPending ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -1408,23 +1408,23 @@ function QuestionSessionContent({
           <div className="relative flex min-h-9 w-full items-center">
             {/* Left: question number */}
             <div className="flex shrink-0 items-center gap-2">
-              <span className="rounded-[7px] bg-[#eaf1ff] px-3 py-1.5 text-[12px] font-bold uppercase text-[#0758d9]">
+              <span className="rounded-[7px] bg-[#eaf1ff] px-3 py-1.5 text-[12.5px] font-bold uppercase text-[#0758d9]">
                 Câu{" "}
                 {currentIndex + 1} /{" "}
                 {questions.length}
               </span>
 
-              {question.isCritical && (
-                <span className="rounded-[7px] bg-[#fff2dc] px-2.5 py-1.5 text-[11px] font-semibold text-[#b54708]">
+              {isPractice && question.isCritical && (
+                <span className="rounded-[7px] bg-[#fff2dc] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#b54708]">
                   Câu điểm liệt
                 </span>
               )}
             </div>
 
             {/* Center: chapter */}
-            {chapter && (
+            {isPractice && chapter && (
               <div className="pointer-events-none absolute left-1/2 top-1/2 max-w-[48%] -translate-x-1/2 -translate-y-1/2">
-                <span className="block truncate rounded-[7px] bg-[#eef1ff] px-3 py-1.5 text-center text-[12px] font-semibold text-[#536078]">
+                <span className="block truncate rounded-[7px] bg-[#eef1ff] px-3 py-1.5 text-center text-[12.5px] font-semibold text-[#344054]">
                   {chapter.name}
                 </span>
               </div>
@@ -1445,11 +1445,11 @@ function QuestionSessionContent({
                   : undefined
               }
               className={cn(
-                "ml-auto flex h-9 shrink-0 items-center gap-1.5 rounded-[9px] border px-3.5 text-[12px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+                "ml-auto flex h-9 shrink-0 items-center gap-1.5 rounded-[9px] border px-3.5 text-[12.5px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
 
                 isFlagged
                   ? "border-[#7fa5eb] bg-[#eaf1ff] text-[#0758d9]"
-                  : "border-[#dde1e9] bg-white text-[#536078] hover:border-[#bdc7d8] hover:bg-[#f8f9fc]"
+                  : "border-[#dde1e9] bg-white text-[#344054] hover:border-[#bdc7d8] hover:bg-[#f8f9fc]"
               )}
             >
               {updateFlagMutation.isPending ? (
@@ -1481,10 +1481,9 @@ function QuestionSessionContent({
           {(question.mediaFileId || question.imageUrl) && (
             <div className="mt-5 flex w-full justify-center">
               <div className="flex w-full max-w-[600px] justify-center">
-                <MediaImage
+                <QuestionImage
                   src={question.mediaFileId ?? question.imageUrl}
                   alt=""
-                  className="block h-auto w-auto max-h-[300px] max-w-full rounded-[10px] border border-[#e5e8ee] object-contain"
                 />
               </div>
             </div>
@@ -1493,7 +1492,7 @@ function QuestionSessionContent({
           {/* Answers */}
           <div className="mt-6 w-full space-y-3">
             {options.length === 0 && (
-              <p className="text-[14px] font-medium text-[#5f6c80]">
+              <p className="text-[14.5px] font-medium text-[#475467]">
                 Câu hỏi này chưa có đáp án.
               </p>
             )}
@@ -1601,14 +1600,14 @@ function QuestionSessionContent({
                   currentIndex - 1
                 )
               }
-              className="flex h-9 items-center gap-2 rounded-[9px] bg-[#f0f1f7] px-4 text-[13px] font-semibold text-[#536078] transition hover:bg-[#e8eaf2] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-9 items-center gap-2 rounded-[9px] bg-[#f0f1f7] px-4 text-[13.5px] font-semibold text-[#344054] transition hover:bg-[#e8eaf2] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ArrowLeft className="size-3.5" />
               Câu trước
             </button>
 
             <div className="min-w-[140px] text-center">
-              <p className="text-[12px] font-semibold text-[#536078]">
+              <p className="text-[12.5px] font-semibold text-[#344054]">
                 Đã làm:{" "}
                 {answeredCount}/
                 {questions.length}
@@ -1644,7 +1643,7 @@ function QuestionSessionContent({
                   currentIndex + 1
                 )
               }
-              className="flex h-9 items-center gap-2 rounded-[9px] bg-[#0758d9] px-4 text-[13px] font-semibold text-white shadow-[0_2px_5px_rgba(7,88,217,0.16)] transition hover:bg-[#064fc3] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-9 items-center gap-2 rounded-[9px] bg-[#0758d9] px-4 text-[13.5px] font-semibold text-white shadow-[0_2px_5px_rgba(7,88,217,0.16)] transition hover:bg-[#064fc3] disabled:cursor-not-allowed disabled:opacity-40"
             >
               Câu tiếp
 
@@ -1665,20 +1664,27 @@ function QuestionSessionContent({
                   Danh sách câu hỏi
                 </h3>
 
-                <p className="mt-1 text-[12px] font-medium text-[#59667a]">
+                <p className="mt-1 text-[12.5px] font-medium text-[#475467]">
                   {answeredCount} /{" "}
                   {questions.length} đã trả lời
                 </p>
               </div>
 
-              <span className="rounded-full bg-[#eaf1ff] px-2.5 py-1 text-[11px] font-semibold text-[#0758d9]">
+              <span className="rounded-full bg-[#eaf1ff] px-2.5 py-1 text-[11.5px] font-semibold text-[#0758d9]">
                 {currentIndex + 1} /{" "}
                 {questions.length}
               </span>
             </div>
 
             <div className="mt-4 border-t border-[#e9eaf1] pt-4">
-              <div className="grid grid-cols-5 gap-2.5">
+              <div
+                className={cn(
+                  "grid gap-y-2.5",
+                  isPractice
+                    ? "grid-cols-5 gap-x-2.5"
+                    : "grid-cols-[repeat(5,40px)] justify-between"
+                )}
+              >
                 {questions.map(
                   (
                     navQuestion,
@@ -1720,7 +1726,7 @@ function QuestionSessionContent({
                           )
                         }
                         className={cn(
-                          "relative flex size-[40px] items-center justify-center rounded-[9px] text-[12px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+                          "relative flex size-[40px] items-center justify-center rounded-[9px] text-[12.5px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
 
                           current
                             ? "bg-[#0758d9] text-white shadow-[0_2px_6px_rgba(7,88,217,0.28)]"
@@ -1749,7 +1755,7 @@ function QuestionSessionContent({
                           />
                         )}
 
-                        {navQuestion.isCritical && (
+                        {isPractice && navQuestion.isCritical && (
                           <span
                             className="absolute right-1 top-1 size-1.5 rounded-full bg-[#f59e0b]"
                             title="Câu điểm liệt"
@@ -1762,26 +1768,35 @@ function QuestionSessionContent({
               </div>
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t border-[#e9eaf1] pt-4 text-[11px] font-medium text-[#59667a]">
-              <span className="inline-flex items-center gap-1.5">
+            <div
+              className={cn(
+                "mt-4 border-t border-[#e9eaf1] pt-4 text-[11.5px] font-medium text-[#475467]",
+                isPractice
+                  ? "flex flex-wrap gap-x-4 gap-y-2"
+                  : "flex flex-nowrap items-center justify-between gap-2"
+              )}
+            >
+              <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap">
                 <span className="size-2.5 rounded-[3px] bg-[#0758d9]" />
                 Đang làm
               </span>
 
-              <span className="inline-flex items-center gap-1.5">
+              <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap">
                 <span className="size-2 rounded-full bg-[#0758d9]" />
                 Đã trả lời
               </span>
 
-              <span className="inline-flex items-center gap-1.5">
+              <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap">
                 <span className="size-2.5 rounded-[3px] bg-[#e5e7ef]" />
                 Chưa làm
               </span>
 
-              <span className="inline-flex items-center gap-1.5">
-                <span className="size-2 rounded-full bg-[#f59e0b]" />
-                Câu điểm liệt
-              </span>
+              {isPractice && (
+                <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap">
+                  <span className="size-2 rounded-full bg-[#f59e0b]" />
+                  Câu điểm liệt
+                </span>
+              )}
             </div>
           </div>
         </aside>
@@ -1902,8 +1917,8 @@ function SessionTimer({
     )}`;
 
   return (
-    <div className="flex h-9 items-center gap-1.5 rounded-[10px] bg-[#eff1f7] px-3.5 text-[13px] font-semibold text-[#3f4d63]">
-      <Clock3 className="size-4 text-[#59667a]" />
+    <div className="flex h-9 items-center gap-1.5 rounded-[10px] bg-[#eff1f7] px-3.5 text-[13.5px] font-semibold text-[#3f4d63]">
+      <Clock3 className="size-4 text-[#475467]" />
 
       {
         formattedTime
@@ -1929,7 +1944,7 @@ function SessionNotFound({
           Không tìm thấy bài thi
         </h1>
 
-        <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">
+        <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]">
           Bài thi không tồn tại hoặc đã kết thúc.
           Hãy bắt đầu một bài mới từ trang Ôn luyện.
         </p>
@@ -1939,7 +1954,7 @@ function SessionNotFound({
           onClick={
             onBack
           }
-          className="mt-5 h-10 rounded-[10px] bg-[#0758d9] px-5 text-[13px] font-semibold text-white transition hover:bg-[#064fc3]"
+          className="mt-5 h-10 rounded-[10px] bg-[#0758d9] px-5 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3]"
         >
           Quay về Ôn luyện
         </button>

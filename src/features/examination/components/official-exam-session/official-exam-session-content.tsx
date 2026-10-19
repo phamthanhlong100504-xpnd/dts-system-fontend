@@ -9,7 +9,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-import { MediaImage } from "@/components/ui/media-image";
+import { QuestionImage } from "@/components/ui/question-image";
 import { QuestionSessionShell } from "@/features/practice/components/question-session/question-session-shell";
 import type {
   ExamQuestion,
@@ -145,7 +145,7 @@ export function OfficialExamSessionContent({
                 Đề thi chưa có câu hỏi
               </h2>
 
-              <p className="mt-2 text-[14px] font-medium text-[#475467]">
+              <p className="mt-2 text-[14.5px] font-medium text-[#344054]">
                 Không tìm thấy câu hỏi trong
                 phiên thi hiện tại.
               </p>
@@ -177,11 +177,6 @@ export function OfficialExamSessionContent({
       questionId
     );
 
-  const isMultipleChoice =
-    currentQuestion.type ===
-      "MULTIPLE_CHOICE" ||
-    currentQuestion.type ===
-      "MULTIPLE";
 
   const progressPercent =
     totalQuestions > 0
@@ -216,7 +211,7 @@ export function OfficialExamSessionContent({
         <section className="flex min-h-[570px] flex-col rounded-[16px] border border-[#dedfea] bg-white px-6 py-7 sm:px-8 shadow-[0_4px_14px_rgba(31,41,55,0.055)]">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eef0f4] pb-5">
             <div className="flex flex-nowrap items-center gap-2">
-              <span className="shrink-0 whitespace-nowrap rounded-[6px] bg-[#eaf1ff] px-2.5 py-1 text-[12px] font-bold uppercase text-[#0758d9]">
+              <span className="shrink-0 whitespace-nowrap rounded-[6px] bg-[#eaf1ff] px-2.5 py-1 text-[12.5px] font-bold uppercase text-[#0758d9]">
                 Câu{" "}
                 {currentIndex + 1} /{" "}
                 {totalQuestions}
@@ -233,10 +228,10 @@ export function OfficialExamSessionContent({
                   )
                 }
                 className={cn(
-                  "flex min-h-10 shrink-0 items-center gap-1.5 rounded-[8px] border px-3 text-[14px] font-semibold transition",
+                  "flex min-h-10 shrink-0 items-center gap-1.5 rounded-[8px] border px-3 text-[14.5px] font-semibold transition",
                   isFlagged
                     ? "border-[#7fa5eb] bg-[#eaf1ff] text-[#0758d9]"
-                    : "border-[#dde1e9] bg-white text-[#536078] hover:border-[#bdc7d8] hover:bg-[#f8f9fc]"
+                    : "border-[#dde1e9] bg-white text-[#344054] hover:border-[#bdc7d8] hover:bg-[#f8f9fc]"
                 )}
               >
                 <Bookmark
@@ -264,21 +259,20 @@ export function OfficialExamSessionContent({
 
             {(currentQuestion.mediaFileIds?.[0] || currentQuestion.imageUrl) && (
               <div className="mt-5 flex justify-center">
-                <MediaImage
+                <QuestionImage
                   src={
                     currentQuestion.mediaFileIds?.[0] || currentQuestion.imageUrl!
                   }
                   alt={`Hình minh họa câu ${
                     currentIndex + 1
                   }`}
-                  className="max-h-[280px] max-w-full rounded-[10px] border border-[#e5e8ee] object-contain"
                 />
               </div>
             )}
 
             <div className="mt-6 space-y-3">
               {options.length === 0 && (
-                <p className="text-[14px] font-medium text-[#475467]">
+                <p className="text-[14.5px] font-medium text-[#344054]">
                   Câu hỏi này chưa có
                   phương án trả lời.
                 </p>
@@ -315,28 +309,13 @@ export function OfficialExamSessionContent({
                           "cursor-not-allowed opacity-70"
                       )}
                     >
-                      <span
-                        className={cn(
-                          "flex size-4 shrink-0 items-center justify-center border",
-                          isMultipleChoice
-                            ? "rounded-[5px]"
-                            : "rounded-full",
-                          isSelected
-                            ? "border-[#0758d9] bg-white"
-                            : "border-[#d5d9e2] bg-[#eef1ff]"
-                        )}
-                      >
-                        {isSelected && (
-                          <span className="size-1.5 rounded-full bg-[#0758d9]" />
-                        )}
-                      </span>
 
                       <span
                         className={cn(
-                          "flex size-7 shrink-0 items-center justify-center rounded-[7px] text-[14px] font-medium",
+                          "flex size-7 shrink-0 items-center justify-center rounded-[7px] text-[14.5px] font-medium",
                           isSelected
                             ? "bg-[#e3ebff] text-[#0758d9]"
-                            : "bg-[#f0f2fa] text-[#475467]"
+                            : "bg-[#f0f2fa] text-[#344054]"
                         )}
                       >
                         {
@@ -346,10 +325,10 @@ export function OfficialExamSessionContent({
 
                       <span
                         className={cn(
-                          "min-w-0 flex-1 text-[15px] font-medium leading-[1.55]",
+                          "min-w-0 flex-1 text-[15.5px] font-medium leading-[1.55]",
                           isSelected
                             ? "text-[#101828]"
-                            : "text-[#344054]"
+                            : "text-[#27364f]"
                         )}
                       >
                         {option.text}
@@ -372,14 +351,14 @@ export function OfficialExamSessionContent({
                   currentIndex - 1
                 )
               }
-              className="flex min-h-10 items-center gap-2 rounded-[9px] bg-[#f2f4f7] px-4 text-[14px] font-semibold text-[#475467] transition hover:bg-[#e9edf3] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex min-h-10 items-center gap-2 rounded-[9px] bg-[#f2f4f7] px-4 text-[14.5px] font-semibold text-[#344054] transition hover:bg-[#e9edf3] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ArrowLeft className="size-3.5" />
               Câu trước
             </button>
 
             <div className="min-w-[145px] text-center">
-              <p className="text-[14px] font-semibold text-[#667085]">
+              <p className="text-[14.5px] font-semibold text-[#475467]">
                 Đã làm:{" "}
                 {answeredCount}/
                 {totalQuestions} câu
@@ -406,7 +385,7 @@ export function OfficialExamSessionContent({
                   currentIndex + 1
                 )
               }
-              className="flex min-h-10 items-center gap-2 rounded-[9px] bg-[#0758d9] px-4 text-[14px] font-semibold text-white transition hover:bg-[#064fc3] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex min-h-10 items-center gap-2 rounded-[9px] bg-[#0758d9] px-4 text-[14.5px] font-semibold text-white transition hover:bg-[#064fc3] disabled:cursor-not-allowed disabled:opacity-40"
             >
               Câu tiếp theo
               <ArrowRight className="size-3.5" />
@@ -418,18 +397,18 @@ export function OfficialExamSessionContent({
           <div className="rounded-[16px] border border-[#dfe3eb] bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.03)]">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-[15px] font-bold text-[#101828]">
+                <h3 className="text-[15.5px] font-bold text-[#101828]">
                   Danh sách câu hỏi
                 </h3>
 
-                <p className="mt-1 text-[14px] font-medium text-[#475467]">
+                <p className="mt-1 text-[14.5px] font-medium text-[#344054]">
                   {answeredCount} /{" "}
                   {totalQuestions} đã trả
                   lời
                 </p>
               </div>
 
-              <span className="rounded-full bg-[#eef3ff] px-2.5 py-1 text-[14px] font-bold text-[#0758d9]">
+              <span className="rounded-full bg-[#eef3ff] px-2.5 py-1 text-[14.5px] font-bold text-[#0758d9]">
                 {currentIndex + 1} /{" "}
                 {totalQuestions}
               </span>
@@ -474,7 +453,7 @@ export function OfficialExamSessionContent({
                         )
                       }
                       className={cn(
-                        "relative flex size-[38px] items-center justify-center justify-self-center rounded-[9px] border text-[11.5px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/20",
+                        "relative flex size-[38px] items-center justify-center justify-self-center rounded-[9px] border text-[12px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/20",
                         isCurrent
                           ? "bg-[#0758d9] text-white shadow-[0_2px_6px_rgba(7,88,217,0.28)]"
                           : isAnswered
@@ -511,7 +490,7 @@ export function OfficialExamSessionContent({
               )}
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 border-t border-[#e9eaf1] pt-4 text-[14px] font-medium text-[#59667a]">
+            <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 border-t border-[#e9eaf1] pt-4 text-[14.5px] font-medium text-[#475467]">
               <span className="inline-flex items-center gap-1.5">
                 <span className="size-2.5 rounded-[3px] bg-[#0758d9]" />
                 Đang làm
@@ -560,7 +539,7 @@ function OfficialExamSessionHeader({
           <button
             type="button"
             onClick={onExit}
-            className="inline-flex h-8 items-center gap-2 rounded-[8px] px-1 text-[14px] font-semibold text-[#667085] transition hover:text-[#101828]"
+            className="inline-flex h-8 items-center gap-2 rounded-[8px] px-1 text-[14.5px] font-semibold text-[#475467] transition hover:text-[#101828]"
           >
             <ArrowLeft
               className="size-3.5"
@@ -573,11 +552,11 @@ function OfficialExamSessionHeader({
 
         {/* CENTER - luôn nằm chính giữa header */}
         <div className="order-3 flex w-full min-w-0 items-center justify-center gap-2 sm:absolute sm:left-1/2 sm:top-1/2 sm:order-none sm:w-auto sm:max-w-[38%] sm:-translate-x-1/2 sm:-translate-y-1/2">
-          <h1 className="max-w-[260px] truncate whitespace-nowrap text-[15px] sm:max-w-[320px] font-bold text-[#101828]">
+          <h1 className="max-w-[260px] truncate whitespace-nowrap text-[15.5px] sm:max-w-[320px] font-bold text-[#101828]">
             {examTitle}
           </h1>
 
-          <span className="shrink-0 whitespace-nowrap rounded-full bg-[#edf3ff] px-2.5 py-1 text-[14px] font-semibold leading-none text-[#0758d9]">
+          <span className="shrink-0 whitespace-nowrap rounded-full bg-[#edf3ff] px-2.5 py-1 text-[14.5px] font-semibold leading-none text-[#0758d9]">
             Thi chính thức
           </span>
         </div>
@@ -585,7 +564,7 @@ function OfficialExamSessionHeader({
         {/* RIGHT */}
         <div className="flex flex-1 items-center justify-end">
           <div className="flex items-center gap-3">
-            <span className="whitespace-nowrap text-[14px] font-semibold text-[#344054]">
+            <span className="whitespace-nowrap text-[14.5px] font-semibold text-[#27364f]">
               {answeredCount}
 
               <span className="font-medium text-[#98a2b3]">
@@ -594,9 +573,9 @@ function OfficialExamSessionHeader({
               </span>
             </span>
 
-            <div className="flex h-8 min-w-[76px] items-center justify-center gap-1.5 rounded-[9px] bg-[#f3f5fa] px-2.5 text-[14px] font-semibold text-[#344054]">
+            <div className="flex h-8 min-w-[76px] items-center justify-center gap-1.5 rounded-[9px] bg-[#f3f5fa] px-2.5 text-[14.5px] font-semibold text-[#27364f]">
               <Clock3
-                className="size-3.5 text-[#667085]"
+                className="size-3.5 text-[#475467]"
                 strokeWidth={1.9}
               />
 
@@ -607,7 +586,7 @@ function OfficialExamSessionHeader({
               type="button"
               disabled={isSubmitting}
               onClick={onSubmit}
-              className="flex min-h-10 min-w-[100px] items-center justify-center rounded-[9px] bg-[#0758d9] px-4 text-[14px] font-bold text-white shadow-[0_2px_5px_rgba(7,88,217,0.16)] transition hover:bg-[#064fc3] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex min-h-10 min-w-[100px] items-center justify-center rounded-[9px] bg-[#0758d9] px-4 text-[14.5px] font-bold text-white shadow-[0_2px_5px_rgba(7,88,217,0.16)] transition hover:bg-[#064fc3] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? (
                 <Loader2 className="size-4 animate-spin" />

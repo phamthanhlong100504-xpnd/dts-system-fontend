@@ -3,7 +3,9 @@
 import {
   AlertTriangle,
   CheckCircle2,
+  ClipboardList,
   Clock3,
+  Info,
   Eye,
   RotateCcw,
   XCircle,
@@ -75,7 +77,7 @@ export function ResultSummary({
               strokeWidth={2.2}
             />
           ) : (
-            <XCircle
+            <ClipboardList
               className="size-7"
               strokeWidth={2.2}
             />
@@ -85,7 +87,7 @@ export function ResultSummary({
         {/* Result badge */}
         <div
           className={cn(
-            "mx-auto mt-4 inline-flex rounded-full px-3.5 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.035em]",
+            "mx-auto mt-4 inline-flex rounded-full px-3.5 py-1.5 text-[12px] font-bold uppercase tracking-[0.035em]",
             passed
               ? "bg-[#e4f7ec] text-[#087443]"
               : "bg-[#ffe2df] text-[#b42318]"
@@ -101,12 +103,12 @@ export function ResultSummary({
             {correctCount}
           </span>
 
-          <span className="text-[30px] font-semibold text-[#475467]">
+          <span className="text-[30px] font-semibold text-[#344054]">
             / {totalQuestions}
           </span>
         </div>
 
-        <p className="mt-1 text-[16px] font-medium text-[#5f6c80]">
+        <p className="mt-1 text-[16px] font-medium text-[#475467]">
           câu trả lời đúng
         </p>
       </div>
@@ -126,10 +128,10 @@ export function ResultSummary({
         ) : hasWrongCritical ? (
           <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[#0758d9]" />
         ) : (
-          <XCircle className="mt-0.5 size-4 shrink-0 text-[#0758d9]" />
+          <Info className="mt-0.5 size-4 shrink-0 text-[#0758d9]" />
         )}
 
-        <p className="text-[14px] font-medium leading-6 text-[#475467]">
+        <p className="text-[14.5px] font-medium leading-6 text-[#344054]">
           {passed ? (
             <>
               Bạn đã hoàn thành bài với{" "}
@@ -178,7 +180,6 @@ export function ResultSummary({
           }
           label="Câu đúng"
           value={`${correctCount} / ${totalQuestions}`}
-          tone="success"
         />
 
         <MetricItem
@@ -187,11 +188,6 @@ export function ResultSummary({
           }
           label="Câu sai"
           value={`${wrongCount} câu`}
-          tone={
-            wrongCount > 0
-              ? "danger"
-              : "neutral"
-          }
         />
 
         <MetricItem
@@ -203,11 +199,6 @@ export function ResultSummary({
             criticalWrongCount > 0
               ? `Sai ${criticalWrongCount} câu`
               : "Không sai"
-          }
-          tone={
-            criticalWrongCount > 0
-              ? "danger"
-              : "success"
           }
         />
       </div>
@@ -227,7 +218,7 @@ export function ResultSummary({
             rounded-[10px]
             bg-[#0758d9]
             px-5
-            text-[14px]
+            text-[14.5px]
             font-semibold
             text-white
             shadow-[0_2px_5px_rgba(7,88,217,0.16)]
@@ -255,7 +246,7 @@ export function ResultSummary({
             rounded-[10px]
             bg-[#edf1ff]
             px-5
-            text-[14px]
+            text-[14.5px]
             font-semibold
             text-[#27364f]
             transition
@@ -277,7 +268,7 @@ export function ResultSummary({
               gap-1.5
               rounded-[10px]
               px-3.5
-              text-[14px]
+              text-[14.5px]
               font-semibold
               text-[#0758d9]
               transition
@@ -297,41 +288,19 @@ function MetricItem({
   icon,
   label,
   value,
-  tone = "neutral",
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
-  tone?: "neutral" | "success" | "danger";
 }) {
   return (
     <div className="rounded-[10px] bg-[#f3f4fb] px-4 py-4">
-      <div
-        className={cn(
-          "flex items-center gap-2 text-[14px] font-semibold",
-
-          tone === "success"
-            ? "text-[#087443]"
-            : tone === "danger"
-              ? "text-[#b42318]"
-              : "text-[#536078]"
-        )}
-      >
+      <div className="flex items-center gap-2 text-[14.5px] font-semibold text-[#344054]">
         {icon}
         {label}
       </div>
 
-      <p
-        className={cn(
-          "mt-2 text-[19px] font-bold leading-none",
-
-          tone === "success"
-            ? "text-[#087443]"
-            : tone === "danger"
-              ? "text-[#d92d20]"
-              : "text-[#101828]"
-        )}
-      >
+      <p className="mt-[0.5cm] text-center text-[19px] font-bold leading-none text-[#101828]">
         {value}
       </p>
     </div>

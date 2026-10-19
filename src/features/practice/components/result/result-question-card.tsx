@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  AlertTriangle,
-  CheckCircle2,
-  MinusCircle,
-  XCircle,
-} from "lucide-react";
-
-import { MediaImage } from "@/components/ui/media-image";
+import { QuestionImage } from "@/components/ui/question-image";
 
 import {
   AnswerOption,
@@ -20,8 +13,6 @@ import {
   type ExamAnswerResult,
   type QuestionOption,
 } from "@/features/practice/practice-service";
-
-import { cn } from "@/lib/utils";
 
 const OPTION_LABELS = [
   "A",
@@ -100,14 +91,8 @@ export function ResultQuestionCard({
   const correctAnswer =
     answer.correctAnswer ?? "";
 
-  const isSkipped =
-    !selectedAnswer;
-
   const isCorrect =
     answer.isCorrect === true;
-
-  const isCritical =
-    answer.isCritical === true;
 
   return (
     <article
@@ -123,37 +108,8 @@ export function ResultQuestionCard({
       <div className="px-6 pb-6 pt-5">
         {/* Question meta */}
         <div className="flex flex-wrap items-center gap-2.5">
-          <QuestionStatusBadge
-            isCorrect={isCorrect}
-            isSkipped={isSkipped}
-          />
 
-          {isCritical && (
-            <span
-              className="
-                inline-flex
-                items-center
-                gap-1
-                rounded-[6px]
-                bg-[#eef1ff]
-                px-2.5
-                py-1
-                text-[10.5px]
-                font-bold
-                uppercase
-                text-[#0758d9]
-              "
-            >
-              <AlertTriangle
-                className="size-3"
-                strokeWidth={2.2}
-              />
-
-              Câu điểm liệt
-            </span>
-          )}
-
-          <span className="text-[12px] font-bold text-[#27364f]">
+          <span className="text-[14px] font-bold text-[#27364f]">
             Câu {index + 1} /{" "}
             {totalQuestions}
           </span>
@@ -173,24 +129,18 @@ export function ResultQuestionCard({
         </h3>
 
         {/* Image */}
-        {answer.imageUrl && (
-          <MediaImage
-            src={answer.imageUrl}
+        {(answer.mediaFileId || answer.imageUrl) && (
+          <QuestionImage
+            src={answer.mediaFileId || answer.imageUrl}
             alt=""
-            className="
-              mt-4
-              max-h-[260px]
-              rounded-[12px]
-              border
-              border-[#e0e3eb]
-            "
+            className="mt-4"
           />
         )}
 
         {/* Answers */}
         <div className="mt-5 space-y-3">
           {options.length === 0 && (
-            <p className="text-[14px] font-medium text-[#667085]">
+            <p className="text-[14.5px] font-medium text-[#475467]">
               Câu hỏi này chưa có đáp án.
             </p>
           )}
@@ -254,65 +204,3 @@ export function ResultQuestionCard({
   );
 }
 
-function QuestionStatusBadge({
-  isCorrect,
-  isSkipped,
-}: {
-  isCorrect: boolean;
-  isSkipped: boolean;
-}) {
-  if (isSkipped) {
-    return (
-      <span
-        className="
-          inline-flex
-          items-center
-          gap-1
-          rounded-[6px]
-          bg-[#f0f1f5]
-          px-2.5
-          py-1
-          text-[10.5px]
-          font-bold
-          uppercase
-          text-[#667085]
-        "
-      >
-        <MinusCircle
-          className="size-3"
-          strokeWidth={2.2}
-        />
-
-        Chưa trả lời
-      </span>
-    );
-  }
-
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-[6px] px-2.5 py-1 text-[10.5px] font-bold uppercase",
-
-        isCorrect
-          ? "bg-[#dcf7e8] text-[#087443]"
-          : "bg-[#ffe2df] text-[#b42318]"
-      )}
-    >
-      {isCorrect ? (
-        <CheckCircle2
-          className="size-3"
-          strokeWidth={2.3}
-        />
-      ) : (
-        <XCircle
-          className="size-3"
-          strokeWidth={2.3}
-        />
-      )}
-
-      {isCorrect
-        ? "Câu đúng"
-        : "Câu sai"}
-    </span>
-  );
-}

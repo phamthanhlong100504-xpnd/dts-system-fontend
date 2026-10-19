@@ -1,10 +1,5 @@
 "use client";
 
-import {
-  Check,
-  X,
-} from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 export type AnswerOptionState =
@@ -92,58 +87,10 @@ export function AnswerOption({
           "cursor-default"
       )}
     >
-      {/* Radio / status */}
-      <span
-        className={cn(
-          "flex size-5 shrink-0 items-center justify-center rounded-full border-2",
-
-          state === "neutral" &&
-            "border-[#d5dae4] bg-white",
-
-          isSelected &&
-            "border-[#0758d9] bg-white",
-
-          isCorrect &&
-            (
-              subtleStatusIndicator
-                ? "border-[#12a264] bg-white text-[#079455]"
-                : "border-[#12a264] bg-[#12a264] text-white"
-            ),
-
-          isWrong &&
-            (
-              subtleStatusIndicator
-                ? "border-[#d92d20] bg-white text-[#d92d20]"
-                : "border-[#d92d20] bg-[#d92d20] text-white"
-            ),
-
-          isDisabled &&
-            "border-[#e1e4ea] bg-white"
-        )}
-      >
-        {isSelected && (
-          <span className="size-2 rounded-full bg-[#0758d9]" />
-        )}
-
-        {isCorrect && (
-          <Check
-            className="size-3"
-            strokeWidth={3}
-          />
-        )}
-
-        {isWrong && (
-          <X
-            className="size-3"
-            strokeWidth={3}
-          />
-        )}
-      </span>
-
       {/* A / B / C / D */}
       <span
         className={cn(
-          "flex size-7 shrink-0 items-center justify-center rounded-[6px] text-[12px] font-bold",
+          "flex size-7 shrink-0 items-center justify-center rounded-[6px] text-[12.5px] font-bold",
 
           state === "neutral" &&
             "bg-[#e8edff] text-[#56647a]",
@@ -175,7 +122,7 @@ export function AnswerOption({
       {/* Answer text */}
       <span
         className={cn(
-          "min-w-0 flex-1 text-[14px] font-medium leading-6",
+          "min-w-0 flex-1 text-[14.5px] font-medium leading-6",
 
           state === "neutral" &&
             "text-[#27364f]",
@@ -200,7 +147,7 @@ export function AnswerOption({
       {showFeedbackBadge &&
         isWrong &&
         wrongBadge && (
-          <span className="shrink-0 rounded-full bg-[#ffe1df] px-2.5 py-1 text-[10px] font-semibold text-[#b42318]">
+          <span className="shrink-0 rounded-full bg-[#ffe1df] px-2.5 py-1 text-[10.5px] font-semibold text-[#b42318]">
             {wrongBadge}
           </span>
         )}
@@ -208,7 +155,7 @@ export function AnswerOption({
       {/* Correct feedback badge */}
       {showFeedbackBadge &&
         isCorrect && (
-          <span className="shrink-0 rounded-full bg-[#dff7e9] px-2.5 py-1 text-[10px] font-semibold text-[#087443]">
+          <span className="shrink-0 rounded-full bg-[#dff7e9] px-2.5 py-1 text-[10.5px] font-semibold text-[#087443]">
             {correctBadge}
           </span>
         )}
