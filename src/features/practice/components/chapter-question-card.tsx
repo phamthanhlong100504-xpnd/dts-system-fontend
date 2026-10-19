@@ -34,7 +34,7 @@ export function ChapterQuestionCard({
   return (
     <div className="space-y-4 rounded-2xl border border-border/50 bg-card p-5 shadow-sm">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-[14.5px]/5 font-medium text-muted-foreground">
           Câu {index + 1}
         </span>
         {question.isCritical && (
@@ -74,7 +74,7 @@ export function ChapterQuestionCard({
               }}
               disabled={answered}
               className={cn(
-                "flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-all",
+                "flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left text-[14.5px]/5 transition-all",
                 !answered && "hover:border-primary/60 hover:bg-primary/5",
                 !answered && isSelected && "border-primary bg-primary/5",
                 !answered && !isSelected && "border-border",
@@ -88,7 +88,7 @@ export function ChapterQuestionCard({
             >
               <span
                 className={cn(
-                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[12.5px]/4 font-bold",
                   answered && isCorrectOpt && "bg-emerald-500 text-white",
                   answered && isWrongSelected && "bg-destructive text-white",
                   !answered && isSelected && "bg-primary text-primary-foreground",
@@ -98,12 +98,6 @@ export function ChapterQuestionCard({
                 {label}
               </span>
               <span className="leading-relaxed">{opt.text}</span>
-              {answered && isCorrectOpt && (
-                <Check className="ml-auto h-4 w-4 shrink-0 text-emerald-500" />
-              )}
-              {answered && isWrongSelected && (
-                <X className="ml-auto h-4 w-4 shrink-0 text-destructive" />
-              )}
             </button>
           );
         })}
@@ -112,7 +106,7 @@ export function ChapterQuestionCard({
       {answered && (
         <div
           className={cn(
-            "rounded-xl border p-4 text-sm",
+            "rounded-xl border p-4 text-[14.5px]/5",
             isCorrect
               ? "border-emerald-500/40 bg-emerald-500/10"
               : "border-destructive/40 bg-destructive/10"
@@ -152,7 +146,7 @@ export function ChapterQuestionCard({
           </p>
           {hasExplanation && (
             <div className="mt-3 rounded-xl bg-muted/50 p-3">
-              <p className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="mb-1.5 flex items-center gap-1.5 text-[12.5px]/4 font-semibold uppercase tracking-wide text-muted-foreground">
                 <Info className="h-3.5 w-3.5" />
                 Giải thích chi tiết
               </p>

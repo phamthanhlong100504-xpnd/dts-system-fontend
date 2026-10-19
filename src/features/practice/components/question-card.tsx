@@ -42,10 +42,10 @@ export function QuestionCard({
   return (
     <div className="space-y-4 rounded-2xl border border-border/50 bg-card p-5 shadow-sm">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-[14.5px]/5 font-medium text-muted-foreground">
           Câu {index + 1}/{total}
         </span>
-        {question.isCritical && (
+        {mode === "PRACTICE" && question.isCritical && (
           <Badge variant="destructive">
             <AlertTriangle className="mr-1 h-3 w-3" />
             Điểm liệt
@@ -79,7 +79,7 @@ export function QuestionCard({
               onClick={() => onSelect(label)}
               disabled={disabled || answered}
               className={cn(
-                "flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-all",
+                "flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left text-[14.5px]/5 transition-all",
                 !answered && "hover:border-primary/60 hover:bg-primary/5",
                 !answered && isSelected && "border-primary bg-primary/5",
                 !answered && !isSelected && "border-border",
@@ -93,7 +93,7 @@ export function QuestionCard({
             >
               <span
                 className={cn(
-                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[12.5px]/4 font-bold",
                   answered && isCorrectOpt && "bg-emerald-500 text-white",
                   answered && isWrongSelected && "bg-destructive text-white",
                   !answered && isSelected && "bg-primary text-primary-foreground",
@@ -103,12 +103,6 @@ export function QuestionCard({
                 {label}
               </span>
               <span className="leading-relaxed">{opt.text}</span>
-              {answered && isCorrectOpt && (
-                <Check className="ml-auto h-4 w-4 shrink-0 text-emerald-500" />
-              )}
-              {answered && isWrongSelected && (
-                <X className="ml-auto h-4 w-4 shrink-0 text-destructive" />
-              )}
             </button>
           );
         })}
@@ -117,7 +111,7 @@ export function QuestionCard({
       {mode === "PRACTICE" && feedback && (
         <div
           className={cn(
-            "rounded-xl border p-4 text-sm",
+            "rounded-xl border p-4 text-[14.5px]/5",
             feedback.isCorrect
               ? "border-emerald-500/40 bg-emerald-500/10"
               : "border-destructive/40 bg-destructive/10"

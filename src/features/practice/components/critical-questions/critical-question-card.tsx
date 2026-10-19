@@ -4,13 +4,11 @@ import {
   ArrowLeft,
   ArrowRight,
   Bookmark,
-  Check,
   CheckCircle2,
   Info,
   Loader2,
   RotateCcw,
   ShieldAlert,
-  X,
   XCircle,
 } from "lucide-react";
 
@@ -87,13 +85,13 @@ export function CriticalQuestionCard({
     <section className="font-dts rounded-[16px] border border-[#dedfea] bg-white px-7 pb-6 pt-6 shadow-[0_4px_14px_rgba(31,41,55,0.055)]">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-b border-[#edf0f4] pb-5">
         <div className="flex justify-start">
-          <span className="inline-flex h-8 items-center rounded-[8px] bg-[#eef3ff] px-3 text-[11px] font-bold text-[#0758d9]">
+          <span className="inline-flex h-8 items-center rounded-[8px] bg-[#eef3ff] px-3 text-[11.5px] font-bold text-[#0758d9]">
             CÂU {currentPosition} / {totalQuestions}
           </span>
         </div>
 
         <div className="flex justify-center">
-          <span className="inline-flex h-8 items-center gap-1.5 rounded-[8px] bg-[#fff7ed] px-3 text-[11px] font-semibold text-[#c56a00]">
+          <span className="inline-flex h-8 items-center gap-1.5 rounded-[8px] bg-[#fff7ed] px-3 text-[11.5px] font-semibold text-[#c56a00]">
             <ShieldAlert className="size-3.5" strokeWidth={2} />
             Câu điểm liệt
           </span>
@@ -113,7 +111,7 @@ export function CriticalQuestionCard({
               "inline-flex size-10 items-center justify-center rounded-[10px] border transition disabled:pointer-events-none disabled:opacity-60",
               question.bookmarked
                 ? "border-[#bfd0ff] bg-[#eef3ff] text-[#0758d9]"
-                : "border-[#dce2ea] bg-white text-[#667085] hover:border-[#cbd5e1] hover:bg-[#f8fafc]"
+                : "border-[#dce2ea] bg-white text-[#475467] hover:border-[#cbd5e1] hover:bg-[#f8fafc]"
             )}
           >
             <Bookmark
@@ -126,7 +124,7 @@ export function CriticalQuestionCard({
       </div>
 
       <div className="py-7">
-        <h2 className="max-w-[760px] text-[15px] font-semibold leading-[1.65] tracking-[-0.01em] text-[#101828]">
+        <h2 className="max-w-[760px] text-[15.5px] font-semibold leading-[1.65] tracking-[-0.01em] text-[#101828]">
           {question.questionText}
         </h2>
 
@@ -183,38 +181,15 @@ export function CriticalQuestionCard({
                     "border-[#edf0f4] bg-[#fafbfc] opacity-60"
                 )}
               >
-                <span
-                  className={cn(
-                    "flex size-6 shrink-0 items-center justify-center rounded-full border bg-white",
-                    !answered &&
-                      "border-[#d7dee8]",
-                    isCorrectOption &&
-                      "border-[#12b76a] text-[#079455]",
-                    isWrongSelected &&
-                      "border-[#f04438] text-[#d92d20]"
-                  )}
-                >
-                  {isCorrectOption ? (
-                    <Check
-                      className="size-3.5"
-                      strokeWidth={2.4}
-                    />
-                  ) : isWrongSelected ? (
-                    <X
-                      className="size-3.5"
-                      strokeWidth={2.4}
-                    />
-                  ) : null}
-                </span>
 
                 <span
                   className={cn(
-                    "flex size-8 shrink-0 items-center justify-center rounded-[8px] border text-[12px] font-bold",
+                    "flex size-8 shrink-0 items-center justify-center rounded-[8px] border text-[12.5px] font-bold",
                     isCorrectOption
                       ? "border-[#a6e3c5] bg-[#effaf4] text-[#087443]"
                       : isWrongSelected
                         ? "border-[#f6c1bc] bg-[#fff1f0] text-[#b42318]"
-                        : "border-[#dfe4ec] bg-[#f8f9fc] text-[#667085]"
+                        : "border-[#dfe4ec] bg-[#f8f9fc] text-[#475467]"
                   )}
                 >
                   {option.label}
@@ -222,14 +197,14 @@ export function CriticalQuestionCard({
 
                 <span
                   className={cn(
-                    "flex-1 text-[14px] font-medium leading-6",
+                    "flex-1 text-[14.5px] font-medium leading-6",
                     isCorrectOption &&
                       "text-[#087443]",
                     isWrongSelected &&
                       "text-[#b42318]",
                     !isCorrectOption &&
                       !isWrongSelected &&
-                      "text-[#344054]"
+                      "text-[#27364f]"
                   )}
                 >
                   {option.text}
@@ -253,7 +228,7 @@ export function CriticalQuestionCard({
             type="button"
             disabled={!canPrevious}
             onClick={onPrevious}
-            className="inline-flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-[10px] bg-[#f3f5fb] px-4 text-[13px] font-semibold text-[#475467] transition hover:bg-[#e9edf6] disabled:pointer-events-none disabled:opacity-40"
+            className="inline-flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-[10px] bg-[#f3f5fb] px-4 text-[13.5px] font-semibold text-[#344054] transition hover:bg-[#e9edf6] disabled:pointer-events-none disabled:opacity-40"
           >
             <ArrowLeft
               className="size-4"
@@ -263,9 +238,9 @@ export function CriticalQuestionCard({
           </button>
 
           <div className="min-w-[190px] flex-1 text-center">
-            <p className="text-[12px] font-medium text-[#667085]">
+            <p className="text-[12.5px] font-medium text-[#475467]">
               {progressLabel}:{" "}
-              <strong className="font-bold text-[#344054]">
+              <strong className="font-bold text-[#27364f]">
                 {progressCount} / {totalQuestions}
               </strong>{" "}
               câu
@@ -286,7 +261,7 @@ export function CriticalQuestionCard({
               type="button"
               disabled={startingReview}
               onClick={onRestart}
-              className="inline-flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-4 text-[13px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-60"
+              className="inline-flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-4 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-60"
             >
               {startingReview ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -304,7 +279,7 @@ export function CriticalQuestionCard({
               type="button"
               disabled={!canNext}
               onClick={onNext}
-              className="inline-flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-4 text-[13px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-40"
+              className="inline-flex h-11 min-w-[120px] items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-4 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-40"
             >
               Câu tiếp
               <ArrowRight
@@ -341,7 +316,7 @@ function CriticalFeedback({
     >
       <div
         className={cn(
-          "flex items-center gap-2 text-[13px] font-semibold",
+          "flex items-center gap-2 text-[13.5px] font-semibold",
           isCorrect
             ? "text-[#087443]"
             : "text-[#b42318]"
@@ -360,12 +335,12 @@ function CriticalFeedback({
 
       {hasExplanation && (
         <div className="mt-4">
-          <h3 className="flex items-center gap-2 text-[13px] font-semibold text-[#344054]">
+          <h3 className="flex items-center gap-2 text-[13.5px] font-semibold text-[#27364f]">
             <Info className="size-4 text-[#0758d9]" />
             Giải thích
           </h3>
 
-          <p className="mt-2 whitespace-pre-line pl-6 text-[14px] font-medium leading-[1.7] text-[#475467]">
+          <p className="mt-2 whitespace-pre-line pl-6 text-[14.5px] font-medium leading-[1.7] text-[#344054]">
             {explanation}
           </p>
         </div>

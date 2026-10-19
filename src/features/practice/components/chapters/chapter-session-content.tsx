@@ -7,7 +7,6 @@ import {
   Check,
   CheckCircle2,
   Info,
-  X,
   XCircle,
 } from "lucide-react";
 import { MediaImage } from "@/components/ui/media-image";
@@ -274,7 +273,7 @@ export function ChapterSessionContent({
   ) {
     return (
       <div className="font-dts flex min-h-[calc(100vh-64px)] items-center justify-center bg-[#f7f6fb]">
-        <p className="text-[14px] font-medium text-[#667085]">
+        <p className="text-[14.5px] font-medium text-[#475467]">
           Đang tải tiến độ học...
         </p>
       </div>
@@ -289,15 +288,15 @@ export function ChapterSessionContent({
     return (
       <div className="font-dts flex min-h-[calc(100vh-64px)] items-center justify-center bg-[#f7f6fb] px-6">
         <div className="text-center">
-          <p className="text-[15px] font-bold text-[#101828]">
+          <p className="text-[15.5px] font-bold text-[#101828]">
             Không thể tải tiến độ chương
           </p>
-          <p className="mt-2 text-[13px] font-medium text-[#667085]">
+          <p className="mt-2 text-[13.5px] font-medium text-[#475467]">
             Vui lòng thử tải lại dữ liệu học tập.
           </p>
           <button
             type="button"
-            className="mt-4 h-10 rounded-[10px] bg-[#0758d9] px-5 text-[13px] font-semibold text-white transition hover:bg-[#064fc3]"
+            className="mt-4 h-10 rounded-[10px] bg-[#0758d9] px-5 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3]"
             onClick={() => {
               void overviewQuery.refetch();
               void learnedAnswersQuery.refetch();
@@ -473,7 +472,7 @@ export function ChapterSessionContent({
               </div>
             )}
             {!correctAnswer && !isReviewMode && (
-              <div className="mt-5 rounded-[10px] border border-[#fedf89] bg-[#fffaeb] px-4 py-3 text-[12px] font-medium text-[#b54708]">
+              <div className="mt-5 rounded-[10px] border border-[#fedf89] bg-[#fffaeb] px-4 py-3 text-[12.5px] font-medium text-[#b54708]">
                 Câu hỏi này chưa có đáp án đúng trong dữ liệu Practice
                 Service.
               </div>
@@ -509,13 +508,13 @@ export function ChapterSessionContent({
                 type="button"
                 disabled={currentPosition <= 1}
                 onClick={() => goToPosition(currentPosition - 1)}
-                className="inline-flex h-10 min-w-[118px] items-center justify-center gap-2 rounded-[9px] bg-[#f3f5fb] px-4 text-[13px] font-semibold text-[#475467] transition hover:bg-[#e9edf6] disabled:pointer-events-none disabled:opacity-40"
+                className="inline-flex h-10 min-w-[118px] items-center justify-center gap-2 rounded-[9px] bg-[#f3f5fb] px-4 text-[13.5px] font-semibold text-[#344054] transition hover:bg-[#e9edf6] disabled:pointer-events-none disabled:opacity-40"
               >
                 <ArrowLeft className="size-4" />
                 Câu trước
               </button>
               <div className="min-w-[190px] text-center">
-                <p className="text-[12px] font-medium text-[#667085]">
+                <p className="text-[12.5px] font-medium text-[#475467]">
                   {isReviewMode ? "Đã ôn:" : "Đã học:"}{" "}
                   <strong className="font-bold text-[#0758d9]">
                     {learnedCount}
@@ -532,7 +531,7 @@ export function ChapterSessionContent({
                 </div>
               </div>
               {isReviewMode && reviewFinished ? (
-                <span className="inline-flex h-10 items-center rounded-[9px] bg-[#ecfdf3] px-4 text-[13px] font-semibold text-[#067647]">
+                <span className="inline-flex h-10 items-center rounded-[9px] bg-[#ecfdf3] px-4 text-[13.5px] font-semibold text-[#067647]">
                   Đã hoàn thành
                 </span>
               ) : isReviewMode &&
@@ -541,7 +540,7 @@ export function ChapterSessionContent({
                   type="button"
                   disabled={finishReviewMutation.isPending || reviewCursorMutation.isPending}
                   onClick={finishReview}
-                  className="inline-flex h-10 min-w-[118px] items-center justify-center gap-2 rounded-[9px] bg-[#0758d9] px-4 text-[13px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-40"
+                  className="inline-flex h-10 min-w-[118px] items-center justify-center gap-2 rounded-[9px] bg-[#0758d9] px-4 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-40"
                 >
                   Hoàn tất lượt ôn
                   <Check className="size-4" />
@@ -554,7 +553,7 @@ export function ChapterSessionContent({
                     (isReviewMode && (reviewAnswerMutation.isPending || reviewCursorMutation.isPending))
                   }
                   onClick={() => goToPosition(currentPosition + 1)}
-                  className="inline-flex h-10 min-w-[118px] items-center justify-center gap-2 rounded-[9px] bg-[#0758d9] px-4 text-[13px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-40"
+                  className="inline-flex h-10 min-w-[118px] items-center justify-center gap-2 rounded-[9px] bg-[#0758d9] px-4 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-40"
                 >
                   Câu tiếp
                   <ArrowRight className="size-4" />
@@ -601,16 +600,16 @@ function QuestionHeader({
   return (
     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-b border-[#eef0f4] pb-5">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-[7px] bg-[#eaf0ff] px-2.5 py-1.5 text-[11px] font-bold text-[#0758d9]">
+        <span className="rounded-[7px] bg-[#eaf0ff] px-2.5 py-1.5 text-[11.5px] font-bold text-[#0758d9]">
           CÂU {currentPosition} / {totalQuestions}
         </span>
         {question.isCritical && (
-          <span className="rounded-[7px] bg-[#fff4e8] px-2.5 py-1.5 text-[11px] font-semibold text-[#c56a00]">
+          <span className="rounded-[7px] bg-[#fff4e8] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#c56a00]">
             Câu điểm liệt
           </span>
         )}
       </div>
-      <span className="rounded-[7px] bg-[#f1f3fa] px-3 py-1.5 text-[13px] font-medium text-[#667085]">
+      <span className="rounded-[7px] bg-[#f1f3fa] px-3 py-1.5 text-[13.5px] font-medium text-[#475467]">
         Nội dung chương
       </span>
       <div className="flex justify-end">
@@ -619,10 +618,10 @@ function QuestionHeader({
           disabled={bookmarkPending}
           onClick={onBookmark}
           className={cn(
-            "inline-flex h-10 shrink-0 items-center gap-2 rounded-[10px] border px-4 text-[12px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+            "inline-flex h-10 shrink-0 items-center gap-2 rounded-[10px] border px-4 text-[12.5px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
             bookmarked
               ? "border-[#bfd0ff] bg-[#eef3ff] text-[#0758d9]"
-              : "border-[#e1e5ec] bg-white text-[#667085] hover:bg-[#f8f9fc]"
+              : "border-[#e1e5ec] bg-white text-[#475467] hover:bg-[#f8f9fc]"
           )}
         >
           <Bookmark
@@ -686,36 +685,9 @@ function AnswerOption({
     >
       <span
         className={cn(
-          "flex size-5 shrink-0 items-center justify-center rounded-full border-2",
+          "flex size-8 shrink-0 items-center justify-center rounded-[7px] border text-[13.5px] font-semibold",
           !answered &&
-            "border-[#d5dae4] bg-white",
-          isCorrectOption &&
-            "border-[#12a264] bg-[#effaf4] text-[#079455]",
-          isWrongSelected &&
-            "border-[#d92d20] bg-[#fff3f2] text-[#d92d20]",
-          answered &&
-            !isCorrectOption &&
-            !isWrongSelected &&
-            "border-[#e1e4ea] bg-white"
-        )}
-      >
-        {isCorrectOption ? (
-          <Check
-            className="size-3"
-            strokeWidth={2.5}
-          />
-        ) : isWrongSelected ? (
-          <X
-            className="size-3"
-            strokeWidth={2.5}
-          />
-        ) : null}
-      </span>
-      <span
-        className={cn(
-          "flex size-8 shrink-0 items-center justify-center rounded-[7px] border text-[13px] font-semibold",
-          !answered &&
-            "border-[#dde2ea] bg-[#eef0f5] text-[#536078]",
+            "border-[#dde2ea] bg-[#eef0f5] text-[#344054]",
           isCorrectOption &&
             "border-[#abefc6] bg-[#ecfdf3] text-[#067647]",
           isWrongSelected &&
@@ -730,14 +702,14 @@ function AnswerOption({
       </span>
       <span
         className={cn(
-          "flex-1 text-[14px] font-medium leading-6",
+          "flex-1 text-[14.5px] font-medium leading-6",
           isCorrectOption &&
             "text-[#05603a]",
           isWrongSelected &&
             "text-[#b42318]",
           !isCorrectOption &&
             !isWrongSelected &&
-            "text-[#475467]"
+            "text-[#344054]"
         )}
       >
         {option.text}
@@ -759,7 +731,7 @@ function FeedbackPanel({
     <div className="mt-5 rounded-[12px] border border-[#dfe4ff] bg-[#f4f5ff] px-5 py-5">
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-semibold",
+          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13.5px] font-semibold",
           isCorrect
             ? "bg-[#d1fadf] text-[#027a48]"
             : "bg-[#fee4e2] text-[#b42318]"
@@ -774,11 +746,11 @@ function FeedbackPanel({
       </span>
       {hasExplanation && (
         <div className="mt-4">
-          <h3 className="flex items-center gap-2 text-[14px] font-bold text-[#101828]">
+          <h3 className="flex items-center gap-2 text-[14.5px] font-bold text-[#101828]">
             <Info className="size-4 text-[#0758d9]" />
             Giải thích chi tiết
           </h3>
-          <p className="mt-2.5 whitespace-pre-line pl-6 text-[14px] font-medium leading-[1.7] text-[#475467]">
+          <p className="mt-2.5 whitespace-pre-line pl-6 text-[14.5px] font-medium leading-[1.7] text-[#344054]">
             {explanation}
           </p>
         </div>

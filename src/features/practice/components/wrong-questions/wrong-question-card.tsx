@@ -4,10 +4,8 @@ import {
   ArrowLeft,
   ArrowRight,
   Bookmark,
-  Check,
   CheckCircle2,
   Info,
-  X,
   XCircle,
 } from "lucide-react";
 
@@ -62,18 +60,18 @@ export function WrongQuestionCard({
     <section className="font-dts rounded-[16px] border border-[#dedfea] bg-white px-7 pb-6 pt-6 shadow-[0_4px_14px_rgba(31,41,55,0.055)]">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-b border-[#eef0f4] pb-5">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-[7px] bg-[#eaf0ff] px-2.5 py-1.5 text-[11px] font-bold text-[#0758d9]">
+          <span className="rounded-[7px] bg-[#eaf0ff] px-2.5 py-1.5 text-[11.5px] font-bold text-[#0758d9]">
             CÂU {currentPosition} / {totalQuestions}
           </span>
 
           {question.isCritical && (
-            <span className="rounded-[7px] bg-[#fff4e8] px-2.5 py-1.5 text-[11px] font-semibold text-[#c56a00]">
+            <span className="rounded-[7px] bg-[#fff4e8] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#c56a00]">
               Câu điểm liệt
             </span>
           )}
         </div>
 
-        <span className="max-w-[310px] truncate rounded-[7px] bg-[#f1f3fa] px-3 py-1.5 text-[13px] font-medium text-[#667085]">
+        <span className="max-w-[310px] truncate rounded-[7px] bg-[#f1f3fa] px-3 py-1.5 text-[13.5px] font-medium text-[#475467]">
           {question.chapterTitle ?? `Chương ${question.chapterId}`}
         </span>
 
@@ -83,10 +81,10 @@ export function WrongQuestionCard({
               type="button"
               onClick={onToggleBookmark}
               className={cn(
-                "inline-flex h-10 shrink-0 items-center gap-2 rounded-[10px] border px-4 text-[12px] font-semibold transition",
+                "inline-flex h-10 shrink-0 items-center gap-2 rounded-[10px] border px-4 text-[12.5px] font-semibold transition",
                 bookmarked
                   ? "border-[#bfd0ff] bg-[#eef3ff] text-[#0758d9]"
-                  : "border-[#e1e5ec] bg-white text-[#667085] hover:bg-[#f8f9fc]"
+                  : "border-[#e1e5ec] bg-white text-[#475467] hover:bg-[#f8f9fc]"
               )}
             >
               <Bookmark className="size-4" fill={bookmarked ? "currentColor" : "none"} strokeWidth={1.9} />
@@ -133,26 +131,11 @@ export function WrongQuestionCard({
                   pendingAnswer && "pointer-events-none opacity-60"
                 )}
               >
-                <span
-                  className={cn(
-                    "flex size-5 shrink-0 items-center justify-center rounded-full border-2",
-                    !answered && "border-[#d5dae4] bg-white",
-                    isCorrectOption && "border-[#12a264] bg-[#effaf4] text-[#079455]",
-                    isWrongSelected && "border-[#d92d20] bg-[#fff3f2] text-[#d92d20]",
-                    answered && !isCorrectOption && !isWrongSelected && "border-[#e1e4ea] bg-white"
-                  )}
-                >
-                  {isCorrectOption ? (
-                    <Check className="size-3" strokeWidth={2.5} />
-                  ) : isWrongSelected ? (
-                    <X className="size-3" strokeWidth={2.5} />
-                  ) : null}
-                </span>
 
                 <span
                   className={cn(
-                    "flex size-8 shrink-0 items-center justify-center rounded-[7px] border text-[13px] font-semibold",
-                    !answered && "border-[#dde2ea] bg-[#eef0f5] text-[#536078]",
+                    "flex size-8 shrink-0 items-center justify-center rounded-[7px] border text-[13.5px] font-semibold",
+                    !answered && "border-[#dde2ea] bg-[#eef0f5] text-[#344054]",
                     isCorrectOption && "border-[#abefc6] bg-[#ecfdf3] text-[#067647]",
                     isWrongSelected && "border-[#fecdca] bg-[#fef3f2] text-[#b42318]",
                     answered && !isCorrectOption && !isWrongSelected && "border-[#e4e7ec] bg-[#f2f4f7] text-[#98a2b3]"
@@ -163,10 +146,10 @@ export function WrongQuestionCard({
 
                 <span
                   className={cn(
-                    "flex-1 text-[14px] font-medium leading-6",
+                    "flex-1 text-[14.5px] font-medium leading-6",
                     isCorrectOption && "text-[#05603a]",
                     isWrongSelected && "text-[#b42318]",
-                    !isCorrectOption && !isWrongSelected && "text-[#475467]"
+                    !isCorrectOption && !isWrongSelected && "text-[#344054]"
                   )}
                 >
                   {option.text}
@@ -190,14 +173,14 @@ export function WrongQuestionCard({
             type="button"
             disabled={!canPrevious}
             onClick={onPrevious}
-            className="inline-flex h-10 min-w-[118px] items-center justify-center gap-2 rounded-[9px] bg-[#f3f5fb] px-4 text-[13px] font-semibold text-[#475467] transition hover:bg-[#e9edf6] disabled:pointer-events-none disabled:opacity-40"
+            className="inline-flex h-10 min-w-[118px] items-center justify-center gap-2 rounded-[9px] bg-[#f3f5fb] px-4 text-[13.5px] font-semibold text-[#344054] transition hover:bg-[#e9edf6] disabled:pointer-events-none disabled:opacity-40"
           >
             <ArrowLeft className="size-4" />
             Câu trước
           </button>
 
           <div className="min-w-[190px] text-center">
-            <p className="text-[12px] font-medium text-[#667085]">
+            <p className="text-[12.5px] font-medium text-[#475467]">
               Đã ôn:{" "}
               <strong className="font-bold text-[#0758d9]">
                 {answeredCount}
@@ -217,7 +200,7 @@ export function WrongQuestionCard({
             type="button"
             disabled={!canNext}
             onClick={onNext}
-            className="inline-flex h-10 min-w-[118px] items-center justify-center gap-2 rounded-[9px] bg-[#0758d9] px-4 text-[13px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-40"
+            className="inline-flex h-10 min-w-[118px] items-center justify-center gap-2 rounded-[9px] bg-[#0758d9] px-4 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-40"
           >
             Câu tiếp
             <ArrowRight className="size-4" />
@@ -241,7 +224,7 @@ function WrongQuestionFeedback({
     <div className="mt-5 rounded-[12px] border border-[#dfe4ff] bg-[#f4f5ff] px-5 py-5">
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-semibold",
+          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13.5px] font-semibold",
           isCorrect
             ? "bg-[#d1fadf] text-[#027a48]"
             : "bg-[#fee4e2] text-[#b42318]"
@@ -258,12 +241,12 @@ function WrongQuestionFeedback({
 
       {hasExplanation && (
         <div className="mt-4">
-          <h3 className="flex items-center gap-2 text-[14px] font-bold text-[#101828]">
+          <h3 className="flex items-center gap-2 text-[14.5px] font-bold text-[#101828]">
             <Info className="size-4 text-[#0758d9]" />
             Giải thích chi tiết
           </h3>
 
-          <p className="mt-2.5 whitespace-pre-line pl-6 text-[14px] font-medium leading-[1.7] text-[#475467]">
+          <p className="mt-2.5 whitespace-pre-line pl-6 text-[14.5px] font-medium leading-[1.7] text-[#344054]">
             {explanation}
           </p>
         </div>
