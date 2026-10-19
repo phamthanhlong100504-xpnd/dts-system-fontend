@@ -72,7 +72,7 @@ export function TrafficSignDetailDrawer({
         {/* Header drawer */}
         <div className="flex min-h-[90px] shrink-0 items-start justify-between gap-4 border-b border-[#eaecf0] px-6 py-5 dark:border-[#35445a]">
           <div className="min-w-0">
-            <p className="text-[13px] font-bold uppercase tracking-[0.04em] text-[#0758d9] dark:text-[#93b4ff]">
+            <p className="text-[13.5px] font-bold uppercase tracking-[0.04em] text-[#0758d9] dark:text-[#93b4ff]">
               {categoryLabel.toUpperCase()}
             </p>
 
@@ -81,7 +81,7 @@ export function TrafficSignDetailDrawer({
             </h2>
           </div>
 
-          <button ref={closeButtonRef} type="button" aria-label="Đóng" onClick={onClose} className="flex size-10 shrink-0 items-center justify-center rounded-full text-[#667085] transition hover:bg-[#f2f4f7] hover:text-[#344054] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 dark:text-[#cbd5e1] dark:hover:bg-[#26364e]">
+          <button ref={closeButtonRef} type="button" aria-label="Đóng" onClick={onClose} className="flex size-10 shrink-0 items-center justify-center rounded-full text-[#475467] transition hover:bg-[#f2f4f7] hover:text-[#344054] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 dark:text-[#cbd5e1] dark:hover:bg-[#26364e]">
             <X className="size-5" strokeWidth={2} />
           </button>
         </div>
@@ -96,14 +96,14 @@ export function TrafficSignDetailDrawer({
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 text-[#98a2b3] dark:text-[#aab8cf]">
                 <ImageOff className="size-7" strokeWidth={1.7} />
-                <span className="text-[13px] font-medium">Chưa có hình ảnh</span>
+                <span className="text-[13.5px] font-medium">Chưa có hình ảnh</span>
               </div>
             )}
           </div>
 
           {/* Mã và tên biển báo */}
           <div className="mt-6">
-            <span className="inline-flex min-h-7 items-center rounded-[7px] bg-[#eef2ff] px-3 text-[13px] font-bold text-[#0758d9] dark:bg-[#26364e] dark:text-[#93b4ff]">
+            <span className="inline-flex min-h-7 items-center rounded-[7px] bg-[#eef2ff] px-3 text-[13.5px] font-bold text-[#0758d9] dark:bg-[#26364e] dark:text-[#93b4ff]">
               {sign.code}
             </span>
 
@@ -115,11 +115,11 @@ export function TrafficSignDetailDrawer({
           {/* Nhóm biển báo */}
           <div className="mt-5 rounded-[12px] border border-[#e4e7ec] bg-[#fafbfc] px-4 py-4 dark:border-[#35445a] dark:bg-[#26364e]">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="text-[14px] font-medium text-[#667085] dark:text-[#aab8cf]">
+              <span className="text-[14.5px] font-medium text-[#475467] dark:text-[#aab8cf]">
                 Nhóm biển
               </span>
 
-              <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[14px] font-semibold text-[#0758d9] ring-1 ring-[#e4e7ec] dark:bg-[#182231] dark:text-[#93b4ff] dark:ring-[#35445a]">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[14.5px] font-semibold text-[#0758d9] ring-1 ring-[#e4e7ec] dark:bg-[#182231] dark:text-[#93b4ff] dark:ring-[#35445a]">
                 <span className="size-2 rounded-full bg-[#0758d9]" />
                 {sign.groupName}
               </span>
@@ -128,12 +128,12 @@ export function TrafficSignDetailDrawer({
 
           {/* Ý nghĩa*/}
           <div className="mt-6">
-            <p className="text-[13px] font-bold uppercase tracking-[0.04em] text-[#667085] dark:text-[#aab8cf]">
+            <p className="text-[13.5px] font-bold uppercase tracking-[0.04em] text-[#475467] dark:text-[#aab8cf]">
               Ý nghĩa
             </p>
 
             <div className="mt-3 rounded-[12px] border border-[#e4e7ec] bg-white px-4 py-4 dark:border-[#35445a] dark:bg-[#182231]">
-              <p className="whitespace-pre-line break-words text-[15px] font-medium leading-6 text-[#475467] dark:text-[#cbd5e1]">
+              <p className="whitespace-pre-line break-words text-[15.5px] font-medium leading-6 text-[#344054] dark:text-[#cbd5e1]">
                 {sign.meaning}
               </p>
             </div>
@@ -148,11 +148,11 @@ export function TrafficSignDetailDrawer({
                 </span>
 
                 <div className="min-w-0">
-                  <p className="text-[16px] font-bold leading-6 text-[#344054] dark:text-[#f8fafc]">
+                  <p className="text-[16px] font-bold leading-6 text-[#27364f] dark:text-[#f8fafc]">
                     Ghi nhớ nhanh
                   </p>
 
-                  <p className="mt-2 whitespace-pre-line break-words text-[15px] font-medium leading-6 text-[#667085] dark:text-[#cbd5e1]">
+                  <p className="mt-2 whitespace-pre-line break-words text-[15.5px] font-medium leading-6 text-[#475467] dark:text-[#cbd5e1]">
                     {quickTip}
                   </p>
                 </div>

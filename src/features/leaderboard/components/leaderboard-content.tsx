@@ -25,13 +25,13 @@ export function LeaderboardContent({ licenseClass }: { licenseClass: string }) {
         <div className="mb-[1cm] flex items-center justify-between gap-3">
           <div>
             <h2 className="text-[18px] font-bold text-[#0b1427]">Xếp hạng người học</h2>
-            <p className="mt-1 text-[15px] font-normal text-[#3a4658]">Top người học theo điểm tích lũy</p>
+            <p className="mt-1 text-[15.5px] font-medium text-[#344054]">Top người học theo điểm tích lũy</p>
           </div>
           <button
             type="button"
             onClick={() => void refetch()}
             disabled={isFetching}
-            className="rounded-lg border border-[#d8e0f1] bg-white px-4 py-2 text-[14px] font-semibold text-[#0758d9] disabled:opacity-50"
+            className="rounded-lg border border-[#d8e0f1] bg-white px-4 py-2 text-[14.5px] font-semibold text-[#0758d9] disabled:opacity-50"
           >
             Cập nhật
           </button>

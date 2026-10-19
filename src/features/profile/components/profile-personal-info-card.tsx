@@ -56,7 +56,7 @@ export function ProfilePersonalInfoCard({
 
       <form onSubmit={handleSubmit} className="mt-5 space-y-4">
         <div>
-          <label htmlFor="profile-full-name" className="text-[13px] font-semibold text-[#344054] dark:text-[#e2e8f0]">
+          <label htmlFor="profile-full-name" className="text-[13.5px] font-semibold text-[#27364f] dark:text-[#e2e8f0]">
             Họ và tên
           </label>
           <input
@@ -68,12 +68,12 @@ export function ProfilePersonalInfoCard({
             value={nameValue}
             onChange={(event) => setNameValue(event.target.value)}
             disabled={isSaving}
-            className="mt-2 h-11 w-full rounded-[10px] border border-transparent bg-[#f0f2ff] dark:bg-[#26364e] px-4 text-[14px] font-medium text-[#101828] dark:text-[#f8fafc] outline-none transition placeholder:text-[#98a2b3] focus:border-[#b9c9ff] focus:bg-white focus:ring-2 focus:ring-[#0758d9]/10 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-2 h-11 w-full rounded-[10px] border border-transparent bg-[#f0f2ff] dark:bg-[#26364e] px-4 text-[14.5px] font-medium text-[#101828] dark:text-[#f8fafc] outline-none transition placeholder:text-[#98a2b3] focus:border-[#b9c9ff] focus:bg-white focus:ring-2 focus:ring-[#0758d9]/10 disabled:cursor-not-allowed disabled:opacity-60"
           />
         </div>
 
         <div>
-          <label htmlFor="profile-email" className="text-[13px] font-semibold text-[#344054] dark:text-[#e2e8f0]">
+          <label htmlFor="profile-email" className="text-[13.5px] font-semibold text-[#27364f] dark:text-[#e2e8f0]">
             Email
           </label>
           <input
@@ -85,26 +85,26 @@ export function ProfilePersonalInfoCard({
             value={emailValue}
             onChange={(event) => setEmailValue(event.target.value)}
             disabled={isSaving}
-            className="mt-2 h-11 w-full rounded-[10px] border border-transparent bg-[#f0f2ff] dark:bg-[#26364e] px-4 text-[14px] font-medium text-[#101828] dark:text-[#f8fafc] outline-none transition placeholder:text-[#98a2b3] focus:border-[#b9c9ff] focus:bg-white focus:ring-2 focus:ring-[#0758d9]/10 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-2 h-11 w-full rounded-[10px] border border-transparent bg-[#f0f2ff] dark:bg-[#26364e] px-4 text-[14.5px] font-medium text-[#101828] dark:text-[#f8fafc] outline-none transition placeholder:text-[#98a2b3] focus:border-[#b9c9ff] focus:bg-white focus:ring-2 focus:ring-[#0758d9]/10 disabled:cursor-not-allowed disabled:opacity-60"
           />
         </div>
 
         {!emailVerified && email && (
           <div className="rounded-[10px] border border-[#fedf89] bg-[#fffcf5] dark:bg-[#35281b] p-3">
-            <p className="text-[13px] font-semibold text-[#b54708]">Email chưa xác minh</p>
-            <p className="mt-1 text-[13px] leading-5 text-[#667085] dark:text-[#aab8cf]">
+            <p className="text-[13.5px] font-semibold text-[#b54708]">Email chưa xác minh</p>
+            <p className="mt-1 text-[13.5px] leading-5 text-[#475467] dark:text-[#aab8cf]">
               Nếu bạn vừa đổi email, hãy xác minh địa chỉ mới để cập nhật trạng thái tài khoản.
             </p>
             <button
               type="button"
               disabled={isSaving || hasChanges}
               onClick={() => setEmailDialogOpen(true)}
-              className="mt-2 text-[13px] font-semibold text-[#0758d9] dark:text-[#93b4ff] disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-2 text-[13.5px] font-semibold text-[#0758d9] dark:text-[#93b4ff] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Xác minh email
             </button>
             {hasChanges && (
-              <p className="mt-1 text-[12px] text-[#667085] dark:text-[#aab8cf]">Lưu thông tin vừa sửa trước khi xác minh.</p>
+              <p className="mt-1 text-[12.5px] text-[#475467] dark:text-[#aab8cf]">Lưu thông tin vừa sửa trước khi xác minh.</p>
             )}
           </div>
         )}
@@ -113,7 +113,7 @@ export function ProfilePersonalInfoCard({
           <button
             type="submit"
             disabled={!canSave}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-5 text-[13px] font-semibold text-white transition hover:bg-[#064fc3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/30 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-5 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/30 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Check className="size-4" strokeWidth={2.2} />
             {isSaving ? "Đang lưu..." : "Lưu thay đổi"}

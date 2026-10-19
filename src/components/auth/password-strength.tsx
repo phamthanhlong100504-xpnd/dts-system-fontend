@@ -38,7 +38,7 @@ export function PasswordStrength({ value }: { value: string }) {
           />
         ))}
       </div>
-      <p className={cn("text-right text-xs font-medium", level.text)}>
+      <p className={cn("text-right text-[12.5px]/4 font-medium", level.text)}>
         Mật khẩu {level.label}
       </p>
     </div>

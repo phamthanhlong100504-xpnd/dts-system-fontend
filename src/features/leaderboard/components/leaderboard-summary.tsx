@@ -38,7 +38,7 @@ export function LeaderboardSummary({
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <h1 className="text-[28px] font-bold tracking-[-0.025em] text-[#0b1427]">Bảng xếp hạng</h1>
-          <p className="mt-1 text-[15px] font-normal text-[#3a4658]">
+          <p className="mt-1 text-[15.5px] font-medium text-[#344054]">
             So sánh thành tích học tập trong hạng <b>{licenseClass}</b>.
           </p>
         </div>
@@ -50,7 +50,7 @@ export function LeaderboardSummary({
               onClick={() => onPeriodChange(item.value)}
               aria-pressed={period === item.value}
               className={cn(
-                "rounded-lg px-3 py-2 text-[14px] font-semibold transition",
+                "rounded-lg px-3 py-2 text-[14.5px] font-semibold transition",
                 item.value === period ? "bg-white text-[#0758d9] shadow-sm" : "text-[#344055] hover:bg-white/60",
               )}
             >
@@ -69,25 +69,25 @@ export function LeaderboardSummary({
             </div>
             <div className="min-w-0">
               <p className="truncate text-[16px] font-bold text-[#0b1427]">{displayName}</p>
-              <p className="mt-1 text-[15px] font-normal text-[#3a4658]">Thứ hạng của bạn</p>
+              <p className="mt-1 text-[15.5px] font-medium text-[#344054]">Thứ hạng của bạn</p>
             </div>
           </div>
           <div className="border-t border-[#ebedf4] px-5 py-5 sm:border-l sm:border-t-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#273449]">THỨ HẠNG HIỆN TẠI</p>
+            <p className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#273449]">THỨ HẠNG HIỆN TẠI</p>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-[26px] font-extrabold text-[#0758d9]">
                 {currentUser?.rank == null ? "Chưa có hạng" : `#${currentUser.rank}`}
               </span>
               {totalParticipants != null && (
-                <span className="text-[14px] font-normal text-[#3a4658]">/ {nf.format(totalParticipants)}</span>
+                <span className="text-[14.5px] font-medium text-[#344054]">/ {nf.format(totalParticipants)}</span>
               )}
             </div>
           </div>
           <div className="border-t border-[#ebedf4] px-5 py-5 sm:border-l sm:border-t-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#273449]">ĐIỂM XẾP HẠNG</p>
+            <p className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#273449]">ĐIỂM XẾP HẠNG</p>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-[26px] font-extrabold text-[#0b1427]">{currentUser ? nf.format(currentUser.rankingScore) : "—"}</span>
-              <span className="text-[14px] font-normal text-[#3a4658]">điểm</span>
+              <span className="text-[14.5px] font-medium text-[#344054]">điểm</span>
             </div>
           </div>
         </div>

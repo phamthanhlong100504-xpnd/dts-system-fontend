@@ -193,7 +193,7 @@ export default function QuestionEditorPage() {
                 DRAFT
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-[12.5px]/4 text-muted-foreground mt-0.5">
               Soạn thảo nội dung câu hỏi và cấu hình đáp án
             </p>
           </div>
@@ -252,7 +252,7 @@ export default function QuestionEditorPage() {
                 rows={5}
                 value={questionTitle}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuestionTitle(e.target.value)}
-                className="text-sm resize-none focus-visible:ring-1"
+                className="text-[14.5px]/5 resize-none focus-visible:ring-1"
               />
             </CardContent>
           </Card>
@@ -270,7 +270,7 @@ export default function QuestionEditorPage() {
                 rows={4}
                 value={explanation}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setExplanation(e.target.value)}
-                className="text-sm resize-none focus-visible:ring-1"
+                className="text-[14.5px]/5 resize-none focus-visible:ring-1"
               />
             </CardContent>
           </Card>
@@ -308,8 +308,8 @@ export default function QuestionEditorPage() {
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <UploadCloud className={`h-10 w-10 text-muted-foreground ${isUploading ? "animate-pulse" : ""}`} />
-                  <p className="text-sm font-semibold">{isUploading ? "Đang tải lên..." : "Tải lên hình ảnh minh họa"}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[14.5px]/5 font-semibold">{isUploading ? "Đang tải lên..." : "Tải lên hình ảnh minh họa"}</p>
+                  <p className="text-[12.5px]/4 text-muted-foreground">
                     Hỗ trợ PNG, JPG, GIF dung lượng tối đa 5MB (Tích hợp Media Service)
                   </p>
                 </div>
@@ -331,10 +331,10 @@ export default function QuestionEditorPage() {
                 <div className="flex items-center gap-2.5">
                   <AlertTriangle className="h-5 w-5 text-destructive" />
                   <div>
-                    <p className="text-sm font-semibold text-destructive">
+                    <p className="text-[14.5px]/5 font-semibold text-destructive">
                       Câu hỏi ĐIỂM LIỆT
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[12.5px]/4 text-muted-foreground">
                       Làm sai câu này sẽ trượt trực tiếp
                     </p>
                   </div>
@@ -382,7 +382,7 @@ export default function QuestionEditorPage() {
                   >
                     {opt.isCorrect && <CheckCircle className="h-3.5 w-3.5 text-white" />}
                   </button>
-                  <span className="font-bold text-xs w-5 text-muted-foreground select-none">
+                  <span className="font-bold text-[12.5px]/4 w-5 text-muted-foreground select-none">
                     {opt.label}.
                   </span>
                   <Input
@@ -390,7 +390,7 @@ export default function QuestionEditorPage() {
                     onClick={(e) => e.stopPropagation()}
                     onChange={(e) => handleTextChange(opt.id, e.target.value)}
                     placeholder={`Nhập nội dung đáp án ${opt.label}...`}
-                    className="h-9 text-sm flex-1 bg-transparent border-0 focus-visible:ring-0"
+                    className="h-9 text-[14.5px]/5 flex-1 bg-transparent border-0 focus-visible:ring-0"
                   />
                   {options.length > 2 && (
                     <Button

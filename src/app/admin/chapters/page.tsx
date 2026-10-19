@@ -193,14 +193,14 @@ export default function AdminChaptersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-card p-6 shadow-sm border">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-[12.5px]/4">
               QUẢN LÝ NỘI DUNG
             </Badge>
             <h1 className="text-xl font-bold tracking-tight text-foreground">
               Quản lý chương học
             </h1>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[14.5px]/5 text-muted-foreground">
 Quản lý các chương câu hỏi theo hạng GPLX và những chương học do bạn biên soạn.
           </p>
         </div>
@@ -212,7 +212,7 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
         </div>
       </div>
 
-      {chaptersError && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">Không thể tải danh sách chương tự tạo. Vui lòng thử lại hoặc kiểm tra quyền truy cập. Bạn vẫn có thể xem Ngân hàng chuẩn.</p>}
+      {chaptersError && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-[14.5px]/5 text-destructive">Không thể tải danh sách chương tự tạo. Vui lòng thử lại hoặc kiểm tra quyền truy cập. Bạn vẫn có thể xem Ngân hàng chuẩn.</p>}
       <Tabs defaultValue="official" className="mt-8">
         <TabsList className="mb-4">
           <TabsTrigger value="official">Chương ngân hàng theo hạng</TabsTrigger>
@@ -234,7 +234,7 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Tên chương *</label>
+              <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Tên chương *</label>
               <Input
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
@@ -243,7 +243,7 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Mô tả chương</label>
+              <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Mô tả chương</label>
               <Input
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
@@ -268,7 +268,7 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
         <div className="lg:col-span-4 space-y-4">
           <Card className="rounded-2xl shadow-sm">
             <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <CardTitle className="text-[14.5px]/5 font-bold flex items-center gap-2">
                 <FolderTree className="h-4 w-4 text-primary" /> Danh sách Chương ({chapters.length})
               </CardTitle>
             </CardHeader>
@@ -278,7 +278,7 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
                   <Skeleton key={i} className="h-12 w-full rounded-xl" />
                 ))
               ) : chapters.length === 0 ? (
-                <p className="text-xs text-muted-foreground py-6 text-center">Chưa có chương nào trong hệ thống.</p>
+                <p className="text-[12.5px]/4 text-muted-foreground py-6 text-center">Chưa có chương nào trong hệ thống.</p>
               ) : (
                 chapters.map((chapter) => {
                   const isSelected = activeChapter?.id === chapter.id;
@@ -294,11 +294,11 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
                     >
                       <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs truncate text-foreground font-medium">
+                        <p className="text-[12.5px]/4 truncate text-foreground font-medium">
                           {chapter.title}
                         </p>
                       </div>
-                      <Badge variant="secondary" className="text-[10px] uppercase px-1.5 py-0 shrink-0">
+                      <Badge variant="secondary" className="text-[10.5px] uppercase px-1.5 py-0 shrink-0">
                         {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ", HIDDEN: "Đang ẩn" } as Record<string, string>)[chapter.status] ?? chapter.status}
                       </Badge>
                       <Button
@@ -327,7 +327,7 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
           <Card className="rounded-2xl shadow-sm">
             <CardHeader className="pb-3 flex flex-row items-center justify-between border-b">
               <div>
-                <Badge variant="outline" className="text-[10px] mb-1">
+                <Badge variant="outline" className="text-[10.5px] mb-1">
                   ĐANG BIÊN TẬP
                 </Badge>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -375,11 +375,11 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
                   {isEditingInfo ? (
                     <div className="p-4 rounded-xl border bg-muted/20 space-y-4">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">Tên chương</label>
+                        <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Tên chương</label>
                         <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
                       </div>
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">Mô tả chương</label>
+                        <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Mô tả chương</label>
                         <Input value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
                       </div>
                       <div className="flex justify-end gap-2">
@@ -392,23 +392,23 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
                     </div>
                   ) : (
                     <div className="p-4 rounded-xl border bg-muted/20 space-y-2 group">
-                      <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                      <div className="flex items-center justify-between text-[12.5px]/4 text-muted-foreground mb-1">
                         <span className="font-semibold uppercase tracking-wider flex items-center gap-1">
                           <FileText className="h-3.5 w-3.5" /> Mô tả chương
                         </span>
                       </div>
-                      <p className="text-sm leading-relaxed text-foreground">
+                      <p className="text-[14.5px]/5 leading-relaxed text-foreground">
                         {activeChapter.description || "Chương này chưa có mô tả."}
                       </p>
                     </div>
                   )}
 
                   <div className="space-y-3">
-                    <h3 className="font-semibold text-sm">Danh sách câu hỏi trong chương</h3>
+                    <h3 className="font-semibold text-[14.5px]/5">Danh sách câu hỏi trong chương</h3>
                     {isLoadingDetail ? (
                        <Skeleton className="h-20 w-full rounded-xl" />
                     ) : chapterDetail?.questionBlocks?.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground text-sm border rounded-xl border-dashed">
+                      <div className="text-center py-8 text-muted-foreground text-[14.5px]/5 border rounded-xl border-dashed">
                         Chưa có câu hỏi nào. Bấm &quot;Thêm câu hỏi&quot; để lấy từ Ngân hàng.
                       </div>
                     ) : (
@@ -432,8 +432,8 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
                               </Button>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">{block.title}</p>
-                              <p className="text-xs text-muted-foreground font-mono mt-0.5">ID: {block.questionId}</p>
+                              <p className="text-[14.5px]/5 font-medium truncate">{block.title}</p>
+                              <p className="text-[12.5px]/4 text-muted-foreground font-mono mt-0.5">ID: {block.questionId}</p>
                             </div>
                             <Button
                               variant="ghost"
@@ -450,7 +450,7 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
                   </div>
                 </>
               ) : (
-                <div className="text-center py-12 text-muted-foreground text-sm">
+                <div className="text-center py-12 text-muted-foreground text-[14.5px]/5">
                   Vui lòng chọn hoặc tạo chương mới từ danh sách bên trái.
                 </div>
               )}
@@ -476,7 +476,7 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
             </TabsList>
 
             <TabsContent value="custom" className="space-y-4 pt-4">
-              {questionsError && <p role="alert" className="rounded-lg border border-destructive/30 p-3 text-sm text-destructive">Không thể tải danh sách câu hỏi để lựa chọn. Vui lòng thử lại.</p>}
+              {questionsError && <p role="alert" className="rounded-lg border border-destructive/30 p-3 text-[14.5px]/5 text-destructive">Không thể tải danh sách câu hỏi để lựa chọn. Vui lòng thử lại.</p>}
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input 
@@ -486,7 +486,7 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <p className="text-[11px] text-muted-foreground italic px-1">
+              <p className="text-[11.5px] text-muted-foreground italic px-1">
                 * Chỉ hiển thị câu hỏi đã xuất bản và chưa có trong chương này.
               </p>
               
@@ -499,11 +499,11 @@ Quản lý các chương câu hỏi theo hạng GPLX và những chương học 
                   filteredQuestions.map((q) => (
                     <div key={q.rawId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium line-clamp-2">{q.title}</p>
+                        <p className="text-[14.5px]/5 font-medium line-clamp-2">{q.title}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-[10px]">{q.id}</Badge>
-                          <Badge variant="secondary" className="text-[10px]">{q.type}</Badge>
-                          {q.isCritical && <Badge variant="destructive" className="text-[10px]">Điểm liệt</Badge>}
+                          <Badge variant="outline" className="text-[10.5px]">{q.id}</Badge>
+                          <Badge variant="secondary" className="text-[10.5px]">{q.type}</Badge>
+                          {q.isCritical && <Badge variant="destructive" className="text-[10.5px]">Điểm liệt</Badge>}
                         </div>
                       </div>
                       <Button 

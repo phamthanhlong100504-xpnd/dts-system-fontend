@@ -71,7 +71,7 @@ export default function AdminSettingsPage() {
       <div className="flex items-center justify-between rounded-2xl bg-card p-6 shadow-sm border">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Cài đặt hệ thống</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-[14.5px]/5 text-muted-foreground mt-1">
             Quản lý cấu hình, bảo mật và tùy chỉnh hệ thống DTS.
           </p>
         </div>
@@ -96,7 +96,7 @@ export default function AdminSettingsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {section.badge && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-[12.5px]/4">
                         {section.badge}
                       </Badge>
                     )}
@@ -104,7 +104,7 @@ export default function AdminSettingsPage() {
                   </div>
                 </div>
                 <CardTitle className="text-base mt-3">{section.title}</CardTitle>
-                <CardDescription className="text-sm">{section.description}</CardDescription>
+                <CardDescription className="text-[14.5px]/5">{section.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button variant="ghost" size="sm" className="w-full justify-start text-primary hover:text-primary">
@@ -122,7 +122,7 @@ export default function AdminSettingsPage() {
           <CardTitle className="text-base">Thông tin hệ thống</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[14.5px]/5">
             {info.map((item) => (
               <div key={item.label} className="space-y-1">
                 <p className="text-muted-foreground">{item.label}</p>

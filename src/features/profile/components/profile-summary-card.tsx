@@ -51,11 +51,11 @@ export function ProfileSummaryCard({
           {displayName}
         </h2>
 
-        <p className="mt-1 max-w-full break-all text-[13px] font-medium leading-5 text-[#667085] dark:text-[#aab8cf]">
+        <p className="mt-1 max-w-full break-all text-[13.5px] font-medium leading-5 text-[#475467] dark:text-[#aab8cf]">
           {user.email?.trim() || "—"}
         </p>
 
-        <span className="mt-3 rounded-full bg-[#f0f3ff] px-3 py-1.5 text-[12px] font-semibold text-[#475467] dark:bg-[#26364e] dark:text-[#cbd5e1]">
+        <span className="mt-3 rounded-full bg-[#f0f3ff] px-3 py-1.5 text-[12.5px] font-semibold text-[#344054] dark:bg-[#26364e] dark:text-[#cbd5e1]">
           {roleLabel}
         </span>
       </div>
@@ -68,12 +68,12 @@ export function ProfileSummaryCard({
 
         {/* Khối hạng đang học */}
         <div className="rounded-[12px] bg-[#f4f6ff] p-4 dark:bg-[#26364e]">
-          <p className="text-[11px] font-bold uppercase tracking-[0.04em] text-[#667085] dark:text-[#aab8cf]">
+          <p className="text-[11.5px] font-bold uppercase tracking-[0.04em] text-[#475467] dark:text-[#aab8cf]">
             Hạng đang học
           </p>
 
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <span className="inline-flex min-h-8 items-center gap-2 rounded-[8px] bg-[#e8efff] px-3 text-[13px] font-bold text-[#0758d9] dark:bg-[#26364e] dark:text-[#93b4ff]">
+            <span className="inline-flex min-h-8 items-center gap-2 rounded-[8px] bg-[#e8efff] px-3 text-[13.5px] font-bold text-[#0758d9] dark:bg-[#26364e] dark:text-[#93b4ff]">
               <CarFront
                 className="size-4"
                 strokeWidth={2}
@@ -85,7 +85,7 @@ export function ProfileSummaryCard({
             <button
               type="button"
               onClick={onChangeLicense}
-              className="inline-flex h-10 items-center text-[14px] font-semibold text-[#0758d9] transition hover:text-[#064fc2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/20 dark:text-[#93b4ff]"
+              className="inline-flex h-10 items-center text-[14.5px] font-semibold text-[#0758d9] transition hover:text-[#064fc2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/20 dark:text-[#93b4ff]"
             >
               Đổi hạng
             </button>

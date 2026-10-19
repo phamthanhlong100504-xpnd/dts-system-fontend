@@ -240,7 +240,7 @@ export default function ExamCriteriaPage() {
                     
                     <div className="space-y-1.5 md:col-span-2">
                       <Label>Phương pháp chấm (Grading Method) *</Label>
-                      <select value={form.criteria.gradingMethod} onChange={(e) => updateCriteriaField("gradingMethod", e.target.value as ExamCriteriaPayload["criteria"]["gradingMethod"])} className="w-full h-9 rounded-md border px-3 text-sm">
+                      <select value={form.criteria.gradingMethod} onChange={(e) => updateCriteriaField("gradingMethod", e.target.value as ExamCriteriaPayload["criteria"]["gradingMethod"])} className="w-full h-9 rounded-md border px-3 text-[14.5px]/5">
                         <option value="SUM">Cộng điểm từng câu</option>
                         <option value="WEIGHTED">Tính theo trọng số</option>
                         <option value="PERCENTAGE">Tính theo tỷ lệ phần trăm</option>
@@ -251,7 +251,7 @@ export default function ExamCriteriaPage() {
 
                     <div className="space-y-1.5">
                       <Label>Cách làm tròn điểm</Label>
-                      <select value={form.criteria.rounding?.mode} onChange={(e) => updateRoundingField("mode", e.target.value)} className="w-full h-9 rounded-md border px-3 text-sm">
+                      <select value={form.criteria.rounding?.mode} onChange={(e) => updateRoundingField("mode", e.target.value)} className="w-full h-9 rounded-md border px-3 text-[14.5px]/5">
                         <option value="HALF_UP">Làm tròn gần nhất</option>
                         <option value="UP">Làm tròn lên</option>
                         <option value="DOWN">Làm tròn xuống</option>
@@ -277,7 +277,7 @@ export default function ExamCriteriaPage() {
                         <div className="flex-1 space-y-3">
                           <div className="space-y-1.5">
                             <Label>Loại quy tắc</Label>
-                            <select value={rule.type} onChange={(e) => updateMandatoryRule(idx, "type", e.target.value as MandatoryRule["type"])} className="w-full h-9 rounded-md border px-3 text-sm">
+                            <select value={rule.type} onChange={(e) => updateMandatoryRule(idx, "type", e.target.value as MandatoryRule["type"])} className="w-full h-9 rounded-md border px-3 text-[14.5px]/5">
                               <option value="MUST_CORRECT">Bắt buộc trả lời đúng</option>
                               <option value="MUST_ATTEMPT">Bắt buộc trả lời</option>
                               <option value="AT_LEAST_ONE">Đúng ít nhất một câu</option>
@@ -298,7 +298,7 @@ export default function ExamCriteriaPage() {
                         </Button>
                       </div>
                     ))}
-                    {form.criteria.mandatoryRules?.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Chưa có quy tắc nào</p>}
+                    {form.criteria.mandatoryRules?.length === 0 && <p className="text-[14.5px]/5 text-muted-foreground text-center py-4">Chưa có quy tắc nào</p>}
                   </div>
 
                   <hr className="my-4" />
@@ -323,7 +323,7 @@ export default function ExamCriteriaPage() {
                         </Button>
                       </div>
                     ))}
-                    {form.criteria.sectionRules?.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Chưa có quy tắc nào</p>}
+                    {form.criteria.sectionRules?.length === 0 && <p className="text-[14.5px]/5 text-muted-foreground text-center py-4">Chưa có quy tắc nào</p>}
                   </div>
                 </TabsContent>
 
@@ -338,7 +338,7 @@ export default function ExamCriteriaPage() {
                       <div key={idx} className="flex gap-4 items-end p-3 border rounded-md">
                         <div className="flex-1 space-y-1.5">
                           <Label>Loại vi phạm</Label>
-                          <select value={penalty.type} onChange={(e) => updatePenalty(idx, "type", e.target.value as Penalty["type"])} className="w-full h-9 rounded-md border px-3 text-sm">
+                          <select value={penalty.type} onChange={(e) => updatePenalty(idx, "type", e.target.value as Penalty["type"])} className="w-full h-9 rounded-md border px-3 text-[14.5px]/5">
                             <option value="WRONG_ANSWER">Trả lời sai (WRONG_ANSWER)</option>
                             <option value="UNANSWERED">Bỏ trống (UNANSWERED)</option>
                           </select>
@@ -352,7 +352,7 @@ export default function ExamCriteriaPage() {
                         </Button>
                       </div>
                     ))}
-                    {form.criteria.penalties?.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Chưa cấu hình phạt điểm</p>}
+                    {form.criteria.penalties?.length === 0 && <p className="text-[14.5px]/5 text-muted-foreground text-center py-4">Chưa cấu hình phạt điểm</p>}
                   </div>
                 </TabsContent>
               </Tabs>
@@ -394,7 +394,7 @@ export default function ExamCriteriaPage() {
                     <TableCell>{criteria.criteria?.gradingMethod}</TableCell>
                     <TableCell>{criteria.criteria?.passScore} / {criteria.criteria?.totalScore}</TableCell>
                     <TableCell>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-[12.5px]/4 text-muted-foreground">
                         {criteria.criteria?.mandatoryRules?.length || 0} QC bắt buộc, {criteria.criteria?.penalties?.length || 0} QC phạt
                       </span>
                     </TableCell>

@@ -52,7 +52,7 @@ export function OfficialExamsContent({
           Thi chính thức
         </h1>
 
-        <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">
+        <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]">
           Xem và tham gia các kỳ thi chính thức phù hợp với hạng GPLX của bạn.
         </p>
       </div>
@@ -102,7 +102,7 @@ export function OfficialExamsContent({
               tab={selectedTab}
             />
           )}
-        {!isLoading && !isError && (data?.totalPages ?? 0) > 1 && <nav className="mt-7 flex items-center justify-center gap-4" aria-label="Phân trang kỳ thi"><button type="button" disabled={page===0} className="rounded-lg border bg-white px-4 py-2 text-sm disabled:opacity-40" onClick={()=>setPage(p=>Math.max(0,p-1))}>Trang trước</button><span className="text-sm">{page+1} / {data!.totalPages}</span><button type="button" disabled={page+1>=(data?.totalPages??0)} className="rounded-lg border bg-white px-4 py-2 text-sm disabled:opacity-40" onClick={()=>setPage(p=>p+1)}>Trang sau</button></nav>}
+        {!isLoading && !isError && (data?.totalPages ?? 0) > 1 && <nav className="mt-7 flex items-center justify-center gap-4" aria-label="Phân trang kỳ thi"><button type="button" disabled={page===0} className="rounded-lg border bg-white px-4 py-2 text-[14.5px]/5 disabled:opacity-40" onClick={()=>setPage(p=>Math.max(0,p-1))}>Trang trước</button><span className="text-[14.5px]/5">{page+1} / {data!.totalPages}</span><button type="button" disabled={page+1>=(data?.totalPages??0)} className="rounded-lg border bg-white px-4 py-2 text-[14.5px]/5 disabled:opacity-40" onClick={()=>setPage(p=>p+1)}>Trang sau</button></nav>}
       </div>
     </div>
   );
@@ -161,14 +161,14 @@ function OfficialExamError({
           Không tải được danh sách kỳ thi
         </h2>
 
-        <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">
+        <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]">
           Danh sách kỳ thi chưa tải được. Vui lòng thử lại sau ít phút.
         </p>
 
         <button
           type="button"
           onClick={onRetry}
-          className="mt-5 inline-flex h-10 items-center gap-2 rounded-[9px] bg-[#f2f4f7] px-5 text-[14px] font-semibold text-[#344054] transition hover:bg-[#e9edf3]"
+          className="mt-5 inline-flex h-10 items-center gap-2 rounded-[9px] bg-[#f2f4f7] px-5 text-[14.5px] font-semibold text-[#27364f] transition hover:bg-[#e9edf3]"
         >
           <RefreshCcw className="size-4" />
           Thử lại
@@ -200,7 +200,7 @@ function OfficialExamEmpty({
           {content.title}
         </h2>
 
-        <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">
+        <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]">
           {content.description}
         </p>
       </div>

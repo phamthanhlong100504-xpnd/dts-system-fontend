@@ -225,9 +225,9 @@ function PresetExamsPageContent() {
               rounded-[8px]
               px-2
               py-1.5
-              text-[14px]
+              text-[14.5px]
               font-semibold
-              text-[#536078]
+              text-[#344054]
               transition
               hover:bg-[#eef1f7]
               hover:text-[#101828]
@@ -479,7 +479,7 @@ function PresetExamsCatalogError({
           {title}
         </h1>
 
-        <p className="mt-2 text-[12px] font-medium text-[#667085]">
+        <p className="mt-2 text-[12.5px] font-medium text-[#475467]">
           {message}
         </p>
 
@@ -487,7 +487,7 @@ function PresetExamsCatalogError({
           <button
             type="button"
             onClick={onBack}
-            className="h-9 rounded-[9px] bg-[#f2f4f7] px-4 text-[11px] font-semibold text-[#475467]"
+            className="h-9 rounded-[9px] bg-[#f2f4f7] px-4 text-[11.5px] font-semibold text-[#344054]"
           >
             Quay lại
           </button>
@@ -495,7 +495,7 @@ function PresetExamsCatalogError({
           <button
             type="button"
             onClick={onRetry}
-            className="h-9 rounded-[9px] bg-[#0758d9] px-4 text-[11px] font-semibold text-white"
+            className="h-9 rounded-[9px] bg-[#0758d9] px-4 text-[11.5px] font-semibold text-white"
           >
             Thử lại
           </button>

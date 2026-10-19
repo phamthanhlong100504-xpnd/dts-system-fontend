@@ -79,11 +79,11 @@ export function ProfileAppearanceCard() {
 
       <div className="mt-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-[14px] font-semibold text-[#101828] dark:text-[#f8fafc]">
+          <p className="text-[14.5px] font-semibold text-[#101828] dark:text-[#f8fafc]">
             Chế độ hiển thị
           </p>
 
-          <p className="mt-1 max-w-[400px] text-[14px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+          <p className="mt-1 max-w-[400px] text-[14.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
             Tùy chỉnh giao diện hiển thị phù hợp
             với thị giác của bạn.
           </p>
@@ -106,10 +106,10 @@ export function ProfileAppearanceCard() {
                   setTheme(option.value)
                 }
                 className={cn(
-                  "inline-flex h-9 items-center justify-center gap-1.5 rounded-[8px] px-3 text-[13px] font-semibold transition",
+                  "inline-flex h-9 items-center justify-center gap-1.5 rounded-[8px] px-3 text-[13.5px] font-semibold transition",
                   active
                     ? "bg-[#0758d9] text-white shadow-[0_1px_2px_rgba(7,88,217,0.15)]"
-                    : "text-[#475467] hover:bg-white hover:text-[#0758d9] dark:text-[#cbd5e1]"
+                    : "text-[#344054] hover:bg-white hover:text-[#0758d9] dark:text-[#cbd5e1]"
                 )}
               >
                 <Icon

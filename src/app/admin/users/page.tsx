@@ -133,7 +133,7 @@ function UsersManager() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Quản lý Người dùng</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[14.5px]/5 text-muted-foreground">
             Quản lý tài khoản và phân quyền hệ thống
           </p>
         </div>
@@ -161,7 +161,7 @@ function UsersManager() {
                 setPage(0);
               }}
               className={cn(
-                "flex-1 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-all",
+                "flex-1 whitespace-nowrap rounded-lg px-4 py-2 text-[14.5px]/5 font-medium transition-all",
                 status === f.key
                   ? "bg-card text-primary shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -181,7 +181,7 @@ function UsersManager() {
           <Skeleton className="h-14" />
         </div>
       ) : usersQuery.isError || !data ? (
-        <p className="text-sm text-destructive">
+        <p className="text-[14.5px]/5 text-destructive">
           Không tải được danh sách người dùng. Kiểm tra service dts-identity.
         </p>
       ) : (
@@ -206,7 +206,7 @@ function UsersManager() {
                       </Avatar>
                       <div>
                         <p className="font-medium">{user.fullName || user.username}</p>
-                        <p className="text-xs text-muted-foreground">@{user.username}</p>
+                        <p className="text-[12.5px]/4 text-muted-foreground">@{user.username}</p>
                       </div>
                     </div>
                   </TableCell>
@@ -243,7 +243,7 @@ function UsersManager() {
           >
             Trang trước
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-[14.5px]/5 text-muted-foreground">
             Trang {(data.number ?? 0) + 1} / {data.totalPages}
           </span>
           <Button
@@ -390,17 +390,17 @@ function AssignRoleSheet({
         </SheetHeader>
         <div className="flex flex-col gap-4 px-4">
           <div>
-            <p className="mb-2 text-sm font-medium">Vai trò hiện tại</p>
+            <p className="mb-2 text-[14.5px]/5 font-medium">Vai trò hiện tại</p>
             {isLoading ? (
               <Skeleton className="h-8 w-full" />
             ) : (userRoles ?? []).length === 0 ? (
-              <p className="text-sm text-muted-foreground">Chưa có vai trò nào.</p>
+              <p className="text-[14.5px]/5 text-muted-foreground">Chưa có vai trò nào.</p>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {(userRoles ?? []).map((role) => (
                   <span
                     key={role.id}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-sm"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-[14.5px]/5"
                   >
                     {role.name}
                     <button
@@ -507,34 +507,34 @@ function CreateUserSheet() {
           <div className="space-y-2">
             <Label htmlFor="cu-username">Tên người dùng</Label>
             <Input id="cu-username" className="h-11" {...register("username")} />
-            {errors.username && <p className="text-sm text-destructive">{errors.username.message}</p>}
+            {errors.username && <p className="text-[14.5px]/5 text-destructive">{errors.username.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="cu-email">Email</Label>
             <Input id="cu-email" type="email" className="h-11" {...register("email")} />
-            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+            {errors.email && <p className="text-[14.5px]/5 text-destructive">{errors.email.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="cu-fullName">Họ và tên</Label>
             <Input id="cu-fullName" className="h-11" {...register("fullName")} />
-            {errors.fullName && <p className="text-sm text-destructive">{errors.fullName.message}</p>}
+            {errors.fullName && <p className="text-[14.5px]/5 text-destructive">{errors.fullName.message}</p>}
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="cu-birthOfDate">Ngày sinh</Label>
               <Input id="cu-birthOfDate" type="date" className="h-11" {...register("birthOfDate")} />
-              {errors.birthOfDate && <p className="text-sm text-destructive">{errors.birthOfDate.message}</p>}
+              {errors.birthOfDate && <p className="text-[14.5px]/5 text-destructive">{errors.birthOfDate.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="cu-phoneNumber">Số điện thoại</Label>
               <Input id="cu-phoneNumber" type="tel" className="h-11" {...register("phoneNumber")} />
-              {errors.phoneNumber && <p className="text-sm text-destructive">{errors.phoneNumber.message}</p>}
+              {errors.phoneNumber && <p className="text-[14.5px]/5 text-destructive">{errors.phoneNumber.message}</p>}
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="cu-password">Mật khẩu</Label>
             <Input id="cu-password" type="password" className="h-11" {...register("password")} />
-            {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+            {errors.password && <p className="text-[14.5px]/5 text-destructive">{errors.password.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="cu-role">Vai trò (không bắt buộc)</Label>
@@ -637,18 +637,18 @@ function EditUserSheet({
             <Label htmlFor="eu-username">Tên người dùng</Label>
             <Input id="eu-username" className="h-11" {...register("username")} />
             {errors.username && (
-              <p className="text-sm text-destructive">{errors.username.message}</p>
+              <p className="text-[14.5px]/5 text-destructive">{errors.username.message}</p>
             )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="eu-email">Email</Label>
             <Input id="eu-email" type="email" className="h-11" {...register("email")} />
-            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+            {errors.email && <p className="text-[14.5px]/5 text-destructive">{errors.email.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="eu-fullName">Họ và tên</Label>
             <Input id="eu-fullName" className="h-11" {...register("fullName")} />
-            {errors.fullName && <p className="text-sm text-destructive">{errors.fullName.message}</p>}
+            {errors.fullName && <p className="text-[14.5px]/5 text-destructive">{errors.fullName.message}</p>}
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -660,7 +660,7 @@ function EditUserSheet({
                 {...register("birthOfDate")}
               />
               {errors.birthOfDate && (
-                <p className="text-sm text-destructive">{errors.birthOfDate.message}</p>
+                <p className="text-[14.5px]/5 text-destructive">{errors.birthOfDate.message}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -672,7 +672,7 @@ function EditUserSheet({
                 {...register("phoneNumber")}
               />
               {errors.phoneNumber && (
-                <p className="text-sm text-destructive">{errors.phoneNumber.message}</p>
+                <p className="text-[14.5px]/5 text-destructive">{errors.phoneNumber.message}</p>
               )}
             </div>
           </div>
@@ -814,14 +814,14 @@ function ResetPasswordDialog({
               </Button>
             </div>
             {errors.password && (
-              <p className="text-sm text-destructive">{errors.password.message}</p>
+              <p className="text-[14.5px]/5 text-destructive">{errors.password.message}</p>
             )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="rp-confirm">Xác nhận mật khẩu</Label>
             <Input id="rp-confirm" type="text" className="h-11" {...register("confirm")} />
             {errors.confirm && (
-              <p className="text-sm text-destructive">{errors.confirm.message}</p>
+              <p className="text-[14.5px]/5 text-destructive">{errors.confirm.message}</p>
             )}
           </div>
           <DialogFooter>

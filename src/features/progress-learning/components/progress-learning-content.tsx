@@ -351,10 +351,10 @@ function ProgressLearningError({
           <p
             className="
               mt-2
-              text-[14px]
+              text-[14.5px]
               font-medium
               leading-6
-              text-[#667085]
+              text-[#475467]
             "
           >
             Không thể lấy dữ liệu tiến độ của hạng bằng
@@ -374,7 +374,7 @@ function ProgressLearningError({
               rounded-[10px]
               bg-[#eef2ff]
               px-5
-              text-[13px]
+              text-[13.5px]
               font-semibold
               text-[#0758d9]
               transition-colors

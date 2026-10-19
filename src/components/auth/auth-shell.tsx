@@ -33,12 +33,12 @@ export function AuthShell({
           </div>
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
           {subtitle && (
-            <p className="mt-1.5 text-sm text-muted-foreground">{subtitle}</p>
+            <p className="mt-1.5 text-[14.5px]/5 text-muted-foreground">{subtitle}</p>
           )}
         </div>
         {children}
         {footer && (
-          <div className="mt-6 text-center text-sm text-muted-foreground">
+          <div className="mt-6 text-center text-[14.5px]/5 text-muted-foreground">
             {footer}
           </div>
         )}

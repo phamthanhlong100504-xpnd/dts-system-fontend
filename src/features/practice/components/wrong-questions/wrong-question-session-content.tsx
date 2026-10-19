@@ -129,7 +129,7 @@ export function WrongQuestionSessionContent({
               Không có câu hỏi để ôn
             </h2>
 
-            <p className="mt-3 text-[14px] font-medium text-[#667085]">
+            <p className="mt-3 text-[14.5px] font-medium text-[#475467]">
               Phiên ôn hiện tại không có dữ liệu câu hỏi.
             </p>
           </div>

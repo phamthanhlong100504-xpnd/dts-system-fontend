@@ -63,7 +63,7 @@ export function ResultAnalyticsContent({
   if (isError || !data) {
     return (
       <div className="font-dts mx-auto w-full max-w-[1320px] px-6 pt-8">
-        <div className="rounded-2xl border border-red-200 bg-white p-12 text-center text-[15px] text-[#0b1427]">
+        <div className="rounded-2xl border border-red-200 bg-white p-12 text-center text-[15.5px] text-[#0b1427]">
           <AlertCircle className="mx-auto mb-4 text-red-500" />
           <b>Không tải được thống kê</b>
           <div>
@@ -86,15 +86,15 @@ export function ResultAnalyticsContent({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-[18px] font-bold text-[#0b1427]">Xu hướng kết quả</h2>
-            <p className="mt-1 text-[15px] font-normal text-[#3a4658]">Điểm trung bình theo ngày trong khoảng thời gian đã chọn.</p>
+            <p className="mt-1 text-[15.5px] font-medium text-[#344054]">Điểm trung bình theo ngày trong khoảng thời gian đã chọn.</p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-[14px] font-normal text-[#3a4658]">● Điểm trung bình ngày</span>
+            <span className="text-[14.5px] font-medium text-[#344054]">● Điểm trung bình ngày</span>
             <button
               type="button"
               disabled={isFetching}
               onClick={() => void refetch()}
-              className="rounded-lg border border-[#d8e0f1] px-3 py-2 text-[14px] font-semibold text-[#0758d9] disabled:opacity-50"
+              className="rounded-lg border border-[#d8e0f1] px-3 py-2 text-[14.5px] font-semibold text-[#0758d9] disabled:opacity-50"
             >
               <RefreshCcw className="mr-1 inline size-4" />
               Cập nhật
@@ -102,14 +102,14 @@ export function ResultAnalyticsContent({
           </div>
         </div>
         {pending ? (
-          <div role="status" className="flex h-56 items-center justify-center text-[14px] font-normal text-[#3a4658]">
+          <div role="status" className="flex h-56 items-center justify-center text-[14.5px] font-medium text-[#344054]">
             Chưa có thang điểm chuẩn hóa để vẽ xu hướng.
           </div>
         ) : (
           <TrendChart points={data.scoreTrend} maxScore={data.summary.maxScore} />
         )}
         {data.scoreTrendTruncated && (
-          <p className="mt-3 text-[14px] font-normal text-[#3a4658]">
+          <p className="mt-3 text-[14.5px] font-medium text-[#344054]">
             Biểu đồ giới hạn {data.scoreTrendLimit} ngày có dữ liệu gần nhất trên tổng {data.scoreTrendTotalDays} ngày.
           </p>
         )}
@@ -119,15 +119,15 @@ export function ResultAnalyticsContent({
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-5">
           <div>
             <h2 className="text-[18px] font-bold text-[#0b1427]">Bài làm gần đây</h2>
-            <p className="mt-1 text-[15px] font-normal text-[#3a4658]">Các kết quả mới nhất trong khoảng thời gian đã chọn.</p>
+            <p className="mt-1 text-[15.5px] font-medium text-[#344054]">Các kết quả mới nhất trong khoảng thời gian đã chọn.</p>
           </div>
-          <button type="button" onClick={onOpenHistory} className="inline-flex items-center gap-2 text-[14px] font-semibold text-[#0758d9]">
+          <button type="button" onClick={onOpenHistory} className="inline-flex items-center gap-2 text-[14.5px] font-semibold text-[#0758d9]">
             Xem toàn bộ lịch sử <ArrowRight className="size-4" />
           </button>
         </div>
         <div className="overflow-x-auto">
           <div className="min-w-[730px]">
-            <div className="grid min-h-[50px] grid-cols-[minmax(0,1.8fr)_0.8fr_0.8fr_1fr_1fr] items-center bg-[#edf1ff] px-4 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-[#273449]">
+            <div className="grid min-h-[50px] grid-cols-[minmax(0,1.8fr)_0.8fr_0.8fr_1fr_1fr] items-center bg-[#edf1ff] px-4 text-center text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#273449]">
               <span>BÀI THI</span>
               <span>KẾT QUẢ</span>
               <span>ĐIỂM</span>
@@ -135,22 +135,22 @@ export function ResultAnalyticsContent({
               <span>THAO TÁC</span>
             </div>
             {data.recentResults.length === 0 ? (
-              <div className="flex min-h-32 items-center justify-center text-[15px] font-normal text-[#3a4658]">Chưa có bài thi trong khoảng thời gian này.</div>
+              <div className="flex min-h-32 items-center justify-center text-[15.5px] font-medium text-[#344054]">Chưa có bài thi trong khoảng thời gian này.</div>
             ) : (
               data.recentResults.slice(0, 5).map((item) => {
                 const path = safeResultPath(item);
                 return (
-                  <div key={item.resultId} className="grid min-h-[68px] grid-cols-[minmax(0,1.8fr)_0.8fr_0.8fr_1fr_1fr] items-center border-t border-[#e8ecf3] px-4 text-[15px] font-medium text-[#172335]">
+                  <div key={item.resultId} className="grid min-h-[68px] grid-cols-[minmax(0,1.8fr)_0.8fr_0.8fr_1fr_1fr] items-center border-t border-[#e8ecf3] px-4 text-[15.5px] font-medium text-[#172335]">
                     <div className="min-w-0 break-words pr-3 font-semibold text-[#172335]">{item.title?.trim() || recentTitles[item.resultId] || "Chưa có tên bài thi"}</div>
                     <div className="text-center">
-                      <span className={item.result === "PASSED" ? "rounded-full bg-[#e8fbf1] px-3 py-1.5 text-[14px] font-semibold text-[#087b4b]" : "rounded-full bg-[#fff0ee] px-3 py-1.5 text-[14px] font-semibold text-[#b42318]"}>
+                      <span className={item.result === "PASSED" ? "rounded-full bg-[#e8fbf1] px-3 py-1.5 text-[14.5px] font-semibold text-[#087b4b]" : "rounded-full bg-[#fff0ee] px-3 py-1.5 text-[14.5px] font-semibold text-[#b42318]"}>
                         {item.result === "PASSED" ? "Đạt" : "Chưa đạt"}
                       </span>
                     </div>
                     <div className="text-center font-semibold text-[#172335]">
                       {item.score == null || item.maxScore == null ? <span title="Chưa có thang chuẩn hóa">—</span> : `${fmt(item.score)} / ${fmt(item.maxScore)}`}
                     </div>
-                    <div className="text-center text-[15px] text-[#2b3749]">{dateTime(item.completedAt)}</div>
+                    <div className="text-center text-[15.5px] text-[#2b3749]">{dateTime(item.completedAt)}</div>
                     <div className="text-center">
                       <button
                         type="button"
@@ -159,7 +159,7 @@ export function ResultAnalyticsContent({
                           if (path) router.push(path);
                         }}
                         title={!path ? "Kết quả chưa sẵn sàng" : undefined}
-                        className="inline-flex items-center gap-1 text-[14px] font-semibold text-[#0758d9] disabled:cursor-not-allowed disabled:opacity-40"
+                        className="inline-flex items-center gap-1 text-[14.5px] font-semibold text-[#0758d9] disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         Xem kết quả <ArrowRight className="size-4" />
                       </button>
@@ -180,7 +180,7 @@ function TrendChart({ points, maxScore }: { points: ResultAnalyticsTrendPoint[];
   const valid = points.filter((point): point is ResultAnalyticsTrendPoint & { score: number } => point.score != null && Number.isFinite(point.score));
 
   if (!valid.length || maxScore == null || maxScore <= 0) {
-    return <div className="flex h-60 items-center justify-center text-[14px] font-medium text-[#2b3749]">Chưa có dữ liệu điểm trung bình ngày.</div>;
+    return <div className="flex h-60 items-center justify-center text-[14.5px] font-medium text-[#2b3749]">Chưa có dữ liệu điểm trung bình ngày.</div>;
   }
 
   const width = Math.max(980, valid.length * 72 + 80);

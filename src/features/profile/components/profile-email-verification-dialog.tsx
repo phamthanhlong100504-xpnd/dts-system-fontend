@@ -89,7 +89,7 @@ export function ProfileEmailVerificationDialog({
             Xác minh địa chỉ email
           </DialogTitle>
 
-          <DialogDescription className="text-[14px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+          <DialogDescription className="text-[14.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
             Yêu cầu mã xác minh gửi tới {email},
             sau đó nhập mã để xác nhận email hiện tại.
           </DialogDescription>
@@ -102,7 +102,7 @@ export function ProfileEmailVerificationDialog({
           <div>
             <label
               htmlFor="profile-email-code"
-              className="text-[13px] font-semibold text-[#344054] dark:text-[#e2e8f0]"
+              className="text-[13.5px] font-semibold text-[#27364f] dark:text-[#e2e8f0]"
             >
               Mã xác minh
             </label>
@@ -118,7 +118,7 @@ export function ProfileEmailVerificationDialog({
                 setCode(event.target.value)
               }
               disabled={isSaving}
-              className="mt-2 h-11 w-full rounded-[10px] border border-[#dfe3ea] bg-[#f8f9fe] px-4 text-[14px] font-semibold text-[#101828] outline-none focus:border-[#0758d9] dark:bg-[#111c2d] dark:text-[#f8fafc]"
+              className="mt-2 h-11 w-full rounded-[10px] border border-[#dfe3ea] bg-[#f8f9fe] px-4 text-[14.5px] font-semibold text-[#101828] outline-none focus:border-[#0758d9] dark:bg-[#111c2d] dark:text-[#f8fafc]"
             />
           </div>
 
@@ -129,7 +129,7 @@ export function ProfileEmailVerificationDialog({
               onClick={() =>
                 sendCode.mutate(email)
               }
-              className="h-10 rounded-[10px] border border-[#dfe3ea] px-4 text-[13px] font-semibold text-[#344054] disabled:opacity-50 dark:text-[#e2e8f0]"
+              className="h-10 rounded-[10px] border border-[#dfe3ea] px-4 text-[13.5px] font-semibold text-[#27364f] disabled:opacity-50 dark:text-[#e2e8f0]"
             >
               {sendCode.isPending
                 ? "Đang gửi..."
@@ -139,7 +139,7 @@ export function ProfileEmailVerificationDialog({
             <button
               type="submit"
               disabled={isSaving || !code.trim()}
-              className="h-10 rounded-[10px] bg-[#0758d9] px-5 text-[13px] font-semibold text-white disabled:opacity-50"
+              className="h-10 rounded-[10px] bg-[#0758d9] px-5 text-[13.5px] font-semibold text-white disabled:opacity-50"
             >
               {confirmCode.isPending
                 ? "Đang xác minh..."

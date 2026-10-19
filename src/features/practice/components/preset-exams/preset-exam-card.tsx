@@ -118,7 +118,7 @@ export function PresetExamCard({
             rounded-[7px]
             bg-[#e9efff]
             px-2.5
-            text-[11px]
+            text-[11.5px]
             font-bold
             uppercase
             tracking-[0.02em]
@@ -152,9 +152,9 @@ export function PresetExamCard({
           items-center
           gap-x-3
           gap-y-1.5
-          text-[13px]
+          text-[13.5px]
           font-medium
-          text-[#667085]
+          text-[#475467]
         "
       >
         <span className="inline-flex items-center gap-1.5">
@@ -202,11 +202,11 @@ export function PresetExamCard({
       >
         {isNotStarted && (
           <>
-            <span className="text-[13px] font-medium text-[#5d6678]">
+            <span className="text-[13.5px] font-medium text-[#5d6678]">
               Chưa từng làm
             </span>
 
-            <span className="text-[14px] font-semibold text-[#98a2b3]">
+            <span className="text-[14.5px] font-semibold text-[#98a2b3]">
               —
             </span>
           </>
@@ -215,11 +215,11 @@ export function PresetExamCard({
         {isInProgress && (
           <>
             <div className="min-w-0">
-              <span className="text-[13px] font-medium text-[#5d6678]">
+              <span className="text-[13.5px] font-medium text-[#5d6678]">
                 Trạng thái:
               </span>
 
-              <span className="ml-1.5 text-[13px] font-bold text-[#0758d9]">
+              <span className="ml-1.5 text-[13.5px] font-bold text-[#0758d9]">
                 Đang làm
               </span>
             </div>
@@ -235,17 +235,17 @@ export function PresetExamCard({
           isFailed) && (
           <>
             <div className="min-w-0">
-              <span className="text-[13px] font-medium text-[#5d6678]">
+              <span className="text-[13.5px] font-medium text-[#5d6678]">
                 Lần gần nhất:
               </span>
 
               {hasScore ? (
-                <span className="ml-1.5 text-[15px] font-bold text-[#101828]">
+                <span className="ml-1.5 text-[15.5px] font-bold text-[#101828]">
                   {correctCount} /{" "}
                   {attemptTotal}
                 </span>
               ) : (
-                <span className="ml-1.5 text-[14px] font-semibold text-[#98a2b3]">
+                <span className="ml-1.5 text-[14.5px] font-semibold text-[#98a2b3]">
                   —
                 </span>
               )}
@@ -279,7 +279,7 @@ export function PresetExamCard({
             self-center
             rounded-[10px]
             px-5
-            text-[13.5px]
+            text-[14px]
             font-semibold
             shadow-none
             transition
@@ -369,7 +369,7 @@ function StatusBadge({
           rounded-full
           px-2.5
           py-1
-          text-[11.5px]
+          text-[12px]
           font-semibold
         `,
 

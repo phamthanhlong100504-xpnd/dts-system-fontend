@@ -198,7 +198,7 @@ export default function AdminExamsPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Quản lý Kỳ thi & Bộ đề thi
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-[14.5px]/5 text-muted-foreground mt-1">
             Cấu hình ma trận đề thi, quy chế sát hạch và danh sách bộ đề.
           </p>
         </div>
@@ -228,7 +228,7 @@ export default function AdminExamsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Tên bộ đề *</label>
+                  <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Tên bộ đề *</label>
                   <Input
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
@@ -237,15 +237,15 @@ export default function AdminExamsPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Hạng GPLX *</label>
-                  <select value={newLicenseClass} onChange={(e) => setNewLicenseClass(e.target.value)} disabled={!licenseCatalog.isSuccess} className="h-10 w-full rounded-lg border bg-background px-3 text-sm">
+                  <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Hạng GPLX *</label>
+                  <select value={newLicenseClass} onChange={(e) => setNewLicenseClass(e.target.value)} disabled={!licenseCatalog.isSuccess} className="h-10 w-full rounded-lg border bg-background px-3 text-[14.5px]/5">
                     <option value="">{licenseCatalog.isLoading ? "Đang tải danh mục GPLX..." : "Chọn hạng GPLX từ danh mục"}</option>
                     {licenseOptions.map((item) => <option key={item.code} value={item.code}>{item.code} — {item.title}</option>)}
                   </select>
-                  {licenseCatalog.isError && <p className="text-xs text-destructive">Không tải được danh mục hạng GPLX. Vui lòng thử lại.</p>}
+                  {licenseCatalog.isError && <p className="text-[12.5px]/4 text-destructive">Không tải được danh mục hạng GPLX. Vui lòng thử lại.</p>}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Mã đề thi *</label>
+                  <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Mã đề thi *</label>
                   <Input
                     value={newCode}
                     onChange={(e) => setNewCode(e.target.value)}
@@ -255,7 +255,7 @@ export default function AdminExamsPage() {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground flex justify-between">
+                <label className="text-[12.5px]/4 font-semibold text-muted-foreground flex justify-between">
                   <span>Ảnh bìa (Thumbnail)</span>
                   {newThumbnailId && (
                     <span 
@@ -291,7 +291,7 @@ export default function AdminExamsPage() {
                   ) : (
                     <>
                       <UploadCloud className="h-6 w-6 text-muted-foreground" />
-                      <p className="text-xs font-medium text-muted-foreground">Tải ảnh lên</p>
+                      <p className="text-[12.5px]/4 font-medium text-muted-foreground">Tải ảnh lên</p>
                     </>
                   )}
                 </div>
@@ -319,11 +319,11 @@ export default function AdminExamsPage() {
           { label: "Số câu đề đã cấu hình", value: examSets.reduce((sum, e) => sum + e.questionsCount, 0).toLocaleString("vi-VN"), icon: BookOpen, color: "text-primary" },
         ].map((stat) => {
           const Icon = stat.icon;
-          return <Card key={stat.label}><CardContent className="flex items-center gap-3 p-4"><div className={`rounded-xl bg-muted p-2 ${stat.color}`}><Icon className="size-5" /></div><div><p className="text-xs text-muted-foreground">{stat.label}</p><p className="text-2xl font-bold">{stat.value}</p></div></CardContent></Card>;
+          return <Card key={stat.label}><CardContent className="flex items-center gap-3 p-4"><div className={`rounded-xl bg-muted p-2 ${stat.color}`}><Icon className="size-5" /></div><div><p className="text-[12.5px]/4 text-muted-foreground">{stat.label}</p><p className="text-2xl font-bold">{stat.value}</p></div></CardContent></Card>;
         })}
       </div>
-      <p className="text-xs text-muted-foreground">Trạng thái kỳ thi và phiên bản đề được quản lý riêng. Kỳ thi đang ẩn sẽ không hiển thị cho học viên.</p>
-      {examsError && <p role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">Không tải được dữ liệu kỳ thi. Vui lòng kiểm tra kết nối hoặc quyền truy cập.</p>}
+      <p className="text-[12.5px]/4 text-muted-foreground">Trạng thái kỳ thi và phiên bản đề được quản lý riêng. Kỳ thi đang ẩn sẽ không hiển thị cho học viên.</p>
+      {examsError && <p role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-[14.5px]/5 text-red-700">Không tải được dữ liệu kỳ thi. Vui lòng kiểm tra kết nối hoặc quyền truy cập.</p>}
 
       {/* Filter Toolbar */}
       <Card className="rounded-2xl shadow-sm">
@@ -334,14 +334,14 @@ export default function AdminExamsPage() {
               placeholder="Tìm kiếm bộ đề thi..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-9 text-sm"
+              className="pl-9 h-9 text-[14.5px]/5"
             />
           </div>
           <div className="flex items-center gap-3">
             <select
               value={selectedLicense}
               onChange={(e) => setSelectedLicense(e.target.value)}
-              className="h-9 rounded-lg border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-9 rounded-lg border bg-background px-3 text-[14.5px]/5 focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="ALL">Hạng bằng (Tất cả)</option>
               {licenseOptions.map((item) => <option key={item.code} value={item.code}>Hạng {item.code}</option>)}
@@ -349,7 +349,7 @@ export default function AdminExamsPage() {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="h-9 rounded-lg border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-9 rounded-lg border bg-background px-3 text-[14.5px]/5 focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="ALL">Trạng thái (Tất cả)</option>
               <option value="PUBLISHED">Đã xuất bản</option>
@@ -364,8 +364,8 @@ export default function AdminExamsPage() {
       {/* Main Exams Table */}
       <Card className="rounded-2xl shadow-sm overflow-hidden border">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-muted/50 border-b text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <table className="w-full text-left text-[14.5px]/5">
+            <thead className="bg-muted/50 border-b text-[12.5px]/4 font-semibold uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="py-3.5 px-4">Mã đề</th>
                 <th className="py-3.5 px-4">Tên bộ đề</th>
@@ -391,7 +391,7 @@ export default function AdminExamsPage() {
                 ))
               ) : filteredExams.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-muted-foreground text-sm">
+                  <td colSpan={7} className="py-12 text-center text-muted-foreground text-[14.5px]/5">
                     Chưa có bộ đề nào phù hợp.
                   </td>
                 </tr>
@@ -409,14 +409,14 @@ export default function AdminExamsPage() {
                         {exam.licenseType}
                       </Badge>
                     </td>
-                    <td className="py-4 px-4 text-xs text-muted-foreground">
+                    <td className="py-4 px-4 text-[12.5px]/4 text-muted-foreground">
                       {exam.versionCount === 0 ? "Chưa tạo phiên bản" : <>{exam.questionsCount ? `${exam.questionsCount} câu` : "Chưa có cấu trúc"} · {exam.durationMinutes ? `${exam.durationMinutes} phút` : "Chưa có quy chế"} · {exam.passScore ? `Đạt ≥${exam.passScore}` : "Chưa có tiêu chí"}<span className="mt-1 block font-medium text-foreground">{exam.examType === "OFFICIAL" ? "Thi chính thức" : exam.examType ?? "—"} · {exam.versionCount} phiên bản</span></>}
                     </td>
                     <td className="py-4 px-4">
                       <Badge variant="secondary" className={exam.status === "PUBLISHED" ? "bg-emerald-100 text-emerald-700" : exam.status === "HIDDEN" ? "bg-slate-200 text-slate-700" : exam.status === "ARCHIVED" ? "bg-gray-200 text-gray-700" : "bg-amber-100 text-amber-700"}>{({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", HIDDEN: "Đang ẩn", ARCHIVED: "Đã lưu trữ" } as Record<string, string>)[exam.status] ?? exam.status}</Badge>
-                      {exam.status === "HIDDEN" && exam.publishedVersionCount > 0 && <p className="mt-1 text-xs text-amber-700">Phiên bản đã xuất bản nhưng kỳ thi đang ẩn</p>}
+                      {exam.status === "HIDDEN" && exam.publishedVersionCount > 0 && <p className="mt-1 text-[12.5px]/4 text-amber-700">Phiên bản đã xuất bản nhưng kỳ thi đang ẩn</p>}
                     </td>
-                    <td className="py-4 px-4 text-xs text-muted-foreground">{exam.updatedAt}</td>
+                    <td className="py-4 px-4 text-[12.5px]/4 text-muted-foreground">{exam.updatedAt}</td>
                     <td className="py-4 px-4 text-right whitespace-nowrap">
                       <div className="flex flex-nowrap items-center justify-end gap-1.5">
                         {/* Nút Xuất bản nếu đang là DRAFT */}
@@ -424,7 +424,7 @@ export default function AdminExamsPage() {
                           <Button
                             variant="default"
                             size="sm"
-                            className="h-8 shrink-0 whitespace-nowrap gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs"
+                            className="h-8 shrink-0 whitespace-nowrap gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[12.5px]/4"
                             onClick={() => handlePublish(exam.id)}
                             title="Mở trang phiên bản để xuất bản kỳ thi đúng nghiệp vụ"
                           >
@@ -477,7 +477,7 @@ export default function AdminExamsPage() {
           {editingExam && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Tên bộ đề *</label>
+                <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Tên bộ đề *</label>
                 <Input
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
@@ -485,7 +485,7 @@ export default function AdminExamsPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Mã bộ đề *</label>
+                <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Mã bộ đề *</label>
                 <Input
                   value={editCode}
                   onChange={(e) => setEditCode(e.target.value)}
@@ -493,7 +493,7 @@ export default function AdminExamsPage() {
                 />
               </div>
               <div className="space-y-1.5 sm:col-span-2 mt-2">
-                <label className="text-xs font-semibold text-muted-foreground flex justify-between">
+                <label className="text-[12.5px]/4 font-semibold text-muted-foreground flex justify-between">
                   <span>Ảnh bìa (Thumbnail)</span>
                   {editThumbnailId && (
                     <span 
@@ -518,7 +518,7 @@ export default function AdminExamsPage() {
                   {isUploadingEditThumb ? (
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                       <Loader2 className="h-6 w-6 animate-spin" />
-                      <p className="text-xs">Đang tải...</p>
+                      <p className="text-[12.5px]/4">Đang tải...</p>
                     </div>
                   ) : editThumbnailId ? (
                     <div className="relative w-full h-full group">
@@ -532,7 +532,7 @@ export default function AdminExamsPage() {
                   ) : (
                     <>
                       <UploadCloud className="h-8 w-8 text-muted-foreground" />
-                      <p className="text-sm font-medium text-muted-foreground">Tải ảnh lên (Max 5MB)</p>
+                      <p className="text-[14.5px]/5 font-medium text-muted-foreground">Tải ảnh lên (Max 5MB)</p>
                     </>
                   )}
                 </div>

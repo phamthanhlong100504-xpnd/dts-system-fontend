@@ -44,13 +44,13 @@ export function OfficialExamCard({
             <ExamStatusBadge exam={exam} />
 
             {exam.licenseClass && (
-              <span className="inline-flex min-h-7 items-center rounded-[7px] bg-[#f2f4f7] px-2.5 text-[13px] font-medium text-[#344054]">
+              <span className="inline-flex min-h-7 items-center rounded-[7px] bg-[#f2f4f7] px-2.5 text-[13.5px] font-medium text-[#27364f]">
                 Hạng {exam.licenseClass}
               </span>
             )}
 
             {exam.questionsCount != null && (
-              <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#344054]">
+              <span className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-[#27364f]">
                 <FileText
                   className="size-3.5"
                   strokeWidth={1.9}
@@ -60,7 +60,7 @@ export function OfficialExamCard({
             )}
 
             {durationMinutes != null && (
-              <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#344054]">
+              <span className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-[#27364f]">
                 <Clock3
                   className="size-3.5"
                   strokeWidth={1.9}
@@ -115,7 +115,7 @@ export function OfficialExamCard({
               }
             }}
             className={cn(
-              "inline-flex h-11 min-w-[156px] items-center justify-center gap-2.5 rounded-[10px] px-5 text-[13px] font-bold transition",
+              "inline-flex h-11 min-w-[156px] items-center justify-center gap-2.5 rounded-[10px] px-5 text-[13.5px] font-bold transition",
               startDisabled
                 ? "cursor-not-allowed bg-[#e9edf5] text-[#98a2b3]"
                 : "bg-[#0758d9] text-white shadow-[0_2px_5px_rgba(7,88,217,0.16)] hover:bg-[#064fc2]"
@@ -149,7 +149,7 @@ function ExamStatusBadge({
 }) {
   if (["SUBMITTED", "EXPIRED", "PARTICIPATED"].includes(exam.participationStatus)) {
     return (
-      <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#edf8f0] px-2.5 text-[11px] font-semibold uppercase text-[#15803d]">
+      <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#edf8f0] px-2.5 text-[11.5px] font-semibold uppercase text-[#15803d]">
         <CheckCircle2
           className="size-3.5"
           strokeWidth={2}
@@ -161,7 +161,7 @@ function ExamStatusBadge({
 
   if (exam.availability === "UPCOMING") {
     return (
-      <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#fff4e5] px-2.5 text-[12px] font-semibold uppercase text-[#b54708]">
+      <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#fff4e5] px-2.5 text-[12.5px] font-semibold uppercase text-[#b54708]">
         <span className="size-1.5 rounded-full bg-current" />
         Sắp diễn ra
       </span>
@@ -170,7 +170,7 @@ function ExamStatusBadge({
 
   if (exam.availability === "CLOSED") {
     return (
-      <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#f2f4f7] px-2.5 text-[12px] font-semibold uppercase text-[#667085]">
+      <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#f2f4f7] px-2.5 text-[12.5px] font-semibold uppercase text-[#475467]">
         <span className="size-1.5 rounded-full bg-current" />
         Đã đóng
       </span>
@@ -179,7 +179,7 @@ function ExamStatusBadge({
 
   if (exam.availability === "OPEN") {
     return (
-      <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#eaf2ff] px-2.5 text-[12px] font-semibold uppercase text-[#0758d9]">
+      <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#eaf2ff] px-2.5 text-[12.5px] font-semibold uppercase text-[#0758d9]">
         <span className="size-1.5 rounded-full bg-current" />
         Đang mở
       </span>
@@ -187,7 +187,7 @@ function ExamStatusBadge({
   }
 
   return (
-    <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#f2f4f7] px-2.5 text-[12px] font-semibold uppercase text-[#667085]">
+    <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#f2f4f7] px-2.5 text-[12.5px] font-semibold uppercase text-[#475467]">
       <span className="size-1.5 rounded-full bg-current" />
       Chưa xác định
     </span>
@@ -212,11 +212,11 @@ function InfoBox({
       </span>
 
       <div className="min-w-0">
-        <p className="text-[14px] font-medium leading-[1.45] text-[#344054]">
+        <p className="text-[14.5px] font-medium leading-[1.45] text-[#27364f]">
           {label}
         </p>
 
-        <p className={cn("mt-1.5 font-medium leading-[1.55] text-[#101828]", compactValue ? "text-[13px]" : "text-[14px]")}>
+        <p className={cn("mt-1.5 font-medium leading-[1.55] text-[#101828]", compactValue ? "text-[13.5px]" : "text-[14.5px]")}>
           {value}
         </p>
       </div>

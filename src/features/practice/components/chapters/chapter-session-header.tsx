@@ -60,9 +60,9 @@ export function ChapterSessionHeader({
               gap-2
               rounded-[8px]
               py-2
-              text-[13px]
+              text-[13.5px]
               font-medium
-              text-[#667085]
+              text-[#475467]
               transition
               hover:text-[#0758d9]
             "
@@ -78,7 +78,7 @@ export function ChapterSessionHeader({
 
         <div className="min-w-0 text-center">
           <div className="flex items-center justify-center gap-2.5">
-            <h1 className="text-[15px] font-bold text-[#344054]">
+            <h1 className="text-[15.5px] font-bold text-[#27364f]">
               Chương{" "}
               {toRoman(chapterId)}
             </h1>
@@ -89,7 +89,7 @@ export function ChapterSessionHeader({
                 bg-[#eef2ff]
                 px-2.5
                 py-1
-                text-[13px]
+                text-[13.5px]
                 font-semibold
                 text-[#0758d9]
               "
@@ -104,7 +104,7 @@ export function ChapterSessionHeader({
               mt-1.5
               max-w-[500px]
               truncate
-              text-[13px]
+              text-[13.5px]
               font-medium
               text-[#98a2b3]
             "
@@ -117,9 +117,9 @@ export function ChapterSessionHeader({
           <span
             className="
               whitespace-nowrap
-              text-[13px]
+              text-[13.5px]
               font-semibold
-              text-[#667085]
+              text-[#475467]
             "
           >
             {currentPosition}
@@ -140,9 +140,9 @@ export function ChapterSessionHeader({
               border-[#dfe3ea]
               bg-[#f8f9fc]
               px-4
-              text-[13px]
+              text-[13.5px]
               font-semibold
-              text-[#667085]
+              text-[#475467]
               transition
               hover:border-[#c8d1df]
               hover:bg-[#f2f4f8]

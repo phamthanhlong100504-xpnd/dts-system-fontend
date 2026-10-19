@@ -52,10 +52,10 @@ export function OfficialExamTabs({
             type="button"
             onClick={() => onChange(tab.id)}
             className={cn(
-              "inline-flex min-h-10 items-center gap-2 rounded-[9px] px-4 text-[14px] font-semibold transition",
+              "inline-flex min-h-10 items-center gap-2 rounded-[9px] px-4 text-[14.5px] font-semibold transition",
               active
                 ? "bg-white text-[#0758d9] shadow-[0_1px_3px_rgba(15,23,42,0.08)]"
-                : "text-[#667085] hover:bg-white/60 hover:text-[#344054]"
+                : "text-[#475467] hover:bg-white/60 hover:text-[#344054]"
             )}
           >
             <Icon

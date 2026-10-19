@@ -37,7 +37,7 @@ export function SiteHeader() {
         </Link>
 
         {isAuthenticated && (
-          <nav className="hidden items-center gap-1 text-sm sm:flex">
+          <nav className="hidden items-center gap-1 text-[14.5px]/5 sm:flex">
             <NavLink href="/examination">Thi chính thức</NavLink>
             <NavLink href="/practice">Luyện tập</NavLink>
             <NavLink href="/practice/history">Lịch sử thi</NavLink>
@@ -72,7 +72,7 @@ export function SiteHeader() {
           <ThemeToggle />
           {isAuthenticated ? (
             <>
-              <span className="hidden max-w-[12rem] truncate text-sm text-muted-foreground md:inline">
+              <span className="hidden max-w-[12rem] truncate text-[14.5px]/5 text-muted-foreground md:inline">
                 {user?.fullName ?? user?.username}
               </span>
               <Button

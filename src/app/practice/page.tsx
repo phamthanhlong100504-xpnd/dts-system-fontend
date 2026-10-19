@@ -495,7 +495,7 @@ function PracticeHub({
             Ôn luyện
           </h1>
 
-          <p className="mt-1.5 text-[14px] font-medium text-[#475467]">
+          <p className="mt-1.5 text-[14.5px] font-medium text-[#344054]">
             Hạng{" "}
             {licenseCode} · Học theo cách phù hợp với bạn.
           </p>
@@ -519,15 +519,15 @@ function PracticeHub({
 
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="text-[12px] font-bold uppercase tracking-[0.04em] text-[#0758d9]">
+                    <span className="text-[12.5px] font-bold uppercase tracking-[0.04em] text-[#0758d9]">
                       Tiếp tục gần đây
                     </span>
 
-                    <span className="text-[12px] text-[#98a2b3]">
+                    <span className="text-[12.5px] text-[#98a2b3]">
                       •
                     </span>
 
-                    <span className="text-[14px] font-medium text-[#667085]">
+                    <span className="text-[14.5px] font-medium text-[#475467]">
                       {activeExam.mode ===
                       "PRACTICE"
                         ? "Luyện tập có giải thích"
@@ -535,7 +535,7 @@ function PracticeHub({
                     </span>
                   </div>
 
-                  <p className="mt-1 text-[15px] font-bold text-[#101828]">
+                  <p className="mt-1 text-[15.5px] font-bold text-[#101828]">
                     Bài hạng{" "}
                     {licenseCode}{" "}
                     {activeExam.status ===
@@ -545,7 +545,7 @@ function PracticeHub({
                   </p>
 
                   <div className="mt-2.5 flex flex-wrap items-center gap-3">
-                    <span className="text-[14px] font-medium text-[#475467]">
+                    <span className="text-[14.5px] font-medium text-[#344054]">
                       {
                         answeredCount
                       }
@@ -566,7 +566,7 @@ function PracticeHub({
                       />
                     </div>
 
-                    <span className="text-[12px] font-semibold text-[#0758d9]">
+                    <span className="text-[12.5px] font-semibold text-[#0758d9]">
                       {
                         resumePercent
                       }
@@ -575,7 +575,7 @@ function PracticeHub({
                   </div>
                 </div>
 
-                <span className="hidden h-10 shrink-0 items-center gap-2 rounded-[9px] bg-[#0758d9] px-5 text-[14px] font-semibold text-white transition group-hover:bg-[#064fc3] sm:flex">
+                <span className="hidden h-10 shrink-0 items-center gap-2 rounded-[9px] bg-[#0758d9] px-5 text-[14.5px] font-semibold text-white transition group-hover:bg-[#064fc3] sm:flex">
                   Tiếp tục
 
                   <ArrowRight className="size-4" />
@@ -603,7 +603,7 @@ function PracticeHub({
                 Thi thử ngẫu nhiên
               </h3>
 
-              <p className="mt-2 text-[14px] font-medium leading-6 text-[#475467]">
+              <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#344054]">
                 Tạo một đề mới theo cấu trúc thi của hạng{" "}
                 {licenseCode}.
               </p>
@@ -650,7 +650,7 @@ function PracticeHub({
                   disabled={
                     examConfigQuery.isFetching
                   }
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[14px] font-semibold text-white shadow-[0_2px_5px_rgba(7,88,217,0.15)] transition hover:bg-[#064fc3] hover:shadow-[0_3px_8px_rgba(7,88,217,0.2)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[14.5px] font-semibold text-white shadow-[0_2px_5px_rgba(7,88,217,0.15)] transition hover:bg-[#064fc3] hover:shadow-[0_3px_8px_rgba(7,88,217,0.2)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {examConfigQuery.isFetching
                     ? "Đang tải cấu hình..."
@@ -673,7 +673,7 @@ function PracticeHub({
                 Bộ đề có sẵn
               </h3>
 
-              <p className="mt-2 text-[14px] font-medium leading-6 text-[#475467]">
+              <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#344054]">
                 Luyện tập với các bộ đề đã được chuẩn bị sẵn theo hạng{" "}
                 {licenseCode}.
               </p>
@@ -722,7 +722,7 @@ function PracticeHub({
               <div className="mt-auto flex justify-center pt-6">
                 <Link
                   href="/practice/exams"
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#e9edff] px-6 text-[14px] font-semibold text-[#344054] transition hover:bg-[#dfe5ff] hover:text-[#0758d9]"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#e9edff] px-6 text-[14.5px] font-semibold text-[#27364f] transition hover:bg-[#dfe5ff] hover:text-[#0758d9]"
                 >
                   Xem bộ đề
 
@@ -919,7 +919,7 @@ function PracticeLoadError({
           Không tải được dữ liệu
         </h1>
 
-        <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">
+        <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]">
           {message}
         </p>
 
@@ -928,7 +928,7 @@ function PracticeLoadError({
           onClick={
             onRetry
           }
-          className="mt-5 h-10 rounded-[10px] bg-[#0758d9] px-5 text-[13px] font-semibold text-white transition hover:bg-[#064fc3]"
+          className="mt-5 h-10 rounded-[10px] bg-[#0758d9] px-5 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3]"
         >
           Thử lại
         </button>
@@ -1003,7 +1003,7 @@ function MetaChip({
   children: React.ReactNode;
 }) {
   return (
-    <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#f0f2ff] px-2.5 py-1 text-[12px] font-semibold text-[#344054]">
+    <span className="inline-flex min-h-7 items-center gap-1.5 rounded-[7px] bg-[#f0f2ff] px-2.5 py-1 text-[12.5px] font-semibold text-[#27364f]">
       {children}
     </span>
   );
@@ -1053,14 +1053,14 @@ function CompactFeatureCard({
       </h3>
 
       {supportingText && (
-        <span className="mt-2 inline-flex w-fit rounded-[7px] bg-[#f0f2ff] px-2.5 py-1 text-[12px] font-medium text-[#475467]">
+        <span className="mt-2 inline-flex w-fit rounded-[7px] bg-[#f0f2ff] px-2.5 py-1 text-[12.5px] font-medium text-[#344054]">
           {
             supportingText
           }
         </span>
       )}
 
-      <p className="mt-2.5 text-[14px] font-medium leading-6 text-[#475467]">
+      <p className="mt-2.5 text-[14.5px] font-medium leading-6 text-[#344054]">
         {description}
       </p>
 
@@ -1068,11 +1068,11 @@ function CompactFeatureCard({
         <div className="mt-3 flex items-center gap-3">
           <span
             className={cn(
-              "shrink-0 text-[12px] font-semibold",
+              "shrink-0 text-[12.5px] font-semibold",
 
               critical
                 ? "text-[#c66700]"
-                : "text-[#475467]"
+                : "text-[#344054]"
             )}
           >
             {
@@ -1110,7 +1110,7 @@ function CompactFeatureCard({
           href
         }
         className={cn(
-          "mt-auto inline-flex items-center gap-1.5 pt-5 text-[14px] font-semibold",
+          "mt-auto inline-flex items-center gap-1.5 pt-5 text-[14.5px] font-semibold",
 
           critical
             ? "text-[#c66700]"
@@ -1149,7 +1149,7 @@ function QuickCard({
       <div className="min-w-0 flex-1">
         <div
           className={cn(
-            "text-[12px] font-bold uppercase tracking-[0.05em]",
+            "text-[12.5px] font-bold uppercase tracking-[0.05em]",
 
             eyebrowTone ===
               "teal"
@@ -1164,7 +1164,7 @@ function QuickCard({
           {title}
         </h3>
 
-        <p className="mt-2 text-[14px] font-medium leading-6 text-[#475467]">
+        <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#344054]">
           {description}
         </p>
 
@@ -1173,7 +1173,7 @@ function QuickCard({
             href
           }
           className={cn(
-            "mt-4 inline-flex items-center gap-1.5 text-[14px] font-semibold",
+            "mt-4 inline-flex items-center gap-1.5 text-[14.5px] font-semibold",
 
             eyebrowTone ===
               "teal"

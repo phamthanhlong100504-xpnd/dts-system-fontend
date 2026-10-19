@@ -43,7 +43,7 @@ export function CriticalQuestionsContent({
       <div className="px-5 lg:px-[1cm]">
         <Link
           href="/practice"
-          className="inline-flex items-center gap-2 rounded-[8px] py-2 text-[13px] font-medium text-[#667085] transition hover:text-[#0758d9]"
+          className="inline-flex items-center gap-2 rounded-[8px] py-2 text-[13.5px] font-medium text-[#475467] transition hover:text-[#0758d9]"
         >
           <ArrowLeft
             className="size-4"
@@ -60,7 +60,7 @@ export function CriticalQuestionsContent({
             Câu điểm liệt
           </h1>
 
-          <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">
+          <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]">
             Ôn tập những câu cần đặc biệt chú ý khi làm bài lý thuyết.
           </p>
         </div>
@@ -181,7 +181,7 @@ function CriticalOverviewCard({
           / {totalQuestions}
         </span>
 
-        <span className="ml-1 text-[14px] font-medium text-[#667085]">
+        <span className="ml-1 text-[14.5px] font-medium text-[#475467]">
           câu đã học
         </span>
       </div>
@@ -196,7 +196,7 @@ function CriticalOverviewCard({
         />
       </div>
 
-      <p className="mt-6 text-[14px] font-medium leading-[1.7] text-[#475467]">
+      <p className="mt-6 text-[14.5px] font-medium leading-[1.7] text-[#344054]">
         {completed
           ? `Bạn đã học hết các câu điểm liệt của hạng ${licenseClass}.`
           : hasProgress
@@ -215,7 +215,7 @@ function CriticalOverviewCard({
               mode
             )
           }
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[13px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-60"
         >
           {starting ? (
             <Loader2 className="size-4 animate-spin" />
@@ -245,11 +245,11 @@ function CriticalOverviewCard({
         </span>
 
         <div>
-          <h2 className="text-[13px] font-bold text-[#344054]">
+          <h2 className="text-[13.5px] font-bold text-[#27364f]">
             Vì sao cần chú ý?
           </h2>
 
-          <p className="mt-1.5 text-[12.5px] font-medium leading-[1.65] text-[#667085]">
+          <p className="mt-1.5 text-[13px] font-medium leading-[1.65] text-[#475467]">
             Đây là nhóm câu cần được ghi nhớ đặc biệt khi ôn thi, giúp học viên nhận biết các tình huống giao thông cần chú ý và xây dựng phản xạ an toàn.
           </p>
         </div>
@@ -273,7 +273,7 @@ function CriticalQuestionsEmpty({
         Chưa có câu điểm liệt
       </h2>
 
-      <p className="mt-3 max-w-[560px] text-[14px] font-medium leading-6 text-[#667085]">
+      <p className="mt-3 max-w-[560px] text-[14.5px] font-medium leading-6 text-[#475467]">
         Hiện chưa có câu điểm liệt phù hợp với hạng{" "}
         {licenseClass}.
       </p>
@@ -292,7 +292,7 @@ function CriticalOverviewError({
         Không tải được câu điểm liệt
       </h2>
 
-      <p className="mt-3 text-[14px] font-medium leading-6 text-[#667085]">
+      <p className="mt-3 text-[14.5px] font-medium leading-6 text-[#475467]">
         Không thể tải dữ liệu câu điểm liệt ở thời điểm hiện tại.
       </p>
 
@@ -302,7 +302,7 @@ function CriticalOverviewError({
           onClick={
             onRetry
           }
-          className="inline-flex h-10 items-center gap-2 rounded-[9px] bg-[#f2f4f7] px-5 text-[13px] font-semibold text-[#344054] transition hover:bg-[#e9edf3]"
+          className="inline-flex h-10 items-center gap-2 rounded-[9px] bg-[#f2f4f7] px-5 text-[13.5px] font-semibold text-[#27364f] transition hover:bg-[#e9edf3]"
         >
           <RefreshCcw className="size-4" />
           Thử lại

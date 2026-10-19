@@ -77,7 +77,7 @@ export default function AdminQuestionsPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Ngân hàng Câu hỏi
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-[14.5px]/5 text-muted-foreground mt-1">
             Tra cứu ngân hàng câu hỏi chuẩn theo hạng GPLX và quản lý câu hỏi tự biên soạn.
           </p>
         </div>
@@ -142,7 +142,7 @@ export default function AdminQuestionsPage() {
                 placeholder="Tìm kiếm câu hỏi..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 text-sm"
+                className="pl-9 h-9 text-[14.5px]/5"
               />
             </div>
           </div>
@@ -152,8 +152,8 @@ export default function AdminQuestionsPage() {
       {/* Data Table */}
       <Card className="rounded-2xl shadow-sm overflow-hidden border">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-muted/50 border-b text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <table className="w-full text-left text-[14.5px]/5">
+            <thead className="bg-muted/50 border-b text-[12.5px]/4 font-semibold uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="py-3.5 px-4 w-28">Mã câu</th>
                 <th className="py-3.5 px-4">Nội dung câu hỏi</th>
@@ -165,7 +165,7 @@ export default function AdminQuestionsPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {questionsError ? (
-                <tr><td colSpan={6} className="p-6 text-sm text-destructive">Không tải được danh sách câu hỏi tự biên soạn. Vui lòng kiểm tra quyền truy cập hoặc thử lại.</td></tr>
+                <tr><td colSpan={6} className="p-6 text-[14.5px]/5 text-destructive">Không tải được danh sách câu hỏi tự biên soạn. Vui lòng kiểm tra quyền truy cập hoặc thử lại.</td></tr>
               ) : isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}>
@@ -179,7 +179,7 @@ export default function AdminQuestionsPage() {
                 ))
               ) : filteredQuestions.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-muted-foreground text-sm">
+                  <td colSpan={6} className="py-12 text-center text-muted-foreground text-[14.5px]/5">
                     {searchQuery ? "Không tìm thấy câu hỏi phù hợp" : "Chưa có câu hỏi tự tạo. Chuyển sang mục Ngân hàng chuẩn để xem các câu hỏi đã công bố."}
                   </td>
                 </tr>
@@ -193,7 +193,7 @@ export default function AdminQuestionsPage() {
                       <div className="flex items-center gap-2">
                         <span>{q.title}</span>
                         {q.isCritical && (
-                          <Badge variant="destructive" className="text-[10px] px-1.5 py-0 shrink-0">
+                          <Badge variant="destructive" className="text-[10.5px] px-1.5 py-0 shrink-0">
                             ⚠️ Điểm liệt
                           </Badge>
                         )}
@@ -267,12 +267,12 @@ export default function AdminQuestionsPage() {
         </div>
 
         {/* Pagination Footer */}
-        <div className="p-4 border-t bg-muted/20 flex justify-between items-center text-xs text-muted-foreground">
+        <div className="p-4 border-t bg-muted/20 flex justify-between items-center text-[12.5px]/4 text-muted-foreground">
           <span>Hiển thị {filteredQuestions.length} / {questions.length} câu hỏi</span>
           <div className="flex gap-1">
-            <Button variant="outline" size="sm" disabled className="h-8 text-xs">Trước</Button>
-            <Button variant="default" size="sm" className="h-8 text-xs">1</Button>
-            <Button variant="outline" size="sm" className="h-8 text-xs">Sau</Button>
+            <Button variant="outline" size="sm" disabled className="h-8 text-[12.5px]/4">Trước</Button>
+            <Button variant="default" size="sm" className="h-8 text-[12.5px]/4">1</Button>
+            <Button variant="outline" size="sm" className="h-8 text-[12.5px]/4">Sau</Button>
           </div>
         </div>
       </Card>
@@ -292,25 +292,25 @@ export default function AdminQuestionsPage() {
           ) : viewingQuestionDetail ? (
             <div className="space-y-6 mt-4">
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm text-muted-foreground uppercase">Nội dung câu hỏi</h4>
+                <h4 className="font-semibold text-[14.5px]/5 text-muted-foreground uppercase">Nội dung câu hỏi</h4>
                 <p className="text-base font-medium leading-relaxed">{viewingQuestionDetail.title}</p>
                 {viewingQuestionDetail.isCritical && <Badge variant="destructive" className="mt-1">⚠️ Câu điểm liệt</Badge>}
               </div>
 
               {viewingQuestionDetail.imageUrl && (
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-sm text-muted-foreground uppercase">Hình ảnh minh họa</h4>
+                  <h4 className="font-semibold text-[14.5px]/5 text-muted-foreground uppercase">Hình ảnh minh họa</h4>
                   <MediaImage src={viewingQuestionDetail.imageUrl} alt="Hình ảnh minh họa" className="mx-auto block max-h-[300px] max-w-full w-auto rounded-md border object-contain bg-muted/20" />
                 </div>
               )}
 
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm text-muted-foreground uppercase">Các lựa chọn</h4>
+                <h4 className="font-semibold text-[14.5px]/5 text-muted-foreground uppercase">Các lựa chọn</h4>
                 <div className="space-y-2 mt-2">
                   {viewingQuestionDetail.options?.map((opt, idx: number) => {
                     const isCorrect = opt.isCorrect || opt.is_correct || opt.correct;
                     return (
-                      <div key={idx} className={`p-3 rounded-md border text-sm flex gap-2 ${isCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/50 dark:border-emerald-900 dark:text-emerald-200 font-medium' : 'bg-background'}`}>
+                      <div key={idx} className={`p-3 rounded-md border text-[14.5px]/5 flex gap-2 ${isCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/50 dark:border-emerald-900 dark:text-emerald-200 font-medium' : 'bg-background'}`}>
                         <span className="font-bold">{opt.label || String.fromCharCode(65 + idx)}.</span>
                         <span>{opt.content || opt.text}</span>
                         {isCorrect && <span className="ml-auto text-emerald-600 dark:text-emerald-400">✓ Đáp án đúng</span>}
@@ -318,15 +318,15 @@ export default function AdminQuestionsPage() {
                     );
                   })}
                   {(!viewingQuestionDetail.options || viewingQuestionDetail.options.length === 0) && (
-                    <p className="text-sm text-muted-foreground italic">Không có lựa chọn nào.</p>
+                    <p className="text-[14.5px]/5 text-muted-foreground italic">Không có lựa chọn nào.</p>
                   )}
                 </div>
               </div>
 
               {viewingQuestionDetail.explanation && (
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-sm text-muted-foreground uppercase">Giải thích / Mẹo nhớ</h4>
-                  <div className="p-3 bg-primary/5 rounded-md text-sm border border-primary/10 leading-relaxed text-muted-foreground">
+                  <h4 className="font-semibold text-[14.5px]/5 text-muted-foreground uppercase">Giải thích / Mẹo nhớ</h4>
+                  <div className="p-3 bg-primary/5 rounded-md text-[14.5px]/5 border border-primary/10 leading-relaxed text-muted-foreground">
                     {viewingQuestionDetail.explanation}
                   </div>
                 </div>
@@ -334,14 +334,14 @@ export default function AdminQuestionsPage() {
 
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Trạng thái</p>
+                  <p className="text-[12.5px]/4 text-muted-foreground mb-1">Trạng thái</p>
                   <Badge variant={viewingQuestionDetail.status === 'PUBLISHED' ? 'default' : 'secondary'}>
                     {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ", HIDDEN: "Đang ẩn" } as Record<string, string>)[viewingQuestionDetail.status] ?? viewingQuestionDetail.status}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Chương trình / Môn</p>
-                  <p className="text-sm font-medium">{viewingQuestionDetail.program}</p>
+                  <p className="text-[12.5px]/4 text-muted-foreground mb-1">Chương trình / Môn</p>
+                  <p className="text-[14.5px]/5 font-medium">{viewingQuestionDetail.program}</p>
                 </div>
               </div>
             </div>

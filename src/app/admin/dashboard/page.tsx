@@ -32,7 +32,7 @@ export default function AdminDashboardPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Tổng quan hệ thống
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-[14.5px]/5 text-muted-foreground mt-1">
             Theo dõi chương trình học, chương và câu hỏi đã tạo. Tra cứu bộ câu hỏi chuẩn tại mục Ngân hàng câu hỏi.
           </p>
         </div>
@@ -46,7 +46,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {(questionError || programError || chapterError) && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">Một số dữ liệu chưa tải được. Vui lòng kiểm tra quyền truy cập hoặc thử lại. Số liệu chưa có được hiển thị bằng dấu gạch ngang.</p>}
+      {(questionError || programError || chapterError) && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-[14.5px]/5 text-destructive">Một số dữ liệu chưa tải được. Vui lòng kiểm tra quyền truy cập hoặc thử lại. Số liệu chưa có được hiển thị bằng dấu gạch ngang.</p>}
       {/* Metrics Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Programs */}
@@ -61,7 +61,7 @@ export default function AdminDashboardPage() {
               </Badge>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+              <p className="text-[12.5px]/4 font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                 Chương trình học
               </p>
               {isLoadingP ? (
@@ -82,7 +82,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+              <p className="text-[12.5px]/4 font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                 Câu hỏi tự tạo
               </p>
               {isLoadingQ ? (
@@ -90,7 +90,7 @@ export default function AdminDashboardPage() {
               ) : (
                 <div className="flex items-baseline gap-2">
                   <p className="text-3xl font-bold text-foreground">{questionError ? "—" : totalQuestions}</p>
-                  <span className="text-xs text-muted-foreground">Không tính câu hỏi chuẩn</span>
+                  <span className="text-[12.5px]/4 text-muted-foreground">Không tính câu hỏi chuẩn</span>
                 </div>
               )}
             </div>
@@ -106,7 +106,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+              <p className="text-[12.5px]/4 font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                 Chương tự tạo
               </p>
               {isLoadingC ? (
@@ -127,7 +127,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+              <p className="text-[12.5px]/4 font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                 Tỷ lệ công bố
               </p>
               {isLoadingQ ? (
@@ -135,7 +135,7 @@ export default function AdminDashboardPage() {
               ) : (
                 <div className="flex items-baseline gap-2">
                   <p className="text-3xl font-bold text-foreground">{questionError ? "—" : `${publishedPercent}%`}</p>
-                  <span className="text-xs font-medium text-emerald-600">
+                  <span className="text-[12.5px]/4 font-medium text-emerald-600">
                     {!questionError && `(${publishedQuestions}/${totalQuestions})`}
                   </span>
                 </div>
@@ -150,7 +150,7 @@ export default function AdminDashboardPage() {
         <div className="p-6 border-b flex items-center justify-between">
           <h2 className="text-base font-bold">Câu hỏi mới cập nhật</h2>
           <Link href="/admin/questions">
-            <Button variant="ghost" size="sm" className="text-xs">Xem tất cả →</Button>
+            <Button variant="ghost" size="sm" className="text-[12.5px]/4">Xem tất cả →</Button>
           </Link>
         </div>
         <CardContent className="p-0">
@@ -162,8 +162,8 @@ export default function AdminDashboardPage() {
             ) : questions.slice(0, 5).map((q) => (
               <div key={q.rawId || q.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
                 <div>
-                  <p className="text-sm font-medium text-foreground">{q.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{q.id} · {q.program}</p>
+                  <p className="text-[14.5px]/5 font-medium text-foreground">{q.title}</p>
+                  <p className="text-[12.5px]/4 text-muted-foreground mt-0.5">{q.id} · {q.program}</p>
                 </div>
                 <Badge variant={q.status === "PUBLISHED" ? "default" : "secondary"}>
                   {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ" } as Record<string, string>)[q.status ?? ""] ?? q.status}

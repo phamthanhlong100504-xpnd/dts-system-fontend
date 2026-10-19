@@ -21,7 +21,7 @@ export function AdminHeader({ title }: AdminHeaderProps) {
             <Input
               type="text"
               placeholder="Tìm kiếm thông tin trong hệ thống..."
-              className="pl-9 bg-muted/40 text-sm h-9"
+              className="pl-9 bg-muted/40 text-[14.5px]/5 h-9"
             />
           </div>
         )}
@@ -45,7 +45,7 @@ export function AdminHeader({ title }: AdminHeaderProps) {
           <HelpCircle className="h-5 w-5" />
         </button>
 
-        <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-xs border border-primary/20">
+        <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-[12.5px]/4 border border-primary/20">
           AD
         </div>
       </div>

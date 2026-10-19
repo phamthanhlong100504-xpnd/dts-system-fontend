@@ -27,7 +27,7 @@ export function ProgressLearningChapters({
           Tiến độ theo chương
         </h2>
 
-        <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">
+        <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]">
           Tiếp tục những nội dung bạn chưa học hết.
         </p>
       </div>
@@ -95,7 +95,7 @@ function ChapterProgressRow({
             rounded-[7px]
             bg-[#eaf0ff]
             px-3
-            text-[11px]
+            text-[11.5px]
             font-bold
             uppercase
             tracking-[0.03em]
@@ -139,12 +139,12 @@ function ChapterProgressRow({
         >
           <div className="flex flex-wrap items-center gap-2">
             {notStarted ? (
-              <span className="text-[13px] font-medium text-[#667085]">
+              <span className="text-[13.5px] font-medium text-[#475467]">
                 {chapter.totalQuestions} câu · Chưa bắt đầu
               </span>
             ) : (
               <>
-                <span className="text-[13px] font-medium text-[#475467]">
+                <span className="text-[13.5px] font-medium text-[#344054]">
                   <strong className="font-semibold text-[#27364f]">
                     {chapter.studiedQuestions}
                     {" / "}
@@ -164,7 +164,7 @@ function ChapterProgressRow({
                       bg-[#dff7ff]
                       px-2.5
                       py-1
-                      text-[11px]
+                      text-[11.5px]
                       font-semibold
                       text-[#087ea4]
                     "
@@ -180,7 +180,7 @@ function ChapterProgressRow({
             )}
           </div>
 
-          <span className="shrink-0 text-[13px] font-bold text-[#0758d9]">
+          <span className="shrink-0 text-[13.5px] font-bold text-[#0758d9]">
             {Math.round(percent)}%
           </span>
         </div>
@@ -238,7 +238,7 @@ function ChapterProgressRow({
             "gap-2",
             "rounded-[10px]",
             "px-3",
-            "text-[13px]",
+            "text-[13.5px]",
             "font-semibold",
             "transition-colors",
             "focus-visible:outline-none",

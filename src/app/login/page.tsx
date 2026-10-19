@@ -58,7 +58,7 @@ export default function LoginPage() {
                 {...register("username")}
               />
               {errors.username && (
-                <p className="text-sm text-destructive">{errors.username.message}</p>
+                <p className="text-[14.5px]/5 text-destructive">{errors.username.message}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -66,7 +66,7 @@ export default function LoginPage() {
                 <Label htmlFor="password">Mật khẩu</Label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm font-medium text-primary hover:underline"
+                  className="text-[14.5px]/5 font-medium text-primary hover:underline"
                 >
                   Quên mật khẩu?
                 </Link>
@@ -89,7 +89,7 @@ export default function LoginPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+                <p className="text-[14.5px]/5 text-destructive">{errors.password.message}</p>
               )}
             </div>
           </div>

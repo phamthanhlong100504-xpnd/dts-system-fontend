@@ -80,7 +80,7 @@ export function AppFooter() {
 
   return (
     <footer className="font-dts w-full border-t border-[#dde2ea] bg-[#F2F3FF]">
-      <div className="mx-auto flex min-h-[68px] w-full max-w-[1480px] flex-col gap-4 px-6 py-4 text-[14px] font-medium text-[#344054] sm:flex-row sm:items-center sm:justify-between lg:px-8">
+      <div className="mx-auto flex min-h-[68px] w-full max-w-[1480px] flex-col gap-4 px-6 py-4 text-[14.5px] font-medium text-[#27364f] sm:flex-row sm:items-center sm:justify-between lg:px-8">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <div className="flex items-center gap-2 whitespace-nowrap">
             <span className="flex size-6 items-center justify-center rounded-[6px] bg-[#0758d9] text-white">
@@ -97,7 +97,7 @@ export function AppFooter() {
 
           <span className="hidden h-4 w-px bg-[#cfd5df] sm:block" />
 
-          <span className="text-[#667085]">
+          <span className="text-[#475467]">
             © {new Date().getFullYear()} Nền tảng ôn thi sát hạch lái xe.
           </span>
         </div>

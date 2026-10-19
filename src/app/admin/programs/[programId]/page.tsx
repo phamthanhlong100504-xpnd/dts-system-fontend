@@ -182,10 +182,10 @@ export default function ProgramDetailPage() {
           </Button>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Badge variant="outline" className="text-xs border-primary text-primary bg-primary/5">
+              <Badge variant="outline" className="text-[12.5px]/4 border-primary text-primary bg-primary/5">
                 {program.code}
               </Badge>
-              <Badge variant={program.status === "PUBLISHED" ? "default" : "secondary"} className="text-xs">
+              <Badge variant={program.status === "PUBLISHED" ? "default" : "secondary"} className="text-[12.5px]/4">
                 {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ", HIDDEN: "Đang ẩn" } as Record<string, string>)[program.status ?? ""] ?? program.status}
               </Badge>
             </div>
@@ -193,15 +193,15 @@ export default function ProgramDetailPage() {
             {isEditingInfo ? (
               <div className="mt-4 p-4 rounded-xl border bg-muted/20 space-y-4 min-w-[300px]">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Mã chương trình</label>
+                  <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Mã chương trình</label>
                   <Input value={editCode} onChange={(e) => setEditCode(e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Tên chương trình</label>
+                  <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Tên chương trình</label>
                   <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Mô tả chương trình</label>
+                  <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Mô tả chương trình</label>
                   <Input value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
@@ -222,7 +222,7 @@ export default function ProgramDetailPage() {
                     </Button>
                   )}
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-[14.5px]/5 text-muted-foreground mt-1">
                   {program.description || "Chưa có mô tả"}
                 </p>
               </>
@@ -261,7 +261,7 @@ export default function ProgramDetailPage() {
         <div className="lg:col-span-5 space-y-4">
           <Card className="rounded-2xl shadow-sm border">
             <CardHeader className="pb-3 border-b bg-muted/20">
-              <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <CardTitle className="text-[14.5px]/5 font-bold flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-primary" /> Ngân hàng Chương học
               </CardTitle>
             </CardHeader>
@@ -273,15 +273,15 @@ export default function ProgramDetailPage() {
                     <Skeleton className="h-12 w-full" />
                   </div>
                 ) : availableChapters.length === 0 ? (
-                  <div className="p-8 text-center text-sm text-muted-foreground">
+                  <div className="p-8 text-center text-[14.5px]/5 text-muted-foreground">
                     Tất cả các chương đã được gắn vào chương trình, hoặc hệ thống chưa có chương nào.
                   </div>
                 ) : (
                   availableChapters.map(chapter => (
                     <div key={chapter.id} className="flex items-center justify-between p-4 hover:bg-muted/40 transition-colors">
                       <div>
-                        <p className="text-sm font-medium">{chapter.title}</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">ID: {chapter.id.split('-')[0]}...</p>
+                        <p className="text-[14.5px]/5 font-medium">{chapter.title}</p>
+                        <p className="text-[10.5px] text-muted-foreground mt-0.5">ID: {chapter.id.split('-')[0]}...</p>
                       </div>
                       <Button 
                         size="sm" 
@@ -305,7 +305,7 @@ export default function ProgramDetailPage() {
         <div className="lg:col-span-7 space-y-4">
           <Card className="rounded-2xl shadow-sm border border-primary/20">
             <CardHeader className="pb-3 border-b bg-primary/5 flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <CardTitle className="text-[14.5px]/5 font-bold flex items-center gap-2">
                 <FolderTree className="h-4 w-4 text-primary" /> Lộ trình Chương trình ({sortedBlocks.length} chương)
               </CardTitle>
             </CardHeader>
@@ -313,8 +313,8 @@ export default function ProgramDetailPage() {
               {sortedBlocks.length === 0 ? (
                 <div className="text-center py-12 border-2 border-dashed rounded-xl">
                   <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-3 opacity-50" />
-                  <p className="text-sm text-muted-foreground">Lộ trình trống.</p>
-                  <p className="text-xs text-muted-foreground mt-1">Hãy bấm &quot;Thêm&quot; từ danh sách bên trái để thiết kế lộ trình.</p>
+                  <p className="text-[14.5px]/5 text-muted-foreground">Lộ trình trống.</p>
+                  <p className="text-[12.5px]/4 text-muted-foreground mt-1">Hãy bấm &quot;Thêm&quot; từ danh sách bên trái để thiết kế lộ trình.</p>
                 </div>
               ) : (
                 sortedBlocks.map((block, index) => (
@@ -340,12 +340,12 @@ export default function ProgramDetailPage() {
                         </button>
                       </div>
                       
-                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[12.5px]/4 font-bold shrink-0">
                         {index + 1}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold truncate text-foreground">{block.title}</p>
-                        <p className="text-[10px] text-muted-foreground truncate">Block ID: {block.id}</p>
+                        <p className="text-[14.5px]/5 font-semibold truncate text-foreground">{block.title}</p>
+                        <p className="text-[10.5px] text-muted-foreground truncate">Block ID: {block.id}</p>
                       </div>
                     </div>
                     

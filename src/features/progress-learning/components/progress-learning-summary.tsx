@@ -43,10 +43,10 @@ export function ProgressLearningSummary({
         <p
           className="
             mt-2
-            text-[14px]
+            text-[14.5px]
             font-medium
             leading-6
-            text-[#667085]
+            text-[#475467]
           "
         >
           Theo dõi những nội dung bạn đã học trong hạng{" "}
@@ -81,11 +81,11 @@ export function ProgressLearningSummary({
           <div className="min-w-0">
             <p
               className="
-                text-[11px]
+                text-[11.5px]
                 font-bold
                 uppercase
                 tracking-[0.04em]
-                text-[#667085]
+                text-[#27364f]
               "
             >
               Tiến độ tổng thể
@@ -115,7 +115,7 @@ export function ProgressLearningSummary({
                 {" câu"}
               </span>
 
-              <span className="text-[14px] font-medium text-[#475467]">
+              <span className="text-[14.5px] font-medium text-[#344054]">
                 đã học
               </span>
             </div>
@@ -170,14 +170,14 @@ export function ProgressLearningSummary({
             flex
             items-start
             gap-2
-            text-[14px]
+            text-[14.5px]
             font-medium
             leading-6
-            text-[#667085]
+            text-[#475467]
           "
         >
           <AlertCircle
-            className="mt-1 size-4 shrink-0 text-[#667085]"
+            className="mt-1 size-4 shrink-0 text-[#475467]"
             strokeWidth={1.8}
           />
 
@@ -229,10 +229,10 @@ export function ProgressLearningSummary({
         >
           <p
             className="
-              text-[14px]
+              text-[14.5px]
               font-semibold
               leading-6
-              text-[#667085]
+              text-[#27364f]
             "
           >
             Câu cần ôn lại
@@ -253,10 +253,10 @@ export function ProgressLearningSummary({
           <p
             className="
               mt-3
-              text-[13px]
+              text-[13.5px]
               font-medium
               leading-6
-              text-[#667085]
+              text-[#475467]
             "
           >
             Những câu cần xem lại.
@@ -291,10 +291,10 @@ export function ProgressLearningSummary({
         >
           <p
             className="
-              text-[14px]
+              text-[14.5px]
               font-semibold
               leading-6
-              text-[#667085]
+              text-[#27364f]
             "
           >
             Câu điểm liệt đã học
@@ -317,10 +317,10 @@ export function ProgressLearningSummary({
           <p
             className="
               mt-3
-              text-[13px]
+              text-[13.5px]
               font-medium
               leading-6
-              text-[#667085]
+              text-[#475467]
             "
           >
             Tiến độ ôn nhóm câu điểm liệt.

@@ -49,7 +49,7 @@ export function ChapterSelectorDrawer({
                 Chọn chương
               </DrawerPrimitive.Title>
 
-              <DrawerPrimitive.Description className="mt-2.5 text-[13px] font-medium leading-5 text-[#667085]">
+              <DrawerPrimitive.Description className="mt-2.5 text-[13.5px] font-medium leading-5 text-[#475467]">
                 Chuyển nhanh sang nội dung bạn muốn ôn.
               </DrawerPrimitive.Description>
             </div>
@@ -58,7 +58,7 @@ export function ChapterSelectorDrawer({
               <button
                 type="button"
                 aria-label="Đóng"
-                className="flex size-9 shrink-0 items-center justify-center rounded-[9px] text-[#667085] transition hover:bg-[#f2f4f7] hover:text-[#101828]"
+                className="flex size-9 shrink-0 items-center justify-center rounded-[9px] text-[#475467] transition hover:bg-[#f2f4f7] hover:text-[#101828]"
               >
                 <X className="size-4.5" />
               </button>
@@ -78,14 +78,14 @@ export function ChapterSelectorDrawer({
 
             {overviewQuery.isError && (
               <div className="rounded-[12px] border border-[#fecdca] bg-[#fff6f5] px-4 py-4">
-                <p className="text-[13px] font-semibold text-[#b42318]">
+                <p className="text-[13.5px] font-semibold text-[#b42318]">
                   Không tải được danh sách chương.
                 </p>
 
                 <button
                   type="button"
                   onClick={() => void overviewQuery.refetch()}
-                  className="mt-2 text-[13px] font-semibold text-[#0758d9]"
+                  className="mt-2 text-[13.5px] font-semibold text-[#0758d9]"
                 >
                   Thử lại
                 </button>
@@ -95,7 +95,7 @@ export function ChapterSelectorDrawer({
             {!overviewQuery.isLoading &&
               !overviewQuery.isError &&
               chapters.length === 0 && (
-                <div className="rounded-[12px] border border-[#e4e7ec] bg-[#f9fafb] px-4 py-4 text-[13px] font-medium text-[#667085]">
+                <div className="rounded-[12px] border border-[#e4e7ec] bg-[#f9fafb] px-4 py-4 text-[13.5px] font-medium text-[#475467]">
                   Không có chương phù hợp với hạng{" "}
                   {normalizedLicense}.
                 </div>
@@ -189,27 +189,27 @@ function ChapterDrawerCard({
         <div className="min-w-0 flex-1">
           <p
             className={cn(
-              "text-[13px] font-bold uppercase tracking-[0.02em]",
+              "text-[13.5px] font-bold uppercase tracking-[0.02em]",
               current
                 ? "text-[#0758d9]"
-                : "text-[#667085]"
+                : "text-[#475467]"
             )}
           >
             Chương {toRoman(chapterId)}
           </p>
 
-          <p className="mt-2 line-clamp-2 text-[14px] font-bold leading-[1.5] text-[#101828]">
+          <p className="mt-2 line-clamp-2 text-[14.5px] font-bold leading-[1.5] text-[#101828]">
             {title}
           </p>
         </div>
 
         {current ? (
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#eef2ff] px-2.5 py-1.5 text-[11px] font-semibold text-[#0758d9]">
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#eef2ff] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#0758d9]">
             Đang học
             <CheckCircle2 className="size-3.5" />
           </span>
         ) : completed ? (
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#ecfdf3] px-2.5 py-1.5 text-[11px] font-semibold text-[#027a48]">
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#ecfdf3] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#027a48]">
             Đã học hết
             <Check className="size-3.5" />
           </span>
@@ -219,18 +219,18 @@ function ChapterDrawerCard({
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3">
-        <span className="text-[12px] font-medium text-[#667085]">
+        <span className="text-[12.5px] font-medium text-[#475467]">
           {learnedQuestions} / {totalQuestions} câu đã học
         </span>
 
         <span
           className={cn(
-            "text-[12px] font-semibold",
+            "text-[12.5px] font-semibold",
             completed
               ? "text-[#027a48]"
               : current
                 ? "text-[#0758d9]"
-                : "text-[#667085]"
+                : "text-[#475467]"
           )}
         >
           {safePercent}%

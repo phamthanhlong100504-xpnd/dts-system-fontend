@@ -44,7 +44,7 @@ function MemoryTipItem({ item, index, expanded, onToggle }: { item: MemoryTip; i
       {/* Tiêu đề từng mẹo */}
       <button type="button" aria-expanded={expanded} onClick={onToggle} className="flex min-h-[64px] w-full items-center gap-3.5 px-4 py-3 text-left transition hover:bg-[#fafbfc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0758d9]/25 sm:px-[0.6cm] dark:hover:bg-[#26364e]">
 
-        <span className={cn("inline-flex h-8 min-w-[40px] shrink-0 items-center justify-center rounded-[7px] px-2 text-[13px] font-bold", expanded ? "bg-[#eef3ff] text-[#0758d9] dark:bg-[#26364e] dark:text-[#93b4ff]" : "bg-[#f1f4f8] text-[#98a2b3] dark:bg-[#26364e] dark:text-[#aab8cf]")}>
+        <span className={cn("inline-flex h-8 min-w-[40px] shrink-0 items-center justify-center rounded-[7px] px-2 text-[13.5px] font-bold", expanded ? "bg-[#eef3ff] text-[#0758d9] dark:bg-[#26364e] dark:text-[#93b4ff]" : "bg-[#f1f4f8] text-[#98a2b3] dark:bg-[#26364e] dark:text-[#aab8cf]")}>
           {number}
         </span>
 
@@ -66,13 +66,13 @@ function MemoryTipItem({ item, index, expanded, onToggle }: { item: MemoryTip; i
               <Lightbulb className="mt-0.5 size-5 shrink-0 text-[#0758d9] dark:text-[#93b4ff]" strokeWidth={2} />
 
               <div className="min-w-0 flex-1">
-                <p className="text-[12px] font-bold uppercase tracking-[0.04em] text-[#0758d9] dark:text-[#93b4ff]">
+                <p className="text-[12.5px] font-bold uppercase tracking-[0.04em] text-[#0758d9] dark:text-[#93b4ff]">
                   Ghi nhớ nhanh
                 </p>
 
                 {/*  */}
                 {hasSeparatePoints ? (
-                  <ul className="mt-3 list-disc space-y-2 pl-5 text-[14px] font-medium leading-6 text-[#344054] marker:text-[#0758d9] dark:text-[#e2e8f0] dark:marker:text-[#93b4ff]">
+                  <ul className="mt-3 list-disc space-y-2 pl-5 text-[14.5px] font-medium leading-6 text-[#27364f] marker:text-[#0758d9] dark:text-[#e2e8f0] dark:marker:text-[#93b4ff]">
                     {quickRuleParts.map((part, partIndex) => (
                       <li key={`${item.id}-${partIndex}`} className="whitespace-pre-line break-words pl-1">
                         {part}
@@ -80,7 +80,7 @@ function MemoryTipItem({ item, index, expanded, onToggle }: { item: MemoryTip; i
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-2 whitespace-pre-line break-words text-[14px] font-medium leading-6 text-[#344054] dark:text-[#e2e8f0]">
+                  <p className="mt-2 whitespace-pre-line break-words text-[14.5px] font-medium leading-6 text-[#27364f] dark:text-[#e2e8f0]">
                     {item.quickRule}
                   </p>
                 )}
@@ -90,11 +90,11 @@ function MemoryTipItem({ item, index, expanded, onToggle }: { item: MemoryTip; i
 
           {/* Giải thích */}
           <div className="mt-5">
-            <p className="text-[12px] font-bold uppercase tracking-[0.04em] text-[#667085] dark:text-[#aab8cf]">
+            <p className="text-[12.5px] font-bold uppercase tracking-[0.04em] text-[#475467] dark:text-[#aab8cf]">
               Giải thích
             </p>
 
-            <p className="mt-2 whitespace-pre-line break-words text-[14px] font-medium leading-6 text-[#475467] dark:text-[#cbd5e1]">
+            <p className="mt-2 whitespace-pre-line break-words text-[14.5px] font-medium leading-6 text-[#344054] dark:text-[#cbd5e1]">
               {item.explanation}
             </p>
           </div>

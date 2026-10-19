@@ -63,12 +63,12 @@ export function WrongQuestionNavigator({
             Danh sách câu hỏi
           </h2>
 
-          <p className="mt-2.5 text-[12px] font-medium text-[#667085]">
+          <p className="mt-2.5 text-[12.5px] font-medium text-[#475467]">
             {answeredCount} / {totalQuestions} đã ôn
           </p>
         </div>
 
-        <span className="inline-flex min-w-[54px] shrink-0 items-center justify-center rounded-full bg-[#eaf0ff] px-2.5 py-1.5 text-[11px] font-bold text-[#0758d9]">
+        <span className="inline-flex min-w-[54px] shrink-0 items-center justify-center rounded-full bg-[#eaf0ff] px-2.5 py-1.5 text-[11.5px] font-bold text-[#0758d9]">
           {currentPosition} / {totalQuestions}
         </span>
       </div>
@@ -97,10 +97,10 @@ export function WrongQuestionNavigator({
                   })
                 }
                 className={cn(
-                  "h-9 rounded-[8px] text-[11px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/20",
+                  "h-9 rounded-[8px] text-[11.5px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/20",
                   active
                     ? "bg-[#eef2ff] text-[#0758d9]"
-                    : "bg-[#f8f9fc] text-[#667085] hover:bg-[#f0f3fa] hover:text-[#344054]"
+                    : "bg-[#f8f9fc] text-[#475467] hover:bg-[#f0f3fa] hover:text-[#344054]"
                 )}
               >
                 {from}–{to}
@@ -168,7 +168,7 @@ function QuestionNumberButton({
       aria-label={`Câu ${position}`}
       onClick={onClick}
       className={cn(
-        "relative flex size-[38px] items-center justify-center justify-self-center rounded-[9px] text-[11.5px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/20 disabled:pointer-events-none disabled:opacity-40",
+        "relative flex size-[38px] items-center justify-center justify-self-center rounded-[9px] text-[12px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/20 disabled:pointer-events-none disabled:opacity-40",
         current
           ? "bg-[#0758d9] text-white shadow-[0_2px_6px_rgba(7,88,217,0.28)]"
           : answered
@@ -202,7 +202,7 @@ function LegendItem({
   label: string;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-[10.5px] font-medium text-[#667085]">
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#475467]">
       <span
         className={cn(
           "size-[7px] rounded-[2px]",

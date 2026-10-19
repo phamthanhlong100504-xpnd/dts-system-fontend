@@ -130,7 +130,7 @@ export default function StudentExamResultPage() {
               Không thể tải kết quả
             </h1>
 
-            <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">
+            <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]">
               Kết quả bài làm hiện chưa thể
               hiển thị. Bạn có thể quay lại
               trang Ôn luyện và thử lại.
@@ -258,7 +258,7 @@ export default function StudentExamResultPage() {
           <div>
             <Link
               href="/practice"
-              className="-ml-2 inline-flex items-center gap-2 rounded-[8px] px-2 py-1.5 text-[14px] font-semibold text-[#536078] transition hover:bg-[#eef1f7] hover:text-[#101828]"
+              className="-ml-2 inline-flex items-center gap-2 rounded-[8px] px-2 py-1.5 text-[14.5px] font-semibold text-[#344054] transition hover:bg-[#eef1f7] hover:text-[#101828]"
             >
               <ArrowLeft className="size-4" />
 
@@ -316,7 +316,7 @@ export default function StudentExamResultPage() {
                 Chi tiết bài làm
               </h2>
 
-              <p className="mt-1 text-[14px] font-medium leading-6 text-[#667085]">
+              <p className="mt-1 text-[14.5px] font-medium leading-6 text-[#475467]">
                 Xem lại toàn bộ đáp án,
                 đối chiếu câu chọn và giải
                 thích chi tiết từng câu.
@@ -461,7 +461,7 @@ function ResultFilterButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "inline-flex h-9 items-center justify-center gap-2 rounded-full border px-4 text-[14px] font-semibold transition",
+        "inline-flex h-9 items-center justify-center gap-2 rounded-full border px-4 text-[14.5px] font-semibold transition",
         active &&
           "border-[#0758d9] bg-[#0758d9] text-white shadow-[0_1px_3px_rgba(7,88,217,0.14)]",
         !active &&
@@ -469,10 +469,10 @@ function ResultFilterButton({
           "border-[#e2e5ec] bg-white text-[#b42318] hover:border-[#f0b9b5] hover:bg-[#fff7f6]",
         !active &&
           tone === "blue" &&
-          "border-[#e2e5ec] bg-white text-[#536078] hover:border-[#b7c9ed] hover:bg-[#f5f8ff]",
+          "border-[#e2e5ec] bg-white text-[#344054] hover:border-[#b7c9ed] hover:bg-[#f5f8ff]",
         !active &&
           tone === "neutral" &&
-          "border-[#e2e5ec] bg-white text-[#536078] hover:bg-[#f7f8fb]",
+          "border-[#e2e5ec] bg-white text-[#344054] hover:bg-[#f7f8fb]",
         disabled &&
           "cursor-not-allowed border-transparent bg-transparent text-[#c0c6d0] shadow-none hover:border-transparent hover:bg-transparent"
       )}
@@ -506,7 +506,7 @@ function EmptyResultMessage({
 }) {
   return (
     <div className="rounded-[16px] border border-[#e1e4eb] bg-white px-6 py-10 text-center">
-      <p className="text-[14px] font-medium text-[#667085]">
+      <p className="text-[14.5px] font-medium text-[#475467]">
         {children}
       </p>
     </div>

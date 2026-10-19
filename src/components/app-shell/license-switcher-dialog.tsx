@@ -274,7 +274,7 @@ function LicenseSwitcherDialogContent({
             </DialogPrimitive.Title>
 
             <DialogPrimitive.Description
-              className="mt-2 text-[14px] font-medium leading-6 text-[#667085]"
+              className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]"
             >
               Nội dung ôn luyện, tiến độ và kết quả
               sẽ được hiển thị theo hạng bạn chọn.
@@ -286,7 +286,7 @@ function LicenseSwitcherDialogContent({
             aria-label="Đóng"
             onClick={handleCancel}
             disabled={isSaving}
-            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f2f4f7] text-[#667085] transition hover:bg-[#e9edf3] hover:text-[#101828] disabled:pointer-events-none disabled:opacity-50"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f2f4f7] text-[#475467] transition hover:bg-[#e9edf3] hover:text-[#101828] disabled:pointer-events-none disabled:opacity-50"
           >
             <X className="size-5" />
           </button>
@@ -316,10 +316,10 @@ function LicenseSwitcherDialogContent({
                     handleGroupChange(group.id)
                   }
                   className={cn(
-                    "flex min-h-12 items-center justify-center gap-2 rounded-[10px] border px-2 py-2 text-center text-[13px] font-semibold leading-5 transition disabled:pointer-events-none disabled:opacity-60",
+                    "flex min-h-12 items-center justify-center gap-2 rounded-[10px] border px-2 py-2 text-center text-[13.5px] font-semibold leading-5 transition disabled:pointer-events-none disabled:opacity-60",
                     active
                       ? "border-[#dce5ff] bg-[#eef3ff] text-[#0758d9]"
-                      : "border-transparent bg-[#f6f7fb] text-[#667085] hover:bg-[#eef1f7] hover:text-[#344054]"
+                      : "border-transparent bg-[#f6f7fb] text-[#475467] hover:bg-[#eef1f7] hover:text-[#344054]"
                   )}
                 >
                   <GroupIcon group={group.id} />
@@ -339,7 +339,7 @@ function LicenseSwitcherDialogContent({
               )?.label.toUpperCase()}
             </SectionLabel>
 
-            <span className="shrink-0 text-right text-[12px] font-medium leading-5 text-[#667085]">
+            <span className="shrink-0 text-right text-[12.5px] font-medium leading-5 text-[#475467]">
               {groupLicenses.length} hạng giấy phép
             </span>
           </div>
@@ -347,12 +347,12 @@ function LicenseSwitcherDialogContent({
           {/* DANH SÁCH CARD GPLX */}
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
             {catalog.isPending ? (
-              <p className="text-[13px] font-medium text-[#667085] sm:col-span-2 md:col-span-3">
+              <p className="text-[13.5px] font-medium text-[#475467] sm:col-span-2 md:col-span-3">
                 Đang tải danh mục GPLX...
               </p>
             ) : !isCatalogReady ? (
               <div className="sm:col-span-2 md:col-span-3">
-                <p className="text-[13px] font-medium text-[#667085]">
+                <p className="text-[13.5px] font-medium text-[#475467]">
                   Không thể tải danh mục GPLX.
                   Vui lòng thử lại.
                 </p>
@@ -363,7 +363,7 @@ function LicenseSwitcherDialogContent({
                   onClick={() =>
                     void catalog.refetch()
                   }
-                  className="mt-3 text-[13px] font-semibold text-[#0758d9] disabled:opacity-50"
+                  className="mt-3 text-[13.5px] font-semibold text-[#0758d9] disabled:opacity-50"
                 >
                   {catalog.isFetching
                     ? "Đang tải lại..."
@@ -405,17 +405,17 @@ function LicenseSwitcherDialogContent({
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span
                           className={cn(
-                            "rounded-[6px] px-2 py-1 text-[12px] font-bold",
+                            "rounded-[6px] px-2 py-1 text-[12.5px] font-bold",
                             selected
                               ? "bg-[#0758d9] text-white"
-                              : "bg-[#eef2f7] text-[#475467]"
+                              : "bg-[#eef2f7] text-[#344054]"
                           )}
                         >
                           {license.code}
                         </span>
 
                         {current && (
-                          <span className="rounded-full bg-[#eef3ff] px-2 py-1 text-[11px] font-semibold text-[#0758d9]">
+                          <span className="rounded-full bg-[#eef3ff] px-2 py-1 text-[11.5px] font-semibold text-[#0758d9]">
                             Hạng hiện tại
                           </span>
                         )}
@@ -437,13 +437,13 @@ function LicenseSwitcherDialogContent({
                     </div>
 
                     {/* TÊN HẠNG */}
-                    <p className="mt-3 text-[14px] font-bold leading-5 text-[#101828]">
+                    <p className="mt-3 text-[14.5px] font-bold leading-5 text-[#101828]">
                       {license.title ??
                         `Hạng ${license.code}`}
                     </p>
 
                     {/* MÔ TẢ HẠNG */}
-                    <p className="mt-2 line-clamp-4 text-[13px] font-medium leading-5 text-[#667085]">
+                    <p className="mt-2 line-clamp-4 text-[13.5px] font-medium leading-5 text-[#475467]">
                       {license.description}
                     </p>
                   </button>
@@ -456,7 +456,7 @@ function LicenseSwitcherDialogContent({
           <div className="mt-4 flex items-start gap-3 rounded-[10px] bg-[#f2f4ff] px-4 py-3">
             <Info className="mt-0.5 size-4 shrink-0 text-[#0758d9]" />
 
-            <p className="text-[13px] font-medium leading-5 text-[#667085]">
+            <p className="text-[13.5px] font-medium leading-5 text-[#475467]">
               Bạn có thể đổi hạng GPLX bất kỳ lúc nào
               mà không làm mất kết quả ôn tập của
               các hạng khác.
@@ -470,7 +470,7 @@ function LicenseSwitcherDialogContent({
             type="button"
             onClick={handleCancel}
             disabled={isSaving}
-            className="h-10 rounded-[9px] bg-white px-4 text-[13px] font-semibold text-[#475467] ring-1 ring-[#e3e7ee] transition hover:bg-[#f5f7fa] disabled:pointer-events-none disabled:opacity-50"
+            className="h-10 rounded-[9px] bg-white px-4 text-[13.5px] font-semibold text-[#344054] ring-1 ring-[#e3e7ee] transition hover:bg-[#f5f7fa] disabled:pointer-events-none disabled:opacity-50"
           >
             Hủy
           </button>
@@ -479,7 +479,7 @@ function LicenseSwitcherDialogContent({
             type="button"
             disabled={!canConfirm}
             onClick={handleConfirm}
-            className="min-h-10 min-w-[160px] rounded-[9px] bg-[#0758d9] px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:bg-[#e7ebf5] disabled:text-[#98a2b3]"
+            className="min-h-10 min-w-[160px] rounded-[9px] bg-[#0758d9] px-4 py-2 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:bg-[#e7ebf5] disabled:text-[#98a2b3]"
           >
             {isSaving
               ? `Đang chuyển sang hạng ${pendingLicense}...`
@@ -503,7 +503,7 @@ function SectionLabel({
   children: React.ReactNode;
 }) {
   return (
-    <p className="text-[12px] font-bold leading-5 tracking-[0.025em] text-[#667085]">
+    <p className="text-[12.5px] font-bold leading-5 tracking-[0.025em] text-[#475467]">
       {children}
     </p>
   );

@@ -68,7 +68,7 @@ export default function AdminRolesPage() {
           <h1 className="text-2xl font-bold tracking-tight">
             Quản lý Vai trò & Quyền
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[14.5px]/5 text-muted-foreground">
             Cấu hình vai trò và quyền hạn của hệ thống
           </p>
         </div>
@@ -111,7 +111,7 @@ function RolesTab() {
           <Skeleton className="h-28 rounded-2xl" />
         </div>
       ) : isError || !roles ? (
-        <p className="text-sm text-destructive">
+        <p className="text-[14.5px]/5 text-destructive">
           Không tải được danh sách vai trò. Kiểm tra service dts-identity.
         </p>
       ) : (
@@ -128,14 +128,14 @@ function RolesTab() {
                   <h3 className="font-bold text-primary">{role.name}</h3>
                   <KeyRound className="h-4 w-4 text-muted-foreground" />
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[14.5px]/5 text-muted-foreground">
                   {role.permissions?.length ?? 0} quyền hạn
                 </p>
               </div>
             </button>
           ))}
           {roles.length === 0 && (
-            <p className="text-sm text-muted-foreground">Chưa có vai trò nào.</p>
+            <p className="text-[14.5px]/5 text-muted-foreground">Chưa có vai trò nào.</p>
           )}
         </div>
       )}
@@ -175,7 +175,7 @@ function RoleDetailSheet({
         <div className="flex-1 space-y-6 overflow-y-auto px-4">
           {Object.entries(grouped).map(([group, perms]) => (
             <div key={group}>
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              <h4 className="mb-2 text-[12.5px]/4 font-semibold uppercase tracking-widest text-muted-foreground">
                 {group}
               </h4>
               <div className="divide-y divide-border overflow-hidden rounded-xl border border-border">
@@ -185,8 +185,8 @@ function RoleDetailSheet({
                     className="flex cursor-pointer items-center justify-between p-4"
                   >
                     <div>
-                      <p className="text-sm font-semibold">{p.name}</p>
-                      <p className="text-xs text-muted-foreground">{p.displayName}</p>
+                      <p className="text-[14.5px]/5 font-semibold">{p.name}</p>
+                      <p className="text-[12.5px]/4 text-muted-foreground">{p.displayName}</p>
                     </div>
                     <Switch
                       checked={rolePermNames.has(p.name ?? "")}
@@ -205,7 +205,7 @@ function RoleDetailSheet({
             </div>
           ))}
           {Object.keys(grouped).length === 0 && (
-            <p className="text-sm text-muted-foreground">Chưa có quyền hạn nào trong hệ thống.</p>
+            <p className="text-[14.5px]/5 text-muted-foreground">Chưa có quyền hạn nào trong hệ thống.</p>
           )}
         </div>
       </SheetContent>
@@ -227,7 +227,7 @@ function PermissionsTab() {
       {isLoading ? (
         <Skeleton className="h-40 rounded-2xl" />
       ) : isError || !permissions ? (
-        <p className="text-sm text-destructive">
+        <p className="text-[14.5px]/5 text-destructive">
           Không tải được danh sách quyền hạn. Kiểm tra service dts-identity.
         </p>
       ) : (
@@ -243,7 +243,7 @@ function PermissionsTab() {
             <TableBody>
               {permissions.map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell className="font-mono text-xs">{p.name}</TableCell>
+                  <TableCell className="font-mono text-[12.5px]/4">{p.name}</TableCell>
                   <TableCell>{p.displayName}</TableCell>
                   <TableCell className="text-muted-foreground">{p.resource}</TableCell>
                 </TableRow>
@@ -298,7 +298,7 @@ function CreateRoleDialog() {
           <div className="space-y-2">
             <Label htmlFor="role-name">Tên vai trò</Label>
             <Input id="role-name" className="h-11" placeholder="ROLE_TEACHER" {...register("name")} />
-            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+            {errors.name && <p className="text-[14.5px]/5 text-destructive">{errors.name.message}</p>}
           </div>
           <DialogFooter>
             <Button type="submit" disabled={createRoleMutation.isPending}>
@@ -346,17 +346,17 @@ function CreatePermissionDialog() {
           <div className="space-y-2">
             <Label htmlFor="perm-name">Tên quyền</Label>
             <Input id="perm-name" className="h-11" placeholder="courses:read" {...register("name")} />
-            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+            {errors.name && <p className="text-[14.5px]/5 text-destructive">{errors.name.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="perm-display">Tên hiển thị</Label>
             <Input id="perm-display" className="h-11" placeholder="Read Courses" {...register("displayName")} />
-            {errors.displayName && <p className="text-sm text-destructive">{errors.displayName.message}</p>}
+            {errors.displayName && <p className="text-[14.5px]/5 text-destructive">{errors.displayName.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="perm-resource">Nhóm chức năng</Label>
             <Input id="perm-resource" className="h-11" placeholder="courses" {...register("resource")} />
-            {errors.resource && <p className="text-sm text-destructive">{errors.resource.message}</p>}
+            {errors.resource && <p className="text-[14.5px]/5 text-destructive">{errors.resource.message}</p>}
           </div>
           <DialogFooter>
             <Button type="submit" disabled={createPermissionMutation.isPending}>

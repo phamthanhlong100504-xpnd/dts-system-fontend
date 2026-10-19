@@ -75,7 +75,7 @@ export function OfficialExamStartDialog({
               {exam.canResume ? "Tiếp tục kỳ thi?" : "Bắt đầu kỳ thi?"}
             </DialogTitle>
 
-            <DialogDescription className="mt-1.5 text-[14px] font-medium leading-6 text-[#475467]">
+            <DialogDescription className="mt-1.5 text-[14.5px] font-medium leading-6 text-[#344054]">
               {exam.canResume ? "Phiên đang làm sẽ được khôi phục, không tạo lượt mới." : "Sau khi bắt đầu, thời gian làm bài sẽ được tính."}
             </DialogDescription>
           </div>
@@ -136,7 +136,7 @@ export function OfficialExamStartDialog({
               />
             </span>
 
-            <p className="text-[14px] font-medium leading-5 text-[#475467]">
+            <p className="text-[14.5px] font-medium leading-5 text-[#344054]">
               {durationMinutes != null
                 ? `Bạn sẽ có ${durationMinutes} phút để hoàn thành bài thi sau khi bắt đầu.`
                 : "Thời gian làm bài sẽ bắt đầu được tính ngay sau khi xác nhận."}
@@ -148,7 +148,7 @@ export function OfficialExamStartDialog({
               type="button"
               disabled={isStarting}
               onClick={handleClose}
-              className="inline-flex h-10 min-w-[100px] items-center justify-center rounded-[9px] border border-[#d9dee8] bg-white px-4 text-[14px] font-semibold text-[#667085] transition hover:bg-[#f8f9fb] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-10 min-w-[100px] items-center justify-center rounded-[9px] border border-[#d9dee8] bg-white px-4 text-[14.5px] font-semibold text-[#475467] transition hover:bg-[#f8f9fb] disabled:cursor-not-allowed disabled:opacity-60"
             >
               Chưa bắt đầu
             </button>
@@ -158,7 +158,7 @@ export function OfficialExamStartDialog({
               disabled={isStarting}
               onClick={onConfirm}
               className={cn(
-                "inline-flex h-10 min-w-[116px] items-center justify-center gap-2 rounded-[9px] px-4 text-[14px] font-bold transition",
+                "inline-flex h-10 min-w-[116px] items-center justify-center gap-2 rounded-[9px] px-4 text-[14.5px] font-bold transition",
                 isStarting
                   ? "cursor-not-allowed bg-[#aac7f5] text-white"
                   : "bg-[#0758d9] text-white shadow-[0_2px_5px_rgba(7,88,217,0.18)] hover:bg-[#064fc2]"
@@ -198,10 +198,10 @@ function ExamMeta({
   return (
     <span
       className={cn(
-        "inline-flex min-h-9 items-center gap-1.5 rounded-[7px] bg-white px-2.5 text-[14px] font-semibold",
+        "inline-flex min-h-9 items-center gap-1.5 rounded-[7px] bg-white px-2.5 text-[14.5px] font-semibold",
         highlight
           ? "text-[#087f8d]"
-          : "text-[#475467]"
+          : "text-[#344054]"
       )}
     >
       <span

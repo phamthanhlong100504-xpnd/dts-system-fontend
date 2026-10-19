@@ -184,7 +184,7 @@ function ProfileLicenseDialogContent({
         </DialogTitle>
 
         {/* Dòng mô tả căn trái */}
-        <DialogDescription className="w-full text-left text-[14px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf] sm:text-left">
+        <DialogDescription className="w-full text-left text-[14.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf] sm:text-left">
           Chọn hạng bạn đang học. Nội dung ôn luyện và kết quả sẽ hiển thị theo hạng này.
         </DialogDescription>
       </DialogHeader>
@@ -192,12 +192,12 @@ function ProfileLicenseDialogContent({
       {/* Danh sách hạng GPLX */}
       <div className="space-y-5 border-t border-[#eef0f4] px-6 pb-6 pt-5 dark:border-[#35445a]">
         {catalog.isPending ? (
-          <p className="text-[13px] font-medium text-[#667085] dark:text-[#aab8cf]">
+          <p className="text-[13.5px] font-medium text-[#475467] dark:text-[#aab8cf]">
             Đang tải danh mục GPLX...
           </p>
         ) : !isCatalogReady ? (
           <div>
-            <p className="text-[13px] font-medium text-[#667085] dark:text-[#aab8cf]">
+            <p className="text-[13.5px] font-medium text-[#475467] dark:text-[#aab8cf]">
               Không thể tải danh mục GPLX.
               Vui lòng thử lại.
             </p>
@@ -208,7 +208,7 @@ function ProfileLicenseDialogContent({
               onClick={() =>
                 void catalog.refetch()
               }
-              className="mt-3 text-[13px] font-semibold text-[#0758d9] disabled:opacity-50 dark:text-[#93b4ff]"
+              className="mt-3 text-[13.5px] font-semibold text-[#0758d9] disabled:opacity-50 dark:text-[#93b4ff]"
             >
               {catalog.isFetching
                 ? "Đang tải lại..."
@@ -225,7 +225,7 @@ function ProfileLicenseDialogContent({
 
             return (
               <div key={group.id}>
-                <p className="mb-3 text-[12px] font-bold uppercase tracking-[0.05em] text-[#98a2b3]">
+                <p className="mb-3 text-[12.5px] font-bold uppercase tracking-[0.05em] text-[#98a2b3]">
                   {PROFILE_GROUP_TITLES[group.id]}
                 </p>
 
@@ -258,10 +258,10 @@ function ProfileLicenseDialogContent({
                             )
                           }
                           className={cn(
-                            "relative flex h-11 items-center justify-center rounded-[10px] border text-[13px] font-bold transition disabled:cursor-not-allowed disabled:opacity-50",
+                            "relative flex h-11 items-center justify-center rounded-[10px] border text-[13.5px] font-bold transition disabled:cursor-not-allowed disabled:opacity-50",
                             active
                               ? "border-[#9db8ff] bg-[#eef3ff] text-[#0758d9] dark:bg-[#26364e] dark:text-[#93b4ff]"
-                              : "border-[#e4e7ec] bg-white text-[#344054] hover:border-[#c7d4fa] hover:bg-[#fafbff] dark:border-[#35445a] dark:bg-[#182231] dark:text-[#e2e8f0]"
+                              : "border-[#e4e7ec] bg-white text-[#27364f] hover:border-[#c7d4fa] hover:bg-[#fafbff] dark:border-[#35445a] dark:bg-[#182231] dark:text-[#e2e8f0]"
                           )}
                         >
                           {license.code}

@@ -26,7 +26,7 @@ export function WrongQuestionsContent({
       <div className="px-5 lg:px-[1cm]">
         <Link
           href="/practice"
-          className="inline-flex items-center gap-2 rounded-[8px] py-2 text-[13px] font-medium text-[#667085] transition hover:text-[#0758d9]"
+          className="inline-flex items-center gap-2 rounded-[8px] py-2 text-[13.5px] font-medium text-[#475467] transition hover:text-[#0758d9]"
         >
           <ArrowLeft className="size-4" strokeWidth={2} />
           Quay lại Ôn luyện
@@ -39,9 +39,9 @@ export function WrongQuestionsContent({
             Ôn lại câu đã sai
           </h1>
 
-          <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">
+          <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]">
             Luyện lại những câu bạn từng trả lời sai trong hạng{" "}
-            <strong className="font-semibold text-[#344054]">
+            <strong className="font-semibold text-[#27364f]">
               {licenseClass}.
             </strong>
           </p>
@@ -92,12 +92,12 @@ function WrongQuestionsSummary({
           {totalWrongQuestions}
         </strong>
 
-        <span className="text-[16px] font-semibold text-[#344054]">
+        <span className="text-[16px] font-semibold text-[#27364f]">
           câu cần ôn lại
         </span>
       </div>
 
-      <p className="mt-5 max-w-[760px] text-[14px] font-medium leading-[1.7] text-[#475467]">
+      <p className="mt-5 max-w-[760px] text-[14.5px] font-medium leading-[1.7] text-[#344054]">
         Những câu bạn từng trả lời sai trong quá trình luyện tập sẽ được tổng hợp tại đây để bạn ôn lại.
       </p>
 
@@ -105,7 +105,7 @@ function WrongQuestionsSummary({
         <button
           type="button"
           onClick={onStartReview}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[13px] font-semibold text-white transition hover:bg-[#064fc3]"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3]"
         >
           Bắt đầu ôn lại
           <ArrowRight className="size-4" strokeWidth={2.2} />
@@ -127,7 +127,7 @@ function WrongQuestionsEmpty() {
           Chưa có câu cần ôn lại
         </h2>
 
-        <p className="mt-4 max-w-[760px] text-[14px] font-medium leading-[1.7] text-[#667085]">
+        <p className="mt-4 max-w-[760px] text-[14.5px] font-medium leading-[1.7] text-[#475467]">
           Khi bạn trả lời sai trong quá trình luyện tập, các câu cần ôn lại sẽ được tổng hợp tại đây.
         </p>
       </div>
@@ -135,7 +135,7 @@ function WrongQuestionsEmpty() {
       <div className="mt-7 flex justify-center">
         <Link
           href="/practice"
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[13px] font-semibold text-white transition hover:bg-[#064fc3]"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3]"
         >
           Tiếp tục ôn luyện
           <ArrowRight className="size-4" strokeWidth={2.2} />
@@ -156,7 +156,7 @@ function WrongQuestionsError({
         Không tải được câu đã sai
       </h2>
 
-      <p className="mt-3 text-[14px] font-medium leading-6 text-[#667085]">
+      <p className="mt-3 text-[14.5px] font-medium leading-6 text-[#475467]">
         Không thể tải thông tin ôn lại ở thời điểm hiện tại.
       </p>
 
@@ -164,7 +164,7 @@ function WrongQuestionsError({
         <button
           type="button"
           onClick={onRetry}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-[9px] bg-[#f2f4f7] px-5 text-[13px] font-semibold text-[#344054] transition hover:bg-[#e9edf3]"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-[9px] bg-[#f2f4f7] px-5 text-[13.5px] font-semibold text-[#27364f] transition hover:bg-[#e9edf3]"
         >
           <RefreshCcw className="size-4" />
           Thử lại

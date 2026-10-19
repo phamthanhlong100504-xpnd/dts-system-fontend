@@ -65,7 +65,7 @@ export default function AdminProgramsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl bg-card p-6 shadow-sm border">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Chương trình học</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-[14.5px]/5 text-muted-foreground mt-1">
             Tạo, chỉnh sửa và quản lý các chương trình học. Bộ câu hỏi chuẩn được tra cứu tại mục Ngân hàng câu hỏi.
           </p>
         </div>
@@ -86,7 +86,7 @@ export default function AdminProgramsPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Tên chương trình *</label>
+                <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Tên chương trình *</label>
                 <Input
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
@@ -95,7 +95,7 @@ export default function AdminProgramsPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Mã chương trình *</label>
+                <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Mã chương trình *</label>
                 <Input
                   value={newCode}
                   onChange={(e) => setNewCode(e.target.value)}
@@ -105,7 +105,7 @@ export default function AdminProgramsPage() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Mô tả chi tiết</label>
+              <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Mô tả chi tiết</label>
               <Input
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
@@ -141,7 +141,7 @@ export default function AdminProgramsPage() {
                   <Icon className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                  <p className="text-[12.5px]/4 text-muted-foreground">{stat.label}</p>
                   <p className="text-xl font-bold">{stat.value}</p>
                 </div>
               </CardContent>
@@ -158,7 +158,7 @@ export default function AdminProgramsPage() {
         <CardContent className="p-0">
           <div className="divide-y">
             {isError ? (
-              <div role="alert" className="p-6 text-sm text-destructive">Không thể tải danh sách chương trình học. Vui lòng thử lại hoặc kiểm tra quyền truy cập của tài khoản.</div>
+              <div role="alert" className="p-6 text-[14.5px]/5 text-destructive">Không thể tải danh sách chương trình học. Vui lòng thử lại hoặc kiểm tra quyền truy cập của tài khoản.</div>
             ) : isLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="p-6">
@@ -167,7 +167,7 @@ export default function AdminProgramsPage() {
                 </div>
               ))
             ) : programs.length === 0 ? (
-              <div className="p-12 text-center text-muted-foreground text-sm">
+              <div className="p-12 text-center text-muted-foreground text-[14.5px]/5">
                 Chưa có chương trình học nào. Nhấn &quot;Thêm chương trình&quot; để tạo chương trình đầu tiên!
               </div>
             ) : (
@@ -182,18 +182,18 @@ export default function AdminProgramsPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-medium text-sm">{program.title}</p>
-                        <Badge variant="outline" className="text-[10px] uppercase font-mono">
+                        <p className="font-medium text-[14.5px]/5">{program.title}</p>
+                        <Badge variant="outline" className="text-[10.5px] uppercase font-mono">
                           {program.code}
                         </Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
+                      <p className="text-[12.5px]/4 text-muted-foreground mt-0.5">
                         {program.description}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge variant={program.status === "PUBLISHED" ? "default" : "secondary"} className="text-xs">
+                    <Badge variant={program.status === "PUBLISHED" ? "default" : "secondary"} className="text-[12.5px]/4">
                       {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ", HIDDEN: "Đang ẩn" } as Record<string, string>)[program.status ?? ""] ?? program.status}
                     </Badge>
                     <Button variant="ghost" size="icon" className="h-8 w-8" asChild>

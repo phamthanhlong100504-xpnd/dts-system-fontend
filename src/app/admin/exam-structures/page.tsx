@@ -135,25 +135,25 @@ export default function ExamStructuresPage() {
         {(isCreating || editingId) && (
           <div className="p-6 bg-primary/5 border-b space-y-6">
             <div>
-              <h3 className="font-semibold text-sm text-primary mb-4">
+              <h3 className="font-semibold text-[14.5px]/5 text-primary mb-4">
                 {editingId ? "Cập nhật Cấu trúc đề thi" : "Tạo Cấu trúc đề thi mới"}
               </h3>
               <div className="space-y-1.5 max-w-xl">
-                <label className="text-xs font-semibold text-muted-foreground">Tên cấu trúc (Ma trận) *</label>
+                <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Tên cấu trúc (Ma trận) *</label>
                 <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ví dụ: Ma trận đề thi hạng B" />
               </div>
             </div>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-foreground">Phân bổ câu hỏi theo phần thi</h4>
+                <h4 className="text-[14.5px]/5 font-semibold text-foreground">Phân bổ câu hỏi theo phần thi</h4>
                 <Button size="sm" variant="outline" onClick={handleAddSection}>
                   <PlusCircle className="h-4 w-4 mr-1.5" /> Thêm phần thi
                 </Button>
               </div>
               
               {sections.length === 0 ? (
-                <div className="text-sm text-muted-foreground text-center py-4 bg-muted/20 rounded-md border border-dashed">
+                <div className="text-[14.5px]/5 text-muted-foreground text-center py-4 bg-muted/20 rounded-md border border-dashed">
                   Chưa có phần thi nào. Hãy bấm &quot;Thêm phần thi&quot;.
                 </div>
               ) : (
@@ -162,20 +162,20 @@ export default function ExamStructuresPage() {
                     <div key={idx} className="flex items-start gap-3 p-3 bg-background border rounded-lg shadow-sm relative">
                       <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Mã phần thi *</label>
-                          <Input value={section.code} onChange={(e) => handleUpdateSection(idx, "code", e.target.value)} placeholder="VD: KHAI_NIEM" className="h-8 text-sm" />
+                          <label className="text-[12.5px]/4 text-muted-foreground">Mã phần thi *</label>
+                          <Input value={section.code} onChange={(e) => handleUpdateSection(idx, "code", e.target.value)} placeholder="VD: KHAI_NIEM" className="h-8 text-[14.5px]/5" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Tên phần thi *</label>
-                          <Input value={section.title} onChange={(e) => handleUpdateSection(idx, "title", e.target.value)} placeholder="VD: Khái niệm và quy tắc" className="h-8 text-sm" />
+                          <label className="text-[12.5px]/4 text-muted-foreground">Tên phần thi *</label>
+                          <Input value={section.title} onChange={(e) => handleUpdateSection(idx, "title", e.target.value)} placeholder="VD: Khái niệm và quy tắc" className="h-8 text-[14.5px]/5" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Số câu hỏi</label>
-                          <Input type="number" min={1} value={section.questionCount} onChange={(e) => handleUpdateSection(idx, "questionCount", parseInt(e.target.value) || 0)} className="h-8 text-sm" />
+                          <label className="text-[12.5px]/4 text-muted-foreground">Số câu hỏi</label>
+                          <Input type="number" min={1} value={section.questionCount} onChange={(e) => handleUpdateSection(idx, "questionCount", parseInt(e.target.value) || 0)} className="h-8 text-[14.5px]/5" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Điểm mỗi câu</label>
-                          <Input type="number" min={1} value={section.score} onChange={(e) => handleUpdateSection(idx, "score", parseInt(e.target.value) || 0)} className="h-8 text-sm" />
+                          <label className="text-[12.5px]/4 text-muted-foreground">Điểm mỗi câu</label>
+                          <Input type="number" min={1} value={section.score} onChange={(e) => handleUpdateSection(idx, "score", parseInt(e.target.value) || 0)} className="h-8 text-[14.5px]/5" />
                         </div>
                       </div>
                       <Button variant="ghost" size="icon" className="text-red-500 h-8 w-8 shrink-0 mt-6" onClick={() => handleRemoveSection(idx)}>
@@ -183,7 +183,7 @@ export default function ExamStructuresPage() {
                       </Button>
                     </div>
                   ))}
-                  <div className="text-sm font-medium text-right text-muted-foreground pr-10">
+                  <div className="text-[14.5px]/5 font-medium text-right text-muted-foreground pr-10">
                     Tổng số câu: <span className="text-foreground">{sections.reduce((acc, s) => acc + (s.questionCount || 0), 0)}</span>
                     <span className="mx-3 text-muted-foreground/30">|</span>
                     Tổng điểm: <span className="text-foreground">{sections.reduce((acc, s) => acc + ((s.questionCount || 0) * (s.score || 0)), 0)}</span>

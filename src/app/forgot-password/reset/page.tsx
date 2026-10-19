@@ -114,7 +114,7 @@ function ResetContent() {
               </button>
             </div>
             {errors.newPassword && (
-              <p className="text-sm text-destructive">{errors.newPassword.message}</p>
+              <p className="text-[14.5px]/5 text-destructive">{errors.newPassword.message}</p>
             )}
             <PasswordStrength value={passwordValue} />
           </div>
@@ -139,7 +139,7 @@ function ResetContent() {
               </button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+              <p className="text-[14.5px]/5 text-destructive">{errors.confirmPassword.message}</p>
             )}
           </div>
           <div className="space-y-3 rounded-xl bg-muted/50 p-4">
@@ -147,7 +147,7 @@ function ResetContent() {
               <div key={c.label} className="flex items-center gap-3">
                 <span
                   className={cn(
-                    "flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold",
+                    "flex h-5 w-5 items-center justify-center rounded-full text-[12.5px]/4 font-bold",
                     c.ok ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"
                   )}
                 >
@@ -155,7 +155,7 @@ function ResetContent() {
                 </span>
                 <span
                   className={cn(
-                    "text-sm",
+                    "text-[14.5px]/5",
                     c.ok ? "text-foreground" : "text-muted-foreground"
                   )}
                 >

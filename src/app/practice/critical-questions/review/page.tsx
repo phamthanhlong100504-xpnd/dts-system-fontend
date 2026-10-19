@@ -375,7 +375,7 @@ function CriticalQuestionReviewError({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 py-2 text-[13px] font-medium text-[#667085] transition hover:text-[#0758d9]"
+          className="inline-flex items-center gap-2 py-2 text-[13.5px] font-medium text-[#475467] transition hover:text-[#0758d9]"
         >
           <ArrowLeft className="size-4" />
           Quay lại Câu điểm liệt
@@ -392,7 +392,7 @@ function CriticalQuestionReviewError({
             {title}
           </h1>
 
-          <p className="mx-auto mt-3 max-w-[520px] text-[14px] font-medium leading-[1.7] text-[#667085]">
+          <p className="mx-auto mt-3 max-w-[520px] text-[14.5px] font-medium leading-[1.7] text-[#475467]">
             {message}
           </p>
 
@@ -400,7 +400,7 @@ function CriticalQuestionReviewError({
             type="button"
             disabled={retrying}
             onClick={onRetry}
-            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[13px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-60"
+            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-60"
           >
             {retrying ? (
               <Loader2 className="size-4 animate-spin" />

@@ -81,10 +81,10 @@ export function ChaptersContent({
         <p
           className="
             mt-2
-            text-[14px]
+            text-[14.5px]
             font-medium
             leading-6
-            text-[#667085]
+            text-[#475467]
           "
         >
           Học lần lượt từng nhóm kiến thức
@@ -249,11 +249,11 @@ function OverallProgressCard({
           <div className="min-w-0">
             <p
               className="
-                text-[11px]
+                text-[11.5px]
                 font-bold
                 uppercase
                 tracking-[0.04em]
-                text-[#667085]
+                text-[#475467]
               "
             >
               Tiến độ tổng thể
@@ -262,9 +262,9 @@ function OverallProgressCard({
             <p
               className="
                 mt-1
-                text-[14px]
+                text-[14.5px]
                 font-medium
-                text-[#475467]
+                text-[#344054]
               "
             >
               <strong
@@ -379,10 +379,10 @@ function ChaptersEmptyState({
         className="
           mt-2
           max-w-[460px]
-          text-[14px]
+          text-[14.5px]
           font-medium
           leading-6
-          text-[#667085]
+          text-[#475467]
         "
       >
         Danh sách chương và tiến độ học
@@ -436,10 +436,10 @@ function ChaptersErrorState({
           mx-auto
           mt-2
           max-w-[430px]
-          text-[14px]
+          text-[14.5px]
           font-medium
           leading-6
-          text-[#667085]
+          text-[#475467]
         "
       >
         Dữ liệu ôn tập theo chương hiện
@@ -458,7 +458,7 @@ function ChaptersErrorState({
           rounded-[10px]
           bg-[#eef2ff]
           px-5
-          text-[13px]
+          text-[13.5px]
           font-semibold
           text-[#0758d9]
           transition

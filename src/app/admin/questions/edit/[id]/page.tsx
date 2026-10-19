@@ -187,7 +187,7 @@ export default function EditQuestionPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Chỉnh sửa câu hỏi</h1>
-          <p className="text-sm text-muted-foreground font-mono">{questionId}</p>
+          <p className="text-[14.5px]/5 text-muted-foreground font-mono">{questionId}</p>
         </div>
       </div>
 
@@ -197,7 +197,7 @@ export default function EditQuestionPage() {
             <AlertTriangle className="h-5 w-5" />
             <span>Câu hỏi này đã xuất bản!</span>
           </div>
-          <p className="text-sm ml-7">
+          <p className="text-[14.5px]/5 ml-7">
             Để bảo toàn lịch sử dữ liệu, bạn không thể chỉnh sửa nội dung hay đáp án của câu hỏi này. Bạn chỉ có thể Lưu trữ (Archive) nó.
           </p>
         </div>
@@ -211,16 +211,16 @@ export default function EditQuestionPage() {
             value={questionTitle}
             onChange={(e) => setQuestionTitle(e.target.value)}
             placeholder="Nhập nội dung câu hỏi..."
-            className="min-h-[100px] text-sm resize-none"
+            className="min-h-[100px] text-[14.5px]/5 resize-none"
             disabled={isPublished}
           />
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Câu hỏi điểm liệt</label>
+              <label className="text-[12.5px]/4 font-medium text-muted-foreground">Câu hỏi điểm liệt</label>
               <button
                 type="button"
                 onClick={() => !isPublished && setIsCritical(!isCritical)}
-                className={`flex items-center gap-2 h-9 w-full px-3 rounded-md border text-sm transition-colors ${
+                className={`flex items-center gap-2 h-9 w-full px-3 rounded-md border text-[14.5px]/5 transition-colors ${
                   isCritical
                     ? "border-destructive bg-destructive/10 text-destructive"
                     : "border-input bg-background text-muted-foreground"
@@ -269,8 +269,8 @@ export default function EditQuestionPage() {
               <div className="h-10 w-10 text-muted-foreground flex items-center justify-center">
                 {isUploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Plus className="h-6 w-6" />}
               </div>
-              <p className="text-sm font-semibold">{isUploading ? "Đang tải lên..." : "Tải lên hình ảnh minh họa"}</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[14.5px]/5 font-semibold">{isUploading ? "Đang tải lên..." : "Tải lên hình ảnh minh họa"}</p>
+              <p className="text-[12.5px]/4 text-muted-foreground">
                 Hỗ trợ PNG, JPG, GIF dung lượng tối đa 5MB
               </p>
             </div>
@@ -290,7 +290,7 @@ export default function EditQuestionPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           {options.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">Chưa có đáp án. Nhấn &quot;Thêm đáp án&quot; để bắt đầu.</p>
+            <p className="text-[14.5px]/5 text-muted-foreground text-center py-4">Chưa có đáp án. Nhấn &quot;Thêm đáp án&quot; để bắt đầu.</p>
           )}
           {options.map((opt) => (
             <div
@@ -309,11 +309,11 @@ export default function EditQuestionPage() {
               >
                 {opt.isCorrect && <CheckCircle className="h-3 w-3 text-white" />}
               </button>
-              <span className="text-sm font-bold text-muted-foreground w-5 shrink-0 mt-0.5">{opt.label}.</span>
+              <span className="text-[14.5px]/5 font-bold text-muted-foreground w-5 shrink-0 mt-0.5">{opt.label}.</span>
               <Input
                 value={opt.text}
                 onChange={(e) => setOptions(options.map((o) => o.id === opt.id ? { ...o, text: e.target.value } : o))}
-                className="h-8 text-sm border-0 bg-transparent p-0 focus-visible:ring-0 shadow-none disabled:opacity-100 disabled:cursor-not-allowed"
+                className="h-8 text-[14.5px]/5 border-0 bg-transparent p-0 focus-visible:ring-0 shadow-none disabled:opacity-100 disabled:cursor-not-allowed"
                 placeholder="Nhập nội dung đáp án..."
                 disabled={isPublished}
               />
@@ -339,7 +339,7 @@ export default function EditQuestionPage() {
             value={explanation}
             onChange={(e) => setExplanation(e.target.value)}
             placeholder="Nhập giải thích cho đáp án đúng..."
-            className="min-h-[80px] text-sm resize-none disabled:opacity-75 disabled:cursor-not-allowed"
+            className="min-h-[80px] text-[14.5px]/5 resize-none disabled:opacity-75 disabled:cursor-not-allowed"
             disabled={isPublished}
           />
         </CardContent>

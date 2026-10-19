@@ -47,11 +47,11 @@ export function ProfileSecurityCard() {
 
         <div className="mt-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <p className="text-[14px] font-semibold text-[#101828] dark:text-[#f8fafc]">
+            <p className="text-[14.5px] font-semibold text-[#101828] dark:text-[#f8fafc]">
               Mật khẩu
             </p>
 
-            <p className="mt-1 text-[14px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+            <p className="mt-1 text-[14.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
               Cập nhật mật khẩu đăng nhập của bạn.
             </p>
           </div>
@@ -59,7 +59,7 @@ export function ProfileSecurityCard() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="inline-flex h-10 shrink-0 items-center gap-2 self-start rounded-[10px] bg-[#f0f2ff] dark:bg-[#26364e] px-5 text-[13px] font-semibold sm:self-auto text-[#344054] dark:text-[#e2e8f0] transition hover:bg-[#f5f7fa] hover:text-[#0758d9]"
+            className="inline-flex h-10 shrink-0 items-center gap-2 self-start rounded-[10px] bg-[#f0f2ff] dark:bg-[#26364e] px-5 text-[13.5px] font-semibold sm:self-auto text-[#27364f] dark:text-[#e2e8f0] transition hover:bg-[#f5f7fa] hover:text-[#0758d9]"
           >
             <KeyRound className="size-4" strokeWidth={1.9} />
             Đổi mật khẩu
@@ -132,7 +132,7 @@ function ChangePasswordDialog({
             Đổi mật khẩu
           </DialogTitle>
 
-          <DialogDescription className="text-center text-[14px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+          <DialogDescription className="text-center text-[14.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
             Nhập mật khẩu hiện tại và mật khẩu mới cho tài khoản của bạn.
           </DialogDescription>
         </DialogHeader>
@@ -163,7 +163,7 @@ function ChangePasswordDialog({
             <button
               type="button"
               onClick={() => handleOpenChange(false)}
-              className="h-10 rounded-[10px] border border-[#dfe3ea] px-5 text-[13px] font-semibold text-[#344054] dark:text-[#e2e8f0] hover:bg-[#f8f9fb]"
+              className="h-10 rounded-[10px] border border-[#dfe3ea] px-5 text-[13.5px] font-semibold text-[#27364f] dark:text-[#e2e8f0] hover:bg-[#f8f9fb]"
             >
               Hủy
             </button>
@@ -171,7 +171,7 @@ function ChangePasswordDialog({
             <button
               type="submit"
               disabled={changePasswordMutation.isPending || logoutMutation.isPending}
-              className="h-10 rounded-[10px] bg-[#0758d9] px-5 text-[13px] font-semibold text-white transition hover:bg-[#064fc2] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-10 rounded-[10px] bg-[#0758d9] px-5 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc2] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {changePasswordMutation.isPending ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
             </button>
@@ -195,7 +195,7 @@ function PasswordField({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={id} className="text-[13px] font-semibold text-[#344054] dark:text-[#e2e8f0]">
+      <Label htmlFor={id} className="text-[13.5px] font-semibold text-[#27364f] dark:text-[#e2e8f0]">
         {label}
       </Label>
 
@@ -203,12 +203,12 @@ function PasswordField({
         id={id}
         type="password"
         autoComplete="off"
-        className="h-11 rounded-[10px] border-[#dfe3ea] bg-[#fbfbff] dark:bg-[#111c2d] text-[14px]"
+        className="h-11 rounded-[10px] border-[#dfe3ea] bg-[#fbfbff] dark:bg-[#111c2d] text-[14.5px]"
         {...registration}
       />
 
       {error && (
-        <p className="text-[12px] font-medium text-[#d92d20]">
+        <p className="text-[12.5px] font-medium text-[#d92d20]">
           {error}
         </p>
       )}

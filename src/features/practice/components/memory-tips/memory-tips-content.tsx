@@ -15,7 +15,7 @@ export function MemoryTipsContent() {
     <div className="font-dts w-full pb-16 pt-8">
       {/*  */}
       <div className="w-full px-[1cm]">
-        <Link href="/practice" className="inline-flex min-h-9 items-center gap-2 text-[14.5px] font-medium text-[#667085] transition hover:text-[#0758d9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 dark:text-[#aab8cf] dark:hover:text-[#93b4ff]">
+        <Link href="/practice" className="inline-flex min-h-9 items-center gap-2 text-[15px] font-medium text-[#475467] transition hover:text-[#0758d9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 dark:text-[#aab8cf] dark:hover:text-[#93b4ff]">
           <ArrowLeft className="size-4" strokeWidth={2} />
           Quay lại Ôn luyện
         </Link>
@@ -30,13 +30,13 @@ export function MemoryTipsContent() {
             </h1>
 
             {data && (
-              <span className="inline-flex min-h-7 items-center rounded-[8px] bg-[#eef3ff] px-3 text-[13px] font-semibold text-[#0758d9] dark:bg-[#26364e] dark:text-[#93b4ff]">
+              <span className="inline-flex min-h-7 items-center rounded-[8px] bg-[#eef3ff] px-3 text-[13.5px] font-semibold text-[#0758d9] dark:bg-[#26364e] dark:text-[#93b4ff]">
                 {data.totalElements} mẹo
               </span>
             )}
           </div>
 
-          <p className="mt-3 text-[15px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+          <p className="mt-3 text-[15.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
             Những kiến thức thường dễ nhầm cần ghi nhớ khi ôn thi lý thuyết.
           </p>
         </div>
@@ -88,11 +88,11 @@ function MemoryTipsError({ onRetry }: { onRetry: () => void }) {
         Không tải được mẹo ghi nhớ
       </h2>
 
-      <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+      <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
         Không thể tải dữ liệu ở thời điểm hiện tại.
       </p>
 
-      <button type="button" onClick={onRetry} className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-[10px] bg-[#f2f4f7] px-5 text-[14px] font-semibold text-[#344054] transition hover:bg-[#e9edf3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 dark:bg-[#26364e] dark:text-[#e2e8f0]">
+      <button type="button" onClick={onRetry} className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-[10px] bg-[#f2f4f7] px-5 text-[14.5px] font-semibold text-[#27364f] transition hover:bg-[#e9edf3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 dark:bg-[#26364e] dark:text-[#e2e8f0]">
         <RefreshCcw className="size-4" />
         Thử lại
       </button>
@@ -112,7 +112,7 @@ function MemoryTipsEmpty() {
           Chưa có dữ liệu mẹo ghi nhớ
         </h2>
 
-        <p className="mt-3 text-[14px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+        <p className="mt-3 text-[14.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
           Nội dung mẹo ghi nhớ sẽ được hiển thị tại đây sau khi bộ dữ liệu được bổ sung vào hệ thống.
         </p>
       </div>

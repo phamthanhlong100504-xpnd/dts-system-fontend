@@ -102,7 +102,7 @@ export function OfficialExamWaitingRoomContent({
         <div className="px-5 lg:px-[1cm]">
         <Link
           href="/examination"
-          className="inline-flex items-center gap-2 text-[14px] font-semibold text-[#344054] transition hover:text-[#0758d9]"
+          className="inline-flex items-center gap-2 text-[14.5px] font-semibold text-[#27364f] transition hover:text-[#0758d9]"
         >
           <ArrowLeft
             className="size-4"
@@ -117,10 +117,10 @@ export function OfficialExamWaitingRoomContent({
           <div className="flex flex-wrap items-center gap-x-[0.8cm] gap-y-2">
             <span
               className={cn(
-                "inline-flex min-h-7 items-center gap-1.5 rounded-[7px] px-2.5 text-[12px] font-bold uppercase",
+                "inline-flex min-h-7 items-center gap-1.5 rounded-[7px] px-2.5 text-[12.5px] font-bold uppercase",
                 exam.canStart
                   ? "bg-[#dff6fb] text-[#087f8d]"
-                  : "bg-[#f2f4f7] text-[#667085]"
+                  : "bg-[#f2f4f7] text-[#475467]"
               )}
             >
               <span className="size-1.5 rounded-full bg-current" />
@@ -131,7 +131,7 @@ export function OfficialExamWaitingRoomContent({
             </span>
 
             {exam.licenseClass && (
-              <span className="inline-flex min-h-7 items-center rounded-[7px] bg-[#eef0ff] px-2.5 text-[12px] font-semibold text-[#475467]">
+              <span className="inline-flex min-h-7 items-center rounded-[7px] bg-[#eef0ff] px-2.5 text-[12.5px] font-semibold text-[#344054]">
                 Hạng {exam.licenseClass}
               </span>
             )}
@@ -234,7 +234,7 @@ export function OfficialExamWaitingRoomContent({
             </div>
           </section>
 
-          {!exam.canStart && !exam.canResume && <div role="status" className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[15px] text-amber-900">Kỳ thi hiện chưa thể bắt đầu.{exam.reasonCode ? " Vui lòng kiểm tra điều kiện tham gia hoặc thử lại sau." : ""}{exam.retryAvailableAt ? ` Thời điểm được thử lại: ${new Date(exam.retryAvailableAt).toLocaleString("vi-VN")}.` : ""}</div>}
+          {!exam.canStart && !exam.canResume && <div role="status" className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[15.5px] text-amber-900">Kỳ thi hiện chưa thể bắt đầu.{exam.reasonCode ? " Vui lòng kiểm tra điều kiện tham gia hoặc thử lại sau." : ""}{exam.retryAvailableAt ? ` Thời điểm được thử lại: ${new Date(exam.retryAvailableAt).toLocaleString("vi-VN")}.` : ""}</div>}
 
           <div className="mt-6 flex justify-center">
             <button
@@ -242,7 +242,7 @@ export function OfficialExamWaitingRoomContent({
               disabled={disabled}
               onClick={handleOpenStartDialog}
               className={cn(
-                "inline-flex h-11 min-w-[170px] items-center justify-center gap-2 rounded-[10px] px-6 text-[14px] font-bold transition",
+                "inline-flex h-11 min-w-[170px] items-center justify-center gap-2 rounded-[10px] px-6 text-[14.5px] font-bold transition",
                 disabled
                   ? "cursor-not-allowed bg-[#e9edf5] text-[#98a2b3]"
                   : "bg-[#0758d9] text-white shadow-[0_2px_6px_rgba(7,88,217,0.18)] hover:bg-[#064fc2]"
@@ -305,13 +305,13 @@ function ExamInfoItem({
       </span>
 
       <div className="min-w-0">
-        <p className="text-[14px] font-medium leading-[1.5] text-[#344054]">
+        <p className="text-[14.5px] font-medium leading-[1.5] text-[#27364f]">
           {label}
         </p>
 
         <p
           className={cn(
-            "mt-2 text-[15px] font-semibold leading-[1.5]",
+            "mt-2 text-[15.5px] font-semibold leading-[1.5]",
             highlight
               ? "text-[#0758d9]"
               : "text-[#101828]"
@@ -338,7 +338,7 @@ function GuideItem({
         />
       </span>
 
-      <p className="text-[15px] font-medium leading-6 text-[#344054]">
+      <p className="text-[15.5px] font-medium leading-6 text-[#27364f]">
         {children}
       </p>
     </div>
@@ -393,14 +393,14 @@ function WaitingRoomError({
             Không tải được thông tin kỳ thi
           </h2>
 
-          <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085]">
+          <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]">
             Không thể lấy dữ liệu phòng chờ ở thời điểm hiện tại.
           </p>
 
           <button
             type="button"
             onClick={onRetry}
-            className="mt-5 inline-flex h-10 items-center gap-2 rounded-[9px] bg-[#f2f4f7] px-5 text-[14px] font-semibold text-[#344054] transition hover:bg-[#e9edf3]"
+            className="mt-5 inline-flex h-10 items-center gap-2 rounded-[9px] bg-[#f2f4f7] px-5 text-[14.5px] font-semibold text-[#27364f] transition hover:bg-[#e9edf3]"
           >
             <RefreshCcw className="size-4" />
             Thử lại

@@ -72,7 +72,7 @@ export function ProfileContent() {
         <h1 className="text-[28px] font-bold leading-[1.2] tracking-[-0.025em] text-[#101828] dark:text-[#f8fafc]">
           Hồ sơ
         </h1>
-        <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+        <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
           Quản lý thông tin cá nhân và cài đặt tài khoản.
         </p>
       </div>
@@ -133,13 +133,13 @@ function NoLicenseCard({ onSelectLicense }: { onSelectLicense: () => void }) {
         <CarFront className="size-5" strokeWidth={2} />
       </span>
       <h2 className="mt-4 text-[17px] font-bold text-[#101828] dark:text-[#f8fafc]">Chưa chọn hạng GPLX</h2>
-      <p className="mt-2 max-w-[260px] text-[14px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+      <p className="mt-2 max-w-[260px] text-[14.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
         Chọn hạng GPLX để DTS hiển thị nội dung học tập và tiến độ phù hợp.
       </p>
       <button
         type="button"
         onClick={onSelectLicense}
-        className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-5 text-[13px] font-semibold text-white transition hover:bg-[#064fc3]"
+        className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-5 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3]"
       >
         Chọn hạng GPLX <ArrowRight className="size-4" />
       </button>
@@ -154,13 +154,13 @@ function ProfileLicenseUnavailable({ onRetry }: { onRetry: () => void }) {
       <h2 className="mt-4 text-[16px] font-bold text-[#101828] dark:text-[#f8fafc]">
         Chưa xác nhận được hạng GPLX
       </h2>
-      <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+      <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
         Identity chưa trả trường selectedLicenseClass. Trang Hồ sơ không dùng hạng đã lưu trên trình duyệt để thay thế.
       </p>
       <button
         type="button"
         onClick={onRetry}
-        className="mt-4 inline-flex h-10 w-fit items-center gap-2 rounded-[10px] bg-[#eef3ff] dark:bg-[#26364e] px-4 text-[13px] font-semibold text-[#0758d9] dark:text-[#93b4ff]"
+        className="mt-4 inline-flex h-10 w-fit items-center gap-2 rounded-[10px] bg-[#eef3ff] dark:bg-[#26364e] px-4 text-[13.5px] font-semibold text-[#0758d9] dark:text-[#93b4ff]"
       >
         <RefreshCcw className="size-4" /> Tải lại
       </button>
@@ -195,13 +195,13 @@ function ProfileError({ onRetry }: { onRetry: () => void }) {
             <AlertCircle className="size-5" strokeWidth={1.9} />
           </span>
           <h2 className="mt-4 text-[17px] font-bold text-[#101828] dark:text-[#f8fafc]">Không tải được hồ sơ</h2>
-          <p className="mt-2 text-[14px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+          <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
             Không thể lấy thông tin tài khoản ở thời điểm hiện tại.
           </p>
           <button
             type="button"
             onClick={onRetry}
-            className="mt-5 inline-flex h-10 items-center gap-2 rounded-[10px] bg-[#eef3ff] dark:bg-[#26364e] px-5 text-[13px] font-semibold text-[#0758d9] dark:text-[#93b4ff] transition hover:bg-[#e3eaff]"
+            className="mt-5 inline-flex h-10 items-center gap-2 rounded-[10px] bg-[#eef3ff] dark:bg-[#26364e] px-5 text-[13.5px] font-semibold text-[#0758d9] dark:text-[#93b4ff] transition hover:bg-[#e3eaff]"
           >
             <RefreshCcw className="size-4" /> Thử lại
           </button>

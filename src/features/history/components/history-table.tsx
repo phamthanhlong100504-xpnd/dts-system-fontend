@@ -30,7 +30,7 @@ export function HistoryTable({ items, page, size, total, totalPages, isLoading, 
   const headClass = "px-3 py-4 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-[#101827]";
   return <section className="mt-[1cm] overflow-hidden rounded-[16px] border border-[#dae2ee] bg-white shadow-[0_4px_14px_rgba(15,23,42,0.045)]">
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[990px] border-collapse text-[14px] text-[#0b1020]">
+      <table className="w-full min-w-[990px] border-collapse text-[14.5px] text-[#0b1020]">
         <thead className="bg-[#eef2ff]">
           <tr>
             <th className={cn(headClass, "w-[27%]")}>Bài thi</th>
@@ -49,11 +49,11 @@ export function HistoryTable({ items, page, size, total, totalPages, isLoading, 
       </table>
     </div>
     <div className="flex min-h-16 flex-wrap items-center justify-between gap-4 border-t border-[#e8edf6] px-6 py-3">
-      <p className="text-[13px] text-[#1b2536]">Hiển thị <strong className="text-[#0f172a]">{start}–{end}</strong> trong <strong className="text-[#0f172a]">{total}</strong> lượt thi</p>
+      <p className="text-[13.5px] text-[#1b2536]">Hiển thị <strong className="text-[#0f172a]">{start}–{end}</strong> trong <strong className="text-[#0f172a]">{total}</strong> lượt thi</p>
       <nav aria-label="Phân trang lịch sử thi" className="flex flex-wrap items-center gap-1.5">
         <button className="size-9 rounded-lg hover:bg-[#eef2ff] disabled:opacity-35" disabled={page <= 0} onClick={() => onPageChange(page-1)} aria-label="Trang trước"><ChevronLeft className="mx-auto size-4" /></button>
         {paginationPages(page, totalPages).map(index => <button key={index} onClick={() => onPageChange(index)} aria-current={index===page ? "page":undefined}
-          className={cn("size-9 rounded-lg text-[13px] font-semibold transition", index === page ? "bg-[#0758d9] text-white" : "text-[#23324d] hover:bg-[#eef2ff]")}>{index+1}</button>)}
+          className={cn("size-9 rounded-lg text-[13.5px] font-semibold transition", index === page ? "bg-[#0758d9] text-white" : "text-[#23324d] hover:bg-[#eef2ff]")}>{index+1}</button>)}
         <button className="size-9 rounded-lg hover:bg-[#eef2ff] disabled:opacity-35" disabled={page >= totalPages-1} onClick={() => onPageChange(page+1)} aria-label="Trang sau"><ChevronRight className="mx-auto size-4" /></button>
       </nav>
     </div>
@@ -74,18 +74,18 @@ function HistoryRow({ item, disabled, isResolving, title, onViewResult }: {
       <span className="flex items-start gap-2.5"><Icon className="mt-0.5 size-4 shrink-0 text-[#0758d9]" />
         <span className="font-semibold leading-6 text-[#0b1020]">{title}</span></span>
     </td>
-    <td className="px-3 py-4 text-center align-middle"><span className="inline-flex justify-center rounded-lg bg-[#eef2ff] px-3 py-1.5 text-[13px] font-medium text-[#20395e]">{activity.label}</span></td>
-    <td className="px-3 py-4 text-center align-middle">{item.result === "PASSED" ? <span className="inline-flex items-center rounded-full border border-[#aee6cb] bg-[#eafbf3] px-3 py-1.5 text-[13px] font-semibold text-[#067548]">Đạt</span> : <span className="inline-flex items-center rounded-full border border-[#f8c1c1] bg-[#fff0f0] px-3 py-1.5 text-[13px] font-semibold text-[#bb2b2b]">Chưa đạt</span>}</td>
+    <td className="px-3 py-4 text-center align-middle"><span className="inline-flex justify-center rounded-lg bg-[#eef2ff] px-3 py-1.5 text-[13.5px] font-medium text-[#20395e]">{activity.label}</span></td>
+    <td className="px-3 py-4 text-center align-middle">{item.result === "PASSED" ? <span className="inline-flex items-center rounded-full border border-[#aee6cb] bg-[#eafbf3] px-3 py-1.5 text-[13.5px] font-semibold text-[#067548]">Đạt</span> : <span className="inline-flex items-center rounded-full border border-[#f8c1c1] bg-[#fff0f0] px-3 py-1.5 text-[13.5px] font-semibold text-[#bb2b2b]">Chưa đạt</span>}</td>
     <td className="px-3 py-4 text-center align-middle">
       <span className="font-semibold text-[#0b1020]">{num(item.score)}{item.maxScore == null ? "" : ` / ${num(item.maxScore)}`}</span>
-      {item.correctCount != null && item.questionCount != null && <span className="block text-[13px] text-[#1b2536]">Đúng {item.correctCount}/{item.questionCount} câu</span>}
+      {item.correctCount != null && item.questionCount != null && <span className="block text-[13.5px] text-[#1b2536]">Đúng {item.correctCount}/{item.questionCount} câu</span>}
     </td>
     <td className="px-3 py-4 text-center align-middle text-[#111827]">{duration(item.durationSeconds)}</td>
     <td className="px-3 py-4 text-center align-middle whitespace-nowrap text-[#111827]">{dateTime(item.completedAt)}</td>
     <td className="px-3 py-4 text-center align-middle">
       <button type="button" onClick={() => onViewResult(item)} disabled={!canOpen || disabled}
         title={canOpen ? "Xem kết quả từ hệ thống thi" : "Chưa có đường dẫn kết quả hợp lệ"}
-        className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-2 text-[13px] font-semibold text-[#0758d9] hover:bg-[#eef4ff] disabled:cursor-not-allowed disabled:text-[#78879c] disabled:hover:bg-transparent">
+        className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-2 text-[13.5px] font-semibold text-[#0758d9] hover:bg-[#eef4ff] disabled:cursor-not-allowed disabled:text-[#78879c] disabled:hover:bg-transparent">
         {isResolving ? "Đang mở…" : canOpen ? "Xem kết quả" : "Chưa khả dụng"}
         {canOpen && <ArrowRight className="size-4" />}
       </button>
@@ -95,15 +95,15 @@ function HistoryRow({ item, disabled, isResolving, title, onViewResult }: {
 
 function HistoryNotice({ mode, onRetry }: { mode: "loading" | "empty" | "error"; onRetry?: () => void }) {
   if (mode === "loading") return <section className="mt-[1cm] rounded-2xl border border-[#e1e6ef] bg-white p-6" aria-busy="true">
-    <p className="text-[14px] text-[#334155]">Đang tải lịch sử từ hệ thống…</p>
+    <p className="text-[14.5px] text-[#334155]">Đang tải lịch sử từ hệ thống…</p>
     {Array.from({ length: 5 }, (_, i) => <div key={i} className="mt-4 h-12 animate-pulse rounded-lg bg-[#f0f3fa]" />)}
   </section>;
   return <section className="mt-[1cm] flex min-h-[245px] items-center justify-center rounded-2xl border border-[#dfe6f0] bg-white p-8 text-center">
     <div className="max-w-lg">
       {mode === "error" ? <AlertCircle className="mx-auto size-10 text-[#cc4242]" /> : <FileText className="mx-auto size-10 text-[#0758d9]" />}
       <h2 className="mt-4 text-[19px] font-semibold text-[#0f172a]">{mode === "error" ? "Không tải được lịch sử thi" : "Chưa có lịch sử phù hợp"}</h2>
-      <p className="mt-2 text-[14px] leading-6 text-[#334155]">{mode === "error" ? "Không thể kết nối tới dữ liệu lúc này. Bạn có thể thử tải lại." : "Chưa có lượt thi nào phù hợp với bộ lọc đang chọn."}</p>
-      {mode === "error" && <button type="button" onClick={onRetry} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#eef3ff] px-4 py-2.5 text-[14px] font-semibold text-[#0758d9]"><RefreshCcw className="size-4" /> Thử lại</button>}
+      <p className="mt-2 text-[14.5px] leading-6 text-[#334155]">{mode === "error" ? "Không thể kết nối tới dữ liệu lúc này. Bạn có thể thử tải lại." : "Chưa có lượt thi nào phù hợp với bộ lọc đang chọn."}</p>
+      {mode === "error" && <button type="button" onClick={onRetry} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#eef3ff] px-4 py-2.5 text-[14.5px] font-semibold text-[#0758d9]"><RefreshCcw className="size-4" /> Thử lại</button>}
     </div>
   </section>;
 }

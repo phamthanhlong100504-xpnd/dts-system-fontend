@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
               {...register("identifier")}
             />
             {errors.identifier && (
-              <p className="text-sm text-destructive">{errors.identifier.message}</p>
+              <p className="text-[14.5px]/5 text-destructive">{errors.identifier.message}</p>
             )}
           </div>
           <Button

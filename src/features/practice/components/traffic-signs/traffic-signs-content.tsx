@@ -72,7 +72,7 @@ export function TrafficSignsContent({ onOpenDetail }: TrafficSignsContentProps) 
     <div className="font-dts mx-auto w-full max-w-[1240px] px-6 pb-16 pt-7 lg:px-[38px]">
 
       {/* Nút Quay lại Ôn luyện */}
-      <Link href="/practice" style={{ marginLeft: "calc(50% - 50vw + 1cm)" }} className="inline-flex min-h-9 items-center gap-2 text-[14.5px] font-medium text-[#667085] transition hover:text-[#0758d9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 dark:text-[#aab8cf]">
+      <Link href="/practice" style={{ marginLeft: "calc(50% - 50vw + 1cm)" }} className="inline-flex min-h-9 items-center gap-2 text-[15px] font-medium text-[#475467] transition hover:text-[#0758d9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 dark:text-[#aab8cf]">
         <ArrowLeft className="size-4" strokeWidth={2} />
         Quay lại Ôn luyện
       </Link>
@@ -83,7 +83,7 @@ export function TrafficSignsContent({ onOpenDetail }: TrafficSignsContentProps) 
           Biển báo giao thông
         </h1>
 
-        <p className="mt-2 text-[15px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+        <p className="mt-2 text-[15.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
           Học và ghi nhớ biển báo theo từng nhóm.
         </p>
       </div>
@@ -108,7 +108,7 @@ export function TrafficSignsContent({ onOpenDetail }: TrafficSignsContentProps) 
           </h2>
 
           {!isLoading && !isError && !isDebouncing && (
-            <span className="inline-flex min-h-7 items-center rounded-[7px] bg-[#eef2ff] px-2.5 text-[14px] font-semibold text-[#667085] dark:bg-[#26364e] dark:text-[#cbd5e1]">
+            <span className="inline-flex min-h-7 items-center rounded-[7px] bg-[#eef2ff] px-2.5 text-[14.5px] font-semibold text-[#475467] dark:bg-[#26364e] dark:text-[#cbd5e1]">
               {total} biển phù hợp
             </span>
           )}
@@ -145,13 +145,13 @@ export function TrafficSignsContent({ onOpenDetail }: TrafficSignsContentProps) 
               type="button"
               disabled={page === 0}
               onClick={() => setPage((current) => Math.max(0, current - 1))}
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-[10px] border border-[#e4e7ec] bg-white px-4 text-[14px] font-semibold text-[#344054] transition hover:border-[#b9c9f7] hover:bg-[#f8faff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 disabled:cursor-not-allowed disabled:opacity-45 dark:border-[#35445a] dark:bg-[#182231] dark:text-[#cbd5e1]"
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-[10px] border border-[#e4e7ec] bg-white px-4 text-[14.5px] font-semibold text-[#27364f] transition hover:border-[#b9c9f7] hover:bg-[#f8faff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 disabled:cursor-not-allowed disabled:opacity-45 dark:border-[#35445a] dark:bg-[#182231] dark:text-[#cbd5e1]"
             >
               <ChevronLeft className="size-4" />
               Trước
             </button>
 
-            <span className="text-[14px] font-medium text-[#667085] dark:text-[#aab8cf]">
+            <span className="text-[14.5px] font-medium text-[#475467] dark:text-[#aab8cf]">
               Trang {page + 1} / {totalPages}
             </span>
 
@@ -159,7 +159,7 @@ export function TrafficSignsContent({ onOpenDetail }: TrafficSignsContentProps) 
               type="button"
               disabled={page + 1 >= totalPages}
               onClick={() => setPage((current) => current + 1)}
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-[10px] border border-[#e4e7ec] bg-white px-4 text-[14px] font-semibold text-[#344054] transition hover:border-[#b9c9f7] hover:bg-[#f8faff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 disabled:cursor-not-allowed disabled:opacity-45 dark:border-[#35445a] dark:bg-[#182231] dark:text-[#cbd5e1]"
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-[10px] border border-[#e4e7ec] bg-white px-4 text-[14.5px] font-semibold text-[#27364f] transition hover:border-[#b9c9f7] hover:bg-[#f8faff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 disabled:cursor-not-allowed disabled:opacity-45 dark:border-[#35445a] dark:bg-[#182231] dark:text-[#cbd5e1]"
             >
               Sau
               <ChevronRight className="size-4" />
@@ -188,11 +188,11 @@ function TrafficSignError({ onRetry }: { onRetry: () => void }) {
         Không tải được dữ liệu biển báo
       </h3>
 
-      <p className="mt-3 text-[15px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+      <p className="mt-3 text-[15.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
         Không thể tải danh sách biển báo ở thời điểm hiện tại.
       </p>
 
-      <button type="button" onClick={onRetry} className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-[10px] bg-[#f2f4f7] px-5 text-[14px] font-semibold text-[#344054] transition hover:bg-[#e9edf3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 dark:bg-[#26364e] dark:text-[#e2e8f0]">
+      <button type="button" onClick={onRetry} className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-[10px] bg-[#f2f4f7] px-5 text-[14.5px] font-semibold text-[#27364f] transition hover:bg-[#e9edf3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0758d9]/25 dark:bg-[#26364e] dark:text-[#e2e8f0]">
         <RefreshCcw className="size-4" />
         Thử lại
       </button>
@@ -226,7 +226,7 @@ function TrafficSignEmpty({
               : "Nhóm biển báo hiện chưa có dữ liệu"}
         </h3>
 
-        <p className="mt-3 text-[15px] font-medium leading-6 text-[#667085] dark:text-[#aab8cf]">
+        <p className="mt-3 text-[15.5px] font-medium leading-6 text-[#475467] dark:text-[#aab8cf]">
           {page > 0
             ? "Bạn có thể quay lại trang trước để xem các biển báo đã tải."
             : hasSearch

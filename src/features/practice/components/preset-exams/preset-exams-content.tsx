@@ -120,10 +120,10 @@ export function PresetExamsContent({
           <p
             className="
               mt-1.5
-              text-[14px]
+              text-[14.5px]
               font-medium
               leading-6
-              text-[#667085]
+              text-[#475467]
             "
           >
             Luyện tập với các bộ đề
@@ -147,7 +147,7 @@ export function PresetExamsContent({
             rounded-full
             bg-[#e8edff]
             px-4
-            text-[13px]
+            text-[13.5px]
             font-semibold
             text-[#0758d9]
             sm:self-auto
@@ -356,7 +356,7 @@ function PresetFilterButton({
           rounded-full
           border
           px-4
-          text-[14px]
+          text-[14.5px]
           font-semibold
           transition
         `,
@@ -370,7 +370,7 @@ function PresetFilterButton({
           : `
               border-[#e1e5ed]
               bg-white
-              text-[#536078]
+              text-[#344054]
               hover:border-[#c8d1df]
               hover:bg-[#f8f9fb]
               hover:text-[#344054]
@@ -442,10 +442,10 @@ function PresetExamEmptyState({
         className="
           mt-1.5
           max-w-[460px]
-          text-[14px]
+          text-[14.5px]
           font-medium
           leading-6
-          text-[#667085]
+          text-[#475467]
         "
       >
         Các bộ đề thi thử đã được
@@ -490,9 +490,9 @@ function PresetExamFilterEmptyState({
       <p
         className="
           mt-3
-          text-[14px]
+          text-[14.5px]
           font-medium
-          text-[#667085]
+          text-[#475467]
         "
       >
         Không có bộ đề phù hợp với bộ
@@ -504,7 +504,7 @@ function PresetExamFilterEmptyState({
         onClick={onReset}
         className="
           mt-3
-          text-[13px]
+          text-[13.5px]
           font-semibold
           text-[#0758d9]
           transition
@@ -564,10 +564,10 @@ function PresetExamErrorState({
           mx-auto
           mt-1.5
           max-w-[440px]
-          text-[14px]
+          text-[14.5px]
           font-medium
           leading-6
-          text-[#667085]
+          text-[#475467]
         "
       >
         Dữ liệu bộ đề hiện chưa thể
@@ -586,7 +586,7 @@ function PresetExamErrorState({
           rounded-[9px]
           bg-[#eef2ff]
           px-4
-          text-[13px]
+          text-[13.5px]
           font-semibold
           text-[#0758d9]
           transition

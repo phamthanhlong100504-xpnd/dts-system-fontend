@@ -48,7 +48,7 @@ export function WrongQuestionSummaryContent({
         <button
           type="button"
           onClick={onBackToPractice}
-          className="inline-flex items-center gap-2 rounded-[8px] py-2 text-[13px] font-medium text-[#667085] transition hover:text-[#0758d9]"
+          className="inline-flex items-center gap-2 rounded-[8px] py-2 text-[13.5px] font-medium text-[#475467] transition hover:text-[#0758d9]"
         >
           <ArrowLeft className="size-4" strokeWidth={2} />
           Quay về Ôn luyện
@@ -61,7 +61,7 @@ export function WrongQuestionSummaryContent({
             <CheckCircle2 className="size-8" strokeWidth={1.9} />
           </div>
 
-          <span className="mt-6 inline-flex rounded-[7px] bg-[#eef2ff] px-3 py-1.5 text-[13px] font-semibold text-[#0758d9]">
+          <span className="mt-6 inline-flex rounded-[7px] bg-[#eef2ff] px-3 py-1.5 text-[13.5px] font-semibold text-[#0758d9]">
             Hạng {licenseClass}
           </span>
 
@@ -69,7 +69,7 @@ export function WrongQuestionSummaryContent({
             Hoàn thành phiên ôn lại
           </h1>
 
-          <p className="mx-auto mt-3 max-w-[620px] text-[14px] font-medium leading-[1.7] text-[#667085]">
+          <p className="mx-auto mt-3 max-w-[620px] text-[14.5px] font-medium leading-[1.7] text-[#475467]">
             Bạn đã hoàn thành phiên ôn các câu cần chú ý. Những câu trả lời đúng đã được loại khỏi danh sách cần ôn.
           </p>
 
@@ -78,7 +78,7 @@ export function WrongQuestionSummaryContent({
               {correctCount} / {answeredQuestions || totalQuestions}
             </div>
 
-            <p className="mt-2 text-[14px] font-semibold text-[#087443]">
+            <p className="mt-2 text-[14.5px] font-semibold text-[#087443]">
               {correctPercent}% câu đã trả lời chính xác
             </p>
           </div>
@@ -113,14 +113,14 @@ export function WrongQuestionSummaryContent({
           </div>
 
           {unansweredCount > 0 && (
-            <p className="mt-5 text-[13px] font-medium text-[#667085]">
+            <p className="mt-5 text-[13.5px] font-medium text-[#475467]">
               Bạn còn {unansweredCount} câu chưa trả lời trong phiên vừa rồi.
             </p>
           )}
 
           {remainingCount > 0 ? (
             <div className="mt-9">
-              <p className="text-[14px] font-semibold text-[#344054]">
+              <p className="text-[14.5px] font-semibold text-[#27364f]">
                 Bạn còn {remainingCount} câu cần chú ý thêm.
               </p>
 
@@ -128,7 +128,7 @@ export function WrongQuestionSummaryContent({
                 type="button"
                 disabled={retrying}
                 onClick={onReviewRemaining}
-                className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[13px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-60"
+                className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[13.5px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:opacity-60"
               >
                 <RotateCcw className="size-4" />
                 {retrying
@@ -138,7 +138,7 @@ export function WrongQuestionSummaryContent({
             </div>
           ) : (
             <div className="mt-9 rounded-[12px] bg-[#effaf4] px-5 py-4">
-              <p className="text-[14px] font-semibold text-[#087443]">
+              <p className="text-[14.5px] font-semibold text-[#087443]">
                 Tuyệt vời, hiện không còn câu nào cần ôn lại.
               </p>
             </div>
@@ -148,7 +148,7 @@ export function WrongQuestionSummaryContent({
             <button
               type="button"
               onClick={onBackToPractice}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-[9px] bg-[#f2f4f7] px-5 text-[13px] font-semibold text-[#344054] transition hover:bg-[#e9edf3]"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-[9px] bg-[#f2f4f7] px-5 text-[13.5px] font-semibold text-[#27364f] transition hover:bg-[#e9edf3]"
             >
               Về trang Ôn luyện
               <ArrowRight className="size-4" />
@@ -182,7 +182,7 @@ function Metric({
 
   return (
     <div className="rounded-[12px] bg-[#f6f7fb] px-4 py-4">
-      <div className={`flex items-center gap-2 text-[13px] font-semibold ${toneClass}`}>
+      <div className={`flex items-center gap-2 text-[13.5px] font-semibold ${toneClass}`}>
         {icon}
         {label}
       </div>

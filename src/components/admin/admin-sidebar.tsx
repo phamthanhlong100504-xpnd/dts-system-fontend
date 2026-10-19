@@ -96,7 +96,7 @@ export function AdminSidebar() {
             <h1 className="text-base font-bold tracking-tight text-foreground">
               Admin Panel
             </h1>
-            <p className="text-xs text-muted-foreground">Hệ thống quản trị DTS</p>
+            <p className="text-[12.5px]/4 text-muted-foreground">Hệ thống quản trị DTS</p>
           </div>
         </div>
 
@@ -112,7 +112,7 @@ export function AdminSidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-[15px] transition-all duration-150 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-[15.5px] transition-all duration-150 ${
                   isActive
                     ? "bg-primary text-primary-foreground font-semibold shadow-sm scale-[0.98]"
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
@@ -128,7 +128,7 @@ export function AdminSidebar() {
         <div className="mt-auto space-y-4">
           <Link
             href="/"
-            className="flex items-center gap-3 px-4 py-2 mx-2 rounded-xl font-medium text-[15px] text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-150"
+            className="flex items-center gap-3 px-4 py-2 mx-2 rounded-xl font-medium text-[15.5px] text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-150"
           >
             <LogOut className="h-5 w-5 shrink-0" />
             <span>Giao diện học viên</span>
@@ -136,14 +136,14 @@ export function AdminSidebar() {
           
           {/* User Profile Snippet in Sidebar */}
           <div className="pt-4 border-t border-border flex items-center gap-3 px-2">
-            <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+            <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-[14.5px]/5">
             A
           </div>
           <div className="flex flex-col overflow-hidden">
-            <span className="text-sm font-semibold truncate text-foreground">
+            <span className="text-[14.5px]/5 font-semibold truncate text-foreground">
               Admin User
             </span>
-            <span className="text-xs text-muted-foreground truncate">
+            <span className="text-[12.5px]/4 text-muted-foreground truncate">
               admin@dts.edu.vn
             </span>
           </div>

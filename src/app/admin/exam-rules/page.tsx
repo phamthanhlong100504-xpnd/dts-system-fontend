@@ -202,13 +202,13 @@ export default function ExamRulesPage() {
                       <Switch checked={form.allowRetry} onCheckedChange={(v) => updateField("allowRetry", v)} />
                     </div>
                     <div className="space-y-2">
-                      <Label className={!form.allowRetry ? "text-muted" : ""}>Số lần làm lại tối đa <span className="text-muted-foreground font-normal text-xs">(Nhập 0 để không giới hạn)</span></Label>
+                      <Label className={!form.allowRetry ? "text-muted" : ""}>Số lần làm lại tối đa <span className="text-muted-foreground font-medium text-[12.5px]/4">(Nhập 0 để không giới hạn)</span></Label>
                       <Input type="number" disabled={!form.allowRetry} value={form.maxRetry} onChange={(e) => updateField("maxRetry", parseInt(e.target.value) || 0)} />
                     </div>
 
                     <div className="space-y-1.5">
                       <Label>Chế độ điều hướng</Label>
-                      <select value={form.navigationMode} onChange={(e) => updateField("navigationMode", e.target.value as ExamRulePayload["navigationMode"])} className="w-full h-9 rounded-md border px-3 text-sm">
+                      <select value={form.navigationMode} onChange={(e) => updateField("navigationMode", e.target.value as ExamRulePayload["navigationMode"])} className="w-full h-9 rounded-md border px-3 text-[14.5px]/5">
                         <option value="FREE">Tự do (FREE)</option>
                         <option value="SEQUENTIAL">Tuần tự (SEQUENTIAL)</option>
                       </select>
@@ -242,7 +242,7 @@ export default function ExamRulesPage() {
 
                     <div className="space-y-1.5 md:col-span-2">
                       <Label>Thời điểm công bố kết quả</Label>
-                      <select value={form.resultReleaseMode} onChange={(e) => updateField("resultReleaseMode", e.target.value as ExamRulePayload["resultReleaseMode"])} className="w-full h-9 rounded-md border px-3 text-sm">
+                      <select value={form.resultReleaseMode} onChange={(e) => updateField("resultReleaseMode", e.target.value as ExamRulePayload["resultReleaseMode"])} className="w-full h-9 rounded-md border px-3 text-[14.5px]/5">
                         <option value="IMMEDIATE">Ngay sau khi nộp bài</option>
                         <option value="AFTER_SUBMIT">Sau khi hoàn thành bài thi</option>
                         <option value="AFTER_EXAM_END">Sau khi kỳ thi kết thúc</option>

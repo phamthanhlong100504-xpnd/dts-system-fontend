@@ -69,7 +69,7 @@ export function AppHeader() {
                 DTS
               </span>
 
-              <span className="block text-[11px] font-semibold text-[#0758d9]">
+              <span className="block text-[11.5px] font-semibold text-[#0758d9]">
                 Lái xe
               </span>
             </span>
@@ -84,10 +84,10 @@ export function AppHeader() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "rounded-[9px] px-3.5 py-2 text-[15px] font-semibold transition-colors",
+                    "rounded-[9px] px-3.5 py-2 text-[15.5px] font-semibold transition-colors",
                     active
                       ? "bg-[#eef3ff] text-[#0758d9]"
-                      : "text-[#475467] hover:bg-[#f5f7fa] hover:text-[#101828]"
+                      : "text-[#344054] hover:bg-[#f5f7fa] hover:text-[#101828]"
                   )}
                 >
                   {item.label}
@@ -99,7 +99,7 @@ export function AppHeader() {
           <div className="ml-auto flex shrink-0 items-center gap-3">
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-[10px] px-2 py-1.5 outline-none transition hover:bg-[#f5f7fa]">
-                <span className="hidden max-w-[150px] truncate text-[14px] font-semibold text-[#1d2939] md:block">
+                <span className="hidden max-w-[150px] truncate text-[14.5px] font-semibold text-[#1d2939] md:block">
                   {displayName}
                 </span>
 
@@ -122,7 +122,7 @@ export function AppHeader() {
                     </div>
 
                     {user?.email && (
-                      <div className="truncate text-xs font-normal text-muted-foreground">
+                      <div className="truncate text-[12.5px]/4 font-medium text-muted-foreground">
                         {user.email}
                       </div>
                     )}

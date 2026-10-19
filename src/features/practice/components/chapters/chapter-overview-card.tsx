@@ -99,7 +99,7 @@ export function ChapterOverviewCard({
             rounded-[7px]
             bg-[#eaf0ff]
             px-3
-            text-[11px]
+            text-[11.5px]
             font-bold
             uppercase
             tracking-[0.03em]
@@ -140,9 +140,9 @@ export function ChapterOverviewCard({
           <>
             <span
               className="
-                text-[13px]
+                text-[13.5px]
                 font-medium
-                text-[#475467]
+                text-[#344054]
               "
             >
               {chapter.totalQuestions} câu
@@ -150,7 +150,7 @@ export function ChapterOverviewCard({
 
             <span
               className="
-                text-[12px]
+                text-[12.5px]
                 font-medium
                 text-[#98a2b3]
               "
@@ -162,9 +162,9 @@ export function ChapterOverviewCard({
           <>
             <span
               className="
-                text-[13px]
+                text-[13.5px]
                 font-medium
-                text-[#475467]
+                text-[#344054]
               "
             >
               <strong
@@ -192,7 +192,7 @@ export function ChapterOverviewCard({
                   bg-[#e8efff]
                   px-2.5
                   py-1
-                  text-[11px]
+                  text-[11.5px]
                   font-semibold
                   text-[#0758d9]
                 "
@@ -208,7 +208,7 @@ export function ChapterOverviewCard({
               <span
                 className="
                   shrink-0
-                  text-[12.5px]
+                  text-[13px]
                   font-bold
                   text-[#0758d9]
                 "
@@ -262,9 +262,9 @@ export function ChapterOverviewCard({
               flex
               items-center
               gap-2
-              text-[12px]
+              text-[12.5px]
               font-medium
-              text-[#667085]
+              text-[#475467]
             "
           >
             <History
@@ -302,7 +302,7 @@ export function ChapterOverviewCard({
               gap-2
               rounded-[10px]
               px-5
-              text-[13px]
+              text-[13.5px]
               font-semibold
               transition
               disabled:pointer-events-none

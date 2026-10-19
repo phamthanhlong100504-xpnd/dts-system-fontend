@@ -185,7 +185,7 @@ export function MediaImage({
   if (error || !url) {
     return (
       <div
-        className={`flex items-center justify-center bg-muted/20 text-xs text-muted-foreground ${
+        className={`flex items-center justify-center bg-muted/20 text-[12.5px]/4 text-muted-foreground ${
           className ?? ""
         }`}
       >

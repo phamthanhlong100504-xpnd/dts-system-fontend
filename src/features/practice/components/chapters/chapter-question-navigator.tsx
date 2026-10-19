@@ -99,7 +99,7 @@ export function ChapterQuestionNavigator({
             Danh sách câu hỏi
           </h2>
 
-          <p className="mt-2 text-[12px] font-medium text-[#59667a]">
+          <p className="mt-2 text-[12.5px] font-medium text-[#475467]">
             {learnedCount}
             {" / "}
             {totalQuestions}
@@ -121,7 +121,7 @@ export function ChapterQuestionNavigator({
             bg-[#eaf1ff]
             px-2.5
             py-1.5
-            text-[11px]
+            text-[11.5px]
             font-semibold
             text-[#0758d9]
           "
@@ -172,7 +172,7 @@ export function ChapterQuestionNavigator({
                   `
                     h-9
                     rounded-[9px]
-                    text-[11px]
+                    text-[11.5px]
                     font-semibold
                     transition
                     focus-visible:outline-none
@@ -181,7 +181,7 @@ export function ChapterQuestionNavigator({
                   `,
                   active
                     ? "bg-[#eef2ff] text-[#0758d9]"
-                    : "bg-[#f3f4f8] text-[#667085] hover:bg-[#eaecf2] hover:text-[#344054]"
+                    : "bg-[#f3f4f8] text-[#475467] hover:bg-[#eaecf2] hover:text-[#344054]"
                 )}
               >
                 {from}–{to}
@@ -289,7 +289,7 @@ function QuestionNumberButton({
           justify-center
           justify-self-center
           rounded-[9px]
-          text-[11.5px]
+          text-[12px]
           font-semibold
           transition
           focus-visible:outline-none
@@ -349,7 +349,7 @@ function LegendItem({
   label: string;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-[10.5px] font-medium text-[#667085]">
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#475467]">
       <span
         className={cn(
           "size-[7px] rounded-[2px]",

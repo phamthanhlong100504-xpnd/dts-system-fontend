@@ -263,7 +263,7 @@ export default function Home() {
                 DTS
               </div>
 
-              <div className="text-[11.5px] font-semibold text-[#0758d9]">
+              <div className="text-[12px] font-semibold text-[#0758d9]">
                 Lái xe
               </div>
             </div>
@@ -271,7 +271,7 @@ export default function Home() {
 
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-[10px] py-1.5 pl-2 pr-0 outline-none transition hover:bg-[#f5f7fa]">
-              <span className="hidden max-w-[150px] truncate text-[14px] font-semibold text-[#1d2939] sm:block">
+              <span className="hidden max-w-[150px] truncate text-[14.5px] font-semibold text-[#1d2939] sm:block">
                 {displayName}
               </span>
 
@@ -294,7 +294,7 @@ export default function Home() {
                   </div>
 
                   {user.email && (
-                    <div className="truncate text-xs font-normal text-muted-foreground">
+                    <div className="truncate text-[12.5px]/4 font-medium text-muted-foreground">
                       {user.email}
                     </div>
                   )}
@@ -349,7 +349,7 @@ export default function Home() {
             Chọn hạng giấy phép lái xe
           </h1>
 
-          <p className="mx-auto mt-3 max-w-[610px] text-[15px] font-medium leading-6 text-[#475467]">
+          <p className="mx-auto mt-3 max-w-[610px] text-[15.5px] font-medium leading-6 text-[#344054]">
             Chọn hạng GPLX bạn đang học để DTS hiển thị đúng bộ câu hỏi,
             tiến độ và nội dung luyện tập phù hợp.
           </p>
@@ -357,7 +357,7 @@ export default function Home() {
 
         {isProfileError ? (
           <section className="mt-10 text-center">
-            <p className="text-[14.5px] font-medium text-[#475467]">
+            <p className="text-[15px] font-medium text-[#344054]">
               Không thể xác nhận hạng GPLX từ Identity. Vui lòng thử lại.
             </p>
 
@@ -367,7 +367,7 @@ export default function Home() {
                 setProfileVerification(null);
                 setVerifyAttempt((current) => current + 1);
               }}
-              className="mt-4 inline-flex h-10 items-center justify-center rounded-[10px] bg-[#0758d9] px-6 text-[14px] font-semibold text-white transition hover:bg-[#064fc3]"
+              className="mt-4 inline-flex h-10 items-center justify-center rounded-[10px] bg-[#0758d9] px-6 text-[14.5px] font-semibold text-white transition hover:bg-[#064fc3]"
             >
               Thử lại
             </button>
@@ -381,7 +381,7 @@ export default function Home() {
       </main>
 
       <footer className="w-full border-t border-[#dde2ea] bg-[#F2F3FF]">
-        <div className="mx-auto flex min-h-[68px] w-full max-w-[1480px] flex-col gap-4 px-6 py-4 text-[14px] font-medium text-[#344054] sm:flex-row sm:items-center sm:justify-between lg:px-8">
+        <div className="mx-auto flex min-h-[68px] w-full max-w-[1480px] flex-col gap-4 px-6 py-4 text-[14.5px] font-medium text-[#27364f] sm:flex-row sm:items-center sm:justify-between lg:px-8">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <div className="flex items-center gap-2 whitespace-nowrap">
               <span className="flex size-6 items-center justify-center rounded-[6px] bg-[#0758d9] text-white">
@@ -398,7 +398,7 @@ export default function Home() {
 
             <span className="hidden h-4 w-px bg-[#cfd5df] sm:block" />
 
-            <span className="text-[#667085]">
+            <span className="text-[#475467]">
               © {new Date().getFullYear()} Nền tảng ôn thi sát hạch lái xe.
             </span>
           </div>
@@ -562,10 +562,10 @@ function LicenseCatalogSections({
 
                     <div
                       className={cn(
-                        "mt-1 text-[14px] font-medium",
+                        "mt-1 text-[14.5px] font-medium",
                         active
                           ? "text-[#0758d9]"
-                          : "text-[#475467]"
+                          : "text-[#344054]"
                       )}
                     >
                       {active
@@ -586,7 +586,7 @@ function LicenseCatalogSections({
 
                 {/* Tầng 2: Danh sách hạng, nằm dưới và căn đáy card. */}
                 <div className="mt-auto flex w-full flex-wrap items-center gap-1.5 pt-5">
-                  <span className="mr-1 text-[14px] font-medium text-[#475467]">
+                  <span className="mr-1 text-[14.5px] font-medium text-[#344054]">
                     Gồm các hạng:
                   </span>
 
@@ -595,17 +595,17 @@ function LicenseCatalogSections({
                       <span
                         key={license.code}
                         className={cn(
-                          "rounded-md px-2 py-1 text-[12px] font-semibold",
+                          "rounded-md px-2 py-1 text-[12.5px] font-semibold",
                           active
-                            ? "bg-[#e5e9ff] text-[#344054]"
-                            : "bg-[#f0f2f6] text-[#475467]"
+                            ? "bg-[#e5e9ff] text-[#27364f]"
+                            : "bg-[#f0f2f6] text-[#344054]"
                         )}
                       >
                         {license.code}
                       </span>
                     ))
                   ) : (
-                    <span className="rounded-md px-2 py-1 text-[12px] font-semibold text-[#475467]">
+                    <span className="rounded-md px-2 py-1 text-[12.5px] font-semibold text-[#344054]">
                       {catalog.isPending
                         ? "Đang tải..."
                         : "Chưa có dữ liệu"}
@@ -624,18 +624,18 @@ function LicenseCatalogSections({
             Chọn hạng GPLX
           </h2>
 
-          <p className="mt-1 text-[14.5px] font-medium text-[#475467]">
+          <p className="mt-1 text-[15px] font-medium text-[#344054]">
             Các hạng thuộc nhóm {activeGroupLabel}
           </p>
         </div>
 
         <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {catalog.isPending ? (
-            <p className="text-[14.5px] font-medium text-[#475467]">
+            <p className="text-[15px] font-medium text-[#344054]">
               Đang tải danh mục GPLX từ máy chủ...
             </p>
           ) : !isCatalogReady ? (
-            <div className="text-[14.5px] font-medium text-[#475467]">
+            <div className="text-[15px] font-medium text-[#344054]">
               <p>
                 Không thể tải danh mục GPLX. Vui lòng thử lại.
               </p>
@@ -644,7 +644,7 @@ function LicenseCatalogSections({
                 type="button"
                 onClick={() => void catalog.refetch()}
                 disabled={catalog.isFetching}
-                className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[14px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:bg-[#98a2b3]"
+                className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[14.5px] font-semibold text-white transition hover:bg-[#064fc3] disabled:pointer-events-none disabled:bg-[#98a2b3]"
               >
                 {catalog.isFetching
                   ? "Đang tải lại..."
@@ -665,12 +665,12 @@ function LicenseCatalogSections({
                   {license.title ?? `Hạng ${license.code}`}
                 </h3>
 
-                <p className="mt-2 text-[15px] font-medium leading-[1.65] text-[#475467]">
+                <p className="mt-2 text-[15.5px] font-medium leading-[1.65] text-[#344054]">
                   {license.description}
                 </p>
 
                 <div className="mt-auto pt-5">
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13.5px] font-medium text-[#475467]">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[14px] font-medium text-[#344054]">
                     <span className="inline-flex items-center gap-1.5">
                       <FileText
                         className="size-4 text-[#0758d9]"
@@ -701,7 +701,7 @@ function LicenseCatalogSections({
                       onClick={() =>
                         onSelectLicense(license.code)
                       }
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[14px] font-semibold text-white transition hover:bg-[#064fc3] active:translate-y-px disabled:pointer-events-none disabled:bg-[#98a2b3]"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0758d9] px-6 text-[14.5px] font-semibold text-white transition hover:bg-[#064fc3] active:translate-y-px disabled:pointer-events-none disabled:bg-[#98a2b3]"
                     >
                       {isSaving
                         ? "Đang lưu..."

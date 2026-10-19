@@ -97,7 +97,7 @@ export function PracticeModeDialog({
               Bạn muốn làm bài theo cách nào?
             </DialogTitle>
 
-            <DialogDescription className="text-[14px] font-medium leading-6 text-[#667085]">
+            <DialogDescription className="text-[14.5px] font-medium leading-6 text-[#475467]">
               Chọn chế độ phù hợp với mục tiêu hiện tại.
             </DialogDescription>
           </DialogHeader>
@@ -173,21 +173,21 @@ function ModeOption({
 
           <span
             className={cn(
-              "shrink-0 translate-x-[30px] rounded-[6px] px-2.5 py-1 text-[12px] font-semibold leading-none",
+              "shrink-0 translate-x-[30px] rounded-[6px] px-2.5 py-1 text-[12.5px] font-semibold leading-none",
               badgeTone === "blue"
                 ? "bg-[#edf3ff] text-[#0758d9]"
-                : "bg-[#f2f4f7] text-[#667085]"
+                : "bg-[#f2f4f7] text-[#475467]"
             )}
           >
             {badge}
           </span>
         </div>
 
-        <p className="mt-2.5 max-w-[420px] text-[14px] font-medium leading-[22px] text-[#667085]">
+        <p className="mt-2.5 max-w-[420px] text-[14.5px] font-medium leading-[22px] text-[#475467]">
           {description}
         </p>
 
-        <div className="mt-3.5 flex items-center gap-5 text-[12px] font-medium text-[#98a2b3]">
+        <div className="mt-3.5 flex items-center gap-5 text-[12.5px] font-medium text-[#98a2b3]">
           <span className="inline-flex items-center gap-1.5">
             <FileQuestion className="size-3.5" />
 
