@@ -13,9 +13,9 @@ interface TrafficSignCardProps {
 
 export function TrafficSignCard({ sign, onOpenDetail }: TrafficSignCardProps) {
   return (
-    <article className="font-dts flex h-full min-h-[308px] min-w-0 flex-col items-center rounded-[14px] border border-[#eef0f5] bg-white px-5 pb-3 pt-5 shadow-[0_2px_4px_rgba(15,23,42,0.025)] transition-all duration-200 hover:border-[#dce5f5] hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] dark:border-[#35445a] dark:bg-[#182231]">
+    <article className="font-dts flex h-full min-h-[308px] min-w-0 flex-col items-center rounded-[14px] border border-[#d0d5dd] bg-white px-5 pb-3 pt-5 shadow-[0_2px_4px_rgba(15,23,42,0.025)] transition-all duration-200 hover:border-[#dce5f5] hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] dark:border-[#35445a] dark:bg-[#182231]">
 
-      <div className="mx-auto flex size-[132px] shrink-0 items-center justify-center overflow-hidden rounded-[13px] bg-[#f0f2ff] dark:bg-[#26364e]">
+      <div className="mx-auto flex size-[132px] shrink-0 items-center justify-center overflow-hidden rounded-[13px] bg-white dark:bg-[#182231]">
         {sign.mediaFileId ? (
           <MediaImage src={sign.mediaFileId} alt={sign.name} className="size-full object-contain p-[10px]" />
         ) : (
