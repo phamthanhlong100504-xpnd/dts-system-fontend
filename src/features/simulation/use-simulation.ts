@@ -26,3 +26,4 @@ export function useEvaluateSimulation() {
       evaluateSimulation(scenarioNumber, selectedSecond),
   });
 }
+
