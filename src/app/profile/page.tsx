@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +28,7 @@ import {
   useChangePassword,
   useLogout,
   useMe,
+  useResendVerification,
   useUpdateProfile,
 } from "@/features/auth/use-auth";
 import { useAuthStore } from "@/stores/auth-store";
@@ -59,6 +61,8 @@ function ProfileContent() {
   const { data: me, isLoading, isError } = useMe();
   const storeUser = useAuthStore((s) => s.user);
   const logoutMutation = useLogout();
+  const router = useRouter();
+  const resendMutation = useResendVerification();
   const [showChangePassword, setShowChangePassword] = useState(false);
 
   if (isLoading) {
@@ -82,6 +86,18 @@ function ProfileContent() {
 
   const emailVerified = !!me.emailVerifiedAt;
 
+  const handleVerifyEmail = () => {
+    if (!me.email) return;
+    resendMutation.mutate(
+      { identifier: me.email, type: "REGISTER" },
+      {
+        onSuccess: () => {
+          router.push(`/verify-email?identifier=${encodeURIComponent(me.email ?? "")}`);
+        },
+      }
+    );
+  };
+
   return (
     <div className="container max-w-2xl py-8">
       <div className="mb-6">
@@ -101,11 +117,11 @@ function ProfileContent() {
         </div>
         <StatusBadge status={me.status} />
         {!emailVerified && (
-          <Button asChild variant="outline" size="sm">
-            <Link href={`/verify-email?identifier=${encodeURIComponent(me.email ?? "")}`}>
+          <Button variant="outline" size="sm" onClick={handleVerifyEmail} disabled={resendMutation.isPending}>
+
               <Mail className="h-4 w-4" />
-              Xác minh email
-            </Link>
+              {resendMutation.isPending ? "Đang gửi mã..." : "Xác minh email"}
+
           </Button>
         )}
       </div>
