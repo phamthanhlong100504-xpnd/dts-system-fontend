@@ -100,3 +100,11 @@ export async function uploadFileToMediaService(
 
   throw new Error("Media processing timed out");
 }
+
+
+/**
+ * Lấy thông tin chi tiết và URL phát của media qua mediaId
+ */
+export async function getMediaDetail(mediaId: string): Promise<MediaDetailResponse> {
+  return await mediaApi.get<MediaDetailResponse>(/);
+}
