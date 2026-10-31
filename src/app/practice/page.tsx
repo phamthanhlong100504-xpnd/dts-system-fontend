@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { RequireAuth } from "@/components/require-auth";
+import { PracticeHubModules } from "@/features/simulations/components/practice-hub-modules";
 import { useLicenseByCode } from "@/features/license/use-license";
 import { useMe } from "@/features/auth/use-auth";
 import { PracticeModeDialog } from "@/features/practice/components/practice-mode-dialog";
@@ -488,19 +489,8 @@ function PracticeHub({
     presetCounts.total;
 
   return (
-    <div className="font-dts min-h-[calc(100vh-64px)] bg-[#f8f8fc] text-[#101828]">
-      <main className="mx-auto w-full max-w-[1240px] px-6 pb-14 pt-8 lg:px-8">
-        <section>
-          <h1 className="text-[30px] font-bold tracking-[-0.025em] text-[#101828]">
-            Ôn luyện
-          </h1>
-
-          <p className="mt-1.5 text-[14.5px] font-medium text-[#344054]">
-            Hạng{" "}
-            {licenseCode} · Học theo cách phù hợp với bạn.
-          </p>
-        </section>
-
+    <>
+      <PracticeHubModules key={license.code} license={license}>
         {canResume &&
           activeExam && (
             <section className="mt-6">
@@ -870,7 +860,7 @@ function PracticeHub({
             />
           </div>
         </PracticeSection>
-      </main>
+      </PracticeHubModules>
 
       {examConfig && (
         <PracticeModeDialog
@@ -897,7 +887,7 @@ function PracticeHub({
           }
         />
       )}
-    </div>
+    </>
   );
 }
 

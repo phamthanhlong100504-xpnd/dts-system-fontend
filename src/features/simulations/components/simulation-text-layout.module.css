@@ -1,0 +1,10 @@
+/* One heading/description rhythm for student Card04/05/06; no global overrides. */
+.headingDescription {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  row-gap: 0.6cm;
+}
+.headingDescription > :is(h1, h2, h3, p) {
+  margin-block: 0;
+}

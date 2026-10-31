@@ -1,10 +1,12 @@
 "use client";
+import { AdminCan } from "@/features/admin/foundation/admin-access-provider";
+
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { ExamItem } from "@/features/admin/admin-examination-service";
 import { useLicenseCatalog } from "@/features/license/use-license";
-import { 
+import {
   Plus, Loader2, Send, Trash2, BookOpen, Clock, CheckCircle2, Award, Search, Settings2, Pencil, Sparkles, UploadCloud
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +18,11 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useAdminExams, useCreateExam, useDeleteExam, useUpdateExam } from "@/features/admin/use-admin-content";
-import { uploadFileToMediaService } from "@/features/media/media-service";
+import { uploadFileToMediaService, MediaProcessingPendingError } from "@/features/media/media-service";
+import { validateMediaFile } from "@/features/media/media-upload-policy";
+import { AdminMediaPicker } from "@/features/admin/media/components/admin-media-picker";
+import { AdminMediaPending } from "@/features/admin/media/components/admin-media-pending";
+import { adminFailure } from "@/features/admin/foundation/admin-errors";
 import { MediaImage } from "@/components/ui/media-image";
 
 export default function AdminExamsPage() {
@@ -45,6 +51,8 @@ export default function AdminExamsPage() {
   const [editThumbnailId, setEditThumbnailId] = useState("");
 
   const [isUploadingNewThumb, setIsUploadingNewThumb] = useState(false);
+  const [pendingNewMediaId, setPendingNewMediaId] = useState<string | null>(null);
+  const [pendingEditMediaId, setPendingEditMediaId] = useState<string | null>(null);
   const [isUploadingEditThumb, setIsUploadingEditThumb] = useState(false);
   const newFileInputRef = useRef<HTMLInputElement>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
@@ -67,18 +75,20 @@ export default function AdminExamsPage() {
   const handleUploadNewThumb = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Dung lượng file không được vượt quá 5MB");
+    const invalid = validateMediaFile(file, "EXAM");
+    if (invalid) {
+      toast.error(invalid);
       return;
     }
     try {
       setIsUploadingNewThumb(true);
+      setPendingNewMediaId(null);
       const res = await uploadFileToMediaService(file, "EXAM", "PUBLIC");
       setNewThumbnailId(res.mediaId);
       toast.success("Tải ảnh lên thành công");
     } catch (error) {
-      console.error(error);
-      toast.error("Tải ảnh thất bại");
+      if (error instanceof MediaProcessingPendingError) { setPendingNewMediaId(error.mediaId); toast.info("tài nguyên đang chờ xác minh. Bạn có thể kiểm tra lại bên dưới."); }
+      else toast.error(adminFailure(error, "Tải ảnh thất bại").message);
     } finally {
       setIsUploadingNewThumb(false);
       if (newFileInputRef.current) newFileInputRef.current.value = "";
@@ -88,18 +98,20 @@ export default function AdminExamsPage() {
   const handleUploadEditThumb = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Dung lượng file không được vượt quá 5MB");
+    const invalid = validateMediaFile(file, "EXAM");
+    if (invalid) {
+      toast.error(invalid);
       return;
     }
     try {
       setIsUploadingEditThumb(true);
+      setPendingEditMediaId(null);
       const res = await uploadFileToMediaService(file, "EXAM", "PUBLIC");
       setEditThumbnailId(res.mediaId);
       toast.success("Tải ảnh lên thành công");
     } catch (error) {
-      console.error(error);
-      toast.error("Tải ảnh thất bại");
+      if (error instanceof MediaProcessingPendingError) { setPendingEditMediaId(error.mediaId); toast.info("tài nguyên đang chờ xác minh. Bạn có thể kiểm tra lại bên dưới."); }
+      else toast.error(adminFailure(error, "Tải ảnh thất bại").message);
     } finally {
       setIsUploadingEditThumb(false);
       if (editFileInputRef.current) editFileInputRef.current.value = "";
@@ -112,10 +124,10 @@ export default function AdminExamsPage() {
       return;
     }
     createMutation.mutate(
-      { 
-        title: newName, 
-        code: newCode, 
-        status: "DRAFT", 
+      {
+        title: newName,
+        code: newCode,
+        status: "DRAFT",
         licenseType: newLicenseClass.trim().toUpperCase(),
         thumbnailId: newThumbnailId
       },
@@ -142,6 +154,7 @@ export default function AdminExamsPage() {
 
   const handleOpenEdit = (exam: ExamItem) => {
     setEditingExam(exam);
+    setPendingEditMediaId(null);
     setEditName(exam.title);
     setEditCode(exam.code);
     setEditThumbnailId(exam.thumbnailId || "");
@@ -153,8 +166,8 @@ export default function AdminExamsPage() {
       return;
     }
     updateMutation.mutate(
-      { 
-        id: editingExam.id, 
+      {
+        id: editingExam.id,
         payload: {
           title: editName,
           code: editCode,
@@ -196,10 +209,10 @@ export default function AdminExamsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-card p-6 shadow-sm border">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Quản lý Kỳ thi & Bộ đề thi
+            Quản lý kỳ thi chính thức
           </h1>
           <p className="text-[14.5px]/5 text-muted-foreground mt-1">
-            Cấu hình ma trận đề thi, quy chế sát hạch và danh sách bộ đề.
+            Quản lý kỳ thi chính thức, phiên bản đề và lịch áp dụng.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -209,10 +222,10 @@ export default function AdminExamsPage() {
               Cấu hình Ma trận
             </Button>
           </Link>
-          <Button className="gap-2" onClick={() => setIsCreating(!isCreating)}>
+          <AdminCan resource="exam" action={"create"}><Button className="gap-2" onClick={() => setIsCreating(!isCreating)}>
             <Plus className="h-4 w-4" />
-            {isCreating ? "Đóng form" : "Tạo bộ đề thi mới"}
-          </Button>
+            {isCreating ? "Đóng biểu mẫu" : "Tạo bộ đề thi mới"}
+          </Button></AdminCan>
         </div>
       </div>
 
@@ -258,8 +271,8 @@ export default function AdminExamsPage() {
                 <label className="text-[12.5px]/4 font-semibold text-muted-foreground flex justify-between">
                   <span>Ảnh bìa (Thumbnail)</span>
                   {newThumbnailId && (
-                    <span 
-                      className="text-destructive cursor-pointer hover:underline" 
+                    <span
+                      className="text-destructive cursor-pointer hover:underline"
                       onClick={() => setNewThumbnailId("")}
                     >
                       Xóa ảnh
@@ -268,12 +281,12 @@ export default function AdminExamsPage() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/gif,image/webp"
                   className="hidden"
                   ref={newFileInputRef}
                   onChange={handleUploadNewThumb}
                 />
-                <div 
+                <div
                   className={`border-2 border-dashed rounded-xl h-[120px] flex flex-col items-center justify-center gap-2 transition-colors overflow-hidden relative ${isUploadingNewThumb ? "opacity-50 pointer-events-none" : "cursor-pointer hover:border-primary/50"} ${newThumbnailId ? "bg-muted/10 border-solid" : "bg-muted/20"}`}
                   onClick={() => !newThumbnailId && newFileInputRef.current?.click()}
                 >
@@ -283,9 +296,9 @@ export default function AdminExamsPage() {
                     <div className="relative w-full h-full group">
                       <MediaImage src={newThumbnailId} alt="Thumbnail" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); newFileInputRef.current?.click(); }}>
+                        <AdminCan resource="exam" action={"create"}><Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); newFileInputRef.current?.click(); }}>
                           Đổi ảnh
-                        </Button>
+                        </Button></AdminCan>
                       </div>
                     </div>
                   ) : (
@@ -295,15 +308,17 @@ export default function AdminExamsPage() {
                     </>
                   )}
                 </div>
+                <div className="mt-3"><AdminMediaPicker target="EXAM" editableDraft disabled={createMutation.isPending || isUploadingNewThumb} onSelect={(id) => { setNewThumbnailId(id); setPendingNewMediaId(null); }} /></div>
+                {pendingNewMediaId && <AdminMediaPending mediaId={pendingNewMediaId} target="EXAM" editableDraft onChoose={(id) => { setNewThumbnailId(id); setPendingNewMediaId(null); }} />}
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" size="sm" onClick={() => setIsCreating(false)}>
                 Hủy
               </Button>
-              <Button size="sm" onClick={handleCreate} disabled={createMutation.isPending || !licenseCatalog.isSuccess}>
+              <AdminCan resource="exam" action={"create"}><Button size="sm" onClick={handleCreate} disabled={createMutation.isPending || !licenseCatalog.isSuccess}>
                 {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Lưu bản nháp"}
-              </Button>
+              </Button></AdminCan>
             </div>
           </CardContent>
         </Card>
@@ -319,7 +334,7 @@ export default function AdminExamsPage() {
           { label: "Số câu đề đã cấu hình", value: examSets.reduce((sum, e) => sum + e.questionsCount, 0).toLocaleString("vi-VN"), icon: BookOpen, color: "text-primary" },
         ].map((stat) => {
           const Icon = stat.icon;
-          return <Card key={stat.label}><CardContent className="flex items-center gap-3 p-4"><div className={`rounded-xl bg-muted p-2 ${stat.color}`}><Icon className="size-5" /></div><div><p className="text-[12.5px]/4 text-muted-foreground">{stat.label}</p><p className="text-2xl font-bold">{stat.value}</p></div></CardContent></Card>;
+          return <Card key={stat.label}><CardContent className="flex items-center gap-3 p-4"><div className={`rounded-xl bg-muted p-2 ${stat.color}`}><Icon className="size-5" /></div><div><p className="text-[12.5px]/4 text-muted-foreground">{stat.label}</p><p className="text-2xl font-bold">{examsError || isLoading ? "—" : stat.value}</p></div></CardContent></Card>;
         })}
       </div>
       <p className="text-[12.5px]/4 text-muted-foreground">Trạng thái kỳ thi và phiên bản đề được quản lý riêng. Kỳ thi đang ẩn sẽ không hiển thị cho học viên.</p>
@@ -389,7 +404,7 @@ export default function AdminExamsPage() {
                     <td className="py-4 px-4"><Skeleton className="h-8 w-24 ml-auto" /></td>
                   </tr>
                 ))
-              ) : filteredExams.length === 0 ? (
+              ) : examsError ? (<tr><td colSpan={7} className="p-6 text-center text-destructive">Không tải được danh sách kỳ thi. Vui lòng thử lại.</td></tr>) : filteredExams.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-muted-foreground text-[14.5px]/5">
                     Chưa có bộ đề nào phù hợp.
@@ -403,6 +418,7 @@ export default function AdminExamsPage() {
                     </td>
                     <td className="py-4 px-4 font-medium text-foreground max-w-xs">
                       {exam.title}
+                      {exam.publishedVersionNo != null && <p className="mt-1 text-[14px]/5 text-muted-foreground">Đang công bố phiên bản {exam.publishedVersionNo}</p>}
                     </td>
                     <td className="py-4 px-4">
                       <Badge variant="outline" className="font-bold">
@@ -416,12 +432,12 @@ export default function AdminExamsPage() {
                       <Badge variant="secondary" className={exam.status === "PUBLISHED" ? "bg-emerald-100 text-emerald-700" : exam.status === "HIDDEN" ? "bg-slate-200 text-slate-700" : exam.status === "ARCHIVED" ? "bg-gray-200 text-gray-700" : "bg-amber-100 text-amber-700"}>{({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", HIDDEN: "Đang ẩn", ARCHIVED: "Đã lưu trữ" } as Record<string, string>)[exam.status] ?? exam.status}</Badge>
                       {exam.status === "HIDDEN" && exam.publishedVersionCount > 0 && <p className="mt-1 text-[12.5px]/4 text-amber-700">Phiên bản đã xuất bản nhưng kỳ thi đang ẩn</p>}
                     </td>
-                    <td className="py-4 px-4 text-[12.5px]/4 text-muted-foreground">{exam.updatedAt}</td>
+                    <td className="py-4 px-4 text-[12.5px]/4 text-muted-foreground">{exam.updatedAt ? new Date(exam.updatedAt).toLocaleString("vi-VN") : "Chưa có thông tin"}</td>
                     <td className="py-4 px-4 text-right whitespace-nowrap">
                       <div className="flex flex-nowrap items-center justify-end gap-1.5">
                         {/* Nút Xuất bản nếu đang là DRAFT */}
                         {exam.status === "DRAFT" && (
-                          <Button
+                          <AdminCan resource="exam" action={"update"}><Button
                             variant="default"
                             size="sm"
                             className="h-8 shrink-0 whitespace-nowrap gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[12.5px]/4"
@@ -430,10 +446,10 @@ export default function AdminExamsPage() {
                           >
                             <Send className="h-3.5 w-3.5" />
                             Thiết lập đề thi
-                          </Button>
+                          </Button></AdminCan>
                         )}
 
-                        <Button
+                        <AdminCan resource="exam" action={"update"}><Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-primary"
@@ -441,7 +457,7 @@ export default function AdminExamsPage() {
                           onClick={() => handleOpenEdit(exam)}
                         >
                           <Pencil className="h-4 w-4" />
-                        </Button>
+                        </Button></AdminCan>
 
                         <Link href={`/admin/exams/${exam.id}`}>
                           <Button variant="ghost" size="icon" className="h-8 w-8" title="Cấu hình & Phiên bản">
@@ -449,16 +465,16 @@ export default function AdminExamsPage() {
                           </Button>
                         </Link>
 
-                        <Button
+                        <AdminCan resource="exam" action={"delete"}><Button
                           variant="ghost"
                           size="icon"
-                          disabled={deletingId === exam.id}
+                          disabled={deletingId === exam.id || exam.versionCount > 0}
                           onClick={() => handleDelete(exam.id, exam.title)}
                           className="h-8 w-8 text-muted-foreground hover:text-destructive"
                           title="Xóa bộ đề"
                         >
                           {deletingId === exam.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                        </Button>
+                        </Button></AdminCan>
                       </div>
                     </td>
                   </tr>
@@ -496,8 +512,8 @@ export default function AdminExamsPage() {
                 <label className="text-[12.5px]/4 font-semibold text-muted-foreground flex justify-between">
                   <span>Ảnh bìa (Thumbnail)</span>
                   {editThumbnailId && (
-                    <span 
-                      className="text-destructive cursor-pointer hover:underline" 
+                    <span
+                      className="text-destructive cursor-pointer hover:underline"
                       onClick={() => setEditThumbnailId("")}
                     >
                       Xóa ảnh
@@ -506,12 +522,12 @@ export default function AdminExamsPage() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/gif,image/webp"
                   className="hidden"
                   ref={editFileInputRef}
                   onChange={handleUploadEditThumb}
                 />
-                <div 
+                <div
                   className={`border-2 border-dashed rounded-xl h-[160px] flex flex-col items-center justify-center gap-2 transition-colors overflow-hidden relative ${isUploadingEditThumb ? "opacity-50 pointer-events-none" : "cursor-pointer hover:border-primary/50"} ${editThumbnailId ? "bg-muted/10 border-solid" : "bg-muted/20"}`}
                   onClick={() => !editThumbnailId && editFileInputRef.current?.click()}
                 >
@@ -524,27 +540,29 @@ export default function AdminExamsPage() {
                     <div className="relative w-full h-full group">
                       <MediaImage src={editThumbnailId} alt="Thumbnail" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); editFileInputRef.current?.click(); }}>
+                        <AdminCan resource="exam" action={"update"}><Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); editFileInputRef.current?.click(); }}>
                           Đổi ảnh
-                        </Button>
+                        </Button></AdminCan>
                       </div>
                     </div>
                   ) : (
                     <>
                       <UploadCloud className="h-8 w-8 text-muted-foreground" />
-                      <p className="text-[14.5px]/5 font-medium text-muted-foreground">Tải ảnh lên (Max 5MB)</p>
+                      <p className="text-[14.5px]/5 font-medium text-muted-foreground">Tải ảnh lên (tối đa 100 MiB)</p>
                     </>
                   )}
                 </div>
+                <div className="mt-3"><AdminMediaPicker target="EXAM" editableDraft={editingExam?.status === "DRAFT"} disabled={updateMutation.isPending || isUploadingEditThumb} onSelect={(id) => { setEditThumbnailId(id); setPendingEditMediaId(null); }} /></div>
+                {pendingEditMediaId && <AdminMediaPending mediaId={pendingEditMediaId} target="EXAM" editableDraft={editingExam?.status === "DRAFT"} onChoose={(id) => { setEditThumbnailId(id); setPendingEditMediaId(null); }} />}
               </div>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingExam(null)}>Đóng</Button>
-            <Button onClick={handleSaveEdit} disabled={updateMutation.isPending}>
+            <AdminCan resource="exam" action={"update"}><Button onClick={handleSaveEdit} disabled={updateMutation.isPending}>
               {updateMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               Lưu thay đổi
-            </Button>
+            </Button></AdminCan>
           </DialogFooter>
         </DialogContent>
       </Dialog>

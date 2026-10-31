@@ -1,0 +1,5 @@
+import type { Choice } from './model';
+export interface Policy {id:string;mode:'RANDOM'|'PRESET';label:string;version:string;bankVersion:string;licenseClass:string;itemCount:number;scorePerItem:number;maxScore:number;passingScore:number;durationMs:number|null;selectionLabel:string;statusLabel:string;effectiveAt:string|null;chapters:Array<{id:string;label:string;required:number;criticalRequired:number|null}>}
+export interface LicenseCapability {licenseClass:string;theoryReady:boolean;simulationReady:boolean;randomReady:boolean;presetReady:boolean;bankVersion:string|null;policyVersion:string|null;reasons:string[]}
+export interface PolicySource {actorId:string;options(module:'theory'|'simulation',signal?:AbortSignal):Promise<{actorId:string;licenses:Choice[];banks:Choice[]}>;read(module:'theory'|'simulation',licenseClass:string,bankVersion:string,signal?:AbortSignal):Promise<{actorId:string;policies:Policy[];capabilities:LicenseCapability[];asOf:string}>}
+export function getAdminPolicySource():PolicySource|null{return null;}

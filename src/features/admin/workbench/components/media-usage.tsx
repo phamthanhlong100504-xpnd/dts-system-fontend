@@ -1,0 +1,32 @@
+'use client';
+/* eslint-disable @next/next/no-img-element -- Private signed URLs are rendered without the shared UUID resolver. */
+import { useRef,useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useAuthStore } from '@/stores/auth-store';
+import { Button } from '@/components/ui/button';
+import { useAdminAccess } from '../../foundation/admin-access-provider';
+import { AdminPageState } from '../../foundation/components/admin-page-state';
+import { adminFailure } from '../../foundation/admin-errors';
+import { ActionConfirm } from './action-confirm';
+import { AuthorizedAdminLink } from './operations-workspace';
+import { safePlaybackUrl } from '../rules';
+import { getAdminMediaUsageSource,mayRetireMedia,type MediaUsageSource } from '../media-usage-model';
+export function MediaUsagePanel({mediaId,sourceOverride}:{mediaId:string;sourceOverride?:MediaUsageSource|null}) {
+ const {access,error}=useAdminAccess();const source=sourceOverride===undefined?getAdminMediaUsageSource():sourceOverride;const ready=Boolean(source&&source.actorId===access?.actorId&&!error);
+ const [confirm,setConfirm]=useState(false);
+ const [busy,setBusy]=useState(false),[uncertain,setUncertain]=useState(false),[problem,setProblem]=useState('');const lock=useRef(false),operationKey=useRef<string|null>(null);
+ const query=useQuery({queryKey:['admin','workbench','media-usage',access?.actorId,mediaId],queryFn:async({signal})=>{const u=await source!.usage(mediaId,signal);if(u.actorId!==access?.actorId||u.mediaId!==mediaId||u.totalReferences<u.references.length)throw new Error('Chưa xác minh được nơi sử dụng tài nguyên.');return u;},enabled:ready,retry:false,staleTime:0,gcTime:0});
+ const retire=async()=>{
+  if(!ready||!source||!query.data||!mayRetireMedia(query.data,source.actorId)||lock.current||uncertain)return false;
+  const auth=useAuthStore.getState();if(auth.user?.id!==source.actorId||!auth.accessToken)return false;lock.current=true;setBusy(true);setProblem('');operationKey.current??=crypto.randomUUID();
+  try {const fresh=await source.usage(mediaId);if(fresh.mediaId!==mediaId||!mayRetireMedia(fresh,source.actorId))throw new Error('Tài nguyên không còn đủ điều kiện ngừng sử dụng.');if(useAuthStore.getState().user?.id!==auth.user?.id||useAuthStore.getState().accessToken!==auth.accessToken)throw new Error('Tài khoản đã thay đổi.');await source.retire(fresh,operationKey.current);if(useAuthStore.getState().user?.id!==auth.user?.id||useAuthStore.getState().accessToken!==auth.accessToken)throw new Error('Tài khoản đã thay đổi.');const result=await query.refetch();if(result.error)throw result.error;if(useAuthStore.getState().user?.id!==auth.user?.id||useAuthStore.getState().accessToken!==auth.accessToken)throw new Error('Tài khoản đã thay đổi.');if(!result.data?.retiredAt)throw new Error('Chưa xác nhận trạng thái ngừng sử dụng.');operationKey.current=null;return true;}
+  catch(e){setUncertain(true);setProblem(adminFailure(e,'Chưa xác nhận được thao tác. Tải lại nơi sử dụng trước khi tiếp tục.').message);return false;}finally{lock.current=false;setBusy(false);}
+ };
+ const usage=ready&&!query.isError?query.data:undefined;
+ return <section className="space-y-3 rounded-xl border p-4"><h3>Nội dung đang sử dụng</h3>{!ready?<p role="status" className="text-[15px]/6 text-muted-foreground">Chưa thể tra cứu các nội dung đang sử dụng tài nguyên này.</p>:query.isError?<AdminPageState state="error" error={query.error} onRetry={()=>void query.refetch()}/>:query.isFetching?<p role="status">Đang kiểm tra nơi sử dụng…</p>:usage&&<><p className="text-[15px]/6">{usage.totalReferences} tham chiếu được xác nhận.</p>{usage.references.map((r,i)=><div key={`${r.versionId}:${i}`} className="rounded-lg border p-3 text-[15px]/6"><p className="font-medium">{r.label}</p><p>{r.status} · {r.versionId}</p><AuthorizedAdminLink href={r.href}>Mở nội dung</AuthorizedAdminLink></div>)}{usage.totalReferences>usage.references.length&&<p className="text-[14px]/6 text-muted-foreground">Một số tham chiếu không thuộc phạm vi được xem. Không thể ngừng sử dụng tài nguyên.</p>}<p className="text-[14px]/6 text-muted-foreground">{usage.reason??(usage.retiredAt?'Đã ngừng sử dụng.':'Trạng thái ngừng sử dụng được xác nhận theo quyền và nơi tham chiếu.')}</p>{mayRetireMedia(usage,source!.actorId)&&<Button disabled={busy||uncertain} variant="outline" onClick={()=>setConfirm(true)}>Ngừng sử dụng</Button>}</>}{problem&&<p role="alert" className="text-destructive">{problem}</p>}{ready&&<Button variant="outline" disabled={busy} onClick={async()=>{const r=await query.refetch();if(!r.error)setUncertain(false);}}>Tải lại nơi sử dụng</Button>}{confirm&&<ActionConfirm title="Ngừng sử dụng tài nguyên" description="Hệ thống sẽ kiểm tra lại quyền và toàn bộ tham chiếu trước khi ngừng sử dụng." confirmLabel="Ngừng sử dụng" destructive onConfirm={retire} onClose={()=>setConfirm(false)}/>}</section>;
+}
+export function PrivateAssetPreview({mediaId,video,title}:{mediaId:string;video:boolean;title:string}) {
+ const {access,error}=useAdminAccess();const source=getAdminMediaUsageSource();const ready=Boolean(source&&source.actorId===access?.actorId&&!error);const [failed,setFailed]=useState(false);
+ const query=useQuery({queryKey:['admin','workbench','private-media-preview',access?.actorId,mediaId],queryFn:async({signal})=>{const r=await source!.preview(mediaId,signal);if(r.mediaId!==mediaId||r.expiresAt&&(!Number.isFinite(Date.parse(r.expiresAt))||Date.parse(r.expiresAt)<=Date.now()))throw new Error('Cần lấy lại quyền xem trước.');return safePlaybackUrl(r.url);},enabled:ready,retry:false,staleTime:0,gcTime:0});
+ return <div className="space-y-3 rounded-xl border p-4">{ready&&query.data&&!query.isError&&!failed?(video?<video controls preload="metadata" src={query.data} aria-label={title} className="max-h-80 w-full" onError={()=>setFailed(true)}/>:<img src={query.data} alt={title} className="max-h-72 max-w-full object-contain" onError={()=>setFailed(true)}/>):<p role="status" className="text-[15px]/6 text-muted-foreground">{query.isFetching?'Đang lấy quyền xem tài nguyên riêng tư…':'Xem trước sẽ khả dụng khi hệ thống xác nhận quyền truy cập tài nguyên riêng tư của bạn.'}</p>}{ready&&<Button variant="outline" disabled={query.isFetching} onClick={()=>{setFailed(false);void query.refetch();}}>Lấy lại quyền xem trước</Button>}</div>;
+}

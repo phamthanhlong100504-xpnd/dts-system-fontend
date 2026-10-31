@@ -86,7 +86,7 @@ export function buildOfficialMatrixSections(
   for (const chapter of chapters) {
     const numeric = Number(chapter.sourceChapterId);
     if (!Number.isInteger(numeric) || numeric < 1 || chapterBySource.has(numeric)) {
-      throw new Error("Danh sách chương chưa có mã chương nguồn duy nhất; không thể tạo ma trận chính thức.");
+      throw new Error("Danh sách chương chưa có mã chương nguồn duy nhất, không thể tạo ma trận chính thức.");
     }
     chapterBySource.set(numeric, chapter);
   }

@@ -1,4 +1,6 @@
 "use client";
+import { AdminPageState } from "@/features/admin/foundation/components/admin-page-state";
+import { adminRoleLabel, adminPermissionLabel, adminResourceLabel } from "@/features/admin/foundation/admin-ui-labels";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -93,7 +95,7 @@ export default function AdminRolesPage() {
 /* ---------------- Tab Vai trò ---------------- */
 
 function RolesTab() {
-  const { data: roles, isLoading, isError } = useRoles();
+  const { data: roles, isLoading, isError, error, refetch } = useRoles();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // Derive từ query để sheet luôn phản ánh dữ liệu mới sau khi toggle quyền
   const selectedRole =
@@ -111,9 +113,7 @@ function RolesTab() {
           <Skeleton className="h-28 rounded-2xl" />
         </div>
       ) : isError || !roles ? (
-        <p className="text-[14.5px]/5 text-destructive">
-          Không tải được danh sách vai trò. Kiểm tra service dts-identity.
-        </p>
+        <AdminPageState state="error" error={error} onRetry={() => void refetch()} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {roles.map((role) => (
@@ -125,7 +125,7 @@ function RolesTab() {
             >
               <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm transition-colors group-hover:border-primary/50">
                 <div className="mb-1 flex items-center justify-between">
-                  <h3 className="font-bold text-primary">{role.name}</h3>
+                  <h3 className="font-bold text-primary">{adminRoleLabel(role.name)}</h3>
                   <KeyRound className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <p className="text-[14.5px]/5 text-muted-foreground">
@@ -157,7 +157,8 @@ function RoleDetailSheet({
   role: RoleResponse | null;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { data: permissions } = usePermissions();
+  const permissionsQuery = usePermissions();
+  const permissions = permissionsQuery.isError ? undefined : permissionsQuery.data;
   const togglePermission = useToggleRolePermission();
 
   if (!role) return null;
@@ -169,14 +170,15 @@ function RoleDetailSheet({
     <Sheet open onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>{role.name}</SheetTitle>
+          <SheetTitle>{adminRoleLabel(role.name)}</SheetTitle>
           <SheetDescription>Cấu hình quyền hạn cho vai trò này</SheetDescription>
         </SheetHeader>
         <div className="flex-1 space-y-6 overflow-y-auto px-4">
+          {permissionsQuery.isError && <AdminPageState state="error" error={permissionsQuery.error} onRetry={() => void permissionsQuery.refetch()} />}
           {Object.entries(grouped).map(([group, perms]) => (
-            <div key={group}>
+            <div key={adminResourceLabel(group)}>
               <h4 className="mb-2 text-[12.5px]/4 font-semibold uppercase tracking-widest text-muted-foreground">
-                {group}
+                {adminResourceLabel(group)}
               </h4>
               <div className="divide-y divide-border overflow-hidden rounded-xl border border-border">
                 {perms.map((p) => (
@@ -185,13 +187,14 @@ function RoleDetailSheet({
                     className="flex cursor-pointer items-center justify-between p-4"
                   >
                     <div>
-                      <p className="text-[14.5px]/5 font-semibold">{p.name}</p>
-                      <p className="text-[12.5px]/4 text-muted-foreground">{p.displayName}</p>
+                      <p className="text-[14.5px]/5 font-semibold">{adminPermissionLabel(p.name, p.displayName)}</p>
+                      <p className="text-[14px]/5 text-muted-foreground">Mã quyền: {p.name}</p>
                     </div>
                     <Switch
                       checked={rolePermNames.has(p.name ?? "")}
+                      disabled={togglePermission.isPending || !permissionsQuery.isSuccess}
                       onCheckedChange={(on) => {
-                        if (!role.id || !p.id) return;
+                        if (!role.id || !p.id || !window.confirm(`${on ? "Gán" : "Thu hồi"} quyền ${adminPermissionLabel(p.name, p.displayName)} cho vai trò ${adminRoleLabel(role.name)}?`)) return;
                         togglePermission.mutate({
                           roleId: role.id,
                           permissionId: p.id,
@@ -204,7 +207,7 @@ function RoleDetailSheet({
               </div>
             </div>
           ))}
-          {Object.keys(grouped).length === 0 && (
+          {permissionsQuery.isSuccess && Object.keys(grouped).length === 0 && (
             <p className="text-[14.5px]/5 text-muted-foreground">Chưa có quyền hạn nào trong hệ thống.</p>
           )}
         </div>
@@ -216,7 +219,7 @@ function RoleDetailSheet({
 /* ---------------- Tab Quyền hạn ---------------- */
 
 function PermissionsTab() {
-  const { data: permissions, isLoading, isError } = usePermissions();
+  const { data: permissions, isLoading, isError, error, refetch } = usePermissions();
 
   return (
     <div>
@@ -227,25 +230,23 @@ function PermissionsTab() {
       {isLoading ? (
         <Skeleton className="h-40 rounded-2xl" />
       ) : isError || !permissions ? (
-        <p className="text-[14.5px]/5 text-destructive">
-          Không tải được danh sách quyền hạn. Kiểm tra service dts-identity.
-        </p>
+        <AdminPageState state="error" error={error} onRetry={() => void refetch()} />
       ) : (
         <div className="rounded-2xl border border-border/50 bg-card shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Tên</TableHead>
-                <TableHead>Hiển thị</TableHead>
+                <TableHead>Quyền hạn</TableHead>
+                <TableHead>Mã quyền</TableHead>
                 <TableHead>Nhóm chức năng</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {permissions.map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell className="font-mono text-[12.5px]/4">{p.name}</TableCell>
-                  <TableCell>{p.displayName}</TableCell>
-                  <TableCell className="text-muted-foreground">{p.resource}</TableCell>
+                  <TableCell className="font-mono text-[12.5px]/4">{adminPermissionLabel(p.name, p.displayName)}</TableCell>
+                  <TableCell className="text-[14px]/5">{p.name}</TableCell>
+                  <TableCell className="text-muted-foreground">{adminResourceLabel(p.resource)}</TableCell>
                 </TableRow>
               ))}
               {permissions.length === 0 && (
@@ -291,13 +292,13 @@ function CreateRoleDialog() {
         <DialogHeader>
           <DialogTitle>Tạo vai trò mới</DialogTitle>
           <DialogDescription>
-            Nhập tên vai trò (ví dụ: ROLE_TEACHER)
+            Nhập tên vai trò phù hợp với nhiệm vụ của người sử dụng.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="role-name">Tên vai trò</Label>
-            <Input id="role-name" className="h-11" placeholder="ROLE_TEACHER" {...register("name")} />
+            <Input id="role-name" className="h-11" placeholder="Nhập tên vai trò" {...register("name")} />
             {errors.name && <p className="text-[14.5px]/5 text-destructive">{errors.name.message}</p>}
           </div>
           <DialogFooter>
@@ -344,18 +345,18 @@ function CreatePermissionDialog() {
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="perm-name">Tên quyền</Label>
-            <Input id="perm-name" className="h-11" placeholder="courses:read" {...register("name")} />
+            <Label htmlFor="perm-name">Mã quyền</Label>
+            <Input id="perm-name" className="h-11" placeholder="Nhập mã quyền" {...register("name")} />
             {errors.name && <p className="text-[14.5px]/5 text-destructive">{errors.name.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="perm-display">Tên hiển thị</Label>
-            <Input id="perm-display" className="h-11" placeholder="Read Courses" {...register("displayName")} />
+            <Input id="perm-display" className="h-11" placeholder="Ví dụ: Xem khóa học" {...register("displayName")} />
             {errors.displayName && <p className="text-[14.5px]/5 text-destructive">{errors.displayName.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="perm-resource">Nhóm chức năng</Label>
-            <Input id="perm-resource" className="h-11" placeholder="courses" {...register("resource")} />
+            <Input id="perm-resource" className="h-11" placeholder="Nhập nhóm chức năng" {...register("resource")} />
             {errors.resource && <p className="text-[14.5px]/5 text-destructive">{errors.resource.message}</p>}
           </div>
           <DialogFooter>

@@ -1,7 +1,17 @@
 "use client";
+import { contentFingerprint } from "@/features/admin/theory/theory-contract";
+import { ConfigurationUsage } from "@/features/admin/examination/components/configuration-usage";
+import { ConfigurationPreview } from "@/features/admin/examination/components/configuration-preview";
+import { AdminPageState } from "@/features/admin/foundation/components/admin-page-state";
+import { adminFailure } from "@/features/admin/foundation/admin-errors";
+import { useAdminUnsavedChanges } from "@/features/admin/foundation/use-admin-unsaved-changes";
+import { AdminLeaveDialog } from "@/features/admin/foundation/components/admin-leave-dialog";
+
+import { AdminCan } from "@/features/admin/foundation/admin-access-provider";
+
 
 import { useState } from "react";
-import { isAxiosError } from "axios";
+
 import { FileText, Plus, Pencil, Trash2 } from "lucide-react";
 import { useAdminExamRules, useCreateExamRule, useUpdateExamRule, useDeleteExamRule } from "@/features/admin/use-admin-content";
 import { Button } from "@/components/ui/button";
@@ -13,13 +23,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import type { ExamRulePayload } from "@/features/admin/admin-examination-service";
-
-function apiErrorMessage(error: unknown, fallback: string): string {
-  if (isAxiosError<{ message?: string }>(error)) {
-    return error.response?.data?.message || fallback;
-  }
-  return fallback;
-}
 
 const defaultRule: ExamRulePayload = {
   title: "",
@@ -53,7 +56,7 @@ const defaultRule: ExamRulePayload = {
 };
 
 export default function ExamRulesPage() {
-  const { data: rules = [], isLoading } = useAdminExamRules();
+  const { data: rules = [], isLoading, isError, error, refetch } = useAdminExamRules();
   const createRule = useCreateExamRule();
   const updateRule = useUpdateExamRule();
   const deleteRule = useDeleteExamRule();
@@ -63,24 +66,32 @@ export default function ExamRulesPage() {
 
   // Form state
   const [form, setForm] = useState<ExamRulePayload>(defaultRule);
+  const [baseline, setBaseline] = useState(JSON.stringify(defaultRule));
+  const busy = createRule.isPending || updateRule.isPending || deleteRule.isPending;
+  const leave = useAdminUnsavedChanges(isCreating && JSON.stringify(form) !== baseline, busy);
+
 
   const resetForm = () => {
+    setBaseline(JSON.stringify(defaultRule));
     setForm(defaultRule);
     setIsCreating(false);
     setEditingId(null);
   };
 
-  const handleEdit = (rule: ExamRulePayload & { id: string }) => {
-    const { id, ...ruleValues } = rule;
-    setForm({ ...defaultRule, ...ruleValues });
-    setEditingId(id);
-    setIsCreating(true);
-  };
+  const handleEdit = (value: ExamRulePayload & { id: string }) => leave.requestLeave(() => {
+    if (!value.id) return;
+    const next = { ...defaultRule, ...structuredClone(value), expectedFingerprint: contentFingerprint(value) };
+    setForm(next); setBaseline(JSON.stringify(next)); setEditingId(value.id); setIsCreating(true);
+  });
+  const handleCopy = (value: ExamRulePayload & { id: string }) => leave.requestLeave(() => {
+    setForm({ ...defaultRule, ...structuredClone(value), title: value.title + " (bản mới)", expectedFingerprint: undefined });
+    setBaseline(JSON.stringify(defaultRule)); setEditingId(null); setIsCreating(true);
+  });
 
   const updateField = <K extends keyof ExamRulePayload>(field: K, value: ExamRulePayload[K]) => {
     setForm(prev => {
       const next = { ...prev, [field]: value };
-      
+
       // Cross-field logic fixes
       if (field === "allowRetry" && !value) {
         next.maxRetry = 0;
@@ -95,7 +106,7 @@ export default function ExamRulesPage() {
       if (field === "preventTabSwitch" && !value) {
         next.maxTabSwitchCount = 0;
       }
-      
+
       return next;
     });
   };
@@ -107,7 +118,7 @@ export default function ExamRulesPage() {
     }
 
     if (form.durationSeconds <= 0) {
-      toast.error("Thời gian thi (durationSeconds) phải lớn hơn 0");
+      toast.error("Thời gian thi phải lớn hơn 0");
       return;
     }
 
@@ -119,7 +130,7 @@ export default function ExamRulesPage() {
             toast.success("Cập nhật thành công");
             resetForm();
           },
-          onError: (err: unknown) => toast.error(apiErrorMessage(err, "Cập nhật thất bại")),
+          onError: (err: unknown) => toast.error(adminFailure(err, "Cập nhật thất bại, nội dung được giữ lại.").message),
         }
       );
     } else {
@@ -128,7 +139,7 @@ export default function ExamRulesPage() {
           toast.success("Tạo mới thành công");
           resetForm();
         },
-        onError: (err: unknown) => toast.error(apiErrorMessage(err, "Tạo mới thất bại")),
+        onError: (err: unknown) => toast.error(adminFailure(err, "Chưa xác nhận tạo quy chế mới.").message),
       });
     }
   };
@@ -137,13 +148,14 @@ export default function ExamRulesPage() {
     if (confirm("Bạn có chắc chắn muốn xóa quy chế thi này?")) {
       deleteRule.mutate(id, {
         onSuccess: () => toast.success("Xóa thành công"),
-        onError: () => toast.error("Xóa thất bại"),
+        onError: (error) => toast.error(adminFailure(error, "Không thể xóa cấu hình này.").message),
       });
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" inert={busy} aria-busy={busy}>
+      <AdminLeaveDialog open={leave.leaveOpen} onCancel={leave.cancelLeave} onLeave={leave.confirmLeave} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
           <FileText className="h-6 w-6 text-primary" />
@@ -156,9 +168,9 @@ export default function ExamRulesPage() {
           <CardTitle className="text-base font-semibold">
             Danh sách Quy chế thi
           </CardTitle>
-          <Button size="sm" onClick={() => { resetForm(); setIsCreating(true); }}>
+          <AdminCan resource="exam_rule" action={"create"}><Button size="sm" onClick={() => { resetForm(); setIsCreating(true); }}>
             <Plus className="h-4 w-4 mr-2" /> Thêm mới
-          </Button>
+          </Button></AdminCan>
         </CardHeader>
 
         {isCreating && (
@@ -166,7 +178,7 @@ export default function ExamRulesPage() {
             <h3 className="font-semibold text-lg text-primary">
               {editingId ? "Cập nhật Quy chế thi" : "Tạo Quy chế thi mới"}
             </h3>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
@@ -185,7 +197,7 @@ export default function ExamRulesPage() {
                   <TabsTrigger value="display">Hiển thị & Đảo đề</TabsTrigger>
                   <TabsTrigger value="security">Bảo mật & Giám sát</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="general" className="space-y-4 p-4 border rounded-md mt-2 bg-background">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex items-center justify-between">
@@ -196,7 +208,7 @@ export default function ExamRulesPage() {
                       <Label>Cho phép bỏ qua câu hỏi</Label>
                       <Switch checked={form.allowSkip} onCheckedChange={(v) => updateField("allowSkip", v)} />
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <Label>Cho phép làm lại</Label>
                       <Switch checked={form.allowRetry} onCheckedChange={(v) => updateField("allowRetry", v)} />
@@ -213,7 +225,7 @@ export default function ExamRulesPage() {
                         <option value="SEQUENTIAL">Tuần tự (SEQUENTIAL)</option>
                       </select>
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <Label>Cho phép tạm dừng</Label>
                       <Switch checked={form.allowPause} onCheckedChange={(v) => updateField("allowPause", v)} />
@@ -271,11 +283,12 @@ export default function ExamRulesPage() {
               </Tabs>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={resetForm}>Hủy</Button>
-              <Button size="sm" onClick={handleSubmit} disabled={createRule.isPending || updateRule.isPending}>
+            <ConfigurationPreview title={form.title} values={[["Thời gian làm bài", `${form.durationSeconds} giây`], ["Cho phép làm lại", form.allowRetry], ["Số lần làm lại", form.maxRetry], ["Cho phép tạm dừng", form.allowPause], ["Cho phép tiếp tục", form.allowResume], ["Chế độ công bố", ({ IMMEDIATE: "Ngay khi có kết quả", AFTER_SUBMIT: "Sau khi nộp bài", AFTER_EXAM_END: "Khi kỳ thi kết thúc", MANUAL: "Công bố thủ công" } as Record<string, string>)[form.resultReleaseMode]]]} />
+            <div className="dts-admin-actions pt-2">
+              <Button variant="outline" size="sm" onClick={() => leave.requestLeave(resetForm)}>Hủy</Button>
+              <AdminCan resource="exam_rule" action={editingId ? "update" : "create"}><Button size="sm" onClick={handleSubmit} disabled={createRule.isPending || updateRule.isPending}>
                 Lưu quy chế
-              </Button>
+              </Button></AdminCan>
             </div>
           </div>
         )}
@@ -295,7 +308,7 @@ export default function ExamRulesPage() {
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">Đang tải dữ liệu...</TableCell>
                 </TableRow>
-              ) : rules.length === 0 ? (
+              ) : isError ? (<TableRow><TableCell colSpan={4} className="p-6 text-center text-destructive">Không tải được danh sách. Vui lòng thử lại.</TableCell></TableRow>) : rules.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">Chưa có dữ liệu</TableCell>
                 </TableRow>
@@ -306,13 +319,14 @@ export default function ExamRulesPage() {
                     <TableCell>{Math.floor(rule.durationSeconds / 60)} phút</TableCell>
                     <TableCell>{({ IMMEDIATE: "Ngay sau khi nộp", AFTER_SUBMIT: "Sau khi nộp bài", AFTER_EXAM_END: "Khi kỳ thi kết thúc", MANUAL: "Công bố thủ công" } as Record<string, string>)[rule.resultReleaseMode] ?? rule.resultReleaseMode}</TableCell>
                     <TableCell className="whitespace-nowrap text-right">
-                      <div className="inline-flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(rule)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDelete(rule.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="dts-admin-actions">
+                        <ConfigurationUsage kind="rule" id={rule.id} title={rule.title} /><AdminCan resource="exam_rule" action={"create"}><Button variant="outline" size="sm" onClick={() => handleCopy(rule)}>Dùng làm mẫu</Button></AdminCan>
+                        <AdminCan resource="exam_rule" action={"update"}><Button variant="ghost" size="icon" onClick={() => handleEdit(rule)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button></AdminCan>
+                        <AdminCan resource="exam_rule" action={"delete"}><Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDelete(rule.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button></AdminCan>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -322,6 +336,9 @@ export default function ExamRulesPage() {
           </Table>
         </CardContent>
       </Card>
+      {isError && <AdminPageState state="error" error={error} onRetry={() => void refetch()} />}
+      <p className="rounded-xl border bg-card p-4 text-[14px]/6 text-muted-foreground">Cấu hình đang dùng trong phiên bản đã công bố hoặc lưu trữ chỉ được xem. Để thay đổi, chọn Dùng làm mẫu và lưu thành cấu hình mới.</p>
+
     </div>
   );
 }

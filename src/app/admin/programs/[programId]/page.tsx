@@ -1,4 +1,8 @@
 "use client";
+import {LifecycleButton} from "@/features/admin/workbench/components/lifecycle-button";
+import { adminStatusLabel } from "@/features/admin/foundation/admin-ui-labels";
+import { AdminCan } from "@/features/admin/foundation/admin-access-provider";
+
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -20,15 +24,24 @@ import {
   useUpdateProgram
 } from "@/features/admin/use-admin-content";
 import Link from "next/link";
+import { useAuthStore } from "@/stores/auth-store";
+
+import { contentFingerprint } from "@/features/admin/theory/theory-contract";
+import { TheoryWorkflowNotice } from "@/features/admin/theory/components/theory-workflow-notice";
+import { useAdminUnsavedChanges } from "@/features/admin/foundation/use-admin-unsaved-changes";
+import { AdminLeaveDialog } from "@/features/admin/foundation/components/admin-leave-dialog";
+import { adminFailure } from "@/features/admin/foundation/admin-errors";
+import type { ChapterBlockItem } from "@/features/admin/admin-programs-service";
 
 export default function ProgramDetailPage() {
   const params = useParams();
   const router = useRouter();
   const programId = params.programId as string;
 
-  const { data: program, isLoading: isLoadingProgram } = useAdminProgramDetail(programId);
-  const { data: allChapters = [], isLoading: isLoadingChapters } = useAdminChapters();
+  const { data: program, isLoading: isLoadingProgram, isError, error, refetch } = useAdminProgramDetail(programId);
+  const { data: allChapters = [], isLoading: isLoadingChapters, isError: chaptersError, refetch: reloadChapters } = useAdminChapters();
 
+  const [editFingerprint, setEditFingerprint] = useState("");
   const [isEditingInfo, setIsEditingInfo] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -39,35 +52,20 @@ export default function ProgramDetailPage() {
   const addChapterBlock = useAddChapterBlock(programId);
   const deleteChapterBlock = useDeleteChapterBlock(programId);
   const reorderBlocks = useReorderChapterBlocks(programId);
-  const updateProgram = useUpdateProgram();
+
 
   const [addingChapterId, setAddingChapterId] = useState<string | null>(null);
   const [deletingBlockId, setDeletingBlockId] = useState<string | null>(null);
-  const [movingBlockId, setMovingBlockId] = useState<string | null>(null);
-  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
-
-  const handleUpdateStatus = (newStatus: "PUBLISHED" | "DRAFT" | "ARCHIVED") => {
-    if (!program) return;
-    setIsUpdatingStatus(true);
-    updateProgram.mutate({
-      id: programId,
-      payload: { title: program.title, code: program.code, description: program.description, status: newStatus }
-    }, {
-      onSuccess: () => {
-        toast.success(`Đã cập nhật trạng thái thành ${newStatus}`);
-        setIsUpdatingStatus(false);
-      },
-      onError: () => {
-        toast.error("Cập nhật trạng thái thất bại");
-        setIsUpdatingStatus(false);
-      }
-    });
-  };
-
+  const [, setMovingBlockId] = useState<string | null>(null);
+  const actorId = useAuthStore(state => state.user?.id);
+  const editable = program?.createdBy === actorId && program?.status === "DRAFT" && !isError;
+  const busy = updateProgramMutation.isPending || addChapterBlock.isPending || deleteChapterBlock.isPending || reorderBlocks.isPending;
+  const leave = useAdminUnsavedChanges(isEditingInfo && (editTitle !== program?.title || editCode !== program?.code || editDescription !== program?.description), busy);
   const handleAddChapter = (chapterId: string, chapterTitle: string) => {
+    if (!editable || busy) return;
     setAddingChapterId(chapterId);
     addChapterBlock.mutate(
-      { chapterId, title: chapterTitle, status: "PUBLISHED" },
+      { chapterId, title: chapterTitle, status: "DRAFT" },
       {
         onSuccess: () => {
           toast.success("Đã thêm chương vào lộ trình!");
@@ -82,7 +80,7 @@ export default function ProgramDetailPage() {
   };
 
   const handleRemoveBlock = (blockId: string) => {
-    if (!window.confirm("Gỡ chương này khỏi chương trình học?")) return;
+    if (!editable || busy || !window.confirm("Gỡ chương này khỏi chương trình học?")) return;
     setDeletingBlockId(blockId);
     deleteChapterBlock.mutate(blockId, {
       onSuccess: () => {
@@ -97,7 +95,7 @@ export default function ProgramDetailPage() {
   };
 
   const handleMove = (index: number, direction: 'up' | 'down') => {
-    if (!program || !program.chapterBlocks) return;
+    if (!editable || busy || !program || !program.chapterBlocks) return;
     const blocks = [...program.chapterBlocks];
     if (direction === 'up' && index > 0) {
       const temp = blocks[index];
@@ -113,8 +111,8 @@ export default function ProgramDetailPage() {
 
     const payload = blocks.map((b, i) => ({ id: b.id, sortOrder: i }));
     setMovingBlockId(blocks[index].id);
-    
-    reorderBlocks.mutate(payload, {
+
+    reorderBlocks.mutate({ items: payload, expectedFingerprint: contentFingerprint(program) }, {
       onSuccess: () => {
         setMovingBlockId(null);
       },
@@ -129,6 +127,8 @@ export default function ProgramDetailPage() {
     return <div className="p-12 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
+  if (isError) return <div role="alert" className="space-y-4 rounded-xl border p-6"><p>{adminFailure(error, "Không tải được chương trình học.").message}</p><Button variant="outline" onClick={() => void refetch()}>Thử lại</Button></div>;
+
   if (!program) {
     return (
       <div className="p-12 text-center space-y-4">
@@ -139,7 +139,8 @@ export default function ProgramDetailPage() {
   }
 
   const handleOpenEditInfo = () => {
-    if (program) {
+    if (program && editable && !busy) {
+      setEditFingerprint(contentFingerprint(program));
       setEditTitle(program.title);
       setEditDescription(program.description || "");
       setEditCode(program.code || "");
@@ -152,28 +153,31 @@ export default function ProgramDetailPage() {
       toast.error("Vui lòng nhập tên và mã chương trình học");
       return;
     }
-    if (program) {
+    if (program && editable && !busy) {
       updateProgramMutation.mutate(
-        { id: program.id, payload: { title: editTitle, code: editCode, description: editDescription, status: program.status } },
+        { id: program.id, payload: { title: editTitle, code: editCode, description: editDescription, status: "DRAFT", expectedFingerprint: editFingerprint } },
         {
           onSuccess: () => {
             toast.success("Đã cập nhật thông tin chương trình học");
             setIsEditingInfo(false);
           },
-          onError: () => toast.error("Cập nhật thất bại"),
+          onError: (error) => toast.error(adminFailure(error, "Cập nhật thất bại, nội dung được giữ lại.").message),
         }
       );
     }
   };
 
   const existingChapterIds = new Set(program.chapterBlocks?.map(b => b.chapterId) || []);
-  const availableChapters = allChapters.filter(c => !existingChapterIds.has(c.id));
+  const availableChapters = allChapters.filter(c => ["DRAFT", "PUBLISHED"].includes(c.status) && !existingChapterIds.has(c.id));
   const chapterBlocks = program.chapterBlocks || [];
   // sort blocks safely
   const sortedBlocks = [...chapterBlocks].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
   return (
     <div className="space-y-6 pb-20">
+      <AdminLeaveDialog open={leave.leaveOpen} onCancel={leave.cancelLeave} onLeave={leave.confirmLeave} />
+      <TheoryWorkflowNotice />
+      <LifecycleButton key={programId} subject={{kind:"PROGRAM",id:programId}}/>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl bg-card p-6 shadow-sm border">
         <div className="flex items-start gap-4">
@@ -182,77 +186,56 @@ export default function ProgramDetailPage() {
           </Button>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Badge variant="outline" className="text-[12.5px]/4 border-primary text-primary bg-primary/5">
+              <Badge variant="outline" className="text-[14px]/5 border-primary text-primary bg-primary/5">
                 {program.code}
               </Badge>
-              <Badge variant={program.status === "PUBLISHED" ? "default" : "secondary"} className="text-[12.5px]/4">
+              <Badge variant={program.status === "PUBLISHED" ? "default" : "secondary"} className="text-[14px]/5">
                 {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ", HIDDEN: "Đang ẩn" } as Record<string, string>)[program.status ?? ""] ?? program.status}
               </Badge>
             </div>
-            
+
             {isEditingInfo ? (
               <div className="mt-4 p-4 rounded-xl border bg-muted/20 space-y-4 min-w-[300px]">
                 <div className="space-y-1.5">
-                  <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Mã chương trình</label>
-                  <Input value={editCode} onChange={(e) => setEditCode(e.target.value)} />
+                  <label className="text-[14px]/5 font-semibold text-muted-foreground">Mã chương trình</label>
+                  <Input disabled={busy} value={editCode} onChange={(e) => setEditCode(e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Tên chương trình</label>
-                  <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+                  <label className="text-[14px]/5 font-semibold text-muted-foreground">Tên chương trình</label>
+                  <Input disabled={busy} value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Mô tả chương trình</label>
-                  <Input value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
+                  <label className="text-[14px]/5 font-semibold text-muted-foreground">Mô tả chương trình</label>
+                  <Input disabled={busy} value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <Button variant="outline" size="sm" onClick={() => setIsEditingInfo(false)}>Hủy</Button>
-                  <Button size="sm" onClick={handleSaveEditInfo} disabled={updateProgramMutation.isPending}>
+                  <Button variant="outline" size="sm" onClick={() => leave.requestLeave(() => setIsEditingInfo(false))}>Hủy</Button>
+                  <AdminCan resource="learning-programs" action={"update"}><Button size="sm" onClick={handleSaveEditInfo} disabled={!editable || busy}>
                     {updateProgramMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
                     Lưu thay đổi
-                  </Button>
+                  </Button></AdminCan>
                 </div>
               </div>
             ) : (
               <>
                 <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
                   {program.title}
-                  {program.status !== "ARCHIVED" && (
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={handleOpenEditInfo}>
+                  {editable && (
+                    <AdminCan resource="learning-programs" action={"update"}><Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={handleOpenEditInfo}>
                       <Edit2 className="h-4 w-4" />
-                    </Button>
+                    </Button></AdminCan>
                   )}
                 </h1>
-                <p className="text-[14.5px]/5 text-muted-foreground mt-1">
+                <p className="text-[15px]/6 text-muted-foreground mt-1">
                   {program.description || "Chưa có mô tả"}
                 </p>
               </>
             )}
           </div>
         </div>
-        
+
         <div className="flex items-center gap-3">
-          {program.status === "DRAFT" && (
-            <Button 
-              size="sm" 
-              variant="default" 
-              className="gap-2" 
-              disabled={isUpdatingStatus}
-              onClick={() => handleUpdateStatus("PUBLISHED")}
-            >
-              {isUpdatingStatus ? <Loader2 className="h-4 w-4 animate-spin" /> : "Xuất bản"}
-            </Button>
-          )}
-          {program.status === "PUBLISHED" && (
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="gap-2 text-amber-600 hover:text-amber-700" 
-              disabled={isUpdatingStatus}
-              onClick={() => handleUpdateStatus("DRAFT")}
-            >
-              {isUpdatingStatus ? <Loader2 className="h-4 w-4 animate-spin" /> : "Chuyển về Nháp"}
-            </Button>
-          )}
+          <Button size="sm" variant="outline" disabled title="Chức năng phê duyệt và phát hành hiện chưa khả dụng">Chờ công bố</Button>
         </div>
       </div>
 
@@ -261,7 +244,7 @@ export default function ProgramDetailPage() {
         <div className="lg:col-span-5 space-y-4">
           <Card className="rounded-2xl shadow-sm border">
             <CardHeader className="pb-3 border-b bg-muted/20">
-              <CardTitle className="text-[14.5px]/5 font-bold flex items-center gap-2">
+              <CardTitle className="text-[15px]/6 font-bold flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-primary" /> Ngân hàng Chương học
               </CardTitle>
             </CardHeader>
@@ -272,27 +255,27 @@ export default function ProgramDetailPage() {
                     <Skeleton className="h-12 w-full" />
                     <Skeleton className="h-12 w-full" />
                   </div>
-                ) : availableChapters.length === 0 ? (
-                  <div className="p-8 text-center text-[14.5px]/5 text-muted-foreground">
+                ) : chaptersError ? <p role="alert" className="p-4">Không tải được danh sách chương. <Button variant="outline" size="sm" onClick={() => void reloadChapters()}>Thử lại</Button></p> : availableChapters.length === 0 ? (
+                  <div className="p-8 text-center text-[15px]/6 text-muted-foreground">
                     Tất cả các chương đã được gắn vào chương trình, hoặc hệ thống chưa có chương nào.
                   </div>
                 ) : (
                   availableChapters.map(chapter => (
                     <div key={chapter.id} className="flex items-center justify-between p-4 hover:bg-muted/40 transition-colors">
                       <div>
-                        <p className="text-[14.5px]/5 font-medium">{chapter.title}</p>
-                        <p className="text-[10.5px] text-muted-foreground mt-0.5">ID: {chapter.id.split('-')[0]}...</p>
+                        <p className="text-[15px]/6 font-medium">{chapter.title}</p>
+                        <p className="text-[14px]/5 text-muted-foreground mt-0.5">ID: {chapter.id.split('-')[0]}...</p>
                       </div>
-                      <Button 
-                        size="sm" 
-                        variant="secondary" 
+                      <AdminCan resource="learning-programs" action={"update"}><Button
+                        size="sm"
+                        variant="secondary"
                         className="shrink-0 h-8 gap-1.5"
-                        disabled={addingChapterId === chapter.id}
+                        disabled={!editable || busy}
                         onClick={() => handleAddChapter(chapter.id, chapter.title)}
                       >
                         {addingChapterId === chapter.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
                         Thêm
-                      </Button>
+                      </Button></AdminCan>
                     </div>
                   ))
                 )}
@@ -305,7 +288,7 @@ export default function ProgramDetailPage() {
         <div className="lg:col-span-7 space-y-4">
           <Card className="rounded-2xl shadow-sm border border-primary/20">
             <CardHeader className="pb-3 border-b bg-primary/5 flex flex-row items-center justify-between">
-              <CardTitle className="text-[14.5px]/5 font-bold flex items-center gap-2">
+              <CardTitle className="text-[15px]/6 font-bold flex items-center gap-2">
                 <FolderTree className="h-4 w-4 text-primary" /> Lộ trình Chương trình ({sortedBlocks.length} chương)
               </CardTitle>
             </CardHeader>
@@ -313,52 +296,52 @@ export default function ProgramDetailPage() {
               {sortedBlocks.length === 0 ? (
                 <div className="text-center py-12 border-2 border-dashed rounded-xl">
                   <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-3 opacity-50" />
-                  <p className="text-[14.5px]/5 text-muted-foreground">Lộ trình trống.</p>
-                  <p className="text-[12.5px]/4 text-muted-foreground mt-1">Hãy bấm &quot;Thêm&quot; từ danh sách bên trái để thiết kế lộ trình.</p>
+                  <p className="text-[15px]/6 text-muted-foreground">Lộ trình trống.</p>
+                  <p className="text-[14px]/5 text-muted-foreground mt-1">Hãy bấm &quot;Thêm&quot; từ danh sách bên trái để thiết kế lộ trình.</p>
                 </div>
               ) : (
                 sortedBlocks.map((block, index) => (
-                  <div 
-                    key={block.id} 
+                  <div
+                    key={block.id}
                     className="flex items-center justify-between p-3 rounded-xl border bg-card hover:border-primary/50 transition-colors group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="flex flex-col gap-1 items-center bg-muted rounded p-1">
-                        <button 
-                          disabled={index === 0 || movingBlockId !== null}
+                        <button
+                          disabled={!editable || busy || index === 0 || sortedBlocks.some(b => b.parentId || b.children?.length)}
                           onClick={() => handleMove(index, 'up')}
                           className="hover:text-primary disabled:opacity-30 disabled:hover:text-current"
                         >
                           <ArrowUp className="h-3.5 w-3.5" />
                         </button>
-                        <button 
-                          disabled={index === sortedBlocks.length - 1 || movingBlockId !== null}
+                        <button
+                          disabled={!editable || busy || index === sortedBlocks.length - 1 || sortedBlocks.some(b => b.parentId || b.children?.length)}
                           onClick={() => handleMove(index, 'down')}
                           className="hover:text-primary disabled:opacity-30 disabled:hover:text-current"
                         >
                           <ArrowDown className="h-3.5 w-3.5" />
                         </button>
                       </div>
-                      
-                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[12.5px]/4 font-bold shrink-0">
+
+                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[14px]/5 font-bold shrink-0">
                         {index + 1}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[14.5px]/5 font-semibold truncate text-foreground">{block.title}</p>
-                        <p className="text-[10.5px] text-muted-foreground truncate">Block ID: {block.id}</p>
+                        <p className="text-[15px]/6 font-semibold truncate text-foreground">{block.title}</p>
+                        <p className="text-[14px]/5 text-muted-foreground break-all">Mã chương: {block.chapterId || "Nhánh nội dung"}</p><ProgramTree blocks={block.children ?? []} />
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 shrink-0">
-                      <Button
+                      <AdminCan resource="learning-programs" action={"update"}><Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                        disabled={deletingBlockId === block.id}
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive transition-colors"
+                        disabled={!editable || busy || Boolean(block.children?.length)}
                         onClick={() => handleRemoveBlock(block.id)}
                       >
                         {deletingBlockId === block.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                      </Button>
+                      </Button></AdminCan>
                     </div>
                   </div>
                 ))
@@ -369,4 +352,9 @@ export default function ProgramDetailPage() {
       </div>
     </div>
   );
+}
+
+function ProgramTree({ blocks }: { blocks: ChapterBlockItem[] }) {
+  if (!blocks.length) return null;
+  return <ul className="mt-3 space-y-3 border-l pl-4 text-[15px]/6">{[...blocks].sort((a, b) => a.sortOrder - b.sortOrder).map(b => <li key={b.id}><p className="font-medium">{b.title}</p><p className="break-all text-[14px]/5 text-muted-foreground">{adminStatusLabel(b.status)} · {b.chapterId || b.id}</p><ProgramTree blocks={b.children ?? []} /></li>)}</ul>;
 }

@@ -1,4 +1,6 @@
 "use client";
+import { AdminPageState } from "@/features/admin/foundation/components/admin-page-state";
+import { adminRoleLabel } from "@/features/admin/foundation/admin-ui-labels";
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -181,9 +183,7 @@ function UsersManager() {
           <Skeleton className="h-14" />
         </div>
       ) : usersQuery.isError || !data ? (
-        <p className="text-[14.5px]/5 text-destructive">
-          Không tải được danh sách người dùng. Kiểm tra service dts-identity.
-        </p>
+        <AdminPageState state="error" error={usersQuery.error} onRetry={() => void usersQuery.refetch()} />
       ) : (
         <div className="rounded-2xl border border-border/50 bg-card shadow-sm">
           <Table>
@@ -281,14 +281,16 @@ function UserRowActions({ user }: { user: UserResponse }) {
         <DropdownMenuContent align="end">
           {user.status === "LOCKED" ? (
             <DropdownMenuItem
-              onClick={() => user.id && updateStatus.mutate({ id: user.id, status: "ACTIVE" })}
+              disabled={updateStatus.isPending}
+              onClick={() => user.id && window.confirm(`Mở khóa tài khoản ${user.fullName || user.username}?`) && updateStatus.mutate({ id: user.id, status: "ACTIVE" })}
             >
               <LockOpen className="h-4 w-4" />
               Mở khóa tài khoản
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem
-              onClick={() => user.id && updateStatus.mutate({ id: user.id, status: "LOCKED" })}
+              disabled={updateStatus.isPending}
+              onClick={() => user.id && window.confirm(`Khóa tài khoản ${user.fullName || user.username}?`) && updateStatus.mutate({ id: user.id, status: "LOCKED" })}
             >
               <Lock className="h-4 w-4" />
               Khóa tài khoản
@@ -344,12 +346,13 @@ function UserRowActions({ user }: { user: UserResponse }) {
               <span className="font-medium text-foreground">
                 {user.fullName || user.username}
               </span>{" "}
-              sẽ bị xóa (soft-delete). Hành động này không thể hoàn tác.
+              sẽ bị xóa khỏi danh sách đang quản lý. Vui lòng kiểm tra đúng tài khoản trước khi xác nhận.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy bỏ</AlertDialogCancel>
             <AlertDialogAction
+              disabled={deleteUserMutation.isPending}
               onClick={() => user.id && deleteUserMutation.mutate(user.id)}
             >
               Xóa
@@ -372,8 +375,10 @@ function AssignRoleSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { data: userRoles, isLoading } = useUserRoles(open ? user.id ?? null : null);
-  const { data: allRoles } = useRoles();
+  const userRolesQuery = useUserRoles(open ? user.id ?? null : null);
+  const { data: userRoles, isLoading } = userRolesQuery;
+  const allRolesQuery = useRoles();
+  const { data: allRoles } = allRolesQuery;
   const assignRoleMutation = useAssignRole();
   const revokeRoleMutation = useRevokeRole();
   const [selectedRoleId, setSelectedRoleId] = useState("");
@@ -393,7 +398,7 @@ function AssignRoleSheet({
             <p className="mb-2 text-[14.5px]/5 font-medium">Vai trò hiện tại</p>
             {isLoading ? (
               <Skeleton className="h-8 w-full" />
-            ) : (userRoles ?? []).length === 0 ? (
+            ) : userRolesQuery.isError ? <AdminPageState state="error" error={userRolesQuery.error} onRetry={() => void userRolesQuery.refetch()} /> : (userRoles ?? []).length === 0 ? (
               <p className="text-[14.5px]/5 text-muted-foreground">Chưa có vai trò nào.</p>
             ) : (
               <div className="flex flex-wrap gap-2">
@@ -402,12 +407,13 @@ function AssignRoleSheet({
                     key={role.id}
                     className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-[14.5px]/5"
                   >
-                    {role.name}
+                    {adminRoleLabel(role.name)}
                     <button
                       type="button"
-                      aria-label={`Thu hồi ${role.name}`}
+                      aria-label={`Thu hồi ${adminRoleLabel(role.name)}`}
+                      disabled={revokeRoleMutation.isPending || assignRoleMutation.isPending || !userRolesQuery.isSuccess}
                       onClick={() =>
-                        user.id && role.id && revokeRoleMutation.mutate({ userId: user.id, roleId: role.id })
+                        user.id && role.id && window.confirm(`Thu hồi vai trò ${adminRoleLabel(role.name)} của ${user.fullName || user.username}?`) && revokeRoleMutation.mutate({ userId: user.id, roleId: role.id })
                       }
                       className="text-muted-foreground hover:text-destructive"
                     >
@@ -421,6 +427,7 @@ function AssignRoleSheet({
 
           <div className="space-y-2">
             <Label htmlFor="role-select">Thêm vai trò</Label>
+            {allRolesQuery.isError && <AdminPageState state="error" error={allRolesQuery.error} onRetry={() => void allRolesQuery.refetch()} />}
             <Select value={selectedRoleId} onValueChange={setSelectedRoleId}>
               <SelectTrigger id="role-select" className="h-11">
                 <SelectValue placeholder="Chọn vai trò" />
@@ -428,16 +435,16 @@ function AssignRoleSheet({
               <SelectContent>
                 {availableRoles.map((role) => (
                   <SelectItem key={role.id} value={role.id ?? ""}>
-                    {role.name}
+                    {adminRoleLabel(role.name)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Button
               className="w-full"
-              disabled={!selectedRoleId || assignRoleMutation.isPending}
+              disabled={!selectedRoleId || assignRoleMutation.isPending || revokeRoleMutation.isPending || !userRolesQuery.isSuccess || !allRolesQuery.isSuccess}
               onClick={() => {
-                if (!user.id || !selectedRoleId) return;
+                if (!user.id || !selectedRoleId || !window.confirm(`Gán vai trò đã chọn cho ${user.fullName || user.username}?`)) return;
                 assignRoleMutation.mutate(
                   { userId: user.id, roleId: selectedRoleId },
                   { onSuccess: () => setSelectedRoleId("") }
@@ -473,7 +480,8 @@ type CreateUserForm = z.infer<typeof createUserSchema>;
 
 function CreateUserSheet() {
   const createUserMutation = useCreateUser();
-  const { data: allRoles } = useRoles();
+  const allRolesQuery = useRoles();
+  const { data: allRoles } = allRolesQuery;
   const {
     register,
     handleSubmit,
@@ -545,7 +553,7 @@ function CreateUserSheet() {
               <SelectContent>
                 {(allRoles ?? []).map((role: RoleResponse) => (
                   <SelectItem key={role.id} value={role.id ?? ""}>
-                    {role.name}
+                    {adminRoleLabel(role.name)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -764,7 +772,7 @@ function ResetPasswordDialog({
   }, [open, reset]);
 
   function onSubmit(values: ResetPasswordForm) {
-    if (!user.id) return;
+    if (!user.id || !window.confirm(`Đặt lại mật khẩu cho ${user.fullName || user.username}?`)) return;
     resetMutation.mutate(
       { id: user.id, password: values.password },
       { onSuccess: () => onOpenChange(false) }
@@ -794,7 +802,7 @@ function ResetPasswordDialog({
             <div className="flex gap-2">
               <Input
                 id="rp-password"
-                type="text"
+                type="password"
                 className="h-11 flex-1"
                 {...register("password")}
               />
@@ -819,7 +827,7 @@ function ResetPasswordDialog({
           </div>
           <div className="space-y-2">
             <Label htmlFor="rp-confirm">Xác nhận mật khẩu</Label>
-            <Input id="rp-confirm" type="text" className="h-11" {...register("confirm")} />
+            <Input id="rp-confirm" type="password" className="h-11" {...register("confirm")} />
             {errors.confirm && (
               <p className="text-[14.5px]/5 text-destructive">{errors.confirm.message}</p>
             )}

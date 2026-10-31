@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "acceptedOn": "2026-10-28",
+  "acceptedBy": "Project owner confirmed the UI of all six cards",
+  "approvedUiVersion": "Spacing v10 after Polish v9",
+  "frontendUiAccepted": true,
+  "backendEndToEndAccepted": false,
+  "hashNormalization": "UTF-8 without BOM; CRLF normalized to LF; trailing blank lines preserved",
+  "files": [
+    {
+      "path": "src/features/simulations/components/learning-ui.tsx",
+      "sha256": "7d294bb255c3f084f849cd75269685a15381f074e605b8dbc58d14d4e93bf5d4"
+    },
+    {
+      "path": "src/features/simulations/components/practice-hub-modules.tsx",
+      "sha256": "1f517a79cc3b7801a54cd493f3bb7c5624736dd4b1675516a821c787e25705ab"
+    },
+    {
+      "path": "src/features/simulations/components/scoring-timeline.tsx",
+      "sha256": "edf63ea7bca511a91a4d508f7b587986bd7b5b7605afa965c9f8e9660afba6d9"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-bookmarks-view.tsx",
+      "sha256": "4fb2556b1f44672a44555ea7afe63d2f8735dabdf75c7b1c84a2c70fe8201485"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-chapter-view.tsx",
+      "sha256": "057778b476198231a3edbd82cd0391f7f9b9cd79433a2786858d49b863796aa5"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-chapters-view.tsx",
+      "sha256": "1ccd8d72cc36f11e866fb43c400a67b2b03b725a2c4dbadafb2531409a70a580"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-collection-ui.tsx",
+      "sha256": "aa13cc6cb52d16894ed58d54b4593058e9e8cfb2e510037b7a16f9a7c7f96724"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-dialog-layout.module.css",
+      "sha256": "a61c4c457ff0a3fa7128f51f83b9d264e1a72676fd4810d3f1b3c4259fd58cfa"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-layout.module.css",
+      "sha256": "640bad6d869fb7051f27f79b0436a0cbce114c3f9f87aef8c0a580d398f6e2d4"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-player.tsx",
+      "sha256": "98644e643f04919c4eb339d20a847cb795981c04ccbe9b3c2b27d01b82f6767e"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-preparation-view.tsx",
+      "sha256": "532ffb05324a22c17ed948d477e762c0021c5db38a19af338ef427fea67508d8"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-result-view.tsx",
+      "sha256": "b164c4b4af221300407c1a7084e812e8293d6e546046de876ac3d1e12680f26a"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-review-view.tsx",
+      "sha256": "029c0bf354eac884f6f183f8f2a0f6ca611523c08442b1a2d0db6fbb8e5db79b"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-session-view.tsx",
+      "sha256": "3030d65b988f65f2d7af8336fccb08b7b6334de66f10da0f7c71fe4c87311516"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-ui.tsx",
+      "sha256": "fecb09f2e60a5ffa9fb60bb399cae56376d9ca64dffc87299a6ff2293ff1c493"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-feedback-modal.tsx",
+      "sha256": "52b41d662aae0a4a1bfade2b701f38da3aa91cb3b337a9f99bec709be982772e"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-guide-admin-view.tsx",
+      "sha256": "fe7fa7c9a3244563a3fb9da7d1878e3d7f12be99a882201b8ddd22896cf328ca"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-guide-view.tsx",
+      "sha256": "1bbc7a1c8a320e9596e9a82fabe53cf42e50bc1c64f6a37ec59a71d46603714f"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-hint-card.tsx",
+      "sha256": "3e784ea6902ef31bc566611afb21c849ea603293e3a15c503a66c6f38beb7f14"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-practice-hub.tsx",
+      "sha256": "9c06a1ca3a9e364b7798173d28bcccecfc43b99f968f5391f1df47a89e623712"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-practice-layout.module.css",
+      "sha256": "ea89c3094ab4711fad44d080564956c5235f3fe658ad768ac7309f00c5516075"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-presentation.ts",
+      "sha256": "c25a9501cb385006cab48bf69174dee58fbb6391f6f6881f133740f6f525846b"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-presets-view.tsx",
+      "sha256": "392553a9e83a7201f7e70b0ef79c2b00bcdc1b00331bf4c4a5ec8b1857800a17"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-review-needed-view.tsx",
+      "sha256": "22074e225732d3d1c72a96367f539769046f3c0e9656322e3870fc655b5acf4b"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-scenario-view.tsx",
+      "sha256": "1d7b1b6025c2b213341fcb969801a309a0f9c1528fdbc60aa7c66770ff400d03"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-text-layout.module.css",
+      "sha256": "d270d5a0116ac0fc0cc95a992fbf54e82e81bc9d12cd1a1312aecfd13249f86e"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-video-player.tsx",
+      "sha256": "99f3cbcc7772a2cd3f620acd253659f560aa716b5323ebf5475955f09357d4e3"
+    },
+    {
+      "path": "src/components/site-header.tsx",
+      "sha256": "0b84cba14cf9c10a67bcbb482e42f3cc6b40eba71984f55abd30b58dc9a866da"
+    },
+    {
+      "path": "src/components/app-shell/app-header.tsx",
+      "sha256": "3ae9bb90f97ec8fa915c3753e933ae2f30bd6e887f38231197b3afd487afdfc5"
+    },
+    {
+      "path": "src/components/app-shell/app-footer.tsx",
+      "sha256": "b2cc165d0fe66c53aa4726eeec8ea11f175ca71fa413c91569279303003773fb"
+    },
+    {
+      "path": "src/app/globals.css",
+      "sha256": "b8382013b1848d5600ac1ff3ed976caf257c5891bf3e7bf0d1e244c54b8c8b32"
+    }
+  ],
+  "legacySharedFilesReference": "Exact Git bytes at 98b9d8a0ec77d1c31ad48abfc7d52058874ddcf2; review mirror transport newline corrected before fingerprinting; cleanup does not edit these files."
+}
