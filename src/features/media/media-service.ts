@@ -1,11 +1,23 @@
 import { mediaApi } from "@/lib/api";
+import type { MediaUploadTarget } from "./media-upload-policy";
+import { getAccessToken, useAuthStore } from "@/stores/auth-store";
+
+export { transferMediaFile, MediaTransferError } from "./media-upload-transport";
+export type { MediaUploadReceipt, MediaUploadPhase } from "./media-upload-transport";
+
+export class MediaProcessingPendingError extends Error {
+  constructor(public readonly mediaId: string) {
+    super("Media chưa được xác nhận sẵn sàng. Kiểm tra lại sau; chưa có kết luận xử lý thất bại.");
+    this.name = "MediaProcessingPendingError";
+  }
+}
 
 export interface InitializeUploadPayload {
   fileName: string;
   sizeBytes: number;
   mimeType: string;
   visibility: "PRIVATE" | "PUBLIC";
-  targetType: "USER" | "QUESTION" | "EXAM" | "SYSTEM";
+  targetType: "USER" | "SYSTEM" | MediaUploadTarget;
 }
 
 export interface InitializeUploadResponse {
@@ -38,9 +50,16 @@ export interface MediaDetailResponse {
  */
 export async function uploadFileToMediaService(
   file: File,
-  targetType: "USER" | "QUESTION" | "EXAM" | "SYSTEM" = "QUESTION",
+  targetType: InitializeUploadPayload["targetType"] = "QUESTION",
   visibility: "PRIVATE" | "PUBLIC" = "PUBLIC"
 ): Promise<MediaDetailResponse> {
+  getAccessToken();
+  const uploaderId = useAuthStore.getState().user?.id;
+  const assertUploader = () => {
+    const current = useAuthStore.getState();
+    if (!uploaderId || current.user?.id !== uploaderId || !current.accessToken) throw new Error("Phiên tải lên đã thay đổi. Vui lòng đăng nhập lại.");
+  };
+  assertUploader();
   // Step 1: Initialize
   const initPayload: InitializeUploadPayload = {
     fileName: file.name,
@@ -59,10 +78,12 @@ export async function uploadFileToMediaService(
   if (!initRes || !initRes.presignedUrl) {
     throw new Error("Failed to initialize upload session");
   }
+  assertUploader();
 
   // Step 2: Direct Upload to MinIO
   const uploadRes = await fetch(initRes.presignedUrl, {
     method: "PUT",
+    credentials: "omit",
     headers: {
       "Content-Type": file.type,
     },
@@ -72,33 +93,42 @@ export async function uploadFileToMediaService(
   if (!uploadRes.ok) {
     throw new Error("Failed to upload file to storage");
   }
+  assertUploader();
 
   // Step 3: Confirm Upload
-  await mediaApi.post(
-    `/uploads/${initRes.sessionId}/confirm`,
-    {},
-    { headers: { "Content-Type": "application/json" } }
-  );
+  try {
+    await mediaApi.post(
+      `/uploads/${initRes.sessionId}/confirm`,
+      {},
+      { headers: { "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    if (error && typeof error === "object" && "status" in error && (error.status === 401 || error.status === 403)) throw error;
+    assertUploader();
+    throw new MediaProcessingPendingError(initRes.mediaId);
+  }
 
   // Step 4: Poll for READY status
   const maxRetries = 10;
   for (let i = 0; i < maxRetries; i++) {
     // Wait for the worker to process the upload (1 second)
     await new Promise((resolve) => setTimeout(resolve, 1000));
+    assertUploader();
     
     try {
       const mediaRes = await mediaApi.get<MediaDetailResponse>(
         `/${initRes.mediaId}`
       );
-      if (mediaRes && mediaRes.status === "READY") {
+      assertUploader();
+      if (mediaRes && mediaRes.mediaId === initRes.mediaId && mediaRes.status === "READY") {
         return mediaRes;
       }
     } catch (err) {
-      console.warn("Polling media status failed, retrying...", err);
+      if (err && typeof err === "object" && "status" in err && (err.status === 401 || err.status === 403)) throw err;
     }
   }
 
-  throw new Error("Media processing timed out");
+  throw new MediaProcessingPendingError(initRes.mediaId);
 }
 
 /**

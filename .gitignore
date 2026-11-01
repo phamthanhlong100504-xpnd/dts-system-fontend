@@ -85,3 +85,13 @@ logs/
 stitch-pages/
 
 stitch-page/
+
+# DTS reviewed local handoff artifacts
+/.screen*-backup-*/
+/handoff/
+/DTS-audits/
+*.screen12-*.bak
+/hs_err_pid*.log
+/replay_pid*.log
+/12.0.2
+/[[]builder

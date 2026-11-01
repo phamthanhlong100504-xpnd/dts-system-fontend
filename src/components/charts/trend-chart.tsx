@@ -97,7 +97,7 @@ export function TrendChart({
 
   if (!data.length || data.every((d) => d.value == null)) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">{emptyLabel}</p>
+      <p className="py-8 text-center text-[14.5px]/5 text-muted-foreground">{emptyLabel}</p>
     );
   }
 

@@ -1,137 +1,16 @@
 "use client";
-
-import { Settings, Bell, Shield, Database, Palette, Globe, ChevronRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import Link from "next/link";
+import { Bell, Shield, Database, Palette, Globe } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-
-const settingsSections = [
-  {
-    icon: Bell,
-    title: "Thông báo",
-    description: "Cấu hình email, push notification và cảnh báo hệ thống",
-    badge: null,
-    color: "text-blue-500",
-    bg: "bg-blue-500/10",
-  },
-  {
-    icon: Shield,
-    title: "Bảo mật",
-    description: "Chính sách mật khẩu, xác thực 2 bước và phiên đăng nhập",
-    badge: "Khuyến nghị",
-    color: "text-green-500",
-    bg: "bg-green-500/10",
-  },
-  {
-    icon: Database,
-    title: "Dữ liệu & Sao lưu",
-    description: "Quản lý backup tự động, export dữ liệu và lịch sử thay đổi",
-    badge: null,
-    color: "text-orange-500",
-    bg: "bg-orange-500/10",
-  },
-  {
-    icon: Palette,
-    title: "Giao diện",
-    description: "Tùy chỉnh theme, ngôn ngữ và bố cục trang admin",
-    badge: null,
-    color: "text-purple-500",
-    bg: "bg-purple-500/10",
-  },
-  {
-    icon: Globe,
-    title: "API & Tích hợp",
-    description: "Quản lý API keys, webhook và kết nối với hệ thống bên ngoài",
-    badge: "Beta",
-    color: "text-cyan-500",
-    bg: "bg-cyan-500/10",
-  },
+import { AdminPageHeader } from "@/features/admin/foundation/components/admin-page-header";
+import { useAdminAccess } from "@/features/admin/foundation/admin-access-provider";
+import { canReadAdminPage } from "@/features/admin/foundation/admin-access";
+const sections = [
+ { title:"Thông báo",icon:Bell,description:"Cấu hình thông báo hiện chưa khả dụng.",links:[] },
+ { title:"Bảo mật và quyền truy cập",icon:Shield,description:"Quản lý tài khoản, vai trò và quyền tại các trang quản trị tương ứng.",links:[["users","Người dùng","/admin/users"],["roles","Vai trò & Quyền","/admin/roles"]] },
+ { title:"Dữ liệu và lịch sử thay đổi",icon:Database,description:"Tra cứu nhật ký thay đổi. Chức năng sao lưu và khôi phục dữ liệu chưa được cung cấp trên trang này.",links:[["audit-logs","Nhật ký quản trị","/admin/audit-logs"]] },
+ { title:"Giao diện",icon:Palette,description:"Sử dụng giao diện và hệ chữ hiện hành. Trang này chưa hỗ trợ tùy chỉnh giao diện.",links:[] },
+ { title:"Kết nối hệ thống",icon:Globe,description:"Xem tình trạng ứng dụng và theo dõi việc cập nhật nội dung, kết quả học tập.",links:[["system-monitoring","Giám sát vận hành","/admin/system-monitoring"],["content-releases","Phát hành & Đồng bộ","/admin/content-releases"]] },
 ];
-
-/** Môi trường & gateway hiện tại (dùng chung với next.config.ts rewrites) */
-function systemInfo(): { label: string; value: string }[] {
-  const isProd =
-    typeof window !== "undefined" && window.location.hostname === "hoangcn.com";
-  return [
-    { label: "Phiên bản", value: "v1.0.0" },
-    { label: "Môi trường", value: isProd ? "Production" : "Development" },
-    { label: "Next.js", value: "16.x" },
-    {
-      label: "API Gateway",
-      value: isProd ? "103.20.96.56:8888" : "localhost:8888",
-    },
-  ];
-}
-
-export default function AdminSettingsPage() {
-  const info = systemInfo();
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between rounded-2xl bg-card p-6 shadow-sm border">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Cài đặt hệ thống</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Quản lý cấu hình, bảo mật và tùy chỉnh hệ thống DTS.
-          </p>
-        </div>
-        <div className="p-3 rounded-xl bg-muted">
-          <Settings className="h-6 w-6 text-muted-foreground" />
-        </div>
-      </div>
-
-      {/* Settings Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {settingsSections.map((section) => {
-          const Icon = section.icon;
-          return (
-            <Card
-              key={section.title}
-              className="group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/30"
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className={`p-2.5 rounded-xl ${section.bg}`}>
-                    <Icon className={`h-5 w-5 ${section.color}`} />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {section.badge && (
-                      <Badge variant="secondary" className="text-xs">
-                        {section.badge}
-                      </Badge>
-                    )}
-                    <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
-                <CardTitle className="text-base mt-3">{section.title}</CardTitle>
-                <CardDescription className="text-sm">{section.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="ghost" size="sm" className="w-full justify-start text-primary hover:text-primary">
-                  Cấu hình →
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* System Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Thông tin hệ thống</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            {info.map((item) => (
-              <div key={item.label} className="space-y-1">
-                <p className="text-muted-foreground">{item.label}</p>
-                <p className="font-mono font-medium">{item.value}</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+export default function AdminSettingsPage() { const {access}=useAdminAccess();return <div className="space-y-6"><AdminPageHeader title="Cài đặt hệ thống" description="Truy cập các chức năng quản trị và xem những cài đặt hiện được hỗ trợ." /><div className="grid gap-4 md:grid-cols-2">{sections.map(section=>{const Icon=section.icon;const links=section.links.filter(([id])=>canReadAdminPage(access,id));return <Card key={section.title} className="rounded-2xl"><CardHeader><div className="flex items-center gap-3"><Icon className="size-5 shrink-0 text-primary" /><CardTitle>{section.title}</CardTitle></div></CardHeader><CardContent className="space-y-4"><p className="text-[15px]/6 text-muted-foreground">{section.description}</p>{links.length>0&&<div className="flex flex-wrap gap-3">{links.map(([id,label,href])=><Button key={id} asChild variant="outline"><Link href={href}>{label}</Link></Button>)}</div>}</CardContent></Card>;})}</div></div>; }

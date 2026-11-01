@@ -28,7 +28,7 @@ export function QuestionNav({
             onClick={() => onJump(i)}
             aria-label={`Câu ${i + 1}`}
             className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition-colors",
+              "flex h-9 w-9 items-center justify-center rounded-lg text-[14.5px]/5 font-medium transition-colors",
               answered
                 ? "bg-primary text-primary-foreground"
                 : "border border-border text-muted-foreground",

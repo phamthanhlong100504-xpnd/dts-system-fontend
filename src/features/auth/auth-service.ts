@@ -1,7 +1,10 @@
 import { identityApi } from "@/lib/api";
 import type { IdentitySchemas } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
-
+export type CurrentUserProfile =
+  IdentitySchemas["UserResponse"] & {
+    selectedLicenseClass?: string | null;
+  };
 /** Gọi login + lưu token/user vào auth store */
 export async function login(payload: IdentitySchemas["LoginRequest"]) {
   const auth = await identityApi.post<IdentitySchemas["AuthResponse"]>(
@@ -33,7 +36,9 @@ export async function logout() {
 }
 
 export async function fetchMe() {
-  return identityApi.get<IdentitySchemas["UserResponse"]>("/v1/users/me");
+  return identityApi.get<CurrentUserProfile>(
+    "/v1/users/me"
+  );
 }
 
 /** Quên mật khẩu — gửi OTP vào email (identifier) */

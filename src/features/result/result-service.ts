@@ -95,23 +95,45 @@ export interface ResumeTarget {
   lastActivityAt: string | null;
 }
 
+export type ResultExamActivityType = "PRESET_EXAM" | "RANDOM_EXAM" | "OFFICIAL_EXAM";
+export type ResultHistorySourceType = "PRACTICE_SESSION" | "EXAM_SESSION";
+export type ResultHistoryOutcome = "PASSED" | "FAILED";
+export type ResultHistoryReasonCode = "SOURCE_POLICY_REQUIRED" | "REVIEW_NOT_ALLOWED";
+
+export interface ResultSourceReference {
+  sourceType: ResultHistorySourceType;
+  sourceId: string;
+  resultPath: string;
+}
+
 export interface ResultHistoryItem {
   id: string;
   targetType: string;
   targetId: string;
-  attemptNo: number;
-  result: string;
+  sourceType: ResultHistorySourceType | null;
+  sourceId: string | null;
+  activityType: ResultExamActivityType | null;
+  displayTitle: string | null;
+  licenseClass: string | null;
+  correctCount: number | null;
+  questionCount: number | null;
+  resultAvailable: boolean | null;
+  reviewAvailable: boolean | null;
+  reasonCode: ResultHistoryReasonCode | null;
+  sourceResult: ResultSourceReference | null;
+  attemptNo: number | null;
+  result: ResultHistoryOutcome;
   score: number | null;
   maxScore: number | null;
   progress: number | null;
-  durationSeconds: number;
-  completedAt: string | null;
+  durationSeconds: number | null;
+  startedAt: string | null;
+  completedAt: string;
 }
 
 export interface ResultHistoryDetail extends ResultHistoryItem {
-  startedAt: string | null;
-  resultSnapshot: Record<string, unknown> | null;
-  metadata: Record<string, unknown> | null;
+  resultSnapshot: Record<string, string | number | boolean>;
+  metadata: Record<string, string | number | boolean>;
 }
 
 export interface RecentResultActivity {
@@ -209,22 +231,30 @@ export async function getResumeTarget(): Promise<ResumeTarget | null> {
 export interface ResultHistoryParams {
   targetType?: string;
   targetId?: string;
-  result?: string;
+  activityType?: ResultExamActivityType;
+  licenseClass?: string;
+  result?: ResultHistoryOutcome;
   from?: string;
   to?: string;
   page?: number;
   size?: number;
+  sort?: string | string[];
 }
 
 export async function getHistory(params?: ResultHistoryParams) {
   const q = new URLSearchParams();
   if (params?.targetType) q.set("targetType", params.targetType);
   if (params?.targetId) q.set("targetId", params.targetId);
+  if (params?.activityType) q.set("activityType", params.activityType);
+  if (params?.licenseClass) q.set("licenseClass", params.licenseClass);
   if (params?.result) q.set("result", params.result);
   if (params?.from) q.set("from", params.from);
   if (params?.to) q.set("to", params.to);
   if (params?.page != null) q.set("page", String(params.page));
   if (params?.size != null) q.set("size", String(params.size));
+  for (const sort of typeof params?.sort === "string" ? [params.sort] : params?.sort ?? []) {
+    q.append("sort", sort);
+  }
   const qs = q.toString();
   return resultApi.get<SpringPage<ResultHistoryItem>>(
     `/v1/results/me/history${qs ? `?${qs}` : ""}`
@@ -232,7 +262,9 @@ export async function getHistory(params?: ResultHistoryParams) {
 }
 
 export async function getHistoryDetail(resultId: string) {
-  return resultApi.get<ResultHistoryDetail>(`/v1/results/me/history/${resultId}`);
+  return resultApi.get<ResultHistoryDetail>(
+    `/v1/results/me/history/${encodeURIComponent(resultId)}`
+  );
 }
 
 export async function getRecentResults(limit = 10) {

@@ -84,7 +84,7 @@ export function OtpForm({ mode, identifier }: OtpFormProps) {
 
   return (
     <div className="space-y-6">
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-[14.5px]/5 text-muted-foreground">
         Mã xác minh gồm 6 chữ số đã được gửi đến{" "}
         <span className="font-medium text-foreground">{identifier}</span>
       </p>
@@ -109,7 +109,7 @@ export function OtpForm({ mode, identifier }: OtpFormProps) {
       </div>
 
       {error && (
-        <p className="text-center text-sm text-destructive">
+        <p className="text-center text-[14.5px]/5 text-destructive">
           {error instanceof ApiError ? error.message : "Có lỗi xảy ra, vui lòng thử lại"}
         </p>
       )}
@@ -127,7 +127,7 @@ export function OtpForm({ mode, identifier }: OtpFormProps) {
             : "Tiếp tục"}
       </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-[14.5px]/5 text-muted-foreground">
         Bạn chưa nhận được mã?{" "}
         {canResend() ? (
           <button

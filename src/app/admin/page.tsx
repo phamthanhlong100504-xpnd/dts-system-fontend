@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-
-export default function AdminIndexPage() {
-  redirect("/admin/dashboard");
+import { AdminLanding } from "@/components/admin/admin-shell";
+export default function AdminPage() {
+  return <AdminLanding />;
 }

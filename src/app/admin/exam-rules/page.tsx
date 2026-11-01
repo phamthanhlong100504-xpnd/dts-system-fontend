@@ -1,6 +1,17 @@
 "use client";
+import { contentFingerprint } from "@/features/admin/theory/theory-contract";
+import { ConfigurationUsage } from "@/features/admin/examination/components/configuration-usage";
+import { ConfigurationPreview } from "@/features/admin/examination/components/configuration-preview";
+import { AdminPageState } from "@/features/admin/foundation/components/admin-page-state";
+import { adminFailure } from "@/features/admin/foundation/admin-errors";
+import { useAdminUnsavedChanges } from "@/features/admin/foundation/use-admin-unsaved-changes";
+import { AdminLeaveDialog } from "@/features/admin/foundation/components/admin-leave-dialog";
+
+import { AdminCan } from "@/features/admin/foundation/admin-access-provider";
+
 
 import { useState } from "react";
+
 import { FileText, Plus, Pencil, Trash2 } from "lucide-react";
 import { useAdminExamRules, useCreateExamRule, useUpdateExamRule, useDeleteExamRule } from "@/features/admin/use-admin-content";
 import { Button } from "@/components/ui/button";
@@ -11,7 +22,7 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ExamRulePayload } from "@/features/admin/admin-examination-service";
+import type { ExamRulePayload } from "@/features/admin/admin-examination-service";
 
 const defaultRule: ExamRulePayload = {
   title: "",
@@ -45,7 +56,7 @@ const defaultRule: ExamRulePayload = {
 };
 
 export default function ExamRulesPage() {
-  const { data: rules = [], isLoading } = useAdminExamRules();
+  const { data: rules = [], isLoading, isError, error, refetch } = useAdminExamRules();
   const createRule = useCreateExamRule();
   const updateRule = useUpdateExamRule();
   const deleteRule = useDeleteExamRule();
@@ -55,24 +66,32 @@ export default function ExamRulesPage() {
 
   // Form state
   const [form, setForm] = useState<ExamRulePayload>(defaultRule);
+  const [baseline, setBaseline] = useState(JSON.stringify(defaultRule));
+  const busy = createRule.isPending || updateRule.isPending || deleteRule.isPending;
+  const leave = useAdminUnsavedChanges(isCreating && JSON.stringify(form) !== baseline, busy);
+
 
   const resetForm = () => {
+    setBaseline(JSON.stringify(defaultRule));
     setForm(defaultRule);
     setIsCreating(false);
     setEditingId(null);
   };
 
-  const handleEdit = (rule: any) => {
-    // Map missing fields from rule to defaultRule just in case
-    setForm({ ...defaultRule, ...rule });
-    setEditingId(rule.id);
-    setIsCreating(true);
-  };
+  const handleEdit = (value: ExamRulePayload & { id: string }) => leave.requestLeave(() => {
+    if (!value.id) return;
+    const next = { ...defaultRule, ...structuredClone(value), expectedFingerprint: contentFingerprint(value) };
+    setForm(next); setBaseline(JSON.stringify(next)); setEditingId(value.id); setIsCreating(true);
+  });
+  const handleCopy = (value: ExamRulePayload & { id: string }) => leave.requestLeave(() => {
+    setForm({ ...defaultRule, ...structuredClone(value), title: value.title + " (bản mới)", expectedFingerprint: undefined });
+    setBaseline(JSON.stringify(defaultRule)); setEditingId(null); setIsCreating(true);
+  });
 
-  const updateField = (field: keyof ExamRulePayload, value: any) => {
+  const updateField = <K extends keyof ExamRulePayload>(field: K, value: ExamRulePayload[K]) => {
     setForm(prev => {
       const next = { ...prev, [field]: value };
-      
+
       // Cross-field logic fixes
       if (field === "allowRetry" && !value) {
         next.maxRetry = 0;
@@ -87,7 +106,7 @@ export default function ExamRulesPage() {
       if (field === "preventTabSwitch" && !value) {
         next.maxTabSwitchCount = 0;
       }
-      
+
       return next;
     });
   };
@@ -99,7 +118,7 @@ export default function ExamRulesPage() {
     }
 
     if (form.durationSeconds <= 0) {
-      toast.error("Thời gian thi (durationSeconds) phải lớn hơn 0");
+      toast.error("Thời gian thi phải lớn hơn 0");
       return;
     }
 
@@ -111,7 +130,7 @@ export default function ExamRulesPage() {
             toast.success("Cập nhật thành công");
             resetForm();
           },
-          onError: (err: any) => toast.error(err?.response?.data?.message || "Cập nhật thất bại"),
+          onError: (err: unknown) => toast.error(adminFailure(err, "Cập nhật thất bại, nội dung được giữ lại.").message),
         }
       );
     } else {
@@ -120,7 +139,7 @@ export default function ExamRulesPage() {
           toast.success("Tạo mới thành công");
           resetForm();
         },
-        onError: (err: any) => toast.error(err?.response?.data?.message || "Tạo mới thất bại"),
+        onError: (err: unknown) => toast.error(adminFailure(err, "Chưa xác nhận tạo quy chế mới.").message),
       });
     }
   };
@@ -129,13 +148,14 @@ export default function ExamRulesPage() {
     if (confirm("Bạn có chắc chắn muốn xóa quy chế thi này?")) {
       deleteRule.mutate(id, {
         onSuccess: () => toast.success("Xóa thành công"),
-        onError: () => toast.error("Xóa thất bại"),
+        onError: (error) => toast.error(adminFailure(error, "Không thể xóa cấu hình này.").message),
       });
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" inert={busy} aria-busy={busy}>
+      <AdminLeaveDialog open={leave.leaveOpen} onCancel={leave.cancelLeave} onLeave={leave.confirmLeave} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
           <FileText className="h-6 w-6 text-primary" />
@@ -148,9 +168,9 @@ export default function ExamRulesPage() {
           <CardTitle className="text-base font-semibold">
             Danh sách Quy chế thi
           </CardTitle>
-          <Button size="sm" onClick={() => { resetForm(); setIsCreating(true); }}>
+          <AdminCan resource="exam_rule" action={"create"}><Button size="sm" onClick={() => { resetForm(); setIsCreating(true); }}>
             <Plus className="h-4 w-4 mr-2" /> Thêm mới
-          </Button>
+          </Button></AdminCan>
         </CardHeader>
 
         {isCreating && (
@@ -158,12 +178,12 @@ export default function ExamRulesPage() {
             <h3 className="font-semibold text-lg text-primary">
               {editingId ? "Cập nhật Quy chế thi" : "Tạo Quy chế thi mới"}
             </h3>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label className="text-muted-foreground font-semibold">Tên quy chế *</Label>
-                  <Input value={form.title} onChange={(e) => updateField("title", e.target.value)} placeholder="VD: Quy chế thi sát hạch B2" />
+                  <Input value={form.title} onChange={(e) => updateField("title", e.target.value)} placeholder="Ví dụ: Quy chế thi chính thức hạng B" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-muted-foreground font-semibold">Thời gian làm bài (giây) *</Label>
@@ -177,7 +197,7 @@ export default function ExamRulesPage() {
                   <TabsTrigger value="display">Hiển thị & Đảo đề</TabsTrigger>
                   <TabsTrigger value="security">Bảo mật & Giám sát</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="general" className="space-y-4 p-4 border rounded-md mt-2 bg-background">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex items-center justify-between">
@@ -188,24 +208,24 @@ export default function ExamRulesPage() {
                       <Label>Cho phép bỏ qua câu hỏi</Label>
                       <Switch checked={form.allowSkip} onCheckedChange={(v) => updateField("allowSkip", v)} />
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <Label>Cho phép làm lại</Label>
                       <Switch checked={form.allowRetry} onCheckedChange={(v) => updateField("allowRetry", v)} />
                     </div>
                     <div className="space-y-2">
-                      <Label className={!form.allowRetry ? "text-muted" : ""}>Số lần làm lại tối đa <span className="text-muted-foreground font-normal text-xs">(Nhập 0 để không giới hạn)</span></Label>
+                      <Label className={!form.allowRetry ? "text-muted" : ""}>Số lần làm lại tối đa <span className="text-muted-foreground font-medium text-[12.5px]/4">(Nhập 0 để không giới hạn)</span></Label>
                       <Input type="number" disabled={!form.allowRetry} value={form.maxRetry} onChange={(e) => updateField("maxRetry", parseInt(e.target.value) || 0)} />
                     </div>
 
                     <div className="space-y-1.5">
                       <Label>Chế độ điều hướng</Label>
-                      <select value={form.navigationMode} onChange={(e) => updateField("navigationMode", e.target.value)} className="w-full h-9 rounded-md border px-3 text-sm">
+                      <select value={form.navigationMode} onChange={(e) => updateField("navigationMode", e.target.value as ExamRulePayload["navigationMode"])} className="w-full h-9 rounded-md border px-3 text-[14.5px]/5">
                         <option value="FREE">Tự do (FREE)</option>
                         <option value="SEQUENTIAL">Tuần tự (SEQUENTIAL)</option>
                       </select>
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <Label>Cho phép tạm dừng</Label>
                       <Switch checked={form.allowPause} onCheckedChange={(v) => updateField("allowPause", v)} />
@@ -216,7 +236,7 @@ export default function ExamRulesPage() {
                 <TabsContent value="display" className="space-y-4 p-4 border rounded-md mt-2 bg-background">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex items-center justify-between">
-                      <Label>Đảo phần thi (Sections)</Label>
+                      <Label>Đảo thứ tự các phần thi</Label>
                       <Switch checked={form.shuffleSections} onCheckedChange={(v) => updateField("shuffleSections", v)} disabled={form.shuffleQuestionsAcrossSections} />
                     </div>
                     <div className="flex items-center justify-between">
@@ -228,17 +248,17 @@ export default function ExamRulesPage() {
                       <Switch checked={form.shuffleQuestionsAcrossSections} onCheckedChange={(v) => updateField("shuffleQuestionsAcrossSections", v)} />
                     </div>
                     <div className="flex items-center justify-between">
-                      <Label>Đảo đáp án (Options)</Label>
+                      <Label>Đảo thứ tự đáp án</Label>
                       <Switch checked={form.shuffleOptions} onCheckedChange={(v) => updateField("shuffleOptions", v)} />
                     </div>
 
                     <div className="space-y-1.5 md:col-span-2">
-                      <Label>Chế độ hiển thị kết quả (Result Release Mode)</Label>
-                      <select value={form.resultReleaseMode} onChange={(e) => updateField("resultReleaseMode", e.target.value)} className="w-full h-9 rounded-md border px-3 text-sm">
-                        <option value="IMMEDIATE">Ngay lập tức (IMMEDIATE)</option>
-                        <option value="AFTER_SUBMIT">Sau khi nộp (AFTER_SUBMIT)</option>
-                        <option value="AFTER_EXAM_END">Sau khi kỳ thi kết thúc (AFTER_EXAM_END)</option>
-                        <option value="MANUAL">Thủ công (MANUAL)</option>
+                      <Label>Thời điểm công bố kết quả</Label>
+                      <select value={form.resultReleaseMode} onChange={(e) => updateField("resultReleaseMode", e.target.value as ExamRulePayload["resultReleaseMode"])} className="w-full h-9 rounded-md border px-3 text-[14.5px]/5">
+                        <option value="IMMEDIATE">Ngay sau khi nộp bài</option>
+                        <option value="AFTER_SUBMIT">Sau khi hoàn thành bài thi</option>
+                        <option value="AFTER_EXAM_END">Sau khi kỳ thi kết thúc</option>
+                        <option value="MANUAL">Do quản trị viên công bố</option>
                       </select>
                     </div>
                   </div>
@@ -247,7 +267,7 @@ export default function ExamRulesPage() {
                 <TabsContent value="security" className="space-y-4 p-4 border rounded-md mt-2 bg-background">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex items-center justify-between">
-                      <Label>Yêu cầu toàn màn hình (Fullscreen)</Label>
+                      <Label>Yêu cầu làm bài toàn màn hình</Label>
                       <Switch checked={form.requireFullscreen} onCheckedChange={(v) => updateField("requireFullscreen", v)} />
                     </div>
                     <div className="flex items-center justify-between">
@@ -263,11 +283,12 @@ export default function ExamRulesPage() {
               </Tabs>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={resetForm}>Hủy</Button>
-              <Button size="sm" onClick={handleSubmit} disabled={createRule.isPending || updateRule.isPending}>
+            <ConfigurationPreview title={form.title} values={[["Thời gian làm bài", `${form.durationSeconds} giây`], ["Cho phép làm lại", form.allowRetry], ["Số lần làm lại", form.maxRetry], ["Cho phép tạm dừng", form.allowPause], ["Cho phép tiếp tục", form.allowResume], ["Chế độ công bố", ({ IMMEDIATE: "Ngay khi có kết quả", AFTER_SUBMIT: "Sau khi nộp bài", AFTER_EXAM_END: "Khi kỳ thi kết thúc", MANUAL: "Công bố thủ công" } as Record<string, string>)[form.resultReleaseMode]]]} />
+            <div className="dts-admin-actions pt-2">
+              <Button variant="outline" size="sm" onClick={() => leave.requestLeave(resetForm)}>Hủy</Button>
+              <AdminCan resource="exam_rule" action={editingId ? "update" : "create"}><Button size="sm" onClick={handleSubmit} disabled={createRule.isPending || updateRule.isPending}>
                 Lưu quy chế
-              </Button>
+              </Button></AdminCan>
             </div>
           </div>
         )}
@@ -278,8 +299,8 @@ export default function ExamRulesPage() {
               <TableRow>
                 <TableHead>Tên quy chế</TableHead>
                 <TableHead>Thời gian</TableHead>
-                <TableHead>Chế độ hiển thị</TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
+                <TableHead>Công bố kết quả</TableHead>
+                <TableHead className="w-28 whitespace-nowrap text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -287,23 +308,26 @@ export default function ExamRulesPage() {
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">Đang tải dữ liệu...</TableCell>
                 </TableRow>
-              ) : rules.length === 0 ? (
+              ) : isError ? (<TableRow><TableCell colSpan={4} className="p-6 text-center text-destructive">Không tải được danh sách. Vui lòng thử lại.</TableCell></TableRow>) : rules.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">Chưa có dữ liệu</TableCell>
                 </TableRow>
               ) : (
-                rules.map((rule: any) => (
+                rules.map((rule) => (
                   <TableRow key={rule.id}>
                     <TableCell className="font-medium">{rule.title}</TableCell>
                     <TableCell>{Math.floor(rule.durationSeconds / 60)} phút</TableCell>
-                    <TableCell>{rule.resultReleaseMode}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(rule)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDelete(rule.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                    <TableCell>{({ IMMEDIATE: "Ngay sau khi nộp", AFTER_SUBMIT: "Sau khi nộp bài", AFTER_EXAM_END: "Khi kỳ thi kết thúc", MANUAL: "Công bố thủ công" } as Record<string, string>)[rule.resultReleaseMode] ?? rule.resultReleaseMode}</TableCell>
+                    <TableCell className="whitespace-nowrap text-right">
+                      <div className="dts-admin-actions">
+                        <ConfigurationUsage kind="rule" id={rule.id} title={rule.title} /><AdminCan resource="exam_rule" action={"create"}><Button variant="outline" size="sm" onClick={() => handleCopy(rule)}>Dùng làm mẫu</Button></AdminCan>
+                        <AdminCan resource="exam_rule" action={"update"}><Button variant="ghost" size="icon" onClick={() => handleEdit(rule)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button></AdminCan>
+                        <AdminCan resource="exam_rule" action={"delete"}><Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDelete(rule.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button></AdminCan>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -312,6 +336,9 @@ export default function ExamRulesPage() {
           </Table>
         </CardContent>
       </Card>
+      {isError && <AdminPageState state="error" error={error} onRetry={() => void refetch()} />}
+      <p className="rounded-xl border bg-card p-4 text-[14px]/6 text-muted-foreground">Cấu hình đang dùng trong phiên bản đã công bố hoặc lưu trữ chỉ được xem. Để thay đổi, chọn Dùng làm mẫu và lưu thành cấu hình mới.</p>
+
     </div>
   );
 }

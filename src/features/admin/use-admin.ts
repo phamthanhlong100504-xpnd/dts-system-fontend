@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ApiError, type IdentitySchemas } from "@/lib/api";
+import { type IdentitySchemas } from "@/lib/api";
 import {
   assignPermissionToRole,
   assignRole,
@@ -23,6 +23,9 @@ import {
   type ListUsersParams,
 } from "./admin-service";
 
+import { useAdminAccess } from "./foundation/admin-access-provider";
+import { adminFailure } from "./foundation/admin-errors";
+
 const adminKeys = {
   users: (params: ListUsersParams) => ["admin", "users", params] as const,
   roles: ["admin", "roles"] as const,
@@ -30,38 +33,46 @@ const adminKeys = {
 };
 
 function toastError(error: unknown, fallback: string) {
-  toast.error(error instanceof ApiError ? error.message : fallback);
+  const status=error && typeof error === "object" && "status" in error ? error.status : undefined;
+  toast.error(adminFailure(error, typeof status !== "number" || status >= 500 ? "Chưa xác nhận được kết quả thao tác. Kiểm tra lại danh sách trước khi gửi lại." : fallback).message);
 }
 
 /* ---------------- Queries ---------------- */
 
 export function useUsers(params: ListUsersParams) {
+  const {access,can}=useAdminAccess();
   return useQuery({
-    queryKey: adminKeys.users(params),
+    queryKey: [...adminKeys.users(params), access?.actorId],
+    enabled: can("users", "read"),
     queryFn: () => listUsers(params),
-    placeholderData: (prev) => prev,
+
   });
 }
 
 export function useRoles() {
+  const {access,can}=useAdminAccess();
   return useQuery({
-    queryKey: adminKeys.roles,
+    queryKey: [...adminKeys.roles, access?.actorId],
+    enabled: can("roles", "read"),
     queryFn: listRoles,
   });
 }
 
 /** Vai trò của một người dùng — chỉ gọi khi enabled (sheet mở) */
 export function useUserRoles(userId: string | null) {
+  const {access,can}=useAdminAccess();
   return useQuery({
-    queryKey: ["admin", "user-roles", userId] as const,
+    queryKey: ["admin", "user-roles", userId, access?.actorId] as const,
     queryFn: () => getUserRoles(userId!),
-    enabled: !!userId,
+    enabled: !!userId && can("roles", "read"),
   });
 }
 
 export function usePermissions() {
+  const {access,can}=useAdminAccess();
   return useQuery({
-    queryKey: adminKeys.permissions,
+    queryKey: [...adminKeys.permissions, access?.actorId],
+    enabled: can("permissions", "read"),
     queryFn: listPermissions,
   });
 }
@@ -76,8 +87,15 @@ export function useCreateUser() {
       toast.success("Đã tạo người dùng");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "current-access"] });
     },
-    onError: (error) => toastError(error, "Không thể tạo người dùng"),
+    onError: (error) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "roles"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "permissions"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      toastError(error, "Không thể tạo người dùng");
+    },
   });
 }
 
@@ -95,7 +113,13 @@ export function useUpdateUser() {
       toast.success("Đã cập nhật thông tin người dùng");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     },
-    onError: (error) => toastError(error, "Không thể cập nhật thông tin người dùng"),
+    onError: (error) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "roles"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "permissions"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      toastError(error, "Không thể cập nhật thông tin người dùng");
+    },
   });
 }
 
@@ -108,7 +132,13 @@ export function useUpdateUserStatus() {
       toast.success("Đã cập nhật trạng thái");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     },
-    onError: (error) => toastError(error, "Không thể cập nhật trạng thái"),
+    onError: (error) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "roles"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "permissions"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      toastError(error, "Không thể cập nhật trạng thái");
+    },
   });
 }
 
@@ -121,7 +151,13 @@ export function useResetUserPassword() {
       toast.success("Đã đặt lại mật khẩu");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     },
-    onError: (error) => toastError(error, "Không thể đặt lại mật khẩu"),
+    onError: (error) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "roles"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "permissions"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      toastError(error, "Không thể đặt lại mật khẩu");
+    },
   });
 }
 
@@ -133,7 +169,13 @@ export function useDeleteUser() {
       toast.success("Đã xóa người dùng");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     },
-    onError: (error) => toastError(error, "Không thể xóa người dùng"),
+    onError: (error) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "roles"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "permissions"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      toastError(error, "Không thể xóa người dùng");
+    },
   });
 }
 
@@ -145,8 +187,15 @@ export function useAssignRole() {
       toast.success("Đã gán vai trò");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "current-access"] });
     },
-    onError: (error) => toastError(error, "Không thể gán vai trò"),
+    onError: (error) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "roles"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "permissions"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      toastError(error, "Không thể gán vai trò");
+    },
   });
 }
 
@@ -159,8 +208,15 @@ export function useRevokeRole() {
       toast.success("Đã thu hồi vai trò");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "current-access"] });
     },
-    onError: (error) => toastError(error, "Không thể thu hồi vai trò"),
+    onError: (error) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "roles"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "permissions"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      toastError(error, "Không thể thu hồi vai trò");
+    },
   });
 }
 
@@ -173,8 +229,15 @@ export function useCreateRole() {
     onSuccess: () => {
       toast.success("Đã tạo vai trò");
       queryClient.invalidateQueries({ queryKey: adminKeys.roles });
+      queryClient.invalidateQueries({ queryKey: ["admin", "current-access"] });
     },
-    onError: (error) => toastError(error, "Không thể tạo vai trò"),
+    onError: (error) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "roles"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "permissions"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      toastError(error, "Không thể tạo vai trò");
+    },
   });
 }
 
@@ -185,8 +248,15 @@ export function useDeleteRole() {
     onSuccess: () => {
       toast.success("Đã xóa vai trò");
       queryClient.invalidateQueries({ queryKey: adminKeys.roles });
+      queryClient.invalidateQueries({ queryKey: ["admin", "current-access"] });
     },
-    onError: (error) => toastError(error, "Không thể xóa vai trò"),
+    onError: (error) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "roles"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "permissions"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      toastError(error, "Không thể xóa vai trò");
+    },
   });
 }
 
@@ -200,7 +270,13 @@ export function useCreatePermission() {
       toast.success("Đã tạo quyền hạn");
       queryClient.invalidateQueries({ queryKey: adminKeys.permissions });
     },
-    onError: (error) => toastError(error, "Không thể tạo quyền hạn"),
+    onError: (error) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "roles"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "permissions"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      toastError(error, "Không thể tạo quyền hạn");
+    },
   });
 }
 
@@ -222,7 +298,14 @@ export function useToggleRolePermission() {
     onSuccess: (_data, vars) => {
       toast.success(vars.revoke ? "Đã thu hồi quyền" : "Đã gán quyền");
       queryClient.invalidateQueries({ queryKey: adminKeys.roles });
+      queryClient.invalidateQueries({ queryKey: ["admin", "current-access"] });
     },
-    onError: (error) => toastError(error, "Không thể cập nhật quyền cho vai trò"),
+    onError: (error) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "roles"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "permissions"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "user-roles"] });
+      toastError(error, "Không thể cập nhật quyền cho vai trò");
+    },
   });
 }

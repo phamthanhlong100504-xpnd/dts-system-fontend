@@ -50,7 +50,7 @@ export function ExamRunner({ examId }: { examId: string }) {
   if (!questions.length) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 py-8 text-center">
-        <p className="text-sm text-destructive">
+        <p className="text-[14.5px]/5 text-destructive">
           Không tìm thấy danh sách câu hỏi cho bài thi này.
         </p>
         <Button asChild variant="outline">
@@ -137,7 +137,7 @@ export function ExamRunner({ examId }: { examId: string }) {
           {isExam ? "Thi thử" : "Luyện tập"}
         </Badge>
         <Badge variant="outline">Hạng {examType}</Badge>
-        <span className="ml-auto text-sm text-muted-foreground">
+        <span className="ml-auto text-[14.5px]/5 text-muted-foreground">
           {answeredCount}/{total} câu
         </span>
         {isExam && expiresAt && (

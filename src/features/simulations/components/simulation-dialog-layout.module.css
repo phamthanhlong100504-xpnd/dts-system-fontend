@@ -1,0 +1,51 @@
+/* Scoped student dialogs override the shared DialogContent responsive max-width. */
+.feedbackDialog.feedbackDialog {
+  max-width: min(calc(100vw - 32px), calc(520px - 2cm));
+}
+.practiceExitDialog.practiceExitDialog {
+  max-width: min(calc(100vw - 32px), calc(440px - 2cm));
+}
+.examExitDialog.examExitDialog {
+  max-width: min(calc(100vw - 32px), calc(480px - 2cm));
+}
+.header {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: 12px;
+}
+.title {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+.body {
+  padding: 1cm;
+}
+.actions {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1cm;
+  margin-top: 1cm;
+}
+.actions > button {
+  min-width: 0;
+  width: fit-content;
+  max-width: calc((100% - 1cm) / 2);
+  flex: 0 1 auto;
+  padding-inline: 12px;
+  white-space: normal;
+}
+.actions > button:only-child {
+  max-width: 100%;
+}
+@media (max-width: 399px) {
+  .header {
+    gap: 6px;
+  }
+  .title {
+    font-size: 16px;
+  }
+}

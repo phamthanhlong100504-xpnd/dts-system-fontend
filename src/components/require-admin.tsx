@@ -38,7 +38,7 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
           <ShieldAlert className="h-8 w-8" />
         </div>
         <h1 className="text-xl font-semibold">Truy cập bị từ chối</h1>
-        <p className="max-w-sm text-sm text-muted-foreground">
+        <p className="max-w-sm text-[14.5px]/5 text-muted-foreground">
           Bạn không có quyền quản trị để xem trang này.
         </p>
       </div>

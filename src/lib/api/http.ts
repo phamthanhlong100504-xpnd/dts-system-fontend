@@ -54,7 +54,7 @@ export function createApiClient(baseURL: string): ApiClient {
       const status = error.response?.status;
 
       const shouldRefresh =
-        (status === 401 || status === 403) &&
+        status === 401 &&
         !config?._retried &&
         !NO_REFRESH_PATHS.some((p) => url.includes(p));
 
@@ -93,7 +93,8 @@ export function createApiClient(baseURL: string): ApiClient {
         useAuthStore.getState().logout();
       }
 
-      throw new ApiError(extractErrorMessage(error), status);
+      const body = error.response?.data as {code?: string; errorCode?: string; traceId?: string} | undefined;
+      throw new ApiError(extractErrorMessage(error), status, body?.code ?? body?.errorCode, body?.traceId);
     }
   );
 

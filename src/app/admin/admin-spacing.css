@@ -1,0 +1,20 @@
+
+.dts-admin-spacing {
+  --dts-admin-vertical-gap: 0.5cm;
+}
+
+.dts-admin-spacing :is(.space-y-1, .space-y-1\.5, .space-y-2, .space-y-3)
+  > :is(label, [data-slot="label"]) + :is(input, textarea, select, button, div[role="combobox"], [data-slot="select-trigger"]) {
+  margin-block-start: var(--dts-admin-vertical-gap) !important;
+}
+
+.dts-admin-spacing :is([data-slot="card-header"], [data-slot="card-content"], section)
+  > p + p,
+.dts-admin-spacing :is([data-slot="card-header"], section)
+  > :is(h1, h2, h3) + p {
+  margin-block-start: var(--dts-admin-vertical-gap);
+}
+
+.dts-admin-spacing :is(p, label) {
+  line-height: 1.6;
+}

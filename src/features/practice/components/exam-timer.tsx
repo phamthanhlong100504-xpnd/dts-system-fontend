@@ -46,7 +46,7 @@ export function ExamTimer({ expiresAt, onExpire }: ExamTimerProps) {
   return (
     <span
       className={cn(
-        "flex items-center gap-1 font-mono text-sm font-semibold tabular-nums",
+        "flex items-center gap-1 font-mono text-[14.5px]/5 font-semibold tabular-nums",
         remaining < 60 ? "text-destructive" : "text-foreground"
       )}
       aria-label="Thời gian còn lại"

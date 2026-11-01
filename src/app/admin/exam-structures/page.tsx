@@ -1,6 +1,17 @@
 "use client";
+import { contentFingerprint } from "@/features/admin/theory/theory-contract";
+import { ConfigurationUsage } from "@/features/admin/examination/components/configuration-usage";
+import { ConfigurationPreview } from "@/features/admin/examination/components/configuration-preview";
+import { AdminPageState } from "@/features/admin/foundation/components/admin-page-state";
+import { adminFailure } from "@/features/admin/foundation/admin-errors";
+import { useAdminUnsavedChanges } from "@/features/admin/foundation/use-admin-unsaved-changes";
+import { AdminLeaveDialog } from "@/features/admin/foundation/components/admin-leave-dialog";
+
+import { AdminCan } from "@/features/admin/foundation/admin-access-provider";
+
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Layers, Plus, Pencil, Trash2, X, PlusCircle } from "lucide-react";
 import { useAdminExamStructures, useCreateExamStructure, useUpdateExamStructure, useDeleteExamStructure } from "@/features/admin/use-admin-content";
 import { Button } from "@/components/ui/button";
@@ -8,10 +19,11 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ExamStructureSection } from "@/features/admin/admin-examination-service";
+import type { ExamStructureSection, ExamStructureItem } from "@/features/admin/admin-examination-service";
 
 export default function ExamStructuresPage() {
-  const { data: structures = [], isLoading } = useAdminExamStructures();
+  const router = useRouter();
+  const { data: structures = [], isLoading, isError, error, refetch } = useAdminExamStructures();
   const createStructure = useCreateExamStructure();
   const updateStructure = useUpdateExamStructure();
   const deleteStructure = useDeleteExamStructure();
@@ -22,20 +34,35 @@ export default function ExamStructuresPage() {
   // Form state
   const [title, setTitle] = useState("");
   const [sections, setSections] = useState<ExamStructureSection[]>([]);
+  const [metadata, setMetadata] = useState<Record<string, unknown>>({});
+  const [expectedFingerprint, setExpectedFingerprint] = useState("");
+  const signature = JSON.stringify({ title, sections, metadata });
+  const [baseline, setBaseline] = useState(JSON.stringify({ title: "", sections: [], metadata: {} }));
+  const busy = createStructure.isPending || updateStructure.isPending || deleteStructure.isPending;
+  const leave = useAdminUnsavedChanges(Boolean(isCreating || editingId) && signature !== baseline, busy);
+
 
   const resetForm = () => {
+    setMetadata({}); setExpectedFingerprint(""); setBaseline(JSON.stringify({ title: "", sections: [], metadata: {} }));
     setTitle("");
     setSections([]);
     setIsCreating(false);
     setEditingId(null);
   };
 
-  const handleEdit = (structure: any) => {
-    setTitle(structure.title || "");
-    setSections(structure.sections || []);
-    setEditingId(structure.id);
-    setIsCreating(false);
-  };
+  const handleEdit = (structure: ExamStructureItem) => leave.requestLeave(() => {
+    if (typeof structure.metadata?.licenseClass === "string" && structure.metadata.licenseClass) {
+      router.push(`/admin/exams/structures/create?edit=${encodeURIComponent(structure.id)}`); return;
+    }
+    setTitle(structure.title); setSections(structuredClone(structure.sections)); setMetadata(structure.metadata ?? {});
+    setExpectedFingerprint(contentFingerprint(structure)); setBaseline(JSON.stringify({ title: structure.title, sections: structure.sections, metadata: structure.metadata ?? {} }));
+    setEditingId(structure.id); setIsCreating(false);
+  });
+  const handleCopy = (structure: ExamStructureItem) => leave.requestLeave(() => {
+    if (typeof structure.metadata?.licenseClass === "string") { router.push(`/admin/exams/structures/create?licenseClass=${encodeURIComponent(structure.metadata.licenseClass)}`); return; }
+    setTitle(structure.title + " (bản mới)"); setSections(structuredClone(structure.sections)); setMetadata(structure.metadata ?? {});
+    setExpectedFingerprint(""); setBaseline(JSON.stringify({ title: "", sections: [], metadata: {} })); setEditingId(null); setIsCreating(true);
+  });
 
   const handleAddSection = () => {
     setSections([
@@ -44,7 +71,7 @@ export default function ExamStructuresPage() {
     ]);
   };
 
-  const handleUpdateSection = (index: number, field: keyof ExamStructureSection, value: any) => {
+  const handleUpdateSection = <K extends keyof ExamStructureSection>(index: number, field: K, value: ExamStructureSection[K]) => {
     const updated = [...sections];
     updated[index] = { ...updated[index], [field]: value };
     setSections(updated);
@@ -63,7 +90,7 @@ export default function ExamStructuresPage() {
     }
 
     if (sections.length === 0) {
-      toast.error("Vui lòng thêm ít nhất 1 phần thi (section)");
+      toast.error("Vui lòng thêm ít nhất một phần thi");
       return;
     }
 
@@ -74,7 +101,7 @@ export default function ExamStructuresPage() {
       }
     }
 
-    const payload = { title, sections, metadata: {} };
+    const payload = { title, sections, metadata, expectedFingerprint };
 
     if (editingId) {
       updateStructure.mutate(
@@ -84,7 +111,7 @@ export default function ExamStructuresPage() {
             toast.success("Cập nhật thành công");
             resetForm();
           },
-          onError: () => toast.error("Cập nhật thất bại"),
+          onError: (error) => toast.error(adminFailure(error, "Cập nhật thất bại, nội dung được giữ lại.").message),
         }
       );
     } else {
@@ -102,82 +129,83 @@ export default function ExamStructuresPage() {
     if (confirm("Bạn có chắc chắn muốn xóa cấu trúc đề thi này?")) {
       deleteStructure.mutate(id, {
         onSuccess: () => toast.success("Xóa thành công"),
-        onError: () => toast.error("Xóa thất bại"),
+        onError: (error) => toast.error(adminFailure(error, "Không thể xóa cấu hình này.").message),
       });
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" inert={busy} aria-busy={busy}>
+      <AdminLeaveDialog open={leave.leaveOpen} onCancel={leave.cancelLeave} onLeave={leave.confirmLeave} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
           <Layers className="h-6 w-6 text-primary" />
-          Quản lý Cấu trúc ma trận đề thi
+          Quản lý cấu trúc đề thi
         </h1>
       </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between border-b bg-muted/20">
           <CardTitle className="text-base font-semibold">
-            Danh sách Cấu trúc đề thi
+            Danh sách cấu trúc đề thi
           </CardTitle>
-          <Button size="sm" onClick={() => { resetForm(); setIsCreating(true); }}>
+          <AdminCan resource="exam_structure" action={"create"}><Button size="sm" onClick={() => { resetForm(); setIsCreating(true); }}>
             <Plus className="h-4 w-4 mr-2" /> Thêm mới
-          </Button>
+          </Button></AdminCan>
         </CardHeader>
 
         {(isCreating || editingId) && (
           <div className="p-6 bg-primary/5 border-b space-y-6">
             <div>
-              <h3 className="font-semibold text-sm text-primary mb-4">
+              <h3 className="font-semibold text-[14.5px]/5 text-primary mb-4">
                 {editingId ? "Cập nhật Cấu trúc đề thi" : "Tạo Cấu trúc đề thi mới"}
               </h3>
               <div className="space-y-1.5 max-w-xl">
-                <label className="text-xs font-semibold text-muted-foreground">Tên cấu trúc (Ma trận) *</label>
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="VD: Cấu trúc đề thi B2 (35 câu)" />
+                <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Tên cấu trúc (Ma trận) *</label>
+                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ví dụ: Ma trận đề thi hạng B" />
               </div>
             </div>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-foreground">Cấu hình các phần thi (Sections)</h4>
-                <Button size="sm" variant="outline" onClick={handleAddSection}>
+                <h4 className="text-[14.5px]/5 font-semibold text-foreground">Phân bổ câu hỏi theo phần thi</h4>
+                <AdminCan resource="exam_structure" action={editingId ? "update" : "create"}><Button size="sm" variant="outline" onClick={handleAddSection}>
                   <PlusCircle className="h-4 w-4 mr-1.5" /> Thêm phần thi
-                </Button>
+                </Button></AdminCan>
               </div>
-              
+
               {sections.length === 0 ? (
-                <div className="text-sm text-muted-foreground text-center py-4 bg-muted/20 rounded-md border border-dashed">
-                  Chưa có phần thi nào. Hãy bấm "Thêm phần thi".
+                <div className="text-[14.5px]/5 text-muted-foreground text-center py-4 bg-muted/20 rounded-md border border-dashed">
+                  Chưa có phần thi nào. Hãy bấm &quot;Thêm phần thi&quot;.
                 </div>
               ) : (
                 <div className="space-y-3">
                   {sections.map((section, idx) => (
                     <div key={idx} className="flex items-start gap-3 p-3 bg-background border rounded-lg shadow-sm relative">
-                      <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-3">
+                      <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Mã phần thi *</label>
-                          <Input value={section.code} onChange={(e) => handleUpdateSection(idx, "code", e.target.value)} placeholder="VD: KHAI_NIEM" className="h-8 text-sm" />
+                          <label className="text-[12.5px]/4 text-muted-foreground">Mã phần thi *</label>
+                          <Input value={section.code} onChange={(e) => handleUpdateSection(idx, "code", e.target.value)} placeholder="VD: KHAI_NIEM" className="h-8 text-[14.5px]/5" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Tên phần thi *</label>
-                          <Input value={section.title} onChange={(e) => handleUpdateSection(idx, "title", e.target.value)} placeholder="VD: Khái niệm và quy tắc" className="h-8 text-sm" />
+                          <label className="text-[12.5px]/4 text-muted-foreground">Tên phần thi *</label>
+                          <Input value={section.title} onChange={(e) => handleUpdateSection(idx, "title", e.target.value)} placeholder="VD: Khái niệm và quy tắc" className="h-8 text-[14.5px]/5" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Số câu hỏi</label>
-                          <Input type="number" min={1} value={section.questionCount} onChange={(e) => handleUpdateSection(idx, "questionCount", parseInt(e.target.value) || 0)} className="h-8 text-sm" />
+                          <label className="text-[12.5px]/4 text-muted-foreground">Số câu hỏi</label>
+                          <Input type="number" min={1} value={section.questionCount} onChange={(e) => handleUpdateSection(idx, "questionCount", parseInt(e.target.value) || 0)} className="h-8 text-[14.5px]/5" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Điểm mỗi câu</label>
-                          <Input type="number" min={1} value={section.score} onChange={(e) => handleUpdateSection(idx, "score", parseInt(e.target.value) || 0)} className="h-8 text-sm" />
+                          <label className="text-[12.5px]/4 text-muted-foreground">Điểm mỗi câu</label>
+                          <Input type="number" min={1} value={section.score} onChange={(e) => handleUpdateSection(idx, "score", parseInt(e.target.value) || 0)} className="h-8 text-[14.5px]/5" />
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" className="text-red-500 h-8 w-8 shrink-0 mt-6" onClick={() => handleRemoveSection(idx)}>
+                      <AdminCan resource="exam_structure" action={editingId ? "update" : "create"}><Button variant="ghost" size="icon" className="text-red-500 h-8 w-8 shrink-0 mt-6" onClick={() => handleRemoveSection(idx)}>
                         <X className="h-4 w-4" />
-                      </Button>
+                      </Button></AdminCan>
                     </div>
                   ))}
-                  <div className="text-sm font-medium text-right text-muted-foreground pr-10">
+                  <div className="text-[14.5px]/5 font-medium text-right text-muted-foreground pr-10">
                     Tổng số câu: <span className="text-foreground">{sections.reduce((acc, s) => acc + (s.questionCount || 0), 0)}</span>
                     <span className="mx-3 text-muted-foreground/30">|</span>
                     Tổng điểm: <span className="text-foreground">{sections.reduce((acc, s) => acc + ((s.questionCount || 0) * (s.score || 0)), 0)}</span>
@@ -186,11 +214,12 @@ export default function ExamStructuresPage() {
               )}
             </div>
 
-            <div className="flex justify-end gap-2 pt-4 border-t">
-              <Button variant="outline" size="sm" onClick={resetForm}>Hủy</Button>
-              <Button size="sm" onClick={handleSubmit} disabled={createStructure.isPending || updateStructure.isPending}>
+            <ConfigurationPreview title={title} values={[["Số phần thi", sections.length], ["Tổng số câu", sections.reduce((n, s) => n + s.questionCount, 0)], ["Tổng điểm", sections.reduce((n, s) => n + s.questionCount * s.score, 0)], ["Hạng GPLX", typeof metadata.licenseClass === "string" ? metadata.licenseClass : "Theo cấu hình đề thi"]]} />
+            <div className="dts-admin-actions pt-4 border-t">
+              <Button variant="outline" size="sm" onClick={() => leave.requestLeave(resetForm)}>Hủy</Button>
+              <AdminCan resource="exam_structure" action={editingId ? "update" : "create"}><Button size="sm" onClick={handleSubmit} disabled={createStructure.isPending || updateStructure.isPending}>
                 Lưu cấu trúc
-              </Button>
+              </Button></AdminCan>
             </div>
           </div>
         )}
@@ -203,7 +232,7 @@ export default function ExamStructuresPage() {
                 <TableHead>Số phần thi</TableHead>
                 <TableHead>Tổng số câu</TableHead>
                 <TableHead>Tổng điểm</TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
+                <TableHead className="w-28 whitespace-nowrap text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -211,28 +240,31 @@ export default function ExamStructuresPage() {
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">Đang tải dữ liệu...</TableCell>
                 </TableRow>
-              ) : structures.length === 0 ? (
+              ) : isError ? (<TableRow><TableCell colSpan={5} className="p-6 text-center text-destructive">Không tải được danh sách. Vui lòng thử lại.</TableCell></TableRow>) : structures.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">Chưa có dữ liệu</TableCell>
                 </TableRow>
               ) : (
-                structures.map((structure: any) => (
+                structures.map((structure) => (
                   <TableRow key={structure.id}>
                     <TableCell className="font-medium">{structure.title}</TableCell>
                     <TableCell>{structure.sections?.length || 0}</TableCell>
                     <TableCell>
-                      {structure.sections?.reduce((acc: number, s: any) => acc + (s.questionCount || 0), 0) || 0}
+                      {structure.sections?.reduce((acc, section) => acc + (section.questionCount || 0), 0) || 0}
                     </TableCell>
                     <TableCell>
-                      {structure.sections?.reduce((acc: number, s: any) => acc + ((s.questionCount || 0) * (s.score || 0)), 0) || 0}
+                      {structure.sections?.reduce((acc, section) => acc + ((section.questionCount || 0) * (section.score || 0)), 0) || 0}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(structure)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDelete(structure.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                    <TableCell className="whitespace-nowrap text-right">
+                      <div className="dts-admin-actions">
+                        <ConfigurationUsage kind="structure" id={structure.id} title={structure.title} /><AdminCan resource="exam_structure" action={"create"}><Button variant="outline" size="sm" onClick={() => handleCopy(structure)}>Dùng làm mẫu</Button></AdminCan>
+                        <AdminCan resource="exam_structure" action={"update"}><Button variant="ghost" size="icon" onClick={() => handleEdit(structure)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button></AdminCan>
+                        <AdminCan resource="exam_structure" action={"delete"}><Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDelete(structure.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button></AdminCan>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -241,6 +273,9 @@ export default function ExamStructuresPage() {
           </Table>
         </CardContent>
       </Card>
+      {isError && <AdminPageState state="error" error={error} onRetry={() => void refetch()} />}
+      <p className="rounded-xl border bg-card p-4 text-[14px]/6 text-muted-foreground">Cấu hình đang dùng trong phiên bản đã công bố hoặc lưu trữ chỉ được xem. Để thay đổi, chọn Dùng làm mẫu và lưu thành cấu hình mới.</p>
+
     </div>
   );
 }

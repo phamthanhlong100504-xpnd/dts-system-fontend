@@ -1,0 +1,151 @@
+/* Admin-only type scale. :has() also covers Radix portals mounted under body.
+ * The rule stops matching when AdminShell unmounts, so learner pages keep their theme.
+ */
+body:has(#admin-main-content) {
+  --foreground: #151922;
+  --card-foreground: #151922;
+  --popover-foreground: #151922;
+  --sidebar-foreground: #151922;
+  --muted-foreground: #303744;
+  --dts-admin-label: #252c38;
+  --dts-admin-success: #047857;
+  --dts-admin-warning: #92400e;
+  --dts-admin-danger: #b91c1c;
+  color: var(--foreground);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.dark body:has(#admin-main-content) {
+  --foreground: #f5f7fb;
+  --card-foreground: #f5f7fb;
+  --popover-foreground: #f5f7fb;
+  --sidebar-foreground: #f5f7fb;
+  --muted-foreground: #d4dae4;
+  --dts-admin-label: #e3e8f0;
+  --dts-admin-success: #6ee7b7;
+  --dts-admin-warning: #fcd34d;
+  --dts-admin-danger: #fca5a5;
+}
+
+/* Raise existing compact utilities in Admin, including shared UI primitives.
+ * Keep the navigation hierarchy at 15.5px for groups and 14px for child pages.
+ */
+body:has(#admin-main-content) :where(
+  [class*="text-[10px]"],
+  [class*="text-[10.5px]"],
+  [class*="text-[11px]"],
+  [class*="text-[11.5px]"],
+  [class*="text-[12px]"],
+  [class*="text-[12.5px]"],
+  [class*="text-[13px]"],
+  [class*="text-[13.5px]"],
+  [class*="text-[0.8rem]"],
+  [class~="text-xs"]
+) {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+body:has(#admin-main-content) :where([class*="text-[14.5px]"]) {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Large utility text is capped by purpose, semantic headings override these caps. */
+body:has(#admin-main-content) :where([class~="text-xl"], [class*="text-[20px]"]) {
+  font-size: 18px;
+  line-height: 1.45;
+}
+body:has(#admin-main-content) :where([class~="text-2xl"], [class~="text-3xl"], [class~="text-4xl"], [class*="text-[24px]"], [class*="text-[28px]"], [class*="text-[32px]"]) {
+  font-size: 20px;
+  line-height: 1.4;
+}
+body:has(#admin-main-content) :is([data-slot="dialog-title"], [data-slot="sheet-title"], [data-slot="alert-dialog-title"]) {
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+body:has(#admin-main-content) h1 {
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+body:has(#admin-main-content) h2 {
+  font-size: 17px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+body:has(#admin-main-content) h3 {
+  font-size: 16px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+body:has(#admin-main-content) [data-slot="card-title"] {
+  font-size: 16px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+body:has(#admin-main-content) :is(label, [data-slot="label"]).text-muted-foreground {
+  color: var(--dts-admin-label);
+}
+
+body:has(#admin-main-content) :is(
+  [class~="text-gray-700"],
+  [class~="text-slate-700"],
+  [class~="text-[#344054]"]
+) {
+  color: var(--muted-foreground);
+}
+
+body:has(#admin-main-content) :is(.text-emerald-600, .text-green-600) {
+  color: var(--dts-admin-success);
+}
+
+body:has(#admin-main-content) :is(.text-amber-500, .text-amber-600) {
+  color: var(--dts-admin-warning);
+}
+
+body:has(#admin-main-content) :is(.text-red-500, .text-red-600) {
+  color: var(--dts-admin-danger);
+}
+
+body:has(#admin-main-content) :is(input, textarea, select, [role="combobox"]) {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+body:has(#admin-main-content) :is(input, textarea)::placeholder {
+  color: var(--muted-foreground);
+  opacity: 1;
+}
+
+/* Give the larger badge text enough room; preserve semantic state colours. */
+body:has(#admin-main-content) [data-slot="badge"] {
+  height: auto;
+  min-height: 26px;
+  padding-block: 2px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+body:has(#admin-main-content) :is(button, input, textarea, select):disabled,
+body:has(#admin-main-content) [data-disabled],
+body:has(#admin-main-content) .opacity-50 {
+  opacity: 0.85;
+}
+
+@media (max-width: 767px) {
+  body:has(#admin-main-content) h1 {
+    font-size: 20px;
+  }
+
+  body:has(#admin-main-content) :is(input, textarea, select, [role="combobox"]) {
+    font-size: 16px;
+  }
+}

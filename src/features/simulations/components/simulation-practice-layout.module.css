@@ -1,0 +1,248 @@
+/* Shared Card01/02/03 practice presentation; media and command state stay in TSX. */
+.workspace {
+  display: grid;
+  align-items: stretch;
+  gap: 24px;
+}
+.emptyWorkspace {
+  row-gap: 0.6cm;
+}
+.player {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+.playerMain {
+  display: flex;
+  min-width: 0;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+.frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  flex: 1 0 auto;
+}
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.action {
+  flex-shrink: 0;
+  margin-top: 0.6cm;
+}
+.completedAction {
+  border: 1px solid #d5e2f7;
+  background: #eef2ff;
+  color: #0758d9;
+  padding-block: 12px;
+}
+.captionWrap {
+  flex-shrink: 0;
+}
+.caption {
+  margin-top: 0.7cm;
+  color: #475467;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 24px;
+  text-align: center;
+}
+.sidebar {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.6cm;
+}
+.helpCard {
+  display: flex;
+  min-width: 0;
+  flex: 1 0 auto;
+  flex-direction: column;
+  padding: 0.6cm 16px;
+}
+.helpSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6cm;
+  margin-top: 0.6cm;
+}
+.spaciousHelp {
+  height: 100%;
+}
+.statusCard {
+  display: flex;
+  min-width: 0;
+  flex: 0 0 auto;
+  flex-direction: column;
+  padding: 0.6cm 16px 0.7cm;
+}
+.statusCardWithReaction {
+  padding-bottom: 1.2cm;
+}
+.statusHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.statusHeader h2 {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.phaseBadge {
+  padding-inline: 8px;
+  font-size: 12px;
+}
+.statusDescription {
+  margin-block: 0.6cm;
+}
+.statusCard .reactionCard {
+  /* Compensate for the existing parent padding; total side inset is 1.2cm. */
+  margin-inline: calc(1.2cm - 16px);
+  padding-block: 18px;
+}
+.reactionValue {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.6cm;
+}
+.resultCard {
+  flex: 1 0 auto;
+  padding: 1cm 1cm 0.6cm;
+}
+.resultCard .statusHeader h2 {
+  font-size: 16px;
+  line-height: 24px;
+}
+.scorePanel {
+  flex: 1 0 auto;
+  /* Preserve the outer card; reduce the inner score panel width by 0.7cm. */
+  margin-inline: 0.55cm;
+}
+.resultCard .scorePanel {
+  /* The header moves down 0.4cm; add 0.6cm above and 1cm below the surface. */
+  min-height: calc(180px - 2cm);
+  flex: 1 1 auto;
+  margin-block: 1.2cm 1.6cm;
+}
+.resultRows {
+  display: grid;
+  gap: 0.6cm;
+}
+.resultRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.hintHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+}
+.hintToggle {
+  align-self: center;
+  justify-self: end;
+}
+.hintTitle {
+  display: flex;
+  align-items: center;
+  gap: 1cm;
+  color: #172335;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 27px;
+}
+.hintIcon {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #edf3ff;
+  color: #0758d9;
+}
+.hintDescription {
+  margin-top: 1cm;
+}
+.hintDetails {
+  display: grid;
+  gap: 1cm;
+  margin-top: 1cm;
+}
+@media (min-width: 768px) {
+  .hintHeader {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+@media (min-width: 1280px) {
+  .workspace {
+    grid-template-columns: minmax(0, 2.15fr) minmax(380px, 1fr);
+  }
+}
+@media (max-width: 1279px) {
+  .resultCard .scorePanel {
+    min-height: 180px;
+    flex: 0 0 auto;
+    margin-block: 0.6cm;
+  }
+}
+@media (max-width: 399px) {
+  .statusHeader {
+    gap: 6px;
+  }
+  .statusHeader h2,
+  .resultCard .statusHeader h2 {
+    gap: 5px;
+    font-size: 14px;
+    line-height: 22px;
+  }
+  .statusHeader h2 svg {
+    width: 16px;
+    height: 16px;
+  }
+  .phaseBadge {
+    padding-inline: 6px;
+    font-size: 11px;
+  }
+  .resultCard {
+    padding-inline: 16px;
+  }
+  .scorePanel {
+    margin-inline: calc(1.55cm - 16px);
+  }
+  .reactionCard > span {
+    font-size: 13px;
+  }
+  .resultRow dt {
+    gap: 5px;
+    font-size: 13px;
+  }
+  .resultRow dd {
+    font-size: 12px;
+  }
+  .reactionValue > span {
+    padding-inline: 6px;
+    font-size: clamp(10px, 3.2vw, 13px);
+  }
+  .hintTitle {
+    font-size: 15px;
+  }
+}
+@media (max-width: 359px) {
+  .statusHeader h2,
+  .resultCard .statusHeader h2 {
+    font-size: 13px;
+  }
+  .phaseBadge {
+    padding-inline: 4px;
+    font-size: 10px;
+    line-height: 18px;
+  }
+}
