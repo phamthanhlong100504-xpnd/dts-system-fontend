@@ -8,6 +8,7 @@ import { useAdminUnsavedChanges } from "@/features/admin/foundation/use-admin-un
 import { AdminLeaveDialog } from "@/features/admin/foundation/components/admin-leave-dialog";
 
 import { AdminCan } from "@/features/admin/foundation/admin-access-provider";
+import styles from "@/features/admin/examination/admin-exam-visual.module.css";
 
 
 import { useState } from "react";
@@ -154,13 +155,14 @@ export default function ExamRulesPage() {
   };
 
   return (
-    <div className="space-y-6" inert={busy} aria-busy={busy}>
+    <div className={styles.page} inert={busy} aria-busy={busy}>
       <AdminLeaveDialog open={leave.leaveOpen} onCancel={leave.cancelLeave} onLeave={leave.confirmLeave} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+        <div className="min-w-0"><h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
           <FileText className="h-6 w-6 text-primary" />
           Quản lý Quy chế thi
         </h1>
+          <p className="mt-2 text-[14.5px]/6 text-muted-foreground">Thiết lập thời gian làm bài và các quy định áp dụng cho kỳ thi.</p></div>
       </div>
 
       <Card>
@@ -174,7 +176,7 @@ export default function ExamRulesPage() {
         </CardHeader>
 
         {isCreating && (
-          <div className="p-6 bg-primary/5 border-b space-y-6">
+          <div className={styles.editorPane}>
             <h3 className="font-semibold text-lg text-primary">
               {editingId ? "Cập nhật Quy chế thi" : "Tạo Quy chế thi mới"}
             </h3>
@@ -221,8 +223,8 @@ export default function ExamRulesPage() {
                     <div className="space-y-1.5">
                       <Label>Chế độ điều hướng</Label>
                       <select value={form.navigationMode} onChange={(e) => updateField("navigationMode", e.target.value as ExamRulePayload["navigationMode"])} className="w-full h-9 rounded-md border px-3 text-[14.5px]/5">
-                        <option value="FREE">Tự do (FREE)</option>
-                        <option value="SEQUENTIAL">Tuần tự (SEQUENTIAL)</option>
+                        <option value="FREE">Tự do</option>
+                        <option value="SEQUENTIAL">Theo thứ tự</option>
                       </select>
                     </div>
 

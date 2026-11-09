@@ -6,6 +6,7 @@ import { adminFailure } from "@/features/admin/foundation/admin-errors";
 
 
 import Link from "next/link";
+import styles from "@/features/admin/examination/admin-exam-visual.module.css";
 import { Suspense, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -103,12 +104,12 @@ function OfficialMatrixEditor() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 pb-10" inert={saving} aria-busy={saving}>
+    <div className={`${styles.page} pb-10`} inert={saving} aria-busy={saving}>
       <AdminLeaveDialog open={leave.leaveOpen} onCancel={leave.cancelLeave} onLeave={leave.confirmLeave} />
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border bg-card p-6 shadow-sm">
         <div className="flex items-start gap-3">
           <Link href="/admin/exam-structures" aria-label="Quay lại danh sách cấu trúc"><Button variant="outline" size="icon"><ArrowLeft className="size-4" /></Button></Link>
-          <div className="space-y-1"><h1 className="text-2xl font-bold">{editId ? "Cập nhật ma trận đề thi" : "Tạo ma trận đề thi chính thức"}</h1><p className="text-[14.5px]/5 text-muted-foreground">Cơ cấu và câu điểm liệt được thiết lập tự động theo hạng GPLX. Không cần tự chia số câu.</p></div>
+          <div className="space-y-1"><h1 className="text-2xl font-bold">{editId ? "Cập nhật ma trận đề thi" : "Tạo ma trận đề thi chính thức"}</h1><p className="text-[14.5px]/5 text-muted-foreground">Cơ cấu câu hỏi theo hạng GPLX đã chọn.</p></div>
         </div>
         <AdminCan resource="exam_structure" action={editId ? "update" : "create"}><Button onClick={save} disabled={!ready} className="gap-2">{saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}{saving ? "Đang lưu..." : editId ? "Lưu thay đổi" : "Lưu ma trận"}</Button></AdminCan>
       </div>

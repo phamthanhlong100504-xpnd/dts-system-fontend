@@ -2,6 +2,7 @@
 import {LifecyclePanel} from "../../workbench/components/lifecycle-panel";
 import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import styles from "@/features/admin/examination/admin-exam-visual.module.css";
 import { MediaImage } from "@/components/ui/media-image";
 import { Button } from "@/components/ui/button";
 import { examVersionChanges } from "../exam-version-comparison";
@@ -24,7 +25,7 @@ export function ExamVersionInspection({ version, previous, onClose, hidden }: { 
     }
   });
   const changes = previous ? examVersionChanges(previous, version) : [];
-  return <Dialog open onOpenChange={open => { if (!open) onClose(); }}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>Phiên bản {version.versionNo} — {version.title}</DialogTitle><DialogDescription>Xem cấu hình đã lưu và đối chiếu với phiên bản trước.</DialogDescription></DialogHeader>
+  return <Dialog open onOpenChange={open => { if (!open) onClose(); }}><DialogContent className={styles.dialog}><DialogHeader><DialogTitle>Phiên bản {version.versionNo} — {version.title}</DialogTitle><DialogDescription>Xem thông tin phiên bản và những thay đổi so với phiên bản trước.</DialogDescription></DialogHeader>
     {hidden && <p className="rounded-xl border border-amber-300 p-4 text-[15px]/6 text-amber-800">Kỳ thi đang ẩn, phiên bản đã công bố chưa đồng nghĩa học viên có thể tham gia.</p>}
     <dl className="grid gap-4 text-[15px]/6 sm:grid-cols-2">{[["Trạng thái", adminStatusLabel(version.status)], ["Hạng GPLX", version.licenseClass], ["Phiên bản ngân hàng", version.bankVersion], ["Hình thức lập đề", version.selectionMode === "MANUAL" ? "Tự chọn câu hỏi" : version.selectionMode === "AUTO_MATRIX" ? "Tạo đề tự động" : undefined], ["Số câu", version.totalQuestions], ["Thời gian", version.durationSeconds != null ? `${version.durationSeconds / 60} phút` : undefined], ["Số câu cần đúng", version.passingCorrectAnswers], ["Số câu điểm liệt", version.criticalQuestionCount], ["Bắt đầu", version.startedAt ? new Date(version.startedAt).toLocaleString("vi-VN") : undefined], ["Kết thúc", version.endedAt ? new Date(version.endedAt).toLocaleString("vi-VN") : undefined]].map(([label, value]) => <div key={label}><dt className="text-muted-foreground">{label}</dt><dd className="mt-1 font-medium">{readable(value)}</dd></div>)}</dl>
     {version.metadata?.instructions && <p className="whitespace-pre-line rounded-xl border p-4 text-[15px]/7">{version.metadata.instructions}</p>}
