@@ -1,5 +1,5 @@
 "use client";
-import { VersionEntryLink } from "@/features/admin/workbench/components/version-entry-link";
+
 import { AdminCan } from "@/features/admin/foundation/admin-access-provider";
 
 
@@ -15,7 +15,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { toast } from "sonner";
 import { useAdminPrograms, useCreateProgram, useDeleteProgram } from "@/features/admin/use-admin-content";
 
-import { TheoryWorkflowNotice } from "@/features/admin/theory/components/theory-workflow-notice";
+import styles from "@/features/admin/admin-business-pages.module.css";
 import { useAdminUnsavedChanges } from "@/features/admin/foundation/use-admin-unsaved-changes";
 import { AdminLeaveDialog } from "@/features/admin/foundation/components/admin-leave-dialog";
 import { adminFailure } from "@/features/admin/foundation/admin-errors";
@@ -74,36 +74,36 @@ export default function AdminProgramsPage() {
     });
   };
 
-  return (<>
-<VersionEntryLink href="/admin/programs/versions" label="Phiên bản chương trình" />
-    <div className="space-y-6">
+  return (
+    <div className={styles.page}>
       <AdminLeaveDialog open={leave.leaveOpen} onCancel={leave.cancelLeave} onLeave={leave.confirmLeave} />
-      <TheoryWorkflowNotice />
       {creationUncertain && <p role="alert" className="rounded-xl border p-4 text-[15px]/6">Chưa xác định chương trình đã được tạo hay chưa. Kiểm tra danh sách trước khi gửi lại.</p>}
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl bg-card p-6 shadow-sm border">
+      <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6 shadow-sm md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Chương trình học</h1>
           <p className="text-[15px]/6 text-muted-foreground mt-1">
-            Tạo, chỉnh sửa và quản lý các chương trình học. Bộ câu hỏi chuẩn được tra cứu tại mục Ngân hàng câu hỏi.
+            Quản lý chương trình học, nội dung và các chương liên quan.
           </p>
         </div>
-        <AdminCan resource="learning-programs" action={"create"}><Button onClick={() => isCreating ? closeCreate() : setIsCreating(true)} size="sm" className="gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="outline" size="sm"><Link href="/admin/programs/versions">Phiên bản chương trình</Link></Button>
+          <AdminCan resource="learning-programs" action={"create"}><Button onClick={() => isCreating ? closeCreate() : setIsCreating(true)} size="sm" className="gap-2 shrink-0">
           <Plus className="h-4 w-4" />
           {isCreating ? "Đóng biểu mẫu" : "Thêm chương trình"}
         </Button></AdminCan>
+        </div>
       </div>
 
       {/* Quick Create Form */}
       {isCreating && (
-        <Card className="rounded-2xl border bg-primary/5">
+        <Card className="rounded-2xl border bg-card">
           <CardHeader>
             <CardTitle className="text-base font-bold flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" /> Tạo chương trình học mới
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className={styles.formGrid}>
               <div className="space-y-1.5">
                 <label className="text-[14px]/5 font-semibold text-muted-foreground">Tên chương trình *</label>
                 <Input
@@ -145,7 +145,7 @@ export default function AdminProgramsPage() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className={styles.statGrid}>
         {[
           { label: "Tổng chương trình", value: isError || isLoading ? "—" : programs.length, icon: GraduationCap },
           { label: "Đã xuất bản", value: isError || isLoading ? "—" : programs.filter((p) => p.status === "PUBLISHED").length, icon: BookOpen },
@@ -155,13 +155,13 @@ export default function AdminProgramsPage() {
           const Icon = stat.icon;
           return (
             <Card key={stat.label}>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
+              <CardContent className={styles.statCard}>
+                <div className={styles.statIcon}>
                   <Icon className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[14px]/5 text-muted-foreground">{stat.label}</p>
-                  <p className="text-xl font-bold">{stat.value}</p>
+                  <p className={styles.statTitle}>{stat.label}</p>
+                  <p className={styles.statValue}>{stat.value}</p>
                 </div>
               </CardContent>
             </Card>
@@ -171,8 +171,8 @@ export default function AdminProgramsPage() {
 
       {/* Programs List */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Danh sách chương trình học</CardTitle>
+        <CardHeader className="border-b bg-[#f8f8fc] py-5">
+          <CardTitle className="text-[17px] font-bold">Danh sách chương trình học</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="divide-y">
@@ -193,25 +193,25 @@ export default function AdminProgramsPage() {
               programs.map((program) => (
                 <div
                   key={program.id}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-muted/40 transition-colors"
+                  className={styles.itemRow}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className={styles.itemBody}>
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                       <GraduationCap className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className={styles.itemTitle}>
                         <p className="font-medium text-[15px]/6">{program.title}</p>
                         <Badge variant="outline" className="text-[14px]/5 uppercase font-mono">
                           {program.code}
                         </Badge>
                       </div>
-                      <p className="text-[14px]/5 text-muted-foreground mt-0.5">
+                      <p className={styles.itemDescription}>
                         {program.description}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className={styles.itemActions}>
                     <Badge variant={program.status === "PUBLISHED" ? "default" : "secondary"} className="text-[14px]/5">
                       {({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", ARCHIVED: "Đã lưu trữ", HIDDEN: "Đang ẩn" } as Record<string, string>)[program.status ?? ""] ?? program.status}
                     </Badge>
@@ -237,5 +237,5 @@ export default function AdminProgramsPage() {
         </CardContent>
       </Card>
     </div>
-  </>);
+  );
 }

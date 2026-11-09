@@ -1,2 +1,2 @@
-import { ResourceWorkspace } from "@/features/admin/workbench/components/resource-workspace";
-export default function Page() { return <ResourceWorkspace kind="theory-banks" baseHref="/admin/questions/banks" id={"create"} />; }
+import Link from 'next/link';
+export default function Page(){return <section className="space-y-3 rounded-xl border bg-card p-6"><h1 className="text-xl font-bold">Tạo bản nháp ngân hàng chuẩn</h1><p className="text-sm">Chọn ngân hàng đã công bố trong danh sách và tạo bản nháp theo phiên bản mới. Không hỗ trợ tạo ngân hàng trống.</p><Link className="underline" href="/admin/questions/banks">Đến danh sách phiên bản</Link></section>;}

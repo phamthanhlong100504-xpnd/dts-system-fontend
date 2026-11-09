@@ -1,0 +1,443 @@
+.page {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1cm;
+}
+
+.tabShell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tabList {
+  width: fit-content;
+  min-height: 48px;
+  border: 1px solid #e3e5ec;
+  border-radius: 14px;
+  background: #f8f8fc;
+  padding: 4px;
+}
+
+.tabTrigger {
+  min-height: 38px;
+  border-radius: 10px;
+  padding-inline: 16px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.sectionCard,
+.tableCard,
+.dialogSection,
+.filterCard,
+.browserCard,
+.chapterAside,
+.questionArticle {
+  border: 1px solid #e3e5ec;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: 0 2px 10px rgba(16,24,40,.045);
+}
+
+.filterCard {
+  padding: 18px 20px;
+}
+
+.browserCard {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.filterPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filterPill {
+  min-height: 38px;
+  border-radius: 999px;
+  padding-inline: 14px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.searchBox {
+  position: relative;
+  width: min(100%, 340px);
+}
+
+.searchInput {
+  height: 40px;
+  padding-left: 38px;
+  border-color: #d9deea;
+  border-radius: 12px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: #f8f8fc;
+}
+
+.table th {
+  padding: 15px 16px;
+  border-bottom: 1px solid #e8ebf2;
+  font-size: 12.5px;
+  line-height: 1.4;
+  text-align: left;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted-foreground);
+}
+
+.table th:last-child { text-align: right; }
+
+.table td {
+  padding: 17px 16px;
+  border-bottom: 1px solid #edf0f5;
+  vertical-align: top;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.table tbody tr:hover {
+  background: #fcfcff;
+}
+
+.codeCell {
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.questionText {
+  min-width: 280px;
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.footerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-top: 1px solid #e8ebf2;
+  background: #fcfcff;
+  color: var(--muted-foreground);
+  font-size: 12.5px;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.browserHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.browserBody {
+  display: grid;
+  gap: 26px;
+  grid-template-columns: 272px minmax(0, 1fr);
+}
+
+.browserCard {
+  padding: 26px 28px;
+  gap: 24px;
+}
+
+.browserDescription {
+  margin-top: 8px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+
+.browserStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding: 15px 18px;
+  border-radius: 14px;
+  background: #f8f8fc;
+  border: 1px solid #e8ebf2;
+  font-size: 14px;
+}
+
+.browserNote {
+  font-size: 13.5px;
+  color: var(--muted-foreground);
+}
+
+.filtersGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.filtersGrid label,
+.checkboxRow {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.select,
+.browserInput {
+  height: 44px;
+  width: 100%;
+  margin-top: 0;
+  border: 1px solid #d9deea;
+  border-radius: 12px;
+  background: var(--background);
+  padding-inline: 14px;
+}
+
+.browserInput {
+  padding-left: 38px;
+}
+
+.checkboxRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+}
+
+.checkboxRow label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.chapterAside {
+  height: fit-content;
+  padding: 20px;
+  border-radius: 18px;
+}
+
+.chapterTitle {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid #e5eaf5;
+  border-radius: 12px;
+  background: #f8f8fc;
+  font-size: 16px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.questionPanel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.questionArticle {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 26px 28px;
+}
+
+.questionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.questionContent {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.optionsGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.optionItem {
+  border: 1px solid #e6e9f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  background: #fcfcff;
+}
+
+.optionCorrect {
+  border-color: #b6dbbf;
+  background: #f1fbf3;
+  color: #166534;
+}
+
+.helperPanel {
+  border-radius: 14px;
+  background: #eef2ff;
+  padding: 16px 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #334155;
+}
+
+.dialogGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e8ebf2;
+}
+
+.dialogLabel {
+  margin-bottom: 4px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+}
+
+.dialogValue {
+  font-size: 14.5px;
+  line-height: 1.55;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.emptyState {
+  padding: 46px 22px;
+  text-align: center;
+  color: var(--muted-foreground);
+  font-size: 14.5px;
+}
+
+@media (max-width: 1100px) {
+  .browserBody,
+  .summaryGrid,
+  .filtersGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    gap: 28px;
+  }
+
+  .toolbar,
+  .browserHeader {
+    align-items: stretch;
+  }
+
+  .searchBox {
+    width: 100%;
+  }
+
+  .table th,
+  .table td {
+    padding-inline: 12px;
+  }
+
+  .footerBar,
+  .dialogGrid {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page * { scroll-behavior: auto; }
+}
+
+.readonlyVersion {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 8px 14px;
+  border: 1px solid #e3e5ec;
+  border-radius: 12px;
+  background: #f8f8fc;
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+/* Chapter navigation — applies only to /admin/questions official-bank view.
+   The other pages that reuse OfficialBankBrowser keep their original buttons. */
+.chapterAside :global(button[data-slot="button"]) {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  height: auto;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  margin-block: 5px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.5;
+  font-size: 14.5px;
+  font-weight: 550;
+  color: var(--foreground);
+}
+.chapterAside :global(button[data-variant="ghost"]:hover) {
+  background: #f2f5ff;
+  color: #184b9f;
+}
+.chapterAside :global(button[data-variant="secondary"]) {
+  background: #eef2ff;
+  color: #175cd3;
+  border-color: #cdd9f8;
+  box-shadow: inset 3px 0 0 #175cd3;
+  font-weight: 700;
+}
+.chapterAside :global(button[data-variant="secondary"]:hover) {
+  background: #e7eeff;
+}
+.chapterAside :global(button[data-slot="button"]:focus-visible) {
+  outline: 2px solid #175cd3;
+  outline-offset: 2px;
+}
+@media (max-width: 720px) {
+  .browserCard { padding: 20px; }
+  .chapterAside { padding: 16px; }
+  .questionArticle { padding: 21px 19px; gap: 16px; }
+  .questionPanel { gap: 18px; }
+  .optionItem { padding: 12px 14px; }
+}

@@ -27,7 +27,7 @@ import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 
 import { contentFingerprint } from "@/features/admin/theory/theory-contract";
-import { TheoryWorkflowNotice } from "@/features/admin/theory/components/theory-workflow-notice";
+
 import { useAdminUnsavedChanges } from "@/features/admin/foundation/use-admin-unsaved-changes";
 import { AdminLeaveDialog } from "@/features/admin/foundation/components/admin-leave-dialog";
 import { adminFailure } from "@/features/admin/foundation/admin-errors";
@@ -176,7 +176,6 @@ export default function ProgramDetailPage() {
   return (
     <div className="space-y-6 pb-20">
       <AdminLeaveDialog open={leave.leaveOpen} onCancel={leave.cancelLeave} onLeave={leave.confirmLeave} />
-      <TheoryWorkflowNotice />
       <LifecycleButton key={programId} subject={{kind:"PROGRAM",id:programId}}/>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl bg-card p-6 shadow-sm border">
@@ -234,9 +233,6 @@ export default function ProgramDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Button size="sm" variant="outline" disabled title="Chức năng phê duyệt và phát hành hiện chưa khả dụng">Chờ công bố</Button>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

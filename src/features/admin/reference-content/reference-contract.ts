@@ -27,7 +27,7 @@ export function readReferencePage(value: unknown, kind: ReferenceKind, filter: R
   return { content, pageNumber: v.pageNumber as number, pageSize: v.pageSize as number, totalElements: v.totalElements as number, totalPages: v.totalPages as number, last: v.last };
 }
 export function validateReferenceDraft(f: DraftFields, kind: ReferenceKind): string | null {
-  if (!Number.isSafeInteger(Number(f.sourceId)) || Number(f.sourceId) < 1 || !f.bankVersion.trim() || f.bankVersion.length > 64) return "Mã đối chiếu phải là số nguyên dương, phiên bản cần có từ 1 đến 64 ký tự.";
+  if (!Number.isSafeInteger(Number(f.sourceId)) || Number(f.sourceId) < 1 || !f.bankVersion.trim() || f.bankVersion.length > 64) return "Mã số nội dung phải là số nguyên dương; phiên bản cần có từ 1 đến 64 ký tự.";
   if (kind === "memory-tips") {
     if (!Number.isSafeInteger(Number(f.sortOrder)) || Number(f.sortOrder) < 1) return "Thứ tự phải là số nguyên dương.";
     if (!f.title.trim() || f.title.length > 255 || !f.quickRule.trim() || !f.explanation.trim()) return "Nhập tiêu đề (tối đa 255 ký tự), quy tắc ghi nhớ và giải thích.";

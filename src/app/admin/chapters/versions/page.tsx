@@ -1,2 +1,2 @@
-import { ResourceWorkspace } from "@/features/admin/workbench/components/resource-workspace";
-export default function Page() { return <ResourceWorkspace kind="chapters" baseHref="/admin/chapters/versions" />; }
+import { EditorialCatalog } from "@/features/admin/admin03/editorial-pages";
+export default function Page() { return <EditorialCatalog kind="CHAPTER" baseHref="/admin/chapters/versions"/>; }
