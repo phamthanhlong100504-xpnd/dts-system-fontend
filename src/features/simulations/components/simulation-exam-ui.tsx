@@ -39,6 +39,8 @@ export function ExamShell({
   back = "Quay lại Ôn luyện",
   onBack,
   badge,
+  headingClassName,
+  showIntro = true,
   children,
 }: {
   title: string;
@@ -46,19 +48,38 @@ export function ExamShell({
   back?: string;
   onBack?: () => void;
   badge?: ReactNode;
+  headingClassName?: string;
+  showIntro?: boolean;
   children: ReactNode;
 }) {
   return (
     <LearningShell
-      navigation={<BackAction onClick={onBack}>{back}</BackAction>}
-    >
-      <div className="mb-[1cm] flex flex-wrap items-center justify-between gap-4">
-        <div className={textStyles.headingDescription}>
-          <h1 className={learningStyles.heading}>{title}</h1>
-          <p className={examBody}>{description}</p>
+      navigation={
+        <div className={styles.navigationRow}>
+          <BackAction onClick={onBack}>{back}</BackAction>
+          {!showIntro && badge && (
+            <div className={styles.navigationBadge}>{badge}</div>
+          )}
         </div>
-        {badge}
-      </div>
+      }
+      navigationGap={showIntro ? "default" : "1cm"}
+      ariaLabel={showIntro ? undefined : title}
+    >
+      {showIntro && (
+        <div className="mb-[1cm] flex flex-wrap items-center justify-between gap-4">
+          <div
+            className={cn(
+              textStyles.headingDescription,
+              headingClassName,
+              textStyles.pageIntro,
+            )}
+          >
+            <h1 className={learningStyles.heading}>{title}</h1>
+            <p className={examBody}>{description}</p>
+          </div>
+          {badge}
+        </div>
+      )}
       {children}
     </LearningShell>
   );

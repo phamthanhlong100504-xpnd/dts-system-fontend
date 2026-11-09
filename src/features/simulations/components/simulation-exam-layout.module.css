@@ -17,11 +17,33 @@
   height: 14px;
   flex-shrink: 0;
 }
+.preparationHeading {
+  --heading-description-gap: 0.7cm;
+}
 .infoCard {
-  border: 1px solid #cfddf4;
-  border-radius: 12px;
-  background: #eef3ff;
-  padding: 20px;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.7cm;
+  border: 1px solid #d1def5;
+  border-radius: 14px;
+  background: linear-gradient(150deg, #f6f9ff, #edf3ff);
+  padding: clamp(18px, 1.8vw, 24px);
+  box-shadow: 0 3px 12px rgba(31, 65, 114, 0.035);
+}
+.infoCard > :is(h3, p) {
+  margin-block: 0;
+}
+.infoIcon {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dce6f8;
+  border-radius: 10px;
+  background: #fff;
 }
 .infoGrid {
   display: grid;
@@ -307,6 +329,9 @@
   gap: 0.7cm;
   margin-top: 20px;
 }
+.presetGridWithoutHeading {
+  margin-top: 0;
+}
 .presetCard {
   display: flex;
   min-width: 0;
@@ -486,4 +511,30 @@
   .statusHeader .badge {
     font-size: 10.5px;
   }
+}
+
+/* A single navigation line; hidden route intros leave exactly 1cm to content. */
+.navigationRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+}
+.navigationBadge {
+  display: flex;
+  min-width: 0;
+  margin-inline-end: max(0px, calc((100vw - 1240px) / 2 - 38px));
+}
+.infoLabel {
+  margin: 0;
+  color: #172335;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.infoValue {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.5;
 }

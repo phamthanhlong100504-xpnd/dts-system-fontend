@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SimulationLearningBoundary } from "./simulation-learning-pages";
 import type { SimulationScope } from "../simulation-learning-types";
-import type { ExamPlayback, ExamReview } from "../simulation-exam-types";
+import type { ExamReview } from "../simulation-exam-types";
+import { invalidateExamCatalogues } from "../simulation-exam-cache";
 import { SimulationExamError } from "../simulation-exam-types";
 import { simulationExamRoutes } from "../simulation-exam-source";
 import {
@@ -43,7 +44,9 @@ export function SimulationExamPage({
   position?: number;
 }) {
   return (
-    <SimulationLearningBoundary>
+    <SimulationLearningBoundary
+      readOnly={screen === "result" || screen === "review"}
+    >
       {(scope) => (
         <BoundExam
           key={`${scope.userId}:${scope.licenseClass}:${sessionId}:${screen}`}
@@ -97,6 +100,7 @@ function BoundPreparation({ scope }: { scope: SimulationScope }) {
   }, []);
   const lock = useRef(false),
     creationKey = useRef<string | null>(null),
+    creationBank = useRef<string | undefined>(undefined),
     cancelKey = useRef<string | null>(null);
   const ready =
     state.status === "ready" && state.data.kind === "preparation"
@@ -110,19 +114,31 @@ function BoundPreparation({ scope }: { scope: SimulationScope }) {
     lock.current = true;
     setBusy(true);
     creationKey.current ??= crypto.randomUUID();
+    creationBank.current ??= ready.data.bankVersion;
     try {
       const s = await source.create(scope, {
         mode: "RANDOM",
         idempotencyKey: creationKey.current,
+        bankVersion: creationBank.current,
       });
       if (!alive.current) return;
       validateExamSession(s, scope);
-      if (
-        s.mode !== "RANDOM" ||
-        !["IN_PROGRESS", "READY_TO_SUBMIT"].includes(s.status)
-      )
-        throw Error("Phiên chưa hợp lệ.");
-      client.removeQueries({ queryKey: simulationExamKeys.scope(scope) });
+      if (s.mode !== "RANDOM") throw Error("Phiên chưa hợp lệ.");
+      void invalidateExamCatalogues(client, scope.userId);
+      if (s.status === "COMPLETED") {
+        router.push(simulationExamRoutes.result(s.sessionId));
+        return;
+      }
+      if (s.status === "CANCELLED") {
+        creationKey.current = null;
+        creationBank.current = undefined;
+        await query.refetch();
+        setNotice(
+          "Yêu cầu trước đã thuộc bài thi bị hủy. Bấm bắt đầu để tạo bài mới.",
+        );
+        return;
+      }
+      void invalidateExamCatalogues(client, scope.userId);
       router.push(simulationExamRoutes.session(s.sessionId));
     } catch (e) {
       if (!alive.current) return;
@@ -133,6 +149,21 @@ function BoundPreparation({ scope }: { scope: SimulationScope }) {
         await query.refetch();
         setNotice(
           "Bạn đang có bài thi chưa hoàn thành. Hãy tiếp tục hoặc hủy bài đang làm trước khi tạo bài mới.",
+        );
+      } else if (
+        e instanceof SimulationExamError &&
+        e.code === "ACCESS_DENIED"
+      ) {
+        setNotice(e.message);
+      } else if (
+        e instanceof SimulationExamError &&
+        e.code === "BANK_CHANGED"
+      ) {
+        creationKey.current = null;
+        creationBank.current = undefined;
+        await query.refetch();
+        setNotice(
+          "Ngân hàng đã thay đổi. Đã tải lại thông tin; hãy kiểm tra trước khi bắt đầu bài mới.",
         );
       } else
         setNotice(
@@ -167,6 +198,8 @@ function BoundPreparation({ scope }: { scope: SimulationScope }) {
       if (s.status !== "CANCELLED") throw Error("Chưa hủy.");
       setExit(false);
       creationKey.current = null;
+      void invalidateExamCatalogues(client, scope.userId);
+      creationBank.current = undefined;
       cancelKey.current = null;
       await query.refetch();
     } catch {
@@ -227,7 +260,7 @@ function BoundSession({ scope, id }: { scope: SimulationScope; id: string }) {
   useEffect(() => {
     if (status === "COMPLETED") router.replace(simulationExamRoutes.result(id));
     if (status === "READY_TO_SUBMIT" && phase === "finalizing" && !busy)
-      void controller?.submit();
+      void controller?.submit().catch(() => {});
   }, [status, phase, busy, controller, id, router]);
   useEffect(() => {
     if (!status || !["IN_PROGRESS", "READY_TO_SUBMIT"].includes(status)) return;
@@ -248,13 +281,30 @@ function BoundSession({ scope, id }: { scope: SimulationScope; id: string }) {
       }}
       onRetry={() => {
         if (state.status === "error") void controller?.load();
-        else void controller?.retry();
+        else void controller?.retry().catch(() => {});
       }}
-      onRespond={(ms, event) =>
-        controller?.respond(ms, event) ?? Promise.resolve()
+      onRefreshShortcuts={() =>
+        controller?.refreshCapabilities() ?? Promise.resolve()
       }
-      onComplete={() => controller?.complete() ?? Promise.resolve()}
-      onFault={() => controller?.mediaFault()}
+      onSkipIntro={(ms, owner) =>
+        controller?.skipIntro(ms, owner) ??
+        Promise.reject(Error("Phiên chưa sẵn sàng."))
+      }
+      onAdvance={(owner) =>
+        controller?.advanceAfterReaction(owner) ??
+        Promise.reject(Error("Phiên chưa sẵn sàng."))
+      }
+      onStart={(owner) => controller?.start(owner) ?? Promise.resolve()}
+      onHeartbeat={(readMediaTime, owner) =>
+        controller?.heartbeat(readMediaTime, owner) ?? Promise.resolve()
+      }
+      onRespond={(ms, event, owner) =>
+        controller?.respond(ms, event, owner) ?? Promise.resolve()
+      }
+      onComplete={(ms, owner) =>
+        controller?.complete(ms, owner) ?? Promise.resolve()
+      }
+      onFault={(owner) => controller?.mediaFault(owner)}
       onCancel={async () => {
         await controller?.cancel();
         if (
@@ -285,12 +335,6 @@ function BoundResult({
     { state, query, source } = useSimulationExamRead(scope, kind, id),
     router = useRouter(),
     back = useExamBack(scope);
-  const [renewed, setRenewed] = useState<{
-      position: number;
-      playback: ExamPlayback;
-    } | null>(null),
-    [notice, setNotice] = useState<string | null>(null),
-    renewLock = useRef(false);
   if (kind === "result") {
     const ready =
       state.status === "ready" && state.data.kind === "result"
@@ -328,59 +372,74 @@ function BoundResult({
       : state.status === "ready"
         ? { status: "error" as const, message: "Chi tiết chưa sẵn sàng." }
         : state;
-  const data: ExamReview | null = ready.status === "ready" ? ready.data : null;
-  async function renew() {
-    if (renewLock.current || !source || !data) return;
-    renewLock.current = true;
-    try {
-      const current = data.items.find((i) => i.position === position);
-      if (!current) throw Error("Không có tình huống.");
+  return (
+    <BoundReviewMedia
+      scope={scope}
+      id={id}
+      position={position}
+      state={ready}
+      source={source}
+      onRetry={() => void query.refetch()}
+    />
+  );
+}
+function BoundReviewMedia({
+  scope,
+  id,
+  position,
+  state,
+  source,
+  onRetry,
+}: {
+  scope: SimulationScope;
+  id: string;
+  position: number;
+  state: import("../simulation-learning-types").LearningLoadState<ExamReview>;
+  source: ReturnType<typeof useSimulationExamRead>["source"];
+  onRetry: () => void;
+}) {
+  const router = useRouter();
+  const data = state.status === "ready" ? state.data : null;
+  const item = data?.items.find((i) => i.position === position);
+  const playback = useQuery({
+    queryKey: [
+      ...simulationExamKeys.scope(scope),
+      "review-playback",
+      id,
+      position,
+      data?.result.bankVersion ?? "pending",
+      data?.result.scoringVersion ?? "pending",
+    ],
+    enabled: !!source && !!item,
+    retry: false,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      if (!source || !item) throw Error("Không có tình huống xem lại.");
       const p = await source.reviewPlayback(scope, id, position);
       validateExamPlayback(p, {
         sessionId: id,
         currentPosition: position,
-        responseRecorded: current.responseRecorded,
+        responseRecorded: item.responseRecorded,
       } as Parameters<typeof validateExamPlayback>[1]);
-      if (p.durationMs !== current.durationMs)
-        throw Error("Snapshot thay đổi.");
-      setRenewed({ position, playback: p });
-    } catch {
-      setNotice(
-        "Không thể tải lại video xem lại. Kết quả bài thi được giữ nguyên.",
-      );
-    } finally {
-      renewLock.current = false;
-    }
-  }
-  const shown =
-    ready.status === "ready" && renewed && renewed.position === position
-      ? {
-          status: "ready" as const,
-          data: {
-            ...ready.data,
-            items: ready.data.items.map((i) =>
-              i.position === position
-                ? { ...i, playback: renewed.playback }
-                : i,
-            ),
-          },
-        }
-      : ready;
+      if (p.durationMs !== item.durationMs)
+        throw Error("Thời lượng xem lại không khớp.");
+      return p;
+    },
+  });
   return (
-    <>
-      <SimulationExamReviewView
-        state={shown}
-        position={position}
-        onBack={() => router.push(simulationExamRoutes.result(id))}
-        onChoose={(n) => router.replace(simulationExamRoutes.review(id, n))}
-        onRetry={() => void query.refetch()}
-        onRenew={() => void renew()}
-      />
-      <SimulationFeedbackModal
-        key={notice ?? "no-notice"}
-        message={notice}
-        onDismiss={() => setNotice(null)}
-      />
-    </>
+    <SimulationExamReviewView
+      state={state}
+      position={position}
+      selectedPlayback={playback.data ?? null}
+      playbackLoading={playback.isPending || playback.isFetching}
+      mediaError={playback.isError}
+      onBack={() => router.push(simulationExamRoutes.result(id))}
+      onChoose={(n) => router.replace(simulationExamRoutes.review(id, n))}
+      onRetry={onRetry}
+      onRenew={() => void playback.refetch()}
+    />
   );
 }

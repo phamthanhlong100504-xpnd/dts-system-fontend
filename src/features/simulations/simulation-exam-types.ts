@@ -15,11 +15,19 @@ export interface ExamPresetIdentity {
   presetSetId: string;
   presetVersionId: string;
   title: string;
+  code?: string;
+  displayOrder?: number;
+  manifestSha256?: string;
+  sourceVersion?: string;
+  sourceSha256?: string;
 }
 export type ExamOrigin =
   | { mode: "RANDOM"; preset?: null }
   | { mode: "PRESET"; preset: ExamPresetIdentity };
-export type ExamCreateRequest = { idempotencyKey: string } & (
+export type ExamCreateRequest = {
+  idempotencyKey: string;
+  bankVersion?: string;
+} & (
   | { mode: "RANDOM" }
   | { mode: "PRESET"; presetSetId: string; presetVersionId: string }
 );
@@ -31,16 +39,28 @@ export interface ExamPreparation {
   activeSession: ExamSession | null;
 }
 export type ExamStatus =
-  | "IN_PROGRESS"
-  | "READY_TO_SUBMIT"
-  | "COMPLETED"
-  | "CANCELLED";
+  "IN_PROGRESS" | "READY_TO_SUBMIT" | "COMPLETED" | "CANCELLED";
 export type ExamSession = ExamOrigin & {
   scope: SimulationScope;
   sessionId: string;
   status: ExamStatus;
   bankVersion: string;
   policy: ExamPolicy;
+  scoringVersion: string;
+  playbackEventId: string;
+  playbackState:
+    "NOT_STARTED" | "READY" | "PLAYING" | "INTERRUPTED" | "FINISHED";
+  requiresRestart: boolean;
+  playbackPolicy: {
+    allowPause: boolean;
+    allowSeek: boolean;
+    allowFullscreen: boolean;
+    allowHintsWhilePlaying: boolean;
+    heartbeatIntervalMs: number;
+    maxHeartbeatGapMs: number;
+  };
+  startedAt: string;
+  completedAt: string | null;
   completedScenarios: number;
   currentPosition: number;
   responseRecorded: boolean;
@@ -58,12 +78,14 @@ export interface ExamPlayback {
   mimeType: "video/mp4";
   durationMs: number;
   responseRecorded: boolean;
+  restartAtMs: 0 | 10000;
 }
 export type ExamResult = ExamOrigin & {
   scope: SimulationScope;
   sessionId: string;
   status: "COMPLETED";
   bankVersion: string;
+  scoringVersion: string;
   policy: ExamPolicy;
   completedScenarios: number;
   totalScore: number;
@@ -88,13 +110,16 @@ export interface ExamReviewItem {
   hazardSign: string;
   recognitionTip: string;
   scoringVersion: string;
-  playback: ExamPlayback;
+  playbackPath: string;
 }
 export interface ExamReview {
   result: ExamResult;
   items: ExamReviewItem[];
 }
 export type ExamPhase =
+  | "ready"
+  | "starting"
+  | "restarting"
   | "playing"
   | "response-pending"
   | "recorded"
@@ -109,10 +134,20 @@ export interface ExamWorkspace {
   playback: ExamPlayback | null;
   phase: ExamPhase;
   busy: boolean;
+  autoStart?: boolean;
+  shortcuts?: import("./simulation-shortcut-source").ShortcutView;
+  shortcutNotice?: string | null;
 }
 export type ExamWorkspaceState = LearningLoadState<ExamWorkspace>;
 export type ExamCommand = {
-  kind: "REACTION" | "COMPLETE_CURRENT" | "SUBMIT" | "CANCEL";
+  kind:
+    | "START"
+    | "HEARTBEAT"
+    | "RESTART"
+    | "REACTION"
+    | "COMPLETE_CURRENT"
+    | "SUBMIT"
+    | "CANCEL";
   sessionId: string;
   position: number;
   playbackEventId: string | null;
@@ -128,11 +163,24 @@ export class SimulationExamError extends Error {
       | "CANCELLED"
       | "UNAVAILABLE"
       | "PRESET_UNAVAILABLE"
-      | "PRESET_VERSION_CHANGED",
+      | "PRESET_VERSION_CHANGED"
+      | "INVALID_REQUEST"
+      | "BANK_CHANGED"
+      | "PLAYBACK_CHANGED"
+      | "RESTART_REQUIRED"
+      | "EVENT_CONFLICT"
+      | "UNKNOWN",
     message: string,
     public sessionId?: string,
+    public status?: number,
+    public apiCode?: string,
+    public traceId?: string,
   ) {
     super(message);
     this.name = "SimulationExamError";
   }
+}
+export interface ExamMediaOwner {
+  position: number;
+  playbackEventId: string;
 }

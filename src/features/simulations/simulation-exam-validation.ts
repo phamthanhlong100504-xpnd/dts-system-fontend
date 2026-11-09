@@ -53,7 +53,16 @@ export function sameExamOrigin(a: ExamOrigin, b: ExamOrigin) {
       (b.mode === "PRESET" &&
         a.preset.presetSetId === b.preset.presetSetId &&
         a.preset.presetVersionId === b.preset.presetVersionId &&
-        a.preset.title === b.preset.title))
+        a.preset.title === b.preset.title &&
+        (
+          [
+            "code",
+            "displayOrder",
+            "manifestSha256",
+            "sourceVersion",
+            "sourceSha256",
+          ] as const
+        ).every((key) => a.preset[key] === b.preset[key])))
   );
 }
 export function sameExamPolicy(a: ExamPolicy, b: ExamPolicy) {
@@ -76,6 +85,26 @@ export function validateExamSession(
   validateExamOrigin(s);
   check(
     text(s.sessionId) && (!id || s.sessionId === id) && text(s.bankVersion),
+  );
+  check(
+    s.scope.bankVersion === s.bankVersion &&
+      text(s.scoringVersion) &&
+      text(s.playbackEventId) &&
+      ["NOT_STARTED", "READY", "PLAYING", "INTERRUPTED", "FINISHED"].includes(
+        s.playbackState,
+      ) &&
+      typeof s.requiresRestart === "boolean" &&
+      s.playbackPolicy &&
+      s.playbackPolicy.allowPause === false &&
+      s.playbackPolicy.allowSeek === false &&
+      s.playbackPolicy.allowHintsWhilePlaying === false &&
+      s.playbackPolicy.allowFullscreen === true &&
+      integer(s.playbackPolicy.heartbeatIntervalMs, 1) &&
+      integer(
+        s.playbackPolicy.maxHeartbeatGapMs,
+        s.playbackPolicy.heartbeatIntervalMs,
+      ) &&
+      Number.isFinite(Date.parse(s.startedAt)),
   );
   check(
     ["IN_PROGRESS", "READY_TO_SUBMIT", "COMPLETED", "CANCELLED"].includes(
@@ -102,6 +131,10 @@ export function validateExamSession(
     check(count < 10 && s.currentPosition === count + 1);
   if (s.status === "READY_TO_SUBMIT" || s.status === "COMPLETED")
     check(count === 10 && s.currentPosition === 10);
+  if (s.status === "COMPLETED")
+    check(
+      !!s.completedAt && Date.parse(s.completedAt) >= Date.parse(s.startedAt),
+    );
   // Active payloads must not carry teaching/scoring details. Map a strict projection in the adapter.
   for (const p of [s, ...s.positions])
     for (const key of [
@@ -125,13 +158,21 @@ export function validateExamPreparation(
   check(p);
   validateExamScope(p.scope, scope);
   validateExamPolicy(p.policy);
-  check(text(p.bankVersion) && p.preset == null);
+  check(
+    text(p.bankVersion) &&
+      p.bankVersion === p.scope.bankVersion &&
+      p.preset == null,
+  );
   if (p.activeSession) {
     validateExamSession(p.activeSession, scope);
     check(["IN_PROGRESS", "READY_TO_SUBMIT"].includes(p.activeSession.status));
   }
 }
-export function validateExamPlayback(p: ExamPlayback, s: ExamSession) {
+export function validateExamPlayback(
+  p: ExamPlayback,
+  s: ExamSession,
+  approvedStartAtMs = 0,
+) {
   check(
     p &&
       p.sessionId === s.sessionId &&
@@ -141,6 +182,10 @@ export function validateExamPlayback(p: ExamPlayback, s: ExamSession) {
       integer(p.durationMs, 1) &&
       typeof p.responseRecorded === "boolean" &&
       p.responseRecorded === s.responseRecorded,
+  );
+  check(
+    p.restartAtMs === approvedStartAtMs &&
+      (!s.playbackEventId || p.playbackEventId === s.playbackEventId),
   );
   let url: URL;
   try {
@@ -177,6 +222,8 @@ export function validateExamResult(
     r.sessionId === id &&
       r.status === "COMPLETED" &&
       text(r.bankVersion) &&
+      r.bankVersion === r.scope.bankVersion &&
+      text(r.scoringVersion) &&
       r.completedScenarios === 10 &&
       integer(r.totalScore, 0, r.policy.maxTotalScore) &&
       typeof r.passed === "boolean" &&
@@ -242,18 +289,12 @@ export function validateExamReview(
       scores.add(s.score);
     });
     check(text(i.hazardSign) && text(i.recognitionTip));
-    const p = i.playback;
     check(
-      p &&
-        p.sessionId === id &&
-        p.position === i.position &&
-        p.durationMs === i.durationMs &&
-        p.responseRecorded === i.responseRecorded,
+      i.scoringVersion === r.result.scoringVersion &&
+        (i.playbackPath ===
+          `/api/v1/simulation-exams/sessions/${id}/review/${i.position}/playback` ||
+          i.playbackPath ===
+            `/api/practice/v1/simulation-exams/sessions/${id}/review/${i.position}/playback`),
     );
-    validateExamPlayback(p, {
-      sessionId: id,
-      currentPosition: i.position,
-      responseRecorded: i.responseRecorded,
-    } as ExamSession);
   });
 }

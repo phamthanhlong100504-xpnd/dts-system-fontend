@@ -1,7 +1,9 @@
 "use client";
-import { useEffect, useMemo, useSyncExternalStore } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/auth-store";
 import { getSimulationExamSource } from "./simulation-exam-source";
+import { SimulationExamError } from "./simulation-exam-types";
 import { SimulationExamController } from "./simulation-exam-controller";
 import type {
   LearningLoadState,
@@ -12,6 +14,7 @@ import {
   validateExamResult,
   validateExamReview,
 } from "./simulation-exam-validation";
+import { invalidateExamCatalogues } from "./simulation-exam-cache";
 export const simulationExamKeys = {
   scope: (s: SimulationScope) =>
     ["simulation-exam", s.userId, s.licenseClass] as const,
@@ -21,9 +24,15 @@ export function useSimulationExamRead(
   kind: "preparation" | "result" | "review",
   id = "",
 ) {
+  useExamCacheIsolation();
   const source = getSimulationExamSource();
   const query = useQuery({
-    queryKey: [...simulationExamKeys.scope(scope), kind, id],
+    queryKey: [
+      ...simulationExamKeys.scope(scope),
+      kind,
+      id,
+      ...(kind === "preparation" ? [scope.bankVersion ?? "current"] : []),
+    ],
     enabled: !!source,
     retry: false,
     staleTime: 0,
@@ -55,7 +64,9 @@ export function useSimulationExamRead(
         ? {
             status: "error",
             message:
-              "Không thể tải nội dung bài thi. Hãy kiểm tra kết nối và thử lại.",
+              query.error instanceof SimulationExamError
+                ? query.error.message
+                : "Không thể tải nội dung bài thi. Hãy kiểm tra kết nối và thử lại.",
           }
         : query.data
           ? { status: "ready", data: query.data }
@@ -65,6 +76,7 @@ export function useSimulationExamRead(
 const unavailable = { status: "unavailable" } as const;
 const noopSubscribe = () => () => {};
 export function useSimulationExamSession(scope: SimulationScope, id: string) {
+  useExamCacheIsolation();
   const source = getSimulationExamSource();
   const controller = useMemo(
     () =>
@@ -83,7 +95,35 @@ export function useSimulationExamSession(scope: SimulationScope, id: string) {
     () => unavailable,
   );
   useEffect(() => {
-    if (controller) void controller.load();
+    if (controller) {
+      controller.activate();
+      void controller.load();
+    }
+    return () => controller?.dispose();
   }, [controller]);
+  const client = useQueryClient(),
+    refreshed = useRef("");
+  const terminal =
+    state.status === "ready" &&
+    ["COMPLETED", "CANCELLED"].includes(state.data.session.status)
+      ? `${id}:${state.data.session.status}`
+      : "";
+  useEffect(() => {
+    if (terminal && refreshed.current !== terminal) {
+      refreshed.current = terminal;
+      void invalidateExamCatalogues(client, scope.userId);
+    }
+  }, [client, scope.userId, terminal]);
   return { state, controller };
+}
+export function useExamCacheIsolation() {
+  const client = useQueryClient();
+  useEffect(
+    () =>
+      useAuthStore.subscribe((next, previous) => {
+        if (!next.accessToken || next.user?.id !== previous.user?.id)
+          client.removeQueries({ queryKey: ["simulation-exam"] });
+      }),
+    [client],
+  );
 }

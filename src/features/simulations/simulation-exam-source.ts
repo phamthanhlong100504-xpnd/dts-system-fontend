@@ -12,8 +12,11 @@ import type {
   SimulationPresetPage,
   SimulationPresetPreparation,
 } from "./simulation-preset-types";
-/** Integration port only: no speculative URL, local JSON, client grading, or theory API reuse. */
+import { simulationExamHttpSource } from "./simulation-exam-service";
+/** RANDOM backend port. PRESET remains unavailable until its separate handoff. */
 export interface SimulationExamSource {
+  shortcuts?: import("./simulation-shortcut-source").ShortcutPort<ExamSession>;
+  active?: (scope: SimulationScope) => Promise<ExamSession | null>;
   presets?: (scope: SimulationScope) => Promise<SimulationPresetPage>;
   presetPreparation?: (
     scope: SimulationScope,
@@ -42,7 +45,7 @@ export interface SimulationExamSource {
   ) => Promise<ExamPlayback>;
 }
 export function getSimulationExamSource(): SimulationExamSource | null {
-  return null;
+  return simulationExamHttpSource;
 }
 export const simulationExamRoutes = {
   presets: "/practice/simulations/exams/presets",
