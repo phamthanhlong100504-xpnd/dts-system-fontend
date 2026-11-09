@@ -16,7 +16,8 @@ export function validateReviewNeededPage(
     !Array.isArray(data.chapters) ||
     !Array.isArray(data.items) ||
     data.sort !== "BEST_SCORE_ASC" ||
-    data.chapterId !== query.chapterId
+    data.chapterId !== query.chapterId ||
+    data.page !== query.page
   )
     throw new Error("Danh sách cần ôn không khớp bộ lọc được yêu cầu.");
   for (const n of [
@@ -63,6 +64,7 @@ export function validateReviewNeededPage(
   let lastScore = -1,
     lastNumber = -1;
   for (const item of data.items) {
+    const chapter = data.chapters.find((c) => c.id === item.chapterId);
     if (
       !item.id ||
       ids.has(item.id) ||
@@ -70,6 +72,8 @@ export function validateReviewNeededPage(
       (query.chapterId && item.chapterId !== query.chapterId) ||
       !item.title ||
       !item.chapterName ||
+      item.chapterName !== chapter?.name ||
+      item.chapterNumber !== chapter?.number ||
       item.isPracticed !== true ||
       item.maxScore !== 5 ||
       !Number.isInteger(item.bestScore) ||

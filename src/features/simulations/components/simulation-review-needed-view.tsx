@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { SimulationFeedbackModal } from "./simulation-feedback-modal";
 import { cn } from "@/lib/utils";
+import textStyles from "./simulation-text-layout.module.css";
 import type { LearningLoadState } from "../simulation-learning-types";
 import type {
   ReviewNeededPage,
@@ -64,12 +65,49 @@ export function SimulationReviewNeededView({
     <LearningShell
       navigation={<BackAction onClick={onBack}>Quay lại Ôn luyện</BackAction>}
     >
-      <header className="mb-[1cm]">
+      <header
+        className={cn(
+          "mb-[1cm]",
+          textStyles.headingDescription,
+          textStyles.pageIntro,
+        )}
+      >
         <h1 className={learningStyles.heading}>Tình huống cần ôn lại</h1>
-        <p className={cn(learningStyles.body, "mt-2")}>
-          Luyện tập lại những tình huống chưa từng đạt điểm tối đa để cải thiện
-          phản xạ.
-        </p>
+        <div className={textStyles.introRow}>
+          <p className={cn(learningStyles.body, "min-w-0 flex-1")}>
+            Luyện tập lại những tình huống chưa từng đạt điểm tối đa để cải
+            thiện phản xạ.
+          </p>
+          {data && data.totalNeedReview > 0 && (
+            <div className="flex max-w-full flex-wrap items-center gap-3">
+              <label className="flex min-w-0 items-center gap-2 rounded-[10px] border border-[#d8e0f1] bg-white px-3 text-[#475467]">
+                <BookOpen className="size-4 shrink-0" />
+                <select
+                  aria-label="Lọc chương mô phỏng"
+                  value={criteria.chapterId ?? ""}
+                  onChange={(e) => onChapter?.(e.target.value || null)}
+                  className="min-h-10 min-w-0 max-w-[280px] bg-transparent py-2 text-[14.5px] font-semibold text-[#344054] outline-none"
+                >
+                  <option value="">Tất cả chương</option>
+                  {data.chapters.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      Chương {roman(c.number)} · {c.name} ({c.needReviewCount})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <span className="inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-[10px] border border-[#d8e0f1] bg-white px-3 text-[14.5px] font-semibold text-[#344054]">
+                <ArrowDownWideNarrow className="size-4" />
+                Điểm thấp trước
+              </span>
+            </div>
+          )}
+        </div>
+        {data && criteria.chapterId && (
+          <p className="mt-3 text-[14.5px] font-medium text-[#475467]">
+            {data.filteredCount} tình huống trong chương đã chọn
+          </p>
+        )}
       </header>
       <SimulationFeedbackModal
         key={notice ?? "no-notice"}
@@ -94,59 +132,7 @@ export function SimulationReviewNeededView({
           <>
             {data.totalNeedReview > 0 && (
               <>
-                <section
-                  aria-label="Tổng số cần ôn toàn ngân hàng"
-                  className="flex items-center gap-4 rounded-[18px] border border-[#dce2ee] bg-[#eef2ff] px-6 py-5"
-                >
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-[11px] bg-white text-[#0758d9]">
-                    <RotateCcw className="size-5" />
-                  </span>
-                  <div className="flex min-w-0 flex-col gap-[1cm]">
-                    <p className="text-[16px] font-bold text-[#172335]">
-                      <strong>{data.totalNeedReview}</strong> tình huống cần ôn
-                      lại
-                    </p>
-                    <p className="text-[15.5px] font-medium leading-6 text-[#475467]">
-                      Các tình huống đã luyện nhưng điểm cao nhất chưa đạt 5/5.
-                    </p>
-                  </div>
-                </section>
-                <section className="mt-[1cm]" aria-label="Danh sách cần ôn lại">
-                  <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-                    <div>
-                      <h2 className="text-[18px] font-bold text-[#0b1427]">
-                        Danh sách cần ôn lại
-                      </h2>
-                      {criteria.chapterId && (
-                        <p className="mt-1 text-[14.5px] font-medium text-[#475467]">
-                          {data.filteredCount} tình huống trong chương đã chọn
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex max-w-full flex-wrap items-center gap-3">
-                      <label className="flex min-w-0 items-center gap-2 rounded-[10px] border border-[#d8e0f1] bg-white px-3 text-[#475467]">
-                        <BookOpen className="size-4 shrink-0" />
-                        <select
-                          aria-label="Lọc chương mô phỏng"
-                          value={criteria.chapterId ?? ""}
-                          onChange={(e) => onChapter?.(e.target.value || null)}
-                          className="min-h-10 min-w-0 max-w-[280px] bg-transparent py-2 text-[14.5px] font-semibold text-[#344054] outline-none"
-                        >
-                          <option value="">Tất cả chương</option>
-                          {data.chapters.map((c) => (
-                            <option key={c.id} value={c.id}>
-                              Chương {roman(c.number)} · {c.name} (
-                              {c.needReviewCount})
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <span className="inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-[10px] border border-[#d8e0f1] bg-white px-3 text-[14.5px] font-semibold text-[#344054]">
-                        <ArrowDownWideNarrow className="size-4" />
-                        Điểm thấp trước
-                      </span>
-                    </div>
-                  </div>
+                <section aria-label="Danh sách cần ôn lại">
                   {data.filteredCount === 0 ? (
                     <CollectionMessage
                       icon={<Filter className="size-7" />}

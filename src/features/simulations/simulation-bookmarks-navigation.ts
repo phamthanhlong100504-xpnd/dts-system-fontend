@@ -20,6 +20,12 @@ export function parseBookmarksQuery(query: RouteQuery): BookmarksQuery {
       typeof query.page === "string" && /^\d{1,6}$/.test(query.page)
         ? Number(query.page)
         : 0,
+    ...(typeof query.bank === "string" && query.bank
+      ? { bankVersion: query.bank }
+      : {}),
+    ...(typeof query.dataset === "string" && query.dataset
+      ? { datasetVersion: query.dataset }
+      : {}),
   };
 }
 export function bookmarksUrl(query: BookmarksQuery = defaultBookmarksQuery) {
@@ -28,6 +34,8 @@ export function bookmarksUrl(query: BookmarksQuery = defaultBookmarksQuery) {
     page: String(query.page),
   });
   if (query.chapterId) params.set("chapter", query.chapterId);
+  if (query.bankVersion) params.set("bank", query.bankVersion);
+  if (query.datasetVersion) params.set("dataset", query.datasetVersion);
   return `${bookmarksPath}?${params}`;
 }
 export function withBookmarksReturnContext(
@@ -40,6 +48,7 @@ export function withBookmarksReturnContext(
     bookmarkPage: String(context.page),
   });
   if (context.chapterId) params.set("bookmarkChapter", context.chapterId);
+  if (context.bankVersion) params.set("bookmarkBank", context.bankVersion);
   return `${url}${url.includes("?") ? "&" : "?"}${params}`;
 }
 export function parseBookmarksReturnContext(
@@ -51,6 +60,7 @@ export function parseBookmarksReturnContext(
     ...parseBookmarksQuery({
       chapter: query.bookmarkChapter,
       page: query.bookmarkPage,
+      bank: query.bookmarkBank,
     }),
   };
 }

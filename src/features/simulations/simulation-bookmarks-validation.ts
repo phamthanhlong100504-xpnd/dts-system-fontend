@@ -1,10 +1,37 @@
 import type {
   BookmarksPage,
   BookmarksQuery,
+  BookmarksOverview,
 } from "./simulation-bookmarks-types";
 function count(n: number) {
   if (!Number.isSafeInteger(n) || n < 0)
     throw new Error("Số liệu đánh dấu không hợp lệ.");
+}
+export function validateBookmarksOverview(data: BookmarksOverview) {
+  count(data.totalBookmarked);
+  if (data.chapters.length !== 6)
+    throw new Error("Danh mục chương mô phỏng không đầy đủ.");
+  const ids = new Set<string>(),
+    numbers = new Set<number>();
+  let total = 0;
+  for (const c of data.chapters) {
+    if (
+      !/^[1-6]$/.test(c.id) ||
+      ids.has(c.id) ||
+      !c.name ||
+      !Number.isInteger(c.number) ||
+      c.number < 1 ||
+      c.number > 6 ||
+      numbers.has(c.number)
+    )
+      throw new Error("Danh mục chương mô phỏng không hợp lệ.");
+    count(c.bookmarkedCount);
+    total += c.bookmarkedCount;
+    ids.add(c.id);
+    numbers.add(c.number);
+  }
+  if (total !== data.totalBookmarked)
+    throw new Error("Tổng đánh dấu theo chương không khớp toàn ngân hàng.");
 }
 /** Validate, never infer bookmark eligibility, best scores or totals on the client. */
 export function validateBookmarksPage(
@@ -16,7 +43,8 @@ export function validateBookmarksPage(
     !Array.isArray(data.chapters) ||
     !Array.isArray(data.items) ||
     data.sort !== query.sort ||
-    data.chapterId !== query.chapterId
+    data.chapterId !== query.chapterId ||
+    data.page !== query.page
   )
     throw new Error("Danh sách đã đánh dấu không khớp bộ lọc được yêu cầu.");
   for (const n of [
@@ -24,16 +52,24 @@ export function validateBookmarksPage(
     data.filteredCount,
     data.page,
     data.totalPages,
+    data.pageSize,
   ])
     count(n);
   if (
     data.filteredCount > data.totalBookmarked ||
     data.items.length > data.filteredCount ||
     (data.filteredCount > 0 && data.totalPages === 0) ||
-    (data.filteredCount === 0 && data.totalPages > 1)
+    data.pageSize !== 12 ||
+    data.totalPages !== Math.ceil(data.filteredCount / data.pageSize) ||
+    data.items.length !==
+      Math.min(
+        data.pageSize,
+        Math.max(0, data.filteredCount - data.page * data.pageSize),
+      )
   )
     throw new Error("Thống kê đánh dấu không nhất quán.");
   const chapters = new Map<string, BookmarksPage["chapters"][number]>();
+  validateBookmarksOverview(data);
   let total = 0;
   for (const c of data.chapters) {
     if (
@@ -69,7 +105,7 @@ export function validateBookmarksPage(
       !chapter ||
       (query.chapterId && item.chapterId !== query.chapterId) ||
       item.chapterNumber !== chapter.number ||
-      !item.chapterName ||
+      item.chapterName !== chapter.name ||
       !item.title ||
       item.isBookmarked !== true ||
       item.maxScore !== 5 ||
@@ -80,13 +116,15 @@ export function validateBookmarksPage(
       typeof item.isPracticed !== "boolean"
     )
       throw new Error("Tình huống đã đánh dấu không hợp lệ.");
+    count(item.completedAttemptCount);
     if (
       item.isPracticed
         ? !Number.isInteger(item.bestScore) ||
           item.bestScore === null ||
           item.bestScore < 0 ||
-          item.bestScore > item.maxScore
-        : item.bestScore !== null
+          item.bestScore > item.maxScore ||
+          item.completedAttemptCount < 1
+        : item.bestScore !== null || item.completedAttemptCount !== 0
     )
       throw new Error("Trạng thái luyện và điểm cao nhất không nhất quán.");
     if (item.number <= number)
