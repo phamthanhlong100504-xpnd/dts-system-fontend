@@ -28,10 +28,14 @@ export function SimulationPracticeHub({
   state = unavailable,
   actions = {},
   onRetry,
+  randomExamStatus,
+  presetExamStatus,
 }: {
   state?: SimulationHubState;
   actions?: SimulationHubActions;
   onRetry?: () => void;
+  randomExamStatus?: "loading" | "error" | "unavailable";
+  presetExamStatus?: "loading" | "error" | "unavailable";
 }) {
   const data = state.status === "ready" ? state.summary : null;
   const loading = state.status === "loading";
@@ -160,7 +164,8 @@ export function SimulationPracticeHub({
               Tạo đề ngẫu nhiên từ ngân hàng tình huống mô phỏng giao thông.
             </p>
             <div className="mt-4 flex min-h-7 flex-wrap gap-2">
-              {data ? (
+              {data?.scenariosPerExam !== undefined &&
+              data.maxTotalScore !== undefined ? (
                 <>
                   <MetaChip>
                     <Video className="size-3.5" aria-hidden="true" />
@@ -172,7 +177,16 @@ export function SimulationPracticeHub({
                   </MetaChip>
                 </>
               ) : (
-                <PendingMeta loading={loading} />
+                <PendingMeta
+                  loading={loading || randomExamStatus === "loading"}
+                  label={
+                    randomExamStatus === "error"
+                      ? "Không thể tải thông tin"
+                      : randomExamStatus === "unavailable"
+                        ? "Chưa có quyền thi thử"
+                        : undefined
+                  }
+                />
               )}
             </div>
             <div className="mt-auto flex justify-center pt-6">
@@ -195,7 +209,8 @@ export function SimulationPracticeHub({
               Luyện tập với các bộ đề mô phỏng đã được chuẩn bị sẵn.
             </p>
             <div className="mt-4 flex min-h-7 flex-wrap gap-2">
-              {data ? (
+              {data?.publishedPresetCount !== undefined &&
+              data.completedPresetCount !== undefined ? (
                 <>
                   <MetaChip>{data.publishedPresetCount} bộ đề</MetaChip>
                   <MetaChip>
@@ -203,7 +218,16 @@ export function SimulationPracticeHub({
                   </MetaChip>
                 </>
               ) : (
-                <PendingMeta loading={loading} />
+                <PendingMeta
+                  loading={presetExamStatus === "loading" || loading}
+                  label={
+                    presetExamStatus === "error"
+                      ? "Chưa tải được thông tin bộ đề"
+                      : presetExamStatus === "unavailable"
+                        ? "Thi thử chưa sẵn sàng"
+                        : undefined
+                  }
+                />
               )}
             </div>
             <div className="mt-auto flex justify-center pt-6">
@@ -251,7 +275,7 @@ export function SimulationPracticeHub({
               <RotateCcw className="size-5" />
             </FeatureIcon>
             <h3 className={studyTitle}>Tình huống cần ôn lại</h3>
-            {data ? (
+            {data?.needReviewCount !== undefined ? (
               <div className="mt-2 rounded-[9px] bg-[#f5f6fc] px-3 py-2.5">
                 <p className="text-[13px] font-semibold text-[#344054]">
                   {data.practicedScenarios === 0
@@ -289,7 +313,7 @@ export function SimulationPracticeHub({
             </FeatureIcon>
             <h3 className={studyTitle}>Tình huống đã đánh dấu</h3>
             <div className="mt-2 min-h-6">
-              {data ? (
+              {data?.bookmarkedCount !== undefined ? (
                 <MetaChip>
                   {data.bookmarkedCount === 0
                     ? "Chưa lưu tình huống"
@@ -374,7 +398,13 @@ function MetaChip({ children }: { children: ReactNode }) {
     </span>
   );
 }
-function PendingMeta({ loading }: { loading: boolean }) {
+function PendingMeta({
+  loading,
+  label = "Đang chuẩn bị",
+}: {
+  loading: boolean;
+  label?: string;
+}) {
   return loading ? (
     <span
       aria-label="Đang tải thông tin"
@@ -382,7 +412,7 @@ function PendingMeta({ loading }: { loading: boolean }) {
     />
   ) : (
     <span className="inline-flex min-h-6 items-center rounded-[7px] bg-[#f5f6fa] px-2.5 py-1 text-[12px] font-medium text-[#667085]">
-      Đang chuẩn bị
+      {label}
     </span>
   );
 }
