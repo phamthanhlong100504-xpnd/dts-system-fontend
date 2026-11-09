@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-11-02",
+  "baseCommit": "498612284b440b20363efecd4f13bb00fa010bfe",
+  "workingBranch": "feature/video-simulation-backend-integration",
+  "card03ManifestSha256": "44edd59f03c3e889e11f0b0dd804d6f2068f45ad3515da5197bc1cd5cdf975b0",
+  "purpose": "Connect Card04 current/editor/publication/history while preserving frozen UI and prior integrations",
+  "existingClassNamesAndJsxTagsUnchanged": true,
+  "intentionalUiAddition": "Restore-content button inside expanded history details, using existing secondary style",
+  "card03PatchVerifiedByOwner": true,
+  "runtimeUiAcceptanceCompleted": false,
+  "fullCard04Accepted": false,
+  "behaviorChanges": [
+    {
+      "path": "src/features/simulations/components/simulation-guide-admin-view.tsx",
+      "beforeSha256": "fe7fa7c9a3244563a3fb9da7d1878e3d7f12be99a882201b8ddd22896cf328ca",
+      "afterSha256": "b14abcb13102ba3c1fef2bb77410142ce9326ac090c203469232aba18a483271"
+    }
+  ],
+  "sourceChanges": [
+    {
+      "path": "src/features/simulations/components/simulation-guide-admin-page.tsx",
+      "beforeSha256": "4e6ec4385ab214625876cd78c64647f69d9641887792db8627faa1acef7a07bd",
+      "afterSha256": "c0be0244cf16da878d5ac3e5346cddcf15721f0bbfa5bedee9a42b68bac716a4"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-guide-admin-view.tsx",
+      "beforeSha256": "fe7fa7c9a3244563a3fb9da7d1878e3d7f12be99a882201b8ddd22896cf328ca",
+      "afterSha256": "b14abcb13102ba3c1fef2bb77410142ce9326ac090c203469232aba18a483271"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-guide-page.tsx",
+      "beforeSha256": "ff30a80fb2cd77a248ead7607c9ab3f7b347868a2e6ff13d07f90d1df64eee77",
+      "afterSha256": "bf338c86cb43e7dc441ef66a281e9a4e8af76f4c642eea0bc5fdfbb484a12a6e"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-access.ts",
+      "beforeSha256": null,
+      "afterSha256": "d7e7bd8b85b5b7df62ee590740ffe55b9912d3f6536b2e47b442fdcc8d42f041"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-content.ts",
+      "beforeSha256": null,
+      "afterSha256": "e0ad77d6f6808c176551a3801a74e1a8210433f0e33df0335e4cf0b4293bb080"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-http-source.ts",
+      "beforeSha256": null,
+      "afterSha256": "818386c5a5829950afbf598c33e53fb0175496b95fec4d9df448af649877e5c7"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-service.ts",
+      "beforeSha256": "bbf217b4360a4d4edd68793d89b400a4fce1aa6e6724658a907dbd4bd936d01b",
+      "afterSha256": "1a46ea34231f0debba904584182b82b45c00490ed546b2a3dfb3ec81ba1d5c74"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-types.ts",
+      "beforeSha256": "801c18e0508907105f247a1098ea3f3256bafeddccf6d67c1769fdd3b4d36a56",
+      "afterSha256": "3aa0f5296ed2021b919a9645228014743998b75539e26fc14513baee889b90cf"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-validation.ts",
+      "beforeSha256": "0793fcfea2282dcfd6ca151e67c1d3adffa35fc746ca9828c131f00b396c239f",
+      "afterSha256": "d3fd24a717a0ec3af0e379361117270be8bd7e923b17b92e3c9e99d2592160ba"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-wire.ts",
+      "beforeSha256": null,
+      "afterSha256": "47955a81c572df015f0e534cec75b46bfa4d0dd1bcbbfe540cfa822102958a8c"
+    },
+    {
+      "path": "src/features/simulations/use-simulation-guide.ts",
+      "beforeSha256": "3a4ff17412cce9d0362040174ef05ad32c58e6e31d0c726a2e5ef2e072439348",
+      "afterSha256": "20599fdbc74dedd7e6f4ab82b09d6fd26e8864d57c0f4af8d3be821cb1d4dad2"
+    },
+    {
+      "path": "src/lib/api/http.ts",
+      "beforeSha256": "71e00c3fc6357b599b4af424b2e21e16516f882ae32dc9c4e3d725d41fac1971",
+      "afterSha256": "4e40bc2581fa81cbd8ea743a981452ffd8e0081dfa01b97ec4016b515cc5a981"
+    },
+    {
+      "path": "tests/simulation-card04-admin.test.cjs",
+      "beforeSha256": null,
+      "afterSha256": "2099417dea5f44a3080e5ae7bcc97b89c31f0f8ca9fc3006ad12371e053e0e70"
+    },
+    {
+      "path": "tests/simulation-card04-contract.test.cjs",
+      "beforeSha256": null,
+      "afterSha256": "78d258298f645ac6f779a25fff77a215fafb81742b8de1ace534fd68eeec4342"
+    },
+    {
+      "path": "tests/simulation-card04-fixtures.cjs",
+      "beforeSha256": null,
+      "afterSha256": "2ed46501f8204252b3e4eddeb9d0836fe71206f0b4c912d63e0bb9d6c547d951"
+    },
+    {
+      "path": "tests/simulation-card04-http.test.cjs",
+      "beforeSha256": null,
+      "afterSha256": "fc1ae57ee1e074897e8b85758e93b78388201051d81bf90ffc3c2b1bff5ec71e"
+    },
+    {
+      "path": "tests/simulation-card04-learner.test.cjs",
+      "beforeSha256": null,
+      "afterSha256": "aecdc2cd05ab0cef3b5e031d70ccfda5a76ddbc960b3f0cd51d1bdacb4b075a0"
+    },
+    {
+      "path": "tests/simulation-test-loader.cjs",
+      "beforeSha256": "7d6ef2f1dec2fb4c6383d38bd56c5fbce237bcc262d2d0674d1e192de46e8ea4",
+      "afterSha256": "8a79adbb04986ac5c8258499358cdda7f0d755e597cf11a201ca8e77cbf9cbc5"
+    },
+    {
+      "path": "docs/simulations/CARD04_BACKEND_INTEGRATION.md",
+      "beforeSha256": null,
+      "afterSha256": "48fa207e10275f700a02796b876566a7dce5fa81403711ca7a6b056fe4c0397c"
+    },
+    {
+      "path": "scripts/verify-simulation-card04-integration.py",
+      "beforeSha256": null,
+      "afterSha256": "01cfb78ec27cfa0fcde93bf025bf379cb60e4ebda6f608586a47a46fdcb42827"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-11-02",
+  "baseCommit": "498612284b440b20363efecd4f13bb00fa010bfe",
+  "workingBranch": "feature/video-simulation-backend-integration",
+  "card01ManifestSha256": "ef846316ef1062736313b244e9fee435a387726240a2edd07a22c5a8d7f32cdc",
+  "purpose": "Keep historical accepted UI and Card01 delta unchanged; document replay lifecycle wiring only",
+  "classNamesAndJsxTagsUnchanged": true,
+  "intentionalCopyChange": "Existing media error description distinguishes read-only replay from a learning attempt",
+  "runtimeUiAcceptanceCompleted": false,
+  "fullCard02Accepted": false,
+  "behaviorChanges": [
+    {
+      "path": "src/features/simulations/components/simulation-video-player.tsx",
+      "beforeSha256": "d2ee4b7ed1ded3785d03e1882fbb14cde2c67fb6135872db1e62edfac48326d6",
+      "afterSha256": "6974fc87bcfbfbc8f90d05641a58883c30520975283d8799e3819a78c1591310"
+    }
+  ]
+}
