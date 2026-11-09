@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MediaUsagePanel,PrivateAssetPreview } from "../../workbench/components/media-usage";
+import { PrivateAssetPreview } from "../../workbench/components/media-usage";
 import { useQuery } from "@tanstack/react-query";
 import { Film, ImageIcon, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { useAdminAccess } from "../../foundation/admin-access-provider";
 import { AdminPageState } from "../../foundation/components/admin-page-state";
 import { fetchPublicMediaPreview } from "../admin-media-service";
 import { formatMediaBytes, MEDIA_STATUS_LABELS, type AdminMediaItem } from "../admin-media-contract";
+import styles from "@/features/admin/workbench/components/admin-management-visual.module.css";
 
 export function AdminMediaStatus({ status }: { status: AdminMediaItem["status"] }) {
   const color = status === "READY" ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300" : status === "FAILED" ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300" : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300";
@@ -44,18 +45,15 @@ function MediaPreview({ item }: { item: AdminMediaItem }) {
 
 export function AdminMediaDetail({ item, onClose }: { item: AdminMediaItem; onClose: () => void }) {
   const Icon = item.mediaType === "VIDEO" ? Film : ImageIcon;
-  return <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl">
-    <DialogHeader><DialogTitle className="flex items-center gap-2 pr-7"><Icon className="size-5 shrink-0 text-primary" /><span className="break-all">{item.originalFilename}</span></DialogTitle><DialogDescription>Thông tin tài nguyên và trạng thái do hệ thống trả về.</DialogDescription></DialogHeader>
+  return <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}><DialogContent className={`${styles.detailDialog} max-h-[90dvh] overflow-y-auto sm:max-w-3xl`}>
+    <DialogHeader><DialogTitle className="flex items-center gap-2 pr-7"><Icon className="size-5 shrink-0 text-primary" /><span className="break-all">{item.originalFilename}</span></DialogTitle><DialogDescription>Xem trước và thông tin tài nguyên.</DialogDescription></DialogHeader>
     <MediaPreview key={item.mediaId} item={item} />
-    <dl className="grid gap-4 rounded-xl border p-4 text-[14.5px]/5 sm:grid-cols-2">
-      <div className="sm:col-span-2"><dt className="text-muted-foreground">Mã tài nguyên</dt><dd className="mt-1 break-all font-mono text-[12.5px]/4">{item.mediaId}</dd></div>
-      <div><dt className="text-muted-foreground">Trạng thái</dt><dd className="mt-1"><AdminMediaStatus status={item.status} /></dd></div>
-      <div><dt className="text-muted-foreground">Quyền truy cập</dt><dd className="mt-1">{item.visibility === "PUBLIC" ? "Công khai" : "Riêng tư"}</dd></div>
-      <div><dt className="text-muted-foreground">Định dạng</dt><dd className="mt-1">{item.mimeType}</dd></div>
-      <div><dt className="text-muted-foreground">Dung lượng</dt><dd className="mt-1">{formatMediaBytes(item.sizeBytes)}</dd></div>
-      <div><dt className="text-muted-foreground">Ngày tải lên</dt><dd className="mt-1">{new Date(item.createdAt).toLocaleString("vi-VN")}</dd></div>
-      <div><dt className="text-muted-foreground">Nơi sử dụng</dt><dd className="mt-1 text-muted-foreground">Chưa xác định nơi sử dụng</dd></div>
+    <dl className={styles.mediaInfoGrid}>
+      <div className={styles.mediaInfoItem}><dt>Trạng thái</dt><dd><AdminMediaStatus status={item.status} /></dd></div>
+      <div className={styles.mediaInfoItem}><dt>Quyền truy cập</dt><dd>{item.visibility === "PUBLIC" ? "Công khai" : "Riêng tư"}</dd></div>
+      <div className={styles.mediaInfoItem}><dt>Định dạng</dt><dd>{item.mimeType}</dd></div>
+      <div className={styles.mediaInfoItem}><dt>Dung lượng</dt><dd>{formatMediaBytes(item.sizeBytes)}</dd></div>
+      <div className={`${styles.mediaInfoItem} ${styles.mediaInfoItemFull}`}><dt>Ngày tải lên</dt><dd>{new Date(item.createdAt).toLocaleString("vi-VN")}</dd></div>
     </dl>
-    <MediaUsagePanel key={item.mediaId} mediaId={item.mediaId}/>
   </DialogContent></Dialog>;
 }
