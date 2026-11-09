@@ -38,18 +38,18 @@ function ProgressPageContainer({
       className="
         font-dts
         w-full
-        px-6
+        px-4
         pb-16
         pt-6
         text-[#101828]
-        lg:px-[calc(38px+1cm)]
+        lg:px-[calc(38px+0.5cm)]
       "
     >
       <div
         className="
           mx-auto
           w-full
-          max-w-[calc(1240px-2cm)]
+          max-w-[1240px]
         "
       >
         {children}

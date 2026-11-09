@@ -1,7 +1,7 @@
 
 "use client";
 
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, BookOpenCheck, RotateCcw, ShieldAlert } from "lucide-react";
 
 import type {
   LearningProgressOverview,
@@ -66,7 +66,8 @@ export function ProgressLearningSummary({
           border-[#e3e5ec]
           bg-white
           p-[0.6cm]
-          shadow-[0_3px_12px_rgba(31,41,55,0.035)]
+          shadow-[0_5px_20px_rgba(31,41,55,0.055)]
+          bg-linear-to-br from-white via-white to-[#f8faff]
         "
       >
         <div
@@ -81,14 +82,19 @@ export function ProgressLearningSummary({
           <div className="min-w-0">
             <p
               className="
-                text-[11.5px]
+                text-[12.5px]
                 font-bold
                 uppercase
                 tracking-[0.04em]
-                text-[#27364f]
+                text-[#0758d9]
               "
             >
-              Tiến độ tổng thể
+              <span className="inline-flex items-center gap-2">
+                <span className="inline-flex size-8 items-center justify-center rounded-[9px] bg-[#eaf0ff] text-[#0758d9]">
+                  <BookOpenCheck className="size-4.5" aria-hidden="true" />
+                </span>
+                Tiến độ tổng thể
+              </span>
             </p>
 
             <div
@@ -221,7 +227,7 @@ export function ProgressLearningSummary({
             transition
             hover:border-[#cbd7ff]
             hover:bg-[#fcfdff]
-            hover:shadow-[0_6px_18px_rgba(31,41,55,0.05)]
+            hover:shadow-[0_8px_24px_rgba(31,41,55,0.08)]
             focus-visible:outline-none
             focus-visible:ring-2
             focus-visible:ring-[#0758d9]/20
@@ -229,13 +235,21 @@ export function ProgressLearningSummary({
         >
           <p
             className="
-              text-[14.5px]
+              flex
+              w-full
+              items-center
+              justify-between
+              gap-4
+              text-[15.5px]
               font-semibold
               leading-6
               text-[#27364f]
             "
           >
-            Câu cần ôn lại
+            <span>Câu cần ôn lại</span>
+            <span className="inline-flex size-9 items-center justify-center rounded-[10px] bg-[#eaf0ff] text-[#0758d9]">
+              <RotateCcw className="size-5" aria-hidden="true" />
+            </span>
           </p>
 
           <p
@@ -283,7 +297,7 @@ export function ProgressLearningSummary({
             transition
             hover:border-[#f0c7c2]
             hover:bg-[#fffdfd]
-            hover:shadow-[0_6px_18px_rgba(31,41,55,0.05)]
+            hover:shadow-[0_8px_24px_rgba(31,41,55,0.08)]
             focus-visible:outline-none
             focus-visible:ring-2
             focus-visible:ring-[#d92d20]/20
@@ -291,13 +305,21 @@ export function ProgressLearningSummary({
         >
           <p
             className="
-              text-[14.5px]
+              flex
+              w-full
+              items-center
+              justify-between
+              gap-4
+              text-[15.5px]
               font-semibold
               leading-6
               text-[#27364f]
             "
           >
-            Câu điểm liệt đã học
+            <span>Câu điểm liệt đã học</span>
+            <span className="inline-flex size-9 items-center justify-center rounded-[10px] bg-[#fff0ef] text-[#c91c16]">
+              <ShieldAlert className="size-5" aria-hidden="true" />
+            </span>
           </p>
 
           <p

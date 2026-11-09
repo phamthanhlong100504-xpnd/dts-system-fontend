@@ -1,5 +1,7 @@
 "use client";
 
+import { PerformancePage } from "@/features/simulation-performance/components/performance-page";
+
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -11,13 +13,17 @@ import { getHistoryDetail } from "@/features/result/result-service";
 import { useLicenseHasHydrated, useLicenseStore } from "@/stores/license-store";
 
 export default function HistoryPage() {
-  return <RequireAuth><HistoryPageContent /></RequireAuth>;
+  return (
+    <RequireAuth>
+      <HistoryPageContent />
+    </RequireAuth>
+  );
 }
 
 function HistoryPageContent() {
   const router = useRouter();
   const licenseHydrated = useLicenseHasHydrated();
-  const selectedLicense = useLicenseStore(state => state.selectedLicense);
+  const selectedLicense = useLicenseStore((state) => state.selectedLicense);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
   const resolvingRef = useRef(false);
 
@@ -48,7 +54,16 @@ function HistoryPageContent() {
     }
   }
 
-  return <main className="min-h-[calc(100vh-122px)] bg-[#f7f6fb] text-[#101828]">
-    <HistoryContent key={selectedLicense} licenseClass={selectedLicense} onViewResult={handleViewResult} resolvingId={resolvingId} />
-  </main>;
+  return (
+    <main className="min-h-[calc(100vh-122px)] bg-[#f7f6fb] text-[#101828]">
+      <PerformancePage kind="history" licenseClass={selectedLicense}>
+        <HistoryContent
+          key={selectedLicense}
+          licenseClass={selectedLicense}
+          onViewResult={handleViewResult}
+          resolvingId={resolvingId}
+        />
+      </PerformancePage>
+    </main>
+  );
 }
