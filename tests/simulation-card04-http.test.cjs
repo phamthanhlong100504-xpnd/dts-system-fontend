@@ -1,0 +1,8 @@
+require('./simulation-test-loader.cjs');
+const {test,after}=require('node:test'),assert=require('node:assert/strict');
+const axios=require('axios');const original=axios.defaults.adapter;
+const {createApiClient}=require('../src/lib/api/http.ts');
+const f=require('./simulation-card04-fixtures.cjs');
+after(()=>axios.defaults.adapter=original);
+test('existing Content Builder HTTP client returns direct DTO without double unwrap',async()=>{axios.defaults.adapter=async config=>({status:200,statusText:'OK',headers:{},config,data:f.current()});const value=await createApiClient('/api/content-builder').get('/v1/simulation-guide/current');assert.deepEqual(value,f.current());assert.equal(value.data,undefined);});
+test('GUIDE error field is preserved only for Content Builder while existing error codes remain intact',async()=>{let body={status:409,error:'GUIDE-409-BANK',message:'stale bank',traceId:'qa-trace'};axios.defaults.adapter=async config=>{const response={data:body,status:body.status,statusText:'Error',headers:{},config};throw new axios.AxiosError('failure','ERR_BAD_REQUEST',config,{},response);};await assert.rejects(createApiClient('/api/content-builder').get('/v1/simulation-guide/current'),e=>e.status===409&&e.errorCode==='GUIDE-409-BANK'&&e.traceId==='qa-trace');await assert.rejects(createApiClient('/api/practice').get('/v1/simulations/overview'),e=>e.status===409&&e.errorCode===undefined);body={status:409,error:'generic',code:'SIMULATION_BOOKMARKS_CHANGED',message:'existing'};await assert.rejects(createApiClient('/api/practice').get('/v1/simulations/bookmarks'),e=>e.errorCode==='SIMULATION_BOOKMARKS_CHANGED');});

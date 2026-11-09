@@ -1,5 +1,9 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import { useAuthStore } from "@/stores/auth-store";
+import { licenseCatalogKeys } from "@/features/license/use-license";
+import { getLicenseCatalog } from "@/features/license/license-service";
 import { getSimulationGuideSource } from "./simulation-guide-service";
 import { SimulationGuideError } from "./simulation-guide-types";
 import type {
@@ -20,15 +24,22 @@ import { validateSimulationScope } from "./use-simulation-learning";
 export const simulationGuideKeys = {
   root: ["simulation-guide"] as const,
   current: (scope: SimulationScope) =>
-    ["simulation-guide", "current", scope.userId, scope.licenseClass] as const,
+    [
+      "simulation-guide",
+      "current",
+      scope.userId,
+      scope.licenseClass,
+      scope.bankVersion ?? "current",
+    ] as const,
   admin: (actorId: string) => ["simulation-guide", "admin", actorId] as const,
   history: (actorId: string) =>
     ["simulation-guide", "history", actorId] as const,
 };
 export type GuideReadState =
-  | LearningLoadState<PublishedGuide>
-  | { status: "unpublished" };
+  LearningLoadState<PublishedGuide> | { status: "unpublished" };
 export function useSimulationGuide(scope: SimulationScope) {
+  const client = useGuideCacheIsolation();
+  const refreshedBank = useRef(false);
   const source = getSimulationGuideSource();
   const query = useQuery({
     queryKey: simulationGuideKeys.current(scope),
@@ -43,8 +54,26 @@ export function useSimulationGuide(scope: SimulationScope) {
     retry: (count, error) =>
       !(error instanceof SimulationGuideError) && count < 1,
     staleTime: 0,
+    gcTime: 0,
     refetchOnMount: "always",
   });
+  useEffect(() => {
+    if (
+      query.error instanceof SimulationGuideError &&
+      query.error.code === "BANK_CHANGED" &&
+      !refreshedBank.current
+    ) {
+      refreshedBank.current = true;
+      // LearningBoundary observes the shared catalogue and remounts with its current bank.
+      void client
+        .fetchQuery({
+          queryKey: licenseCatalogKeys.all,
+          queryFn: getLicenseCatalog,
+          staleTime: 0,
+        })
+        .catch(() => {});
+    }
+  }, [query.error, client]);
   const state: GuideReadState = !source
     ? { status: "unavailable" }
     : query.isPending
@@ -66,6 +95,7 @@ export function useSimulationGuide(scope: SimulationScope) {
   return { state, query, source };
 }
 export function useSimulationGuideAdmin(actorId: string) {
+  useGuideCacheIsolation();
   const source = getSimulationGuideSource();
   const query = useQuery({
     queryKey: simulationGuideKeys.admin(actorId),
@@ -78,6 +108,7 @@ export function useSimulationGuideAdmin(actorId: string) {
     },
     retry: false,
     staleTime: 0,
+    gcTime: 0,
     refetchOnWindowFocus: false,
     refetchOnMount: "always",
   });
@@ -99,6 +130,7 @@ export function useSimulationGuideAdmin(actorId: string) {
   return { state, query, source };
 }
 export function useSimulationGuideHistory(actorId: string, enabled: boolean) {
+  useGuideCacheIsolation();
   const source = getSimulationGuideSource();
   const query = useQuery({
     queryKey: simulationGuideKeys.history(actorId),
@@ -111,6 +143,8 @@ export function useSimulationGuideHistory(actorId: string, enabled: boolean) {
     },
     retry: false,
     staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
   });
   const state: LearningLoadState<GuideHistory> = !source?.history
     ? { status: "unavailable" }
@@ -128,4 +162,16 @@ export function useSimulationGuideHistory(actorId: string, enabled: boolean) {
           ? { status: "ready", data: query.data }
           : { status: "error", message: "Phản hồi lịch sử chưa hợp lệ." };
   return { state, query };
+}
+function useGuideCacheIsolation() {
+  const client = useQueryClient();
+  useEffect(
+    () =>
+      useAuthStore.subscribe((next, previous) => {
+        if (!next.accessToken || next.user?.id !== previous.user?.id)
+          client.removeQueries({ queryKey: simulationGuideKeys.root });
+      }),
+    [client],
+  );
+  return client;
 }

@@ -1,9 +1,12 @@
 import type { SimulationGuideSource } from "./simulation-guide-types";
-/** Connect contentBuilderApi through the approved Gateway contract after backend handoff.
- * No guessed endpoints, local content fallback or successful write simulation.
- */
+import { contentBuilderApi } from "@/lib/api";
+import { assertGuideSession } from "./simulation-guide-access";
+import { createSimulationGuideHttpSource } from "./simulation-guide-http-source";
+const source = createSimulationGuideHttpSource(
+  contentBuilderApi,
+  assertGuideSession,
+);
+/** Card04 uses the existing Content Builder client and Identity session; no content fallback. */
 export function getSimulationGuideSource(): SimulationGuideSource | null {
-  return null;
+  return source;
 }
-/** Frontend release capability, not learner data. Enable only with accepted Card05 integration. */
-export const simulationMockExamUiReleased = false;
