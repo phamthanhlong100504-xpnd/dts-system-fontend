@@ -1,2 +1,2 @@
-import { ResourceWorkspace } from "@/features/admin/workbench/components/resource-workspace";
-export default function Page() { return <ResourceWorkspace kind="simulation-banks" baseHref="/admin/simulations/scenarios/banks" id="create" />; }
+import {SimulationBankDrafts} from '@/features/admin/admin05/draft-pages';
+export default function Page(){return <SimulationBankDrafts/>;}

@@ -1,6 +1,8 @@
 "use client";
 import {
   BookOpen,
+  CalendarDays,
+  Clock3,
   CheckCircle2,
   Eye,
   FileClock,
@@ -25,6 +27,7 @@ import type {
   GuideHistory,
 } from "../simulation-guide-types";
 import { guideDraftNeedsPublication } from "../simulation-guide-validation";
+import { guidePreviewContent } from "../simulation-guide-content";
 import { guideTextFields } from "../simulation-guide-fields";
 import { LearningNotice, LearningSkeleton } from "./learning-ui";
 import { SimulationGuideContent } from "./simulation-guide-view";
@@ -67,12 +70,30 @@ export interface GuideAdminActions {
   historyRetry?: () => void;
   confirmLeave?: () => void;
   cancelLeave?: () => void;
+  restore?: (revision: number) => void;
 }
 export function guideDate(value: string) {
   return new Date(value).toLocaleString("vi-VN", {
     timeZone: "Asia/Ho_Chi_Minh",
     hour12: false,
   });
+}
+function GuideFriendlyDate({ value, label }: { value: string; label?: string }) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const day = new Intl.DateTimeFormat("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh", day: "2-digit", month: "2-digit", year: "numeric",
+  }).format(date);
+  const time = new Intl.DateTimeFormat("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).format(date);
+  return (
+    <time dateTime={value} className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[14.5px] font-medium text-muted-foreground">
+      {label && <span className="font-semibold text-foreground">{label}</span>}
+      <span className="inline-flex items-center gap-1.5"><CalendarDays aria-hidden="true" className="size-4 text-primary" />{day}</span>
+      <span className="inline-flex items-center gap-1.5"><Clock3 aria-hidden="true" className="size-4 text-primary" />{time}</span>
+    </time>
+  );
 }
 export function SimulationGuideAdminView({
   state,
@@ -134,7 +155,7 @@ export function SimulationGuideAdminView({
               {model.snapshot.bank.scenarioCount} tình huống
             </strong>
             <span>
-              Số liệu lấy từ ngân hàng đang công bố, không chỉnh sửa tại đây.
+              Nội dung của ngân hàng hiện hành.
             </span>
           </div>
           {model.notice && (
@@ -318,11 +339,12 @@ export function SimulationGuideAdminView({
                 </label>
               </div>
               <SimulationGuideContent
-                content={
-                  model.previewPublished && model.snapshot.published
-                    ? model.snapshot.published.content
-                    : model.content
-                }
+                content={guidePreviewContent(
+                  model.content,
+                  model.snapshot,
+                  model.previewPublished,
+                  model.dirty,
+                )}
                 bank={model.snapshot.bank}
               />
             </section>
@@ -331,6 +353,9 @@ export function SimulationGuideAdminView({
             <GuideHistoryView
               state={model.history}
               onRetry={actions.historyRetry}
+              onRestore={
+                !model.busy && !model.writeBlocked ? actions.restore : undefined
+              }
             />
           )}
 
@@ -459,7 +484,7 @@ function GuideTextEditor({
                 {field.multiline ? (
                   <textarea
                     aria-label={field.label}
-                    disabled={!!model.busy}
+                    disabled={!!model.busy || !actions.change}
                     rows={3}
                     maxLength={12000}
                     value={field.value}
@@ -471,7 +496,7 @@ function GuideTextEditor({
                 ) : (
                   <input
                     aria-label={field.label}
-                    disabled={!!model.busy}
+                    disabled={!!model.busy || !actions.change}
                     maxLength={12000}
                     value={field.value}
                     onChange={(e) =>
@@ -512,11 +537,7 @@ function Summary({
         <p className={cn(adminGuideStyles.body, "mt-2")}>
           {revision !== undefined ? `Phiên bản ${revision}` : empty}
         </p>
-        {date && (
-          <p className="mt-1 text-[14.5px] font-medium text-muted-foreground">
-            {guideDate(date)}
-          </p>
-        )}
+        {date && <GuideFriendlyDate value={date} />}
       </div>
     </section>
   );
@@ -524,9 +545,11 @@ function Summary({
 export function GuideHistoryView({
   state,
   onRetry,
+  onRestore,
 }: {
   state: LearningLoadState<GuideHistory>;
   onRetry?: () => void;
+  onRestore?: (revision: number) => void;
 }) {
   if (state.status !== "ready")
     return state.status === "loading" ? (
@@ -562,14 +585,8 @@ export function GuideHistoryView({
                 <h3 className="text-base font-semibold text-foreground">
                   Phiên bản {v.revision} · {v.content.title}
                 </h3>
-                <p className={cn(adminGuideStyles.body, "mt-2")}>
-                  {guideDate(v.updatedAt)} · {v.updatedBy}
-                </p>
-                {v.publishedAt && (
-                  <p className="mt-1 text-[14.5px] font-medium text-muted-foreground">
-                    Công bố: {guideDate(v.publishedAt)} · {v.publishedBy}
-                  </p>
-                )}
+                <GuideFriendlyDate value={v.updatedAt} label="Cập nhật" />
+                {v.publishedAt && <GuideFriendlyDate value={v.publishedAt} label="Công bố" />}
               </div>
               <details className="order-3 basis-full rounded-[10px] bg-[#f8f8fc] p-4">
                 <summary className="cursor-pointer text-[14.5px] font-semibold text-primary">
@@ -587,6 +604,15 @@ export function GuideHistoryView({
                     </div>
                   ))}
                 </dl>
+                {onRestore && (
+                  <button
+                    type="button"
+                    className={adminGuideStyles.secondary}
+                    onClick={() => onRestore(v.revision)}
+                  >
+                    Dùng nội dung phiên bản này
+                  </button>
+                )}
               </details>
               <span
                 className={cn(

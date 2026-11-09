@@ -1,2 +1,2 @@
-import { PolicyWorkspace } from "@/features/admin/workbench/components/policy-workspace";
-export default function Page() { return <PolicyWorkspace module="simulation" />; }
+import {SimulationSettings} from '@/features/admin/admin05/read-pages';
+export default function Page(){return <SimulationSettings/>;}
