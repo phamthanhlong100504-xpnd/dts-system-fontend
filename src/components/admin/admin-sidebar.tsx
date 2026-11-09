@@ -29,7 +29,7 @@ export function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void })
   return <div className="flex h-full min-h-0 flex-col gap-2 p-4">
     <div className="mb-4 flex shrink-0 items-center gap-3 px-2 pt-2">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md"><ShieldCheck aria-hidden="true" className="h-6 w-6" /></div>
-      <div><p className="text-base font-bold tracking-tight text-foreground">Quản trị DTS</p><p className="text-[12.5px]/4 text-muted-foreground">Hệ thống quản trị DTS</p></div>
+      <div><p className="text-base font-bold tracking-tight text-foreground">Quản trị DTS</p></div>
     </div>
     <nav aria-label="Các mục quản trị" className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain pr-1 [scrollbar-width:thin]">
       {groups.map((group) => {
@@ -47,9 +47,9 @@ export function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void })
           <div id={panelId} hidden={!open} className="ml-[20px] space-y-1 border-l border-border/60 py-0.5 pl-3">{group.items.map((item) => {
             const Icon = icons[item.icon] ?? BookOpen;
             const active = current?.id === item.id;
-            return <Link key={item.id} href={item.href} title={item.readiness === "awaiting-data" ? "Đang chờ kết nối dữ liệu quản trị" : item.readiness === "partial" ? "Một số chức năng đang chờ kết nối thêm dữ liệu" : undefined} aria-current={active ? "page" : undefined} onClick={(event) => { if (!event.defaultPrevented) onNavigate?.(); }}
+            return <Link key={item.id} href={item.href} aria-current={active ? "page" : undefined} onClick={(event) => { if (!event.defaultPrevented) onNavigate?.(); }}
               className={`flex min-h-9 items-center gap-2.5 rounded-lg px-3 py-2 text-[14px]/5 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${active ? "bg-primary/10 font-semibold text-primary ring-1 ring-inset ring-primary/15" : "text-muted-foreground hover:bg-accent/60 hover:text-accent-foreground"}`}>
-              <Icon aria-hidden="true" className="h-4 w-4 shrink-0" /><span className="whitespace-nowrap">{item.label}</span>{item.readiness === "awaiting-data" && <span className="ml-auto size-1.5 shrink-0 rounded-full bg-amber-600" aria-label="Đang chờ kết nối dữ liệu quản trị"/>}
+              <Icon aria-hidden="true" className="h-4 w-4 shrink-0" /><span className="whitespace-nowrap">{item.label}</span>
             </Link>;
           })}</div>
         </div>;

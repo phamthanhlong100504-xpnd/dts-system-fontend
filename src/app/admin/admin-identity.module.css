@@ -1,0 +1,45 @@
+/* Admin-only visual system based on /admin/simulation-guide */
+.page { width:100%; max-width:1320px; min-width:0; margin-inline:auto; display:flex; flex-direction:column; gap:1cm; color:var(--foreground); }
+.filterCard { display:flex; flex-wrap:wrap; gap:18px; align-items:center; padding:20px 22px; background:var(--card); border:1px solid #e3e5ec; border-radius:18px; box-shadow:0 2px 10px rgba(16,24,40,.045); }
+.filterCard > :first-child { flex:1 1 320px; min-width:0; }
+.filterCard > :last-child { flex:0 1 auto; }
+.filterCard input { border:1px solid #d9deea; border-radius:11px; font-size:14.5px; background:var(--background); color:var(--foreground); }
+.filterCard button { min-height:38px; font-size:14.5px; }
+.tableCard { width:100%; min-width:0; overflow-x:auto; border:1px solid #e3e5ec; border-radius:18px; background:var(--card); box-shadow:0 2px 10px rgba(16,24,40,.045); }
+.tableCard table { width:100%; min-width:580px; border-collapse:collapse; font-size:15px; line-height:1.65; }
+.tableCard thead { background:#f8f8fc; }
+.tableCard th { height:auto; padding:17px 19px; color:var(--foreground); font-size:15.5px; font-weight:700; line-height:1.45; }
+.tableCard td { padding:16px 19px; vertical-align:middle; font-size:15px; line-height:1.65; color:var(--foreground); }
+.tableCard tbody tr:hover { background:#fcfcff; }
+.tableCard td p:first-child { font-weight:650; }
+.pager { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:15px; padding:16px 20px; border:1px solid #e3e5ec; border-radius:14px; background:var(--card); }
+.tabs { display:flex; flex-direction:column; gap:16px; min-width:0; }
+.tabs > div:first-child { width:fit-content; min-height:48px; border:1px solid #e3e5ec; border-radius:13px; background:#f8f8fc; padding:5px; }
+.tabs > div:first-child button { min-height:38px; padding-inline:20px; font-size:14.5px; font-weight:600; }
+.roleGrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.roleCard { min-height:140px; padding:22px 23px; border:1px solid #e3e5ec; border-radius:18px; background:var(--card); box-shadow:0 2px 10px rgba(16,24,40,.045); transition:border-color .15s, box-shadow .15s; }
+.roleCard:hover { border-color:#b8cafa; box-shadow:0 5px 18px rgba(16,24,40,.08); }
+.roleCard h3 { color:var(--foreground); font-size:18px; font-weight:700; line-height:1.5; }
+.roleCard p { margin-top:14px; font-size:14.5px; color:var(--muted-foreground); line-height:1.6; }
+.sideSheet { display:flex; flex-direction:column; gap:18px; }
+.sideSheet h2, .dialog h2 { font-size:20px; font-weight:700; line-height:1.45; }
+.sideSheet :global(label), .dialog :global(label) { font-size:14.5px; line-height:1.6; }
+.sideSheet input, .dialog input { min-height:43px; border-radius:11px; }
+.sideSheet form, .dialog form { display:flex; flex-direction:column; gap:19px; }
+.sideSheet :global([data-slot="sheet-header"]), .dialog :global([data-slot="dialog-header"]) { padding-bottom:12px; border-bottom:1px solid #e3e5ec; }
+.sideSheet :global([data-slot="sheet-footer"]), .dialog :global([data-slot="dialog-footer"]) { border-top:1px solid #e3e5ec; padding-top:15px; }
+.dialog { gap:21px; border-radius:18px; padding:24px; }
+.settingsGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; gap:22px; }
+.settingsCard { display:flex; flex-direction:column; gap:16px; padding:24px; border:1px solid #e3e5ec; border-radius:18px; background:var(--card); box-shadow:0 2px 10px rgba(16,24,40,.045); }
+.settingsHeading { display:flex; align-items:center; gap:14px; }
+.settingsIcon { display:flex; flex-shrink:0; justify-content:center; align-items:center; width:46px; height:46px; border-radius:12px; border:1px solid #dce2f7; color:var(--primary); background:#eef2ff; }
+.settingsHeading h2 { font-size:18px; font-weight:700; line-height:1.45; color:var(--foreground); }
+.settingsDescription { font-size:14.5px; line-height:1.65; color:var(--muted-foreground); }
+.settingsLinks { display:flex; flex-direction:column; gap:10px; margin-top:auto; }
+.settingsLink { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:47px; padding:11px 15px; border:1px solid #e3e5ec; border-radius:12px; background:#f8f8fc; font-size:15px; font-weight:600; color:var(--primary); text-decoration:none; }
+.settingsLink:hover { border-color:#b8cafa; background:#eef2ff; }
+.page a:focus-visible, .page button:focus-visible { outline:2px solid var(--primary); outline-offset:3px; }
+@media(max-width:1050px) { .roleGrid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:780px) { .settingsGrid, .roleGrid { grid-template-columns:1fr; } }
+@media(max-width:600px) { .page { gap:26px; } .settingsCard { padding:18px; } .filterCard { padding:16px; } .filterCard > :last-child { flex:1 1 100%; } .tableCard th, .tableCard td { padding:13px 14px; } }
+@media(prefers-reduced-motion:reduce) { .roleCard { transition:none; } }

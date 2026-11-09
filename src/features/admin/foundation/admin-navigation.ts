@@ -41,7 +41,7 @@ export const ADMIN_NAVIGATION: readonly AdminNavGroup[] = [
       { id: "exam-structures", readiness: "partial", label: "Cấu trúc đề thi", href: "/admin/exam-structures", icon: "structures", resource: "exam_structure", implemented: true },
       { id: "exam-criteria", readiness: "partial", label: "Tiêu chí chấm thi", href: "/admin/exam-criteria", icon: "criteria", resource: "exam_criteria", implemented: true },
       { id: "exam-rules", readiness: "partial", label: "Quy chế thi", href: "/admin/exam-rules", icon: "rules", resource: "exam_rule", implemented: true },
-      { id: "exam-sessions", readiness: "awaiting-data", label: "Theo dõi phiên thi", href: "/admin/exam-sessions", icon: "sessions", resource: "exam-sessions", implemented: true },
+      { id: "exam-sessions", readiness: "partial", label: "Theo dõi phiên thi", href: "/admin/exam-sessions", icon: "sessions", resource: "exam-sessions", implemented: true },
     ]
   },
   {
