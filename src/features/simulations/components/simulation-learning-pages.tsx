@@ -22,7 +22,6 @@ import type {
   ScenarioFilter,
   SimulationChapterPage,
   SimulationCommand,
-  SimulationCommandKind,
   SimulationScenarioPage,
   SimulationScope,
 } from "../simulation-learning-types";
@@ -30,6 +29,9 @@ import type { SimulationListReturnContext } from "../simulation-review-types";
 import { bookmarksUrl } from "../simulation-bookmarks-navigation";
 import { reviewNeededUrl } from "../simulation-review-navigation";
 import { SimulationFeedbackModal } from "./simulation-feedback-modal";
+import { useSimulationCanLearn } from "../simulation-access";
+import { invalidateSimulationLists } from "../simulation-cache";
+import { createSimulationCommandQueue } from "../simulation-command-queue";
 import { SimulationChaptersView } from "./simulation-chapters-view";
 import { SimulationChapterView } from "./simulation-chapter-view";
 import { SimulationScenarioView } from "./simulation-scenario-view";
@@ -42,7 +44,9 @@ import {
 
 function LearningGate({
   children,
+  readOnly = false,
 }: {
+  readOnly?: boolean;
   children: (scope: SimulationScope) => ReactNode;
 }) {
   const router = useRouter();
@@ -84,7 +88,12 @@ function LearningGate({
         />
       </LearningShell>
     );
-  if (catalog.license.group !== "car" && catalog.license.group !== "trailer")
+  if (
+    catalog.license.simulationEnabled !== true ||
+    (!readOnly &&
+      (catalog.license.simulationReady !== true ||
+        !catalog.license.simulationBankVersion))
+  )
     return (
       <LearningShell>
         <BackAction onClick={() => router.push("/practice")}>
@@ -105,16 +114,22 @@ function LearningGate({
         />
       </LearningShell>
     );
-  return children({ userId, licenseClass: licenseCode });
+  return children({
+    userId,
+    licenseClass: licenseCode,
+    bankVersion: catalog.license.simulationBankVersion ?? undefined,
+  });
 }
 function Guarded({
   children,
+  readOnly = false,
 }: {
+  readOnly?: boolean;
   children: (scope: SimulationScope) => ReactNode;
 }) {
   return (
     <RequireAuth>
-      <LearningGate>{children}</LearningGate>
+      <LearningGate readOnly={readOnly}>{children}</LearningGate>
     </RequireAuth>
   );
 }
@@ -185,6 +200,7 @@ function BoundChapter({
   initialFilter: ScenarioFilter;
   initialPage: number;
 }) {
+  const canLearn = useSimulationCanLearn();
   const router = useRouter(),
     client = useQueryClient();
   const [filter, setFilter] = useState(initialFilter),
@@ -198,7 +214,7 @@ function BoundChapter({
   );
   const bookmark = useMutation({
     mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      if (!source?.bookmark)
+      if (!source?.bookmark || !canLearn)
         throw new Error("Chức năng đánh dấu chưa sẵn sàng.");
       const ack = await source.bookmark(scope, id, value);
       if (ack.scenarioId !== id || ack.bookmarked !== value)
@@ -207,9 +223,7 @@ function BoundChapter({
     },
     onSuccess: () => {
       setNotice(null);
-      void client.invalidateQueries({
-        queryKey: simulationLearningKeys.scope(scope),
-      });
+      void invalidateSimulationLists(client, scope);
     },
     onError: () =>
       setNotice(
@@ -224,8 +238,35 @@ function BoundChapter({
           message: "Dữ liệu chương không khớp nội dung được yêu cầu.",
         }
       : state;
-  const go = (id: string) =>
-    router.push(simulationRoutes.scenario(id, chapterId, filter, page));
+  const cursorLock = useRef(false);
+  const cursorEvents = useRef(new Map<string, string>());
+  async function go(id: string) {
+    if (!data || cursorLock.current) return;
+    cursorLock.current = true;
+    try {
+      if (source?.cursor) {
+        const revision = data.cursor?.revision ?? 0;
+        const identity = `${id}:${revision}`;
+        const event = cursorEvents.current.get(identity) ?? crypto.randomUUID();
+        cursorEvents.current.set(identity, event);
+        await source.cursor(
+          { ...scope, bankVersion: data.scope.bankVersion },
+          chapterId,
+          id,
+          revision,
+          event,
+        );
+      }
+      router.push(simulationRoutes.scenario(id, chapterId, filter, page));
+    } catch {
+      setNotice(
+        "Chưa xác nhận vị trí tiếp tục. Hãy tải lại danh sách rồi thử lại.",
+      );
+      void query.refetch();
+    } finally {
+      cursorLock.current = false;
+    }
+  }
   return (
     <>
       <SimulationFeedbackModal
@@ -242,14 +283,16 @@ function BoundChapter({
           setFilter(value);
           setPage(0);
         }}
-        onOpen={(item) => go(item.id)}
+        onOpen={canLearn ? (item) => void go(item.id) : undefined}
         onStudyAll={
-          data?.startScenarioId ? () => go(data.startScenarioId!) : undefined
+          canLearn && data?.startScenarioId
+            ? () => void go(data.startScenarioId!)
+            : undefined
         }
         onPage={setPage}
         onRetry={() => void query.refetch()}
         onBookmark={
-          source?.bookmark
+          source?.bookmark && canLearn
             ? (item) =>
                 bookmark.mutate({ id: item.id, value: !item.isBookmarked })
             : undefined
@@ -278,8 +321,12 @@ export function SimulationScenarioPage({
     <Guarded>
       {(scope) => (
         <BoundScenario
-          key={`${scope.userId}:${scope.licenseClass}:${scenarioId}`}
-          scope={scope}
+          key={`${scope.userId}:${scope.licenseClass}:${reviewContext?.bankVersion ?? scope.bankVersion}:${scenarioId}:${attemptId ?? "new"}`}
+          scope={
+            reviewContext?.bankVersion
+              ? { ...scope, bankVersion: reviewContext.bankVersion }
+              : scope
+          }
           scenarioId={scenarioId}
           chapterId={chapterId}
           filter={filter}
@@ -308,6 +355,7 @@ function BoundScenario({
   attemptId?: string;
   reviewContext?: SimulationListReturnContext;
 }) {
+  const canLearn = useSimulationCanLearn();
   const router = useRouter(),
     client = useQueryClient();
   const [notice, setNotice] = useState<string | null>(null),
@@ -316,8 +364,11 @@ function BoundScenario({
     null,
   );
   const ids = useRef(new Map<string, string>());
-  const commandLock = useRef(false),
-    mounted = useRef(true);
+  const queue = useRef(createSimulationCommandQueue());
+  const mounted = useRef(true);
+  const snapshots = useRef<SimulationScenarioPage | null>(null);
+  const prepared = useRef(false);
+  const fixedCommands = useRef(new Map<string, SimulationCommand>());
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -359,9 +410,7 @@ function BoundScenario({
         throw new Error("Lượt luyện không khớp địa chỉ đang mở.");
       return value;
     },
-    reviewContext && !attemptId
-      ? { gcTime: 0, refetchOnWindowFocus: false }
-      : undefined,
+    { gcTime: 0, refetchOnWindowFocus: false },
   );
   const data = state.status === "ready" ? state.data : null;
   const key = simulationLearningKeys.read(
@@ -371,18 +420,37 @@ function BoundScenario({
     attemptId ?? "new",
     ...(reviewContext ? [reviewContext.origin] : []),
   );
+  useEffect(() => {
+    if (data) snapshots.current = data;
+  }, [data]);
   const command = useMutation({
     mutationFn: async (input: SimulationCommand) => {
       if (!source?.command) throw new Error("Lượt luyện chưa sẵn sàng.");
       await client.cancelQueries({ queryKey: key });
-      const value = await source.command(scope, input);
+      const current = snapshots.current ?? data;
+      const pinned = {
+        ...scope,
+        bankVersion: current?.scope.bankVersion ?? scope.bankVersion,
+      };
+      let value = await source.command(pinned, input);
+      if (input.kind === "RECONCILE_RESULT" && value.phase !== "completed") {
+        const pendingComplete = [...fixedCommands.current.values()]
+          .reverse()
+          .find(
+            (command) =>
+              command.kind === "COMPLETE" &&
+              command.attemptId === input.attemptId,
+          );
+        if (pendingComplete)
+          value = await source.command(pinned, pendingComplete);
+      }
       validateSimulationScope(scope, value);
       validateScenarioSnapshot(value);
       if (
         input.attemptId &&
         input.kind !== "NEW_ATTEMPT" &&
         (value.attemptId !== input.attemptId ||
-          value.scope.bankVersion !== data?.scope.bankVersion)
+          value.scope.bankVersion !== current?.scope.bankVersion)
       )
         throw new Error(
           "Phản hồi không thuộc đúng lượt luyện hoặc phiên bản đang mở.",
@@ -410,7 +478,8 @@ function BoundScenario({
         throw new Error("Kết quả lượt luyện chưa được xác nhận.");
       return value;
     },
-    onSuccess: (value) => {
+    onSuccess: (value, input) => {
+      snapshots.current = value;
       client.setQueryData(key, value);
       client.setQueryData(
         simulationLearningKeys.read(
@@ -438,13 +507,11 @@ function BoundScenario({
             { scroll: false },
           );
       }
-      void client.invalidateQueries({
-        predicate: (q) =>
-          q.queryKey[0] === "simulation-learning" &&
-          q.queryKey[1] === scope.userId &&
-          q.queryKey[2] === scope.licenseClass &&
-          q.queryKey[3] !== "scenario",
-      });
+      if (!(input.kind === "RENEW_PLAYBACK" && value.readOnly))
+        void invalidateSimulationLists(client, {
+          ...scope,
+          bankVersion: value.scope.bankVersion,
+        });
     },
     onError: (_error, input) => {
       setNotice(
@@ -454,39 +521,86 @@ function BoundScenario({
         setSaveFailed(true);
     },
   });
-  async function run(
-    kind: SimulationCommandKind,
+  function run(
+    kind: SimulationCommand["kind"],
     mediaTimeMs?: number,
     eventId?: string,
-  ) {
-    if (!data || commandLock.current)
-      throw new Error("Một thao tác đang được xử lý.");
-    const identity = `${data.attemptId ?? scenarioId}:${kind}`;
+    reason?: SimulationCommand["reason"],
+  ): Promise<void> {
+    if (!canLearn && !["RENEW_PLAYBACK", "RECONCILE_RESULT"].includes(kind))
+      return Promise.reject(
+        new Error("Tài khoản không có quyền luyện mô phỏng."),
+      );
+    const current = snapshots.current ?? data;
+    if (!current) return Promise.reject(new Error("Nội dung chưa sẵn sàng."));
+    if (kind === "HEARTBEAT" && queue.current.pending) return Promise.resolve();
+    const identity = `${current.attemptId ?? scenarioId}:${kind}`;
     let id = eventId ?? ids.current.get(identity);
     if (!id) {
       id = crypto.randomUUID();
       ids.current.set(identity, id);
     }
-    commandLock.current = true;
-    try {
-      await command.mutateAsync({
+    // Keep initial create id in the URL until its ACK, including reload/lost ACK.
+    if (kind === "NEW_ATTEMPT" && !eventId && typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      const existing = url.searchParams.get("createEvent");
+      if (existing && /^[0-9a-f-]{36}$/i.test(existing)) id = existing;
+      else {
+        url.searchParams.set("createEvent", id);
+      }
+      url.searchParams.delete("attempt");
+      window.history.replaceState(null, "", url);
+    }
+    const token = `${identity}:${id}`;
+    let input = fixedCommands.current.get(token);
+    if (!input) {
+      input = {
         kind,
         scenarioId,
-        attemptId: data.attemptId,
-        playbackEventId: data.playbackEventId,
+        attemptId: current.attemptId,
+        playbackEventId: current.playbackEventId,
         eventId: id,
         mediaTimeMs,
-      });
-    } finally {
-      commandLock.current = false;
+        reason,
+      };
+      fixedCommands.current.set(token, input);
     }
+    const stable = input;
+    return queue.current.enqueue(async () => {
+      if (!mounted.current) throw new Error("Trang lượt luyện đã đóng.");
+      await command.mutateAsync(stable);
+      // Repeated lifecycle events are new actions after ACK; retries retain exact bodies.
+      if (["START", "INTERRUPT", "RENEW_PLAYBACK"].includes(kind))
+        ids.current.delete(identity);
+      if (kind === "RENEW_PLAYBACK") {
+        ids.current.delete(`${current.attemptId}:START`);
+        ids.current.delete(`${current.attemptId}:INTERRUPT`);
+      }
+    });
   }
+  useEffect(() => {
+    if (
+      !data ||
+      data.attemptId ||
+      prepared.current ||
+      !source?.command ||
+      !canLearn
+    )
+      return;
+    prepared.current = true;
+    snapshots.current = data;
+    void run("NEW_ATTEMPT").catch(() => {
+      /* Existing error modal; retry preserves create event. */
+    });
+    // Deliberate mutation after a successful read, never inside a query/refetch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, source, canLearn]);
   const bookmark = useMutation({
     mutationFn: async () => {
-      if (!data || !source?.bookmark)
+      if (!data || !source?.bookmark || !canLearn)
         throw new Error("Chức năng đánh dấu chưa sẵn sàng.");
       const ack = await source.bookmark(
-        scope,
+        { ...scope, bankVersion: data.scope.bankVersion },
         scenarioId,
         !data.scenario.isBookmarked,
       );
@@ -497,10 +611,20 @@ function BoundScenario({
         throw new Error("Chưa xác nhận thay đổi đánh dấu.");
       return ack;
     },
-    onSuccess: () => {
+    onSuccess: (ack) => {
       setNotice(null);
-      void client.invalidateQueries({
-        queryKey: simulationLearningKeys.scope(scope),
+      const current = snapshots.current;
+      if (current) {
+        const value = {
+          ...current,
+          scenario: { ...current.scenario, isBookmarked: ack.bookmarked },
+        };
+        snapshots.current = value;
+        client.setQueryData(key, value);
+      }
+      void invalidateSimulationLists(client, {
+        ...scope,
+        bankVersion: snapshots.current?.scope.bankVersion ?? scope.bankVersion,
       });
     },
     onError: () =>
@@ -528,8 +652,7 @@ function BoundScenario({
       }
     : state;
   const active =
-    command.isPending ||
-    (!!data && !["ready", "completed"].includes(data.phase));
+    command.isPending || (!!data?.attemptId && data.phase !== "completed");
   function navigate(action: () => void) {
     if (active) setExitTarget({ run: action });
     else action();
@@ -538,6 +661,7 @@ function BoundScenario({
     if (!active) return;
     const unload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
+      void run("INTERRUPT", undefined, undefined, "PAGE_EXIT").catch(() => {});
     };
     const link = (e: MouseEvent) => {
       if (
@@ -575,6 +699,8 @@ function BoundScenario({
       window.removeEventListener("beforeunload", unload);
       document.removeEventListener("click", link, true);
     };
+    // run reads the latest server snapshot and uses the attempt command queue.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, router]);
   const listId = chapterId ?? data?.scenario.chapterId;
   const back = () =>
@@ -590,7 +716,8 @@ function BoundScenario({
       ),
     );
   const actions: ScenarioActions = {
-    bookmark: source?.bookmark ? () => bookmark.mutate() : undefined,
+    bookmark:
+      source?.bookmark && canLearn ? () => bookmark.mutate() : undefined,
     previous:
       !reviewContext && data?.previousScenarioId
         ? () =>
@@ -619,12 +746,23 @@ function BoundScenario({
         : undefined,
   };
   if (source?.command) {
-    actions.start = () => run("START");
-    actions.respond = (time, id) => run("RESPONSE", time, id);
-    actions.complete = () => run("COMPLETE");
     actions.renewPlayback = () => run("RENEW_PLAYBACK");
-    actions.reconcileResult = () => run("RECONCILE_RESULT");
-    actions.newAttempt = () => run("NEW_ATTEMPT");
+    if (canLearn) {
+      actions.newAttempt = () => run("NEW_ATTEMPT");
+      if (data?.phase !== "completed") {
+        actions.start = (time) => run("START", time);
+        actions.refreshShortcuts = () =>
+          run("REFRESH_SHORTCUTS", undefined, crypto.randomUUID());
+        actions.skipIntro = (time) => run("SKIP_INTRO", time);
+        actions.respond = (time, id) => run("RESPONSE", time, id);
+        actions.complete = (time) => run("COMPLETE", time);
+        actions.heartbeat = (time) =>
+          run("HEARTBEAT", time, crypto.randomUUID());
+        actions.interrupt = (reason) =>
+          run("INTERRUPT", undefined, undefined, reason);
+        actions.reconcileResult = () => run("RECONCILE_RESULT");
+      }
+    }
   }
   return (
     <SimulationScenarioView
@@ -638,7 +776,11 @@ function BoundScenario({
       state={shown}
       actions={actions}
       onBack={back}
-      onRetry={() => void query.refetch()}
+      onRetry={() => {
+        if (data && !data.attemptId && canLearn)
+          void run("NEW_ATTEMPT").catch(() => {});
+        else void query.refetch();
+      }}
       notice={notice}
       onDismissNotice={() => setNotice(null)}
       bookmarkPending={bookmark.isPending}
@@ -646,8 +788,13 @@ function BoundScenario({
       onCancelExit={() => setExitTarget(null)}
       onConfirmExit={() => {
         const target = exitTarget;
-        setExitTarget(null);
-        target?.run();
+        if (!target) return;
+        void run("CANCEL")
+          .then(() => {
+            setExitTarget(null);
+            target.run();
+          })
+          .catch(() => {});
       }}
     />
   );

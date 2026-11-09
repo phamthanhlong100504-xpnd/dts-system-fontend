@@ -27,9 +27,13 @@ export const learningStyles = {
 export function LearningShell({
   children,
   navigation,
+  navigationGap = "default",
+  ariaLabel,
 }: {
   children: ReactNode;
   navigation?: ReactNode;
+  navigationGap?: "default" | "1cm";
+  ariaLabel?: string;
 }) {
   return (
     <div
@@ -44,10 +48,11 @@ export function LearningShell({
         </div>
       )}
       <main
+        aria-label={ariaLabel}
         className={cn(
           simulationLayout.content,
           "pb-10",
-          navigation ? "pt-5" : "pt-7",
+          navigation ? (navigationGap === "1cm" ? "pt-[1cm]" : "pt-5") : "pt-7",
         )}
       >
         {children}

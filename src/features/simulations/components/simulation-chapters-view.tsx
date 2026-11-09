@@ -1,6 +1,7 @@
 "use client";
 import { ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import textStyles from "./simulation-text-layout.module.css";
 import type {
   LearningLoadState,
   SimulationChapter,
@@ -33,9 +34,15 @@ export function SimulationChaptersView({
     <LearningShell
       navigation={<BackAction onClick={onBack}>Quay lại Ôn luyện</BackAction>}
     >
-      <header className="mb-6">
+      <header
+        className={cn(
+          "mb-6",
+          textStyles.headingDescription,
+          textStyles.pageIntro,
+        )}
+      >
         <h1 className={learningStyles.heading}>Ôn theo chương</h1>
-        <p className={cn(learningStyles.body, "mt-2")}>
+        <p className={learningStyles.body}>
           Hạng{" "}
           <strong className="font-semibold text-[#27364f]">
             {licenseClass}

@@ -1,10 +1,6 @@
-
 import { identityApi, practiceApi } from "@/lib/api";
 
-export type LicenseCatalogGroup =
-  | "Mô tô"
-  | "Ô tô"
-  | "Rơ moóc";
+export type LicenseCatalogGroup = "Mô tô" | "Ô tô" | "Rơ moóc";
 
 export interface LicenseCatalogItem {
   code: string;
@@ -24,14 +20,17 @@ export interface LicenseCatalogItem {
 
   bankCountsMatch: boolean;
   examAvailable: boolean;
+  simulationEnabled?: boolean;
+  simulationReady?: boolean;
+  simulationBankVersion?: string | null;
+  performanceMode?: "LEGACY_THEORY" | "COMBINED";
+  learningModules?: ("THEORY" | "SIMULATION")[];
+  performancePolicyVersion?: string;
+  simulationProgressScope?: string | null;
 }
 
-export async function getLicenseCatalog(): Promise<
-  LicenseCatalogItem[]
-> {
-  return practiceApi.get<LicenseCatalogItem[]>(
-    "/v1/exams/license-catalog"
-  );
+export async function getLicenseCatalog(): Promise<LicenseCatalogItem[]> {
+  return practiceApi.get<LicenseCatalogItem[]>("/v1/exams/license-catalog");
 }
 
 export interface UserLicenseResponse {
@@ -43,10 +42,7 @@ export interface UpdateLicenseRequest {
 }
 
 export async function updateCurrentLicense(
-  payload: UpdateLicenseRequest
+  payload: UpdateLicenseRequest,
 ): Promise<UserLicenseResponse> {
-  return identityApi.put<UserLicenseResponse>(
-    "/v1/users/me/license",
-    payload
-  );
+  return identityApi.put<UserLicenseResponse>("/v1/users/me/license", payload);
 }
