@@ -35,6 +35,7 @@ export function SimulationPresetsView({
   onPrepare,
   onResume,
   onResult,
+  onResumeActive,
 }: {
   state: LearningLoadState<SimulationPresetPage>;
   onBack?: () => void;
@@ -42,11 +43,13 @@ export function SimulationPresetsView({
   onPrepare?: (item: SimulationPresetItem) => void;
   onResume?: (item: SimulationPresetItem) => void;
   onResult?: (item: SimulationPresetItem) => void;
+  onResumeActive?: () => void;
 }) {
   const d = state.status === "ready" ? state.data : null,
     policy = d?.items[0]?.policy;
   return (
     <ExamShell
+      showIntro={false}
       title="Bộ đề thi thử mô phỏng"
       description="Lựa chọn bộ đề có sẵn để luyện phản xạ với các tình huống mô phỏng giao thông."
       onBack={onBack}
@@ -56,7 +59,13 @@ export function SimulationPresetsView({
       ) : (
         <div className="space-y-[1cm]">
           <section className={examCard}>
-            <div className={textStyles.headingDescription}>
+            <div
+              className={cn(
+                textStyles.headingDescription,
+                textStyles.sectionPair,
+                textStyles.pageIntro,
+              )}
+            >
               <h2 className={examTitle}>
                 <BookOpen className="size-5 text-[#0758d9]" />
                 Thi thử theo bộ đề có sẵn
@@ -89,24 +98,47 @@ export function SimulationPresetsView({
               </ExamBadge>
             </div>
           </section>
+          {d.activeSession &&
+            !d.items.some(
+              (i) => i.activeSession?.sessionId === d.activeSession?.sessionId,
+            ) && (
+              <section className={examCard}>
+                <h2 className={examTitle}>Bạn có bài thi chưa hoàn thành</h2>
+                <p className={examBody}>
+                  {d.activeSession.mode === "PRESET"
+                    ? d.activeSession.preset.title
+                    : "Thi thử mô phỏng ngẫu nhiên"}{" "}
+                  · Đã hoàn thành {d.activeSession.completedScenarios}/
+                  {d.activeSession.policy.totalScenarios} tình huống.
+                </p>
+                <button
+                  type="button"
+                  className={learningStyles.primary}
+                  onClick={onResumeActive}
+                  disabled={!onResumeActive}
+                >
+                  Tiếp tục làm bài <ArrowRight className="size-4" />
+                </button>
+              </section>
+            )}
           <section aria-label="Danh sách bộ đề">
-            <div className={textStyles.headingDescription}>
-              <h2 className={examTitle}>Danh sách bộ đề</h2>
-              <p className={examBody}>
-                Chọn một bộ đề để bắt đầu hoặc tiếp tục bài thi thử.
-              </p>
-            </div>
             {!d.items.length ? (
               <div
                 className={cn(
                   examCard,
-                  "mt-5 flex min-h-[260px] flex-col items-center justify-center py-[1cm] text-center",
+                  "flex min-h-[260px] flex-col items-center justify-center py-[1cm] text-center",
                 )}
               >
                 <span className="flex size-12 items-center justify-center rounded-[12px] bg-[#eef2ff] text-[#0758d9]">
                   <Layers3 className="size-6" />
                 </span>
-                <div className={textStyles.headingDescription}>
+                <div
+                  className={cn(
+                    textStyles.headingDescription,
+                    textStyles.sectionPair,
+                    textStyles.pageIntro,
+                  )}
+                >
                   <h3 className={styles.presetTitle}>
                     Chưa có bộ đề được công bố
                   </h3>
@@ -124,7 +156,12 @@ export function SimulationPresetsView({
                 </button>
               </div>
             ) : (
-              <div className={styles.presetGrid}>
+              <div
+                className={cn(
+                  styles.presetGrid,
+                  styles.presetGridWithoutHeading,
+                )}
+              >
                 {d.items.map((item) => (
                   <PresetCard
                     key={item.presetSetId}
@@ -158,7 +195,13 @@ function PresetCard({
     older = latest && latest.presetVersionId !== i.presetVersionId;
   return (
     <article className={cn(examCard, styles.presetCard)} aria-label={i.title}>
-      <div className={textStyles.headingDescription}>
+      <div
+        className={cn(
+          textStyles.headingDescription,
+          textStyles.sectionPair,
+          textStyles.pageIntro,
+        )}
+      >
         <div className={styles.presetHeader}>
           <span
             className={cn(

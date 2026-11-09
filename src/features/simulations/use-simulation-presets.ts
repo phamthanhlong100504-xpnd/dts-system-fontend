@@ -13,11 +13,19 @@ import {
   validatePresetPage,
   validatePresetPreparation,
 } from "./simulation-preset-validation";
-import { simulationExamKeys } from "./use-simulation-exam";
+import {
+  useExamCacheIsolation,
+  simulationExamKeys,
+} from "./use-simulation-exam";
 export function useSimulationPresets(scope: SimulationScope) {
+  useExamCacheIsolation();
   const source = getSimulationExamSource();
   const query = useQuery({
-    queryKey: [...simulationExamKeys.scope(scope), "presets"],
+    queryKey: [
+      ...simulationExamKeys.scope(scope),
+      "presets",
+      scope.bankVersion ?? "current",
+    ],
     enabled: !!source?.presets,
     retry: false,
     staleTime: 0,
@@ -49,9 +57,15 @@ export function useSimulationPresetPreparation(
   scope: SimulationScope,
   id: string,
 ) {
+  useExamCacheIsolation();
   const source = getSimulationExamSource();
   const query = useQuery({
-    queryKey: [...simulationExamKeys.scope(scope), "preset-preparation", id],
+    queryKey: [
+      ...simulationExamKeys.scope(scope),
+      "preset-preparation",
+      id,
+      scope.bankVersion ?? "current",
+    ],
     enabled: !!source?.presetPreparation,
     retry: false,
     staleTime: 0,
