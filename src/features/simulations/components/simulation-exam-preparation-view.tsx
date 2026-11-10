@@ -61,6 +61,8 @@ export function SimulationExamPreparationView({
   const [noticeRevision, setNoticeRevision] = useState(0);
   return (
     <ExamShell
+      showIntro={false}
+      headingClassName={styles.preparationHeading}
       title={
         presetMode
           ? data?.preset
@@ -107,7 +109,13 @@ export function SimulationExamPreparationView({
                 "flex flex-wrap items-center justify-between gap-5 border-[#b8cef4]",
               )}
             >
-              <div className={textStyles.headingDescription}>
+              <div
+                className={cn(
+                  textStyles.headingDescription,
+                  textStyles.sectionPair,
+                  styles.preparationHeading,
+                )}
+              >
                 <h2 className={examTitle}>
                   <Play className="size-5 text-[#0758d9]" />
                   Bạn có bài thi đang làm
@@ -142,10 +150,18 @@ export function SimulationExamPreparationView({
             </section>
           )}
           <section className={examCard}>
-            <div className={textStyles.headingDescription}>
+            <div
+              className={cn(
+                textStyles.headingDescription,
+                textStyles.sectionPair,
+                styles.preparationHeading,
+              )}
+            >
               <h2 className={examTitle}>
                 <ClipboardList className="size-5 text-[#0758d9]" />
-                Thông tin bài thi thử
+                {presetMode && data.preset
+                  ? `Thông tin bài thi thử - ${data.preset.title}`
+                  : "Thông tin bài thi thử"}
               </h2>
               <p className={examBody}>
                 Cấu trúc bài thi và hình thức chọn tình huống.
@@ -174,26 +190,27 @@ export function SimulationExamPreparationView({
               ].map(({ Icon, label, value, text }) => (
                 <article key={label} className={styles.infoCard}>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-[14.5px] font-medium text-[#475467]">
-                      {label}
+                    <h3 className={styles.infoLabel}>{label}</h3>
+                    <span className={styles.infoIcon}>
+                      <Icon className="size-5 shrink-0 text-[#0758d9]" />
                     </span>
-                    <Icon className="size-5 shrink-0 text-[#0758d9]" />
                   </div>
-                  <h3
-                    className={cn(
-                      "mt-[1cm] text-[22px] font-semibold text-[#0758d9]",
-                      styles.infoValue,
-                    )}
-                  >
+                  <p className={cn("text-[#0758d9]", styles.infoValue)}>
                     {value}
-                  </h3>
+                  </p>
                   <p className={cn(examBody, "mt-[1cm]")}>{text}</p>
                 </article>
               ))}
             </div>
           </section>
           <section>
-            <div className={textStyles.headingDescription}>
+            <div
+              className={cn(
+                textStyles.headingDescription,
+                textStyles.sectionPair,
+                styles.preparationHeading,
+              )}
+            >
               <h2 className={examTitle}>Cách thực hiện bài thi thử</h2>
               <p className={examBody}>
                 Bốn bước để hoàn thành bài thi mô phỏng.
@@ -235,7 +252,14 @@ export function SimulationExamPreparationView({
                     <p className={styles.stepLabel}>Bước {i + 1}</p>
                     <span aria-hidden="true" />
                   </div>
-                  <div className={cn(textStyles.headingDescription, "mt-5")}>
+                  <div
+                    className={cn(
+                      textStyles.headingDescription,
+                      textStyles.sectionPair,
+                      styles.preparationHeading,
+                      "mt-[0.7cm]",
+                    )}
+                  >
                     <h3 className={styles.stepTitle}>{title}</h3>
                     <p className={examBody}>{text}</p>
                   </div>
@@ -248,7 +272,7 @@ export function SimulationExamPreparationView({
               <BookOpen className="size-5 text-[#0758d9]" />
               Lưu ý khi thi thử
             </h2>
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <div className="mt-[0.7cm] grid gap-4 md:grid-cols-2">
               {[
                 "Không hiển thị gợi ý, dấu hiệu nguy hiểm hoặc điểm trong quá trình làm bài.",
                 "Mỗi tình huống chỉ ghi nhận phản ứng đầu tiên.",

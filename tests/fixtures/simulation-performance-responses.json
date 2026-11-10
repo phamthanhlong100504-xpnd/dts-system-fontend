@@ -1,0 +1,361 @@
+{
+  "provenance": "Candidate PostgreSQL/JDBC/MockMvc fixture exports from owner handoff, not real DTS account responses. Preserved verbatim payload objects.",
+  "history": {
+    "licenseClass": "B",
+    "module": "SIMULATION",
+    "performanceMode": "COMBINED",
+    "asOf": "2026-11-04T13:39:25.862818Z",
+    "page": 0,
+    "size": 20,
+    "sort": "completedAt,desc",
+    "content": [
+      {
+        "score": 40,
+        "module": "SIMULATION",
+        "result": "PASSED",
+        "maxScore": 50,
+        "resultId": "ea01b476-8254-45b8-8f49-759cb9932999",
+        "sourceId": "ea01b476-8254-45b8-8f49-759cb9932999",
+        "sessionId": "ea01b476-8254-45b8-8f49-759cb9932999",
+        "startedAt": "2026-11-04T20:34:05.864818+07:00",
+        "sourceType": "SIMULATION_SESSION",
+        "bankVersion": "bank-v1",
+        "completedAt": "2026-11-04T20:39:05.864818+07:00",
+        "presetSetId": null,
+        "sourceScore": 40,
+        "activityType": "SIM_RANDOM_EXAM",
+        "displayTitle": "Mock simulation",
+        "licenseClass": "B",
+        "sourceResult": {
+          "sourceId": "ea01b476-8254-45b8-8f49-759cb9932999",
+          "resultPath": "/practice/simulations/exams/ea01b476-8254-45b8-8f49-759cb9932999/result",
+          "reviewPath": "/practice/simulations/exams/ea01b476-8254-45b8-8f49-759cb9932999/review",
+          "sourceType": "SIMULATION_SESSION",
+          "licenseClass": "B",
+          "resultApiPath": "/api/practice/v1/simulation-exams/sessions/ea01b476-8254-45b8-8f49-759cb9932999/result?licenseClass=B",
+          "reviewApiPath": "/api/practice/v1/simulation-exams/sessions/ea01b476-8254-45b8-8f49-759cb9932999/review?licenseClass=B"
+        },
+        "scoringVersion": "scoring-v1",
+        "sourceMaxScore": 50,
+        "durationSeconds": null,
+        "presetVersionId": null,
+        "resultAvailable": true,
+        "reviewAvailable": true
+      }
+    ],
+    "totalElements": 1,
+    "totalPages": 1,
+    "dataStatus": "READY",
+    "simulationReady": false,
+    "syncStatus": {
+      "sequence": 4,
+      "asOf": "2026-11-04T13:39:25.862818Z",
+      "receivedAt": "2026-11-04T13:39:30.965791Z",
+      "complete": true,
+      "bankReady": false,
+      "bankVersion": "bank-v1",
+      "status": "READY",
+      "contiguousSequence": 4,
+      "pendingThrough": 4
+    },
+    "sourceWatermark": 4
+  },
+  "analytics": {
+    "to": "2026-11-04T20:39:25.862818+07:00",
+    "asOf": "2026-11-04T20:39:25.862818+07:00",
+    "from": null,
+    "period": "ALL",
+    "summary": {
+      "attempts": 1,
+      "maxScore": 100,
+      "passRate": 100.0,
+      "totalExp": 78,
+      "theoryExp": 0,
+      "scoreBasis": "NORMALIZED_PERCENT_100",
+      "averageScore": 80.0,
+      "simulationExp": 78,
+      "theoryAttempts": 0,
+      "simulationAttempts": 1
+    },
+    "expScope": {
+      "to": "2026-11-04T20:39:25.862818+07:00",
+      "asOf": "2026-11-04T20:39:25.862818+07:00",
+      "from": null,
+      "ruleVersion": "COMBINED_EXP_V1",
+      "licenseClass": "B",
+      "sourceWatermark": 4,
+      "creditFingerprint": "4d404015f88bf96c62804667a6ad9772"
+    },
+    "timezone": "Asia/Ho_Chi_Minh",
+    "scoreBasis": "NORMALIZED_PERCENT_100",
+    "scoreTrend": [
+      {
+        "date": "2026-11-04",
+        "score": 80.0,
+        "attempts": 1,
+        "averageScore": 80.0
+      }
+    ],
+    "ruleVersion": "COMBINED_EXP_V1",
+    "licenseClass": "B",
+    "recentResults": [
+      {
+        "module": "SIMULATION",
+        "result": "PASSED",
+        "resultId": "ea01b476-8254-45b8-8f49-759cb9932999",
+        "sourceId": "ea01b476-8254-45b8-8f49-759cb9932999",
+        "sourceType": "SIMULATION_SESSION",
+        "completedAt": "2026-11-04T20:39:05.864818+07:00",
+        "presetSetId": null,
+        "sourceScore": 40,
+        "activityType": "SIM_RANDOM_EXAM",
+        "displayTitle": "Mock simulation",
+        "licenseClass": "B",
+        "sourceResult": {
+          "sourceId": "ea01b476-8254-45b8-8f49-759cb9932999",
+          "resultPath": "/practice/simulations/exams/ea01b476-8254-45b8-8f49-759cb9932999/result",
+          "reviewPath": "/practice/simulations/exams/ea01b476-8254-45b8-8f49-759cb9932999/review",
+          "sourceType": "SIMULATION_SESSION",
+          "licenseClass": "B"
+        },
+        "sourceMaxScore": 50,
+        "normalizedScore": 80.0,
+        "presetVersionId": null,
+        "resultAvailable": true,
+        "reviewAvailable": true
+      }
+    ],
+    "performanceMode": "COMBINED",
+    "scoreTrendLimit": 3660,
+    "scoreTrendTotalDays": 1,
+    "scoreTrendTruncated": false,
+    "dataStatus": "READY",
+    "simulationReady": false,
+    "syncStatus": {
+      "sequence": 4,
+      "asOf": "2026-11-04T13:39:25.862818Z",
+      "receivedAt": "2026-11-04T13:39:30.965791Z",
+      "complete": true,
+      "bankReady": false,
+      "bankVersion": "bank-v1",
+      "status": "READY",
+      "contiguousSequence": 4,
+      "pendingThrough": 4
+    },
+    "sourceWatermark": 4,
+    "partial": false
+  },
+  "ranking": {
+    "to": "2026-11-04T20:39:25.862818+07:00",
+    "asOf": "2026-11-04T20:39:25.862818+07:00",
+    "from": null,
+    "page": 0,
+    "size": 10,
+    "items": [
+      {
+        "rank": 1,
+        "userId": "10000000-0000-4000-8000-000000000001",
+        "avatarUrl": null,
+        "theoryExp": 0,
+        "displayName": null,
+        "rankingScore": 78,
+        "profileStatus": "PENDING",
+        "simulationExp": 78,
+        "lastCreditedAt": "2026-11-04T20:39:05.864818+07:00"
+      }
+    ],
+    "period": "ALL",
+    "expScope": {
+      "to": "2026-11-04T20:39:25.862818+07:00",
+      "asOf": "2026-11-04T20:39:25.862818+07:00",
+      "from": null,
+      "ruleVersion": "COMBINED_EXP_V1",
+      "licenseClass": "B",
+      "sourceWatermark": 4,
+      "creditFingerprint": "4d404015f88bf96c62804667a6ad9772"
+    },
+    "timezone": "Asia/Ho_Chi_Minh",
+    "totalPages": 1,
+    "currentUser": {
+      "rank": 1,
+      "userId": "10000000-0000-4000-8000-000000000001",
+      "avatarUrl": null,
+      "theoryExp": 0,
+      "displayName": null,
+      "rankingScore": 78,
+      "profileStatus": "PENDING",
+      "simulationExp": 78,
+      "lastCreditedAt": "2026-11-04T20:39:05.864818+07:00"
+    },
+    "ruleVersion": "COMBINED_EXP_V1",
+    "licenseClass": "B",
+    "performanceMode": "COMBINED",
+    "totalParticipants": 1,
+    "dataStatus": "READY",
+    "simulationReady": false,
+    "syncStatus": {
+      "sequence": 4,
+      "asOf": "2026-11-04T13:39:25.862818Z",
+      "receivedAt": "2026-11-04T13:39:30.965791Z",
+      "complete": true,
+      "bankReady": false,
+      "bankVersion": "bank-v1",
+      "status": "READY",
+      "contiguousSequence": 4,
+      "pendingThrough": 4
+    },
+    "sourceWatermark": 4
+  },
+  "progress": {
+    "success": true,
+    "message": "Success",
+    "data": {
+      "status": "IN_PROGRESS",
+      "chapters": [
+        {
+          "status": "IN_PROGRESS",
+          "chapterId": 1,
+          "navigation": {
+            "path": "/practice/simulations/chapters/1",
+            "chapterId": 1,
+            "targetKind": "SIMULATION_CHAPTER",
+            "bankVersion": "bank-v1"
+          },
+          "chapterName": "Chapter1",
+          "bookmarkCount": 0,
+          "lastStudiedAt": "2026-11-04T20:40:58.750926+07:00",
+          "totalScenarios": 29,
+          "needReviewCount": 1,
+          "perfectScenarios": 0,
+          "completionPercent": 3,
+          "practicedScenarios": 1,
+          "bookmarkedScenarios": 0
+        },
+        {
+          "status": "NOT_STARTED",
+          "chapterId": 2,
+          "navigation": {
+            "path": "/practice/simulations/chapters/2",
+            "chapterId": 2,
+            "targetKind": "SIMULATION_CHAPTER",
+            "bankVersion": "bank-v1"
+          },
+          "chapterName": "Chapter2",
+          "bookmarkCount": 0,
+          "lastStudiedAt": null,
+          "totalScenarios": 14,
+          "needReviewCount": 0,
+          "perfectScenarios": 0,
+          "completionPercent": 0,
+          "practicedScenarios": 0,
+          "bookmarkedScenarios": 0
+        },
+        {
+          "status": "NOT_STARTED",
+          "chapterId": 3,
+          "navigation": {
+            "path": "/practice/simulations/chapters/3",
+            "chapterId": 3,
+            "targetKind": "SIMULATION_CHAPTER",
+            "bankVersion": "bank-v1"
+          },
+          "chapterName": "Chapter3",
+          "bookmarkCount": 0,
+          "lastStudiedAt": null,
+          "totalScenarios": 20,
+          "needReviewCount": 0,
+          "perfectScenarios": 0,
+          "completionPercent": 0,
+          "practicedScenarios": 0,
+          "bookmarkedScenarios": 0
+        },
+        {
+          "status": "NOT_STARTED",
+          "chapterId": 4,
+          "navigation": {
+            "path": "/practice/simulations/chapters/4",
+            "chapterId": 4,
+            "targetKind": "SIMULATION_CHAPTER",
+            "bankVersion": "bank-v1"
+          },
+          "chapterName": "Chapter4",
+          "bookmarkCount": 0,
+          "lastStudiedAt": null,
+          "totalScenarios": 10,
+          "needReviewCount": 0,
+          "perfectScenarios": 0,
+          "completionPercent": 0,
+          "practicedScenarios": 0,
+          "bookmarkedScenarios": 0
+        },
+        {
+          "status": "NOT_STARTED",
+          "chapterId": 5,
+          "navigation": {
+            "path": "/practice/simulations/chapters/5",
+            "chapterId": 5,
+            "targetKind": "SIMULATION_CHAPTER",
+            "bankVersion": "bank-v1"
+          },
+          "chapterName": "Chapter5",
+          "bookmarkCount": 0,
+          "lastStudiedAt": null,
+          "totalScenarios": 17,
+          "needReviewCount": 0,
+          "perfectScenarios": 0,
+          "completionPercent": 0,
+          "practicedScenarios": 0,
+          "bookmarkedScenarios": 0
+        },
+        {
+          "status": "NOT_STARTED",
+          "chapterId": 6,
+          "navigation": {
+            "path": "/practice/simulations/chapters/6",
+            "chapterId": 6,
+            "targetKind": "SIMULATION_CHAPTER",
+            "bankVersion": "bank-v1"
+          },
+          "chapterName": "Chapter6",
+          "bookmarkCount": 0,
+          "lastStudiedAt": null,
+          "totalScenarios": 30,
+          "needReviewCount": 0,
+          "perfectScenarios": 0,
+          "completionPercent": 0,
+          "practicedScenarios": 0,
+          "bookmarkedScenarios": 0
+        }
+      ],
+      "bookmarkCount": 0,
+      "totalScenarios": 120,
+      "needReviewCount": 1,
+      "perfectScenarios": 0,
+      "completionPercent": 1,
+      "practicedScenarios": 1,
+      "bookmarkedScenarios": 0,
+      "dataStatus": "READY",
+      "licenseClass": "B",
+      "bankVersion": "bank-v1",
+      "module": "SIMULATION",
+      "performanceMode": "COMBINED",
+      "progressScope": "USER_BANK_VERSION_SHARED_LICENSES",
+      "achievementScope": "DTS_SIMULATION_120_V1",
+      "asOf": "2026-11-04T13:41:28.747926Z",
+      "simulationReady": true,
+      "sourceWatermark": 5,
+      "syncStatus": {
+        "sequence": 5,
+        "asOf": "2026-11-04T13:41:28.747926Z",
+        "receivedAt": "2026-11-04T13:41:32.312460Z",
+        "complete": true,
+        "bankReady": true,
+        "bankVersion": "bank-v1",
+        "status": "READY",
+        "contiguousSequence": 5,
+        "pendingThrough": 5
+      }
+    },
+    "timestamp": "2026-11-04T13:41:33.319021690Z"
+  }
+}

@@ -28,7 +28,7 @@ export async function fetchOfficialBank(bankVersion: string, licenseClass: strin
   if (new Set(chapters.map((c) => c.id)).size !== chapters.length) throw new Error("Dữ liệu có chương bị trùng. Vui lòng tải lại.");
   const chapterSet = new Set(chapters.map((c) => c.id));
   const questions = v.questions.map((value) => {
-    const q = record(value); if (!isUuid(q.id) || q.status !== "PUBLISHED" || typeof q.isCritical !== "boolean" || typeof q.contentVersion !== "string" || !/^[0-9a-f]{64}$/i.test(q.contentVersion)) throw new Error("Thông tin câu hỏi chưa đầy đủ. Vui lòng tải lại ngân hàng.");
+    const q = record(value); if (!isUuid(q.id) || q.status !== "PUBLISHED" || typeof q.isCritical !== "boolean" || typeof q.contentVersion !== "string" || !/^(?:sha256:)?[0-9a-f]{64}$/i.test(q.contentVersion)) throw new Error("Thông tin câu hỏi chưa đầy đủ. Vui lòng tải lại ngân hàng.");
     const chapterIds = ids(q.chapterIds, "chương học"), optionIds = ids(q.optionIds, "đáp án"), mediaFileIds = ids(q.mediaFileIds, "ảnh minh họa");
     if (!chapterIds.length || chapterIds.some((id) => !chapterSet.has(id)) || optionIds.length < 2) throw new Error("Câu hỏi chưa được xếp đúng chương hoặc thiếu đáp án.");
     return {

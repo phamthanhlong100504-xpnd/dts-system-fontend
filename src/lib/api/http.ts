@@ -93,8 +93,10 @@ export function createApiClient(baseURL: string): ApiClient {
         useAuthStore.getState().logout();
       }
 
-      const body = error.response?.data as {code?: string; errorCode?: string; traceId?: string} | undefined;
-      throw new ApiError(extractErrorMessage(error), status, body?.code ?? body?.errorCode, body?.traceId);
+      const body = error.response?.data as {code?: string; errorCode?: string; error?: string; traceId?: string} | undefined;
+      const guideCode = baseURL === "/api/content-builder" && typeof body?.error === "string" && body.error.startsWith("GUIDE-")
+        ? body.error : undefined;
+      throw new ApiError(extractErrorMessage(error), status, body?.code ?? body?.errorCode ?? guideCode, body?.traceId);
     }
   );
 

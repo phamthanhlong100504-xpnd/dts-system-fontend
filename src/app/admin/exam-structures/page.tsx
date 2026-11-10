@@ -8,6 +8,7 @@ import { useAdminUnsavedChanges } from "@/features/admin/foundation/use-admin-un
 import { AdminLeaveDialog } from "@/features/admin/foundation/components/admin-leave-dialog";
 
 import { AdminCan } from "@/features/admin/foundation/admin-access-provider";
+import styles from "@/features/admin/examination/admin-exam-visual.module.css";
 
 
 import { useState } from "react";
@@ -135,13 +136,14 @@ export default function ExamStructuresPage() {
   };
 
   return (
-    <div className="space-y-6" inert={busy} aria-busy={busy}>
+    <div className={styles.page} inert={busy} aria-busy={busy}>
       <AdminLeaveDialog open={leave.leaveOpen} onCancel={leave.cancelLeave} onLeave={leave.confirmLeave} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+        <div className="min-w-0"><h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
           <Layers className="h-6 w-6 text-primary" />
           Quản lý cấu trúc đề thi
         </h1>
+          <p className="mt-2 text-[14.5px]/6 text-muted-foreground">Sắp xếp phần thi và số lượng câu hỏi theo từng cấu trúc.</p></div>
       </div>
 
       <Card>
@@ -155,14 +157,14 @@ export default function ExamStructuresPage() {
         </CardHeader>
 
         {(isCreating || editingId) && (
-          <div className="p-6 bg-primary/5 border-b space-y-6">
+          <div className={styles.editorPane}>
             <div>
               <h3 className="font-semibold text-[14.5px]/5 text-primary mb-4">
-                {editingId ? "Cập nhật Cấu trúc đề thi" : "Tạo Cấu trúc đề thi mới"}
+                {editingId ? "Cập nhật cấu trúc đề thi" : "Tạo cấu trúc đề thi mới"}
               </h3>
               <div className="space-y-1.5 max-w-xl">
-                <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Tên cấu trúc (Ma trận) *</label>
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ví dụ: Ma trận đề thi hạng B" />
+                <label className="text-[12.5px]/4 font-semibold text-muted-foreground">Tên cấu trúc đề thi *</label>
+                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ví dụ: Cấu trúc đề thi hạng B" />
               </div>
             </div>
 

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, BookOpenText, CheckCircle2, CircleDashed, Clock3 } from "lucide-react";
 
 import type {
   LearningChapterProgress,
@@ -23,11 +23,12 @@ export function ProgressLearningChapters({
   return (
     <section className="mt-9">
       <div>
-        <h2 className="text-[20px] font-bold leading-[1.3] tracking-[-0.02em] text-[#101828]">
+        <h2 className="flex items-center gap-2.5 text-[20px] font-bold leading-[1.3] tracking-[-0.02em] text-[#101828]">
+          <BookOpenText className="size-5 shrink-0 text-[#0758d9]" aria-hidden="true" />
           Tiến độ theo chương
         </h2>
 
-        <p className="mt-2 text-[14.5px] font-medium leading-6 text-[#475467]">
+        <p className="mt-[0.6cm] text-[14.5px] font-medium leading-6 text-[#475467]">
           Tiếp tục những nội dung bạn chưa học hết.
         </p>
       </div>
@@ -77,7 +78,8 @@ function ChapterProgressRow({
         "p-[0.6cm]",
         "shadow-[0_3px_12px_rgba(31,41,55,0.035)]",
         "transition-shadow",
-        "hover:shadow-[0_6px_18px_rgba(31,41,55,0.05)]",
+        "hover:border-[#cbd7ff]",
+        "hover:shadow-[0_8px_24px_rgba(31,41,55,0.07)]",
         "lg:min-h-[165px]",
         "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_120px]",
         "lg:items-stretch",
@@ -86,28 +88,49 @@ function ChapterProgressRow({
     >
       {/* CỘT TRÁI: NHÃN CHƯƠNG VÀ TÊN NỘI DUNG */}
       <div className="flex min-w-0 flex-col items-start">
-        <span
-          className="
-            inline-flex
-            min-h-7
-            shrink-0
-            items-center
-            rounded-[7px]
-            bg-[#eaf0ff]
-            px-3
-            text-[11.5px]
-            font-bold
-            uppercase
-            tracking-[0.03em]
-            text-[#0758d9]
-          "
-        >
-          CHƯƠNG {toRoman(chapter.chapterId)}
-        </span>
+        <div className="flex w-full flex-wrap items-center justify-between gap-2">
+          <span
+            className="
+              inline-flex
+              min-h-7
+              shrink-0
+              items-center
+              rounded-[7px]
+              bg-[#eaf0ff]
+              px-3
+              text-[11.5px]
+              font-bold
+              uppercase
+              tracking-[0.03em]
+              text-[#0758d9]
+            "
+          >
+            CHƯƠNG {toRoman(chapter.chapterId)}
+          </span>
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11.5px] font-semibold",
+              completed
+                ? "border-[#b9e8d0] bg-[#e9faf1] text-[#087443]"
+                : notStarted
+                  ? "border-[#e0e5ed] bg-[#f4f6f9] text-[#475467]"
+                  : "border-[#bcd2ff] bg-[#edf3ff] text-[#0758d9]",
+            )}
+          >
+            {completed ? (
+              <CheckCircle2 className="size-3.5" aria-hidden="true" />
+            ) : notStarted ? (
+              <CircleDashed className="size-3.5" aria-hidden="true" />
+            ) : (
+              <Clock3 className="size-3.5" aria-hidden="true" />
+            )}
+            {completed ? "Đã học đủ" : notStarted ? "Chưa bắt đầu" : "Đang học"}
+          </span>
+        </div>
 
         <h3
           className="
-            mt-[1.5cm]
+            mt-[0.5cm]
             w-full
             text-[16px]
             font-bold
@@ -140,43 +163,17 @@ function ChapterProgressRow({
           <div className="flex flex-wrap items-center gap-2">
             {notStarted ? (
               <span className="text-[13.5px] font-medium text-[#475467]">
-                {chapter.totalQuestions} câu · Chưa bắt đầu
+                {chapter.totalQuestions} câu
               </span>
             ) : (
-              <>
-                <span className="text-[13.5px] font-medium text-[#344054]">
-                  <strong className="font-semibold text-[#27364f]">
-                    {chapter.studiedQuestions}
-                    {" / "}
-                    {chapter.totalQuestions}
-                  </strong>{" "}
-                  câu đã học
-                </span>
-
-                {completed && (
-                  <span
-                    className="
-                      inline-flex
-                      shrink-0
-                      items-center
-                      gap-1.5
-                      rounded-full
-                      bg-[#dff7ff]
-                      px-2.5
-                      py-1
-                      text-[11.5px]
-                      font-semibold
-                      text-[#087ea4]
-                    "
-                  >
-                    <Check
-                      className="size-3.5"
-                      strokeWidth={2.2}
-                    />
-                    Đã học hết câu
-                  </span>
-                )}
-              </>
+              <span className="text-[13.5px] font-medium text-[#344054]">
+                <strong className="font-semibold text-[#27364f]">
+                  {chapter.studiedQuestions}
+                  {" / "}
+                  {chapter.totalQuestions}
+                </strong>{" "}
+                câu đã học
+              </span>
             )}
           </div>
 

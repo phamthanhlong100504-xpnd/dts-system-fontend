@@ -1,5 +1,7 @@
 "use client";
 
+import { PerformancePage } from "@/features/simulation-performance/components/performance-page";
+
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -32,10 +34,12 @@ function ResultsPageContent() {
 
   return (
     <main className="min-h-[calc(100vh-122px)] bg-[#f7f6fb] text-[#101828]">
-      <ResultAnalyticsContent
-        licenseClass={selectedLicense}
-        onOpenHistory={handleOpenHistory}
-      />
+      <PerformancePage kind="analytics" licenseClass={selectedLicense}>
+        <ResultAnalyticsContent
+          licenseClass={selectedLicense}
+          onOpenHistory={handleOpenHistory}
+        />
+      </PerformancePage>
     </main>
   );
 }

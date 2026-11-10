@@ -1,0 +1,53 @@
+/* Shared video inset, above the native controls on desktop and small screens. */
+.shortcuts {
+  position: absolute;
+  right: 0.5cm;
+  bottom: clamp(44px, 9vw, 2cm);
+  z-index: 10;
+  display: flex;
+  max-width: calc(100% - 1cm);
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+.button {
+  display: inline-flex;
+  min-height: 40px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid rgb(255 255 255 / 65%);
+  border-radius: 9px;
+  background: transparent;
+  padding: 8px 12px;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 85%);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.button:hover {
+  border-color: #fff;
+}
+.button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.error {
+  max-width: 260px;
+  color: #fff;
+  font-size: 13px;
+  text-align: right;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 85%);
+}

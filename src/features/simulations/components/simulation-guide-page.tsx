@@ -13,7 +13,7 @@ export function SimulationGuidePage() {
     <SimulationLearningBoundary>
       {(scope) => (
         <BoundGuide
-          key={`${scope.userId}:${scope.licenseClass}`}
+          key={`${scope.userId}:${scope.licenseClass}:${scope.bankVersion ?? "current"}`}
           scope={scope}
         />
       )}

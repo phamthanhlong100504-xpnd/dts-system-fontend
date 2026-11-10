@@ -24,6 +24,12 @@ export function parseReviewQuery(query: RouteQuery): ReviewNeededQuery {
         : null,
     sort: "BEST_SCORE_ASC",
     page: pageNumber(query.page),
+    ...(typeof query.bank === "string" && query.bank
+      ? { bankVersion: query.bank }
+      : {}),
+    ...(typeof query.dataset === "string" && query.dataset
+      ? { datasetVersion: query.dataset }
+      : {}),
   };
 }
 export function reviewNeededUrl(query: ReviewNeededQuery = defaultReviewQuery) {
@@ -32,6 +38,8 @@ export function reviewNeededUrl(query: ReviewNeededQuery = defaultReviewQuery) {
     page: String(query.page),
   });
   if (query.chapterId) params.set("chapter", query.chapterId);
+  if (query.bankVersion) params.set("bank", query.bankVersion);
+  if (query.datasetVersion) params.set("dataset", query.datasetVersion);
   return `${reviewNeededPath}?${params}`;
 }
 export function withReviewReturnContext(
@@ -47,6 +55,7 @@ export function withReviewReturnContext(
     reviewPage: String(context.page),
   });
   if (context.chapterId) params.set("reviewChapter", context.chapterId);
+  if (context.bankVersion) params.set("reviewBank", context.bankVersion);
   return `${url}${url.includes("?") ? "&" : "?"}${params}`;
 }
 export function parseReviewReturnContext(
@@ -58,6 +67,7 @@ export function parseReviewReturnContext(
     ...parseReviewQuery({
       chapter: query.reviewChapter,
       page: query.reviewPage,
+      bank: query.reviewBank,
     }),
   };
 }

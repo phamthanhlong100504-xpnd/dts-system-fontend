@@ -1,13 +1,8 @@
 "use client";
 
+import { useLearningModule } from "@/features/simulation-performance/use-learning-module";
 import { simulationLayout } from "./simulation-presentation";
-import {
-  useEffect,
-  useId,
-  useRef,
-  type KeyboardEvent,
-  type ReactNode,
-} from "react";
+import { useId, useRef, type KeyboardEvent, type ReactNode } from "react";
 import { BookOpen, Video } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -18,7 +13,7 @@ import {
 import type { LicenseOption } from "@/config/license";
 import { cn } from "@/lib/utils";
 import { simulationExamRoutes } from "../simulation-exam-source";
-import { SimulationPracticeHub } from "./simulation-practice-hub";
+import { SimulationHubContainer } from "./simulation-hub-container";
 
 type PracticeModule = "theory" | "simulation";
 
@@ -32,19 +27,9 @@ export function PracticeHubModules({
   const id = useId();
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
   const router = useRouter();
-  const selectedLicense = useSimulationNavigation((state) => state.licenseCode);
-  const selectedModule = useSimulationNavigation((state) => state.module);
   const setSelection = useSimulationNavigation((state) => state.select);
-  useEffect(() => {
-    if (selectedLicense !== license.code) setSelection(license.code, "theory");
-  }, [license.code, selectedLicense, setSelection]);
-
-  // Preview visibility follows the real Practice catalogue, including B1's
-  // motorcycle group. This does not grant playback or enable a backend feature.
-  // Replace this presentation gate with the approved capability contract at integration.
-  const showModules = license.group === "car" || license.group === "trailer";
-  const activeModule =
-    showModules && selectedLicense === license.code ? selectedModule : "theory";
+  const showModules = license.simulationEnabled === true;
+  const activeModule = useLearningModule(license.code, showModules);
 
   function selectModule(module: PracticeModule) {
     setSelection(license.code, module);
@@ -79,9 +64,7 @@ export function PracticeHubModules({
           <h1
             className={cn(
               "tracking-[-0.025em] text-[#101828]",
-              activeModule === "simulation"
-                ? "text-[22px] font-semibold"
-                : "text-[30px] font-bold",
+              "text-[30px] font-bold",
             )}
           >
             Ôn luyện
@@ -163,7 +146,8 @@ export function PracticeHubModules({
               hidden={activeModule !== "simulation"}
             >
               {activeModule === "simulation" && (
-                <SimulationPracticeHub
+                <SimulationHubContainer
+                  license={license}
                   actions={{
                     random: () => router.push(simulationExamRoutes.preparation),
                     presets: () => router.push(simulationExamRoutes.presets),

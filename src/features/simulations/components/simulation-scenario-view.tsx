@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { SimulationFeedbackModal } from "./simulation-feedback-modal";
 import { cn } from "@/lib/utils";
+import textStyles from "./simulation-text-layout.module.css";
 import type {
   LearningLoadState,
   ScenarioActions,
@@ -123,20 +124,28 @@ export function SimulationScenarioView({
             <p
               className={cn(
                 learningStyles.badge,
-                "rounded-[7px] px-3 py-1.5 font-bold uppercase tracking-[0.025em]",
+                "whitespace-normal rounded-[7px] px-3 py-1.5 font-bold uppercase tracking-[0.025em]",
               )}
             >
               {data
-                ? `Chương ${roman(data.scenario.chapterNumber)} · Tình huống ${data.scenario.positionLabel}`
+                ? `Chương ${roman(data.scenario.chapterNumber)} · ${data.scenario.chapterName}`
                 : "Luyện tập mô phỏng"}
             </p>
-            <h1 className="mt-3 text-[22px] font-semibold leading-[1.35] tracking-[-0.015em] text-[#0b1427]">
-              {data?.scenario.title ?? "Tình huống mô phỏng"}
-            </h1>
-            <p className="mt-2 inline-flex items-center gap-2 text-[15.5px] font-medium text-[#475467]">
-              <Eye className="size-4" aria-hidden="true" />
-              Quan sát video và nhấn Space khi phát hiện nguy hiểm.
-            </p>
+            <div
+              className={cn(
+                "mt-3",
+                textStyles.headingDescription,
+                textStyles.pageIntro,
+              )}
+            >
+              <h1 className="text-[20px] font-semibold leading-[1.35] tracking-[-0.015em] text-[#0b1427]">
+                {data?.scenario.title ?? "Tình huống mô phỏng"}
+              </h1>
+              <p className="inline-flex items-center gap-2 text-[15.5px] font-medium text-[#475467]">
+                <Eye className="size-4" aria-hidden="true" />
+                Quan sát video và nhấn Space khi phát hiện nguy hiểm.
+              </p>
+            </div>
           </div>
           <button
             type="button"

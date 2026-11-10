@@ -29,7 +29,7 @@ export function AdminPageState({ state, title, description, error, onRetry, chil
       <Icon aria-hidden="true" className={`h-6 w-6 ${pending ? "animate-spin text-primary" : "text-muted-foreground"}`} />
       <h2 className="text-base font-semibold">{title ?? titles[state]}</h2>
       {Boolean(description || error) && <p className="max-w-xl text-[14.5px]/5 text-muted-foreground">{description ?? failure.message}</p>}
-      {failure.traceId && <p className="text-[12.5px]/4 text-muted-foreground">Mã hỗ trợ: {failure.traceId}</p>}
+      {failure.traceId && <details className="max-w-full text-[13px] text-muted-foreground"><summary className="cursor-pointer">Thông tin hỗ trợ</summary><p className="mt-2 break-all">Mã tra cứu: {failure.traceId}</p></details>}
       {onRetry && !pending && state !== "forbidden" && <Button type="button" variant="outline" onClick={onRetry}>Tải lại</Button>}
       {children}
     </section>

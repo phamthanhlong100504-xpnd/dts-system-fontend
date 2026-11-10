@@ -49,11 +49,23 @@ export interface GuideRevision {
   updatedBy: string;
   publishedAt: string | null;
   publishedBy: string | null;
+  sectionOrder: readonly [
+    "OVERVIEW",
+    "PRACTICE_STEPS",
+    "SCORING",
+    "RECOGNITION",
+    "MODE_COMPARISON",
+    "PRACTICE_NOTES",
+    "CTA",
+  ];
 }
+export type GuideContentPolicy =
+  "MOCK_EXAM_UNAVAILABLE_V1" | "MOCK_EXAM_RELEASED_V1";
 export interface PublishedGuide {
   scope: SimulationDataScope;
   document: GuideRevision;
   bank: GuideBankInfo;
+  contentPolicy: GuideContentPolicy;
 }
 export interface GuideAdminSnapshot {
   actorId: string;
@@ -63,6 +75,8 @@ export interface GuideAdminSnapshot {
   /** Structure supplied by backend when there is no draft/published document. */
   template: GuideContent | null;
   bank: GuideBankInfo;
+  preview: GuideRevision;
+  contentPolicy: GuideContentPolicy;
 }
 export interface GuideSaveRequest {
   expectedRevision: number;
@@ -80,11 +94,16 @@ export type GuideErrorCode =
   | "UNAUTHORIZED"
   | "VALIDATION"
   | "UNAVAILABLE"
-  | "UNKNOWN";
+  | "UNKNOWN"
+  | "BANK_CHANGED"
+  | "UNCERTAIN";
 export class SimulationGuideError extends Error {
   constructor(
     public code: GuideErrorCode,
     message: string,
+    public status?: number,
+    public apiCode?: string,
+    public traceId?: string,
   ) {
     super(message);
     this.name = "SimulationGuideError";
@@ -102,4 +121,6 @@ export interface SimulationGuideSource {
     request: { expectedRevision: number },
   ) => Promise<GuideAdminSnapshot>;
   history?: (actorId: string) => Promise<GuideHistory>;
+  preview?: (actorId: string) => Promise<GuideRevision>;
+  version?: (actorId: string, revision: number) => Promise<GuideRevision>;
 }

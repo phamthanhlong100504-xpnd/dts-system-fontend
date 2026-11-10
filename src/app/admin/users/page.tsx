@@ -1,4 +1,6 @@
 "use client";
+import { AdminPageHeader } from "@/features/admin/foundation/components/admin-page-header";
+import styles from "../admin-identity.module.css";
 import { AdminPageState } from "@/features/admin/foundation/components/admin-page-state";
 import { adminRoleLabel } from "@/features/admin/foundation/admin-ui-labels";
 
@@ -131,19 +133,11 @@ function UsersManager() {
   const data = usersQuery.data;
 
   return (
-    <div className="container py-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Quản lý Người dùng</h1>
-          <p className="text-[14.5px]/5 text-muted-foreground">
-            Quản lý tài khoản và phân quyền hệ thống
-          </p>
-        </div>
-        <CreateUserSheet />
-      </div>
+    <div className={styles.page} data-testid="admin-users-page">
+      <AdminPageHeader title="Người dùng" description="Quản lý tài khoản và quyền truy cập của học viên, nhân sự." actions={<CreateUserSheet />} />
 
       {/* Search + filter */}
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <section className={styles.filterCard}>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -173,7 +167,7 @@ function UsersManager() {
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Table */}
       {usersQuery.isLoading && !data ? (
@@ -185,7 +179,7 @@ function UsersManager() {
       ) : usersQuery.isError || !data ? (
         <AdminPageState state="error" error={usersQuery.error} onRetry={() => void usersQuery.refetch()} />
       ) : (
-        <div className="rounded-2xl border border-border/50 bg-card shadow-sm">
+        <div className={styles.tableCard}>
           <Table>
             <TableHeader>
               <TableRow>
@@ -234,7 +228,7 @@ function UsersManager() {
 
       {/* Pagination */}
       {data && (data.totalPages ?? 0) > 1 && (
-        <div className="mt-4 flex items-center justify-between">
+        <div className={styles.pager}>
           <Button
             variant="outline"
             size="sm"
@@ -338,7 +332,7 @@ function UserRowActions({ user }: { user: UserResponse }) {
       />
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className={styles.dialog}>
           <AlertDialogHeader>
             <AlertDialogTitle>Xóa người dùng?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -388,7 +382,7 @@ function AssignRoleSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md">
+      <SheetContent side="right" className={`${styles.sideSheet} w-full sm:max-w-md`}>
         <SheetHeader>
           <SheetTitle>Gán vai trò — {user.fullName || user.username}</SheetTitle>
           <SheetDescription>Quản lý vai trò của người dùng này</SheetDescription>
@@ -506,7 +500,7 @@ function CreateUserSheet() {
           Thêm người dùng
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-md">
+      <SheetContent side="right" className={`${styles.sideSheet} w-full sm:max-w-md`}>
         <SheetHeader>
           <SheetTitle>Thêm người dùng mới</SheetTitle>
           <SheetDescription>Tạo tài khoản mới (không cần xác minh email)</SheetDescription>
@@ -631,7 +625,7 @@ function EditUserSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md">
+      <SheetContent side="right" className={`${styles.sideSheet} w-full sm:max-w-md`}>
         <SheetHeader>
           <SheetTitle>Chỉnh sửa — {user.fullName || user.username}</SheetTitle>
           <SheetDescription>Cập nhật thông tin hồ sơ người dùng</SheetDescription>
@@ -781,7 +775,7 @@ function ResetPasswordDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={`${styles.dialog} sm:max-w-md`}>
         <DialogHeader>
           <DialogTitle>Đặt lại mật khẩu</DialogTitle>
           <DialogDescription>

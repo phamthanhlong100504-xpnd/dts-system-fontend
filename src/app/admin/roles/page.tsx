@@ -1,4 +1,6 @@
 "use client";
+import { AdminPageHeader } from "@/features/admin/foundation/components/admin-page-header";
+import styles from "../admin-identity.module.css";
 import { AdminPageState } from "@/features/admin/foundation/components/admin-page-state";
 import { adminRoleLabel, adminPermissionLabel, adminResourceLabel } from "@/features/admin/foundation/admin-ui-labels";
 
@@ -65,17 +67,10 @@ function groupBy<T>(items: T[], key: (item: T) => string): Record<string, T[]> {
 export default function AdminRolesPage() {
   return (
     <RequireAdmin>
-      <div className="container py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight">
-            Quản lý Vai trò & Quyền
-          </h1>
-          <p className="text-[14.5px]/5 text-muted-foreground">
-            Cấu hình vai trò và quyền hạn của hệ thống
-          </p>
-        </div>
+      <div className={styles.page} data-testid="admin-roles-page">
+        <AdminPageHeader title="Vai trò và quyền" description="Thiết lập quyền truy cập phù hợp với từng nhóm quản trị." />
 
-        <Tabs defaultValue="roles">
+        <Tabs defaultValue="roles" className={styles.tabs}>
           <TabsList>
             <TabsTrigger value="roles">Vai trò</TabsTrigger>
             <TabsTrigger value="permissions">Quyền hạn</TabsTrigger>
@@ -108,14 +103,14 @@ function RolesTab() {
       </div>
 
       {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={styles.roleGrid}>
           <Skeleton className="h-28 rounded-2xl" />
           <Skeleton className="h-28 rounded-2xl" />
         </div>
       ) : isError || !roles ? (
         <AdminPageState state="error" error={error} onRetry={() => void refetch()} />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={styles.roleGrid}>
           {roles.map((role) => (
             <button
               key={role.id}
@@ -123,7 +118,7 @@ function RolesTab() {
               onClick={() => setSelectedId(role.id ?? null)}
               className="group text-left"
             >
-              <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm transition-colors group-hover:border-primary/50">
+              <div className={styles.roleCard}>
                 <div className="mb-1 flex items-center justify-between">
                   <h3 className="font-bold text-primary">{adminRoleLabel(role.name)}</h3>
                   <KeyRound className="h-4 w-4 text-muted-foreground" />
@@ -168,7 +163,7 @@ function RoleDetailSheet({
 
   return (
     <Sheet open onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md">
+      <SheetContent side="right" className={`${styles.sideSheet} w-full sm:max-w-md`}>
         <SheetHeader>
           <SheetTitle>{adminRoleLabel(role.name)}</SheetTitle>
           <SheetDescription>Cấu hình quyền hạn cho vai trò này</SheetDescription>
@@ -188,7 +183,6 @@ function RoleDetailSheet({
                   >
                     <div>
                       <p className="text-[14.5px]/5 font-semibold">{adminPermissionLabel(p.name, p.displayName)}</p>
-                      <p className="text-[14px]/5 text-muted-foreground">Mã quyền: {p.name}</p>
                     </div>
                     <Switch
                       checked={rolePermNames.has(p.name ?? "")}
@@ -232,26 +226,24 @@ function PermissionsTab() {
       ) : isError || !permissions ? (
         <AdminPageState state="error" error={error} onRetry={() => void refetch()} />
       ) : (
-        <div className="rounded-2xl border border-border/50 bg-card shadow-sm">
+        <div className={styles.tableCard}>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Quyền hạn</TableHead>
-                <TableHead>Mã quyền</TableHead>
                 <TableHead>Nhóm chức năng</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {permissions.map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell className="font-mono text-[12.5px]/4">{adminPermissionLabel(p.name, p.displayName)}</TableCell>
-                  <TableCell className="text-[14px]/5">{p.name}</TableCell>
+                  <TableCell className="font-semibold">{adminPermissionLabel(p.name, p.displayName)}</TableCell>
                   <TableCell className="text-muted-foreground">{adminResourceLabel(p.resource)}</TableCell>
                 </TableRow>
               ))}
               {permissions.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={2} className="h-24 text-center text-muted-foreground">
                     Chưa có quyền hạn nào
                   </TableCell>
                 </TableRow>
@@ -288,7 +280,7 @@ function CreateRoleDialog() {
           Tạo vai trò
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className={styles.dialog}>
         <DialogHeader>
           <DialogTitle>Tạo vai trò mới</DialogTitle>
           <DialogDescription>
@@ -338,10 +330,10 @@ function CreatePermissionDialog() {
           Tạo quyền hạn
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className={styles.dialog}>
         <DialogHeader>
           <DialogTitle>Tạo quyền hạn mới</DialogTitle>
-          <DialogDescription>Định nghĩa một quyền hạn trong hệ thống</DialogDescription>
+          <DialogDescription>Nhập thông tin quyền truy cập và nhóm chức năng.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           <div className="space-y-2">

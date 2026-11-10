@@ -13,7 +13,7 @@ import {AuthorizedAdminLink} from './operations-workspace';
 import {ActionConfirm} from './action-confirm';
 const labels:Record<LifecycleAction,string>={submit:'Gửi duyệt',approve:'Phê duyệt',reject:'Từ chối',publish:'Công bố',archive:'Lưu trữ',clone:'Tạo bản nháp mới',restore:'Khôi phục qua phiên bản mới'};
 export function LifecyclePanel({subject,sourceOverride}:{subject:LifecycleSubject;sourceOverride?:LifecycleSource|null}) {
- const {access,error:accessError}=useAdminAccess();const source=sourceOverride===undefined?getAdminLifecycleSource():sourceOverride;const ready=Boolean(source&&source.actorId===access?.actorId&&!accessError&&subject.id);
+ const {access,error:accessError}=useAdminAccess();const source=sourceOverride===undefined?getAdminLifecycleSource(subject,access):sourceOverride;const ready=Boolean(source&&source.actorId===access?.actorId&&!accessError&&subject.id);
  const [tab,setTab]=useState('version'),[page,setPage]=useState(0),[compareId,setCompareId]=useState(''),[pending,setPending]=useState<LifecycleAction|null>(null),[busy,setBusy]=useState(false),[uncertain,setUncertain]=useState(false),[problem,setProblem]=useState(''),[notice,setNotice]=useState(''),[created,setCreated]=useState<VersionContext|null>(null);const lock=useRef(false),operationKey=useRef<string|null>(null);
  const query=useQuery({queryKey:['admin','lifecycle',access?.actorId,subject],queryFn:async({signal})=>{const c=await source!.read(subject,signal);if(!contextMatches(c,access!.actorId,subject))throw new Error('Thông tin phiên bản không khớp nội dung đang xem.');return c;},enabled:ready,retry:false,staleTime:0,gcTime:0});
  const data=ready&&!query.isError?query.data:undefined;

@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { ApiError } from "@/lib/api/envelope";
+import { useSimulationCanLearn } from "../simulation-access";
+import { invalidateSimulationLists } from "../simulation-cache";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { SimulationLearningBoundary } from "./simulation-learning-pages";
 import { useSimulationBookmarks } from "../use-simulation-bookmarks";
-import { simulationLearningKeys } from "../use-simulation-learning";
 import {
   simulationRoutes,
   useSimulationNavigation,
@@ -23,8 +25,11 @@ export function SimulationBookmarksPage({
     <SimulationLearningBoundary>
       {(scope) => (
         <BoundBookmarks
-          key={`${scope.userId}:${scope.licenseClass}:${criteria.chapterId}:${criteria.page}`}
-          scope={scope}
+          key={`${scope.userId}:${scope.licenseClass}:${criteria.bankVersion ?? scope.bankVersion}:${criteria.chapterId}:${criteria.page}:${criteria.datasetVersion ?? "latest"}`}
+          scope={{
+            ...scope,
+            bankVersion: criteria.bankVersion ?? scope.bankVersion,
+          }}
           criteria={criteria}
         />
       )}
@@ -42,74 +47,140 @@ function BoundBookmarks({
     client = useQueryClient(),
     select = useSimulationNavigation((s) => s.select);
   const { state, query, source } = useSimulationBookmarks(scope, criteria);
+  const canLearn = useSimulationCanLearn();
+  const redirected = useRef(false);
   const [notice, setNotice] = useState<string | null>(null);
   const data = state.status === "ready" ? state.data : null;
   const canonicalPage = data
     ? data.page !== criteria.page
       ? data.page
-      : data.totalPages > 0 && criteria.page >= data.totalPages
-        ? data.totalPages - 1
-        : null
+      : data.totalPages === 0 && criteria.page > 0
+        ? 0
+        : data.totalPages > 0 && criteria.page >= data.totalPages
+          ? data.totalPages - 1
+          : null
     : null;
+  const changed =
+    query.error instanceof ApiError &&
+    query.error.status === 409 &&
+    query.error.errorCode === "SIMULATION_BOOKMARKS_CHANGED" &&
+    !!(criteria.datasetVersion || criteria.page);
   useEffect(() => {
-    if (canonicalPage !== null)
-      router.replace(bookmarksUrl({ ...criteria, page: canonicalPage }), {
-        scroll: false,
-      });
-  }, [canonicalPage, criteria, router]);
+    if ((canonicalPage !== null || changed) && !redirected.current) {
+      redirected.current = true;
+      router.replace(
+        bookmarksUrl({
+          ...criteria,
+          bankVersion: data?.scope.bankVersion ?? scope.bankVersion,
+          page: changed ? 0 : canonicalPage!,
+          datasetVersion: undefined,
+        }),
+        {
+          scroll: false,
+        },
+      );
+    }
+  }, [
+    canonicalPage,
+    changed,
+    criteria,
+    data?.scope.bankVersion,
+    scope.bankVersion,
+    router,
+  ]);
   const bookmarkLock = useRef(false);
   const bookmark = useMutation({
     mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      if (!source?.bookmark) throw new Error("Chưa có API đánh dấu.");
-      const ack = await source.bookmark(scope, id, value);
+      if (!source?.bookmark || !canLearn)
+        throw new Error("Tài khoản không có quyền đánh dấu.");
+      const ack = await source.bookmark(
+        { ...scope, bankVersion: data?.scope.bankVersion ?? scope.bankVersion },
+        id,
+        value,
+      );
       if (ack.scenarioId !== id || ack.bookmarked !== value)
         throw new Error("Backend chưa xác nhận trạng thái đánh dấu.");
       return ack;
     },
-    onSuccess: async () => {
+    onSuccess: () => {
       setNotice(null);
-      await client.invalidateQueries({
-        queryKey: simulationLearningKeys.scope(scope),
+      void invalidateSimulationLists(client, {
+        ...scope,
+        bankVersion: data?.scope.bankVersion ?? scope.bankVersion,
       });
+    },
+    onSettled: () => {
+      bookmarkLock.current = false;
     },
     onError: () =>
       setNotice(
         "Không thể bỏ đánh dấu. Tình huống và tổng số được giữ nguyên; vui lòng thử lại.",
       ),
-    onSettled: () => {
-      bookmarkLock.current = false;
-    },
   });
   return (
     <SimulationBookmarksView
       criteria={criteria}
-      state={canonicalPage !== null ? { status: "loading" } : state}
+      state={canonicalPage !== null || changed ? { status: "loading" } : state}
       notice={notice}
       onDismissNotice={() => setNotice(null)}
+      onRetryBookmark={
+        notice && bookmark.variables && canLearn && !bookmark.isPending
+          ? () => {
+              if (bookmarkLock.current) return;
+              bookmarkLock.current = true;
+              bookmark.mutate(bookmark.variables!);
+            }
+          : undefined
+      }
       onBack={() => {
         select(scope.licenseClass, "simulation");
         router.push("/practice");
       }}
       onStartChapters={() => router.push(simulationRoutes.chapters)}
       onChapter={(chapterId) =>
-        router.push(bookmarksUrl({ ...criteria, chapterId, page: 0 }))
-      }
-      onPage={(page) => router.push(bookmarksUrl({ ...criteria, page }))}
-      onRetry={() => void query.refetch()}
-      onOpen={(item) =>
         router.push(
-          simulationRoutes.scenario(
-            item.id,
-            item.chapterId,
-            "ALL",
-            0,
-            undefined,
-            { origin: "bookmarks", ...criteria },
-          ),
+          bookmarksUrl({
+            ...criteria,
+            chapterId,
+            page: 0,
+            bankVersion: data?.scope.bankVersion ?? scope.bankVersion,
+            datasetVersion: undefined,
+          }),
         )
       }
+      onPage={(page) =>
+        router.push(
+          bookmarksUrl({
+            ...criteria,
+            page,
+            bankVersion: data?.scope.bankVersion ?? scope.bankVersion,
+            datasetVersion: data?.datasetVersion,
+          }),
+        )
+      }
+      onRetry={() => void query.refetch()}
+      onOpen={
+        canLearn
+          ? (item) =>
+              router.push(
+                simulationRoutes.scenario(
+                  item.id,
+                  item.chapterId,
+                  "ALL",
+                  0,
+                  undefined,
+                  {
+                    origin: "bookmarks",
+                    ...criteria,
+                    bankVersion: data?.scope.bankVersion ?? scope.bankVersion,
+                    datasetVersion: undefined,
+                  },
+                ),
+              )
+          : undefined
+      }
       onBookmark={
-        source?.bookmark && !bookmark.isPending
+        source?.bookmark && canLearn && !bookmark.isPending
           ? (item) => {
               if (bookmarkLock.current) return;
               bookmarkLock.current = true;

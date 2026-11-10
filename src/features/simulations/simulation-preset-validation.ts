@@ -48,6 +48,7 @@ export function validatePresetPage(
   validateExamScope(p.scope, scope);
   check(
     text(p.bankVersion) &&
+      p.scope.bankVersion === p.bankVersion &&
       Array.isArray(p.items) &&
       integer(p.totalPublishedSets) &&
       p.totalPublishedSets === p.items.length,
@@ -82,6 +83,7 @@ export function validatePresetPage(
     check(i.activeSession === null || typeof i.activeSession === "object");
     if (i.latestCompleted) {
       validatePresetCompletion(i.latestCompleted);
+      check(i.latestCompleted.presetVersionId === i.presetVersionId);
       check(!completed.has(i.latestCompleted.sessionId));
       completed.add(i.latestCompleted.sessionId);
     }
@@ -92,6 +94,7 @@ export function validatePresetPage(
       check(
         text(s.sessionId) &&
           text(s.presetVersionId) &&
+          s.presetVersionId === i.presetVersionId &&
           s.totalScenarios === 10 &&
           integer(s.completedScenarios, 0, s.totalScenarios) &&
           s.sessionId !== i.latestCompleted?.sessionId,
@@ -99,6 +102,11 @@ export function validatePresetPage(
     }
   });
 
+  if (p.activeSession) {
+    validateExamSession(p.activeSession, scope);
+    check(["IN_PROGRESS", "READY_TO_SUBMIT"].includes(p.activeSession.status));
+  }
+  check(activeIds.size <= 1);
   for (const i of p.items)
     if (i.activeSession) check(!completed.has(i.activeSession.sessionId));
 }
@@ -114,6 +122,7 @@ export function validatePresetPreparation(
   check(
     p.preset.presetSetId === id &&
       text(p.bankVersion) &&
+      p.scope.bankVersion === p.bankVersion &&
       ["PUBLISHED", "ARCHIVED"].includes(p.publicationStatus) &&
       typeof p.canStart === "boolean" &&
       (p.publicationStatus !== "ARCHIVED" || !p.canStart),

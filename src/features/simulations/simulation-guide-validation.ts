@@ -1,3 +1,13 @@
+import { guideEqual } from "./simulation-guide-content";
+import {
+  parseGuideWire,
+  wireGuideContent,
+  wireGuideBank,
+  wireGuideRevision,
+  wireGuideCurrent,
+  wireGuideAdmin,
+  wireGuideHistory,
+} from "./simulation-guide-wire";
 import { guideTextFields } from "./simulation-guide-fields";
 import type {
   GuideAdminSnapshot,
@@ -20,58 +30,20 @@ function timestamp(s: string) {
     throw new Error("Thời điểm nội dung không hợp lệ.");
 }
 export function validateGuideContent(content: GuideContent) {
-  if (
-    !content ||
-    !content.overview ||
-    !content.steps ||
-    !content.scoring ||
-    !content.recognition ||
-    !content.comparison ||
-    !content.notes ||
-    !content.cta
-  )
-    throw new Error("Thiếu cấu trúc nội dung SIM-06.");
-  const arrays = [
-    content.steps.items,
-    content.scoring.items,
-    content.recognition.items,
-    content.notes.items,
-  ];
-  for (const [n, items] of arrays.entries())
-    if (!Array.isArray(items) || items.length !== [4, 3, 2, 4][n])
-      throw new Error("Số khu vực hướng dẫn không đúng cấu trúc.");
-  for (const mode of [content.comparison.practice, content.comparison.exam])
-    if (
-      !mode ||
-      !Array.isArray(mode.items) ||
-      mode.items.length < 1 ||
-      mode.items.length > 10
-    )
-      throw new Error("Nội dung so sánh chế độ không hợp lệ.");
-  for (const items of [
-    ...arrays,
-    content.comparison.practice.items,
-    content.comparison.exam.items,
-    [content.recognition.policy],
-  ]) {
-    const keys = new Set<string>();
-    for (const i of items) {
-      if (!i || typeof i.key !== "string" || !i.key || keys.has(i.key))
-        throw new Error("Mã mục nội dung bị thiếu hoặc trùng.");
-      keys.add(i.key);
-      text(i.title);
-      text(i.description);
-    }
-  }
-  for (const f of guideTextFields(content)) text(f.value);
+  parseGuideWire(wireGuideContent, content);
 }
 export function guidePublishErrors(content: GuideContent) {
-  validateGuideContent(content);
+  try {
+    validateGuideContent(content);
+  } catch (error) {
+    return [error instanceof Error ? error.message : "Nội dung chưa hợp lệ."];
+  }
   return guideTextFields(content)
     .filter((f) => !f.value.trim())
     .map((f) => `${f.group}: ${f.label}`);
 }
 export function validateGuideBank(bank: GuideBankInfo) {
+  parseGuideWire(wireGuideBank, bank);
   if (
     !bank ||
     !bank.bankVersion ||
@@ -92,6 +64,7 @@ export function validateGuideBank(bank: GuideBankInfo) {
     throw new Error("Thiếu thông báo trạng thái thi thử.");
 }
 export function validateGuideRevision(doc: GuideRevision) {
+  parseGuideWire(wireGuideRevision, doc);
   if (
     !doc ||
     doc.pageKey !== "SIMULATION_GUIDE" ||
@@ -115,6 +88,7 @@ export function validateGuideRevision(doc: GuideRevision) {
   }
 }
 export function validatePublishedGuide(data: PublishedGuide) {
+  parseGuideWire(wireGuideCurrent, data);
   if (!data || !data.scope || !data.scope.bankVersion)
     throw new Error("Thiếu phạm vi hướng dẫn.");
   validateGuideRevision(data.document);
@@ -132,6 +106,7 @@ export function guideEditableContent(data: GuideAdminSnapshot): GuideContent {
   return content;
 }
 export function validateGuideAdmin(data: GuideAdminSnapshot, actorId: string) {
+  parseGuideWire(wireGuideAdmin, data);
   if (!data || data.actorId !== actorId)
     throw new Error("Dữ liệu quản trị không khớp tài khoản.");
   integer(data.revision);
@@ -148,13 +123,35 @@ export function validateGuideAdmin(data: GuideAdminSnapshot, actorId: string) {
   if (data.draft && data.draft.revision !== data.revision)
     throw new Error("Revision bản nháp không khớp phiên đang chỉnh sửa.");
   validateGuideContent(guideEditableContent(data));
+  validateGuideRevision(data.preview);
+  if (
+    !data.draft ||
+    data.preview.status !== "DRAFT" ||
+    data.preview.revision !== data.revision ||
+    data.preview.updatedAt !== data.draft.updatedAt ||
+    data.preview.updatedBy !== data.draft.updatedBy
+  )
+    throw new Error("Bản xem trước không khớp bản nháp đã lưu.");
+  const projected = structuredClone(data.draft.content);
+  projected.comparison.exam = structuredClone(
+    data.preview.content.comparison.exam,
+  );
+  if (!guideEqual(projected, data.preview.content))
+    throw new Error("Bản xem trước thay đổi ngoài chính sách hiển thị.");
 }
 export function validateGuideHistory(data: GuideHistory, actorId: string) {
+  parseGuideWire(wireGuideHistory, data);
   if (!data || data.actorId !== actorId || !Array.isArray(data.versions))
     throw new Error("Lịch sử không khớp tài khoản.");
   const revisions = new Set<number>();
+  let previous = Infinity;
   for (const version of data.versions) {
     validateGuideRevision(version);
+    if (version.status === "DRAFT" || version.revision >= previous)
+      throw new Error(
+        "Lịch sử chỉ chứa bản công bố/lưu trữ theo thứ tự mới nhất.",
+      );
+    previous = version.revision;
     if (revisions.has(version.revision))
       throw new Error("Lịch sử trùng phiên bản.");
     revisions.add(version.revision);
@@ -166,7 +163,6 @@ export function guideDraftNeedsPublication(data: GuideAdminSnapshot) {
     !!data.draft &&
     (!data.published ||
       data.draft.revision !== data.published.revision ||
-      JSON.stringify(data.draft.content) !==
-        JSON.stringify(data.published.content))
+      !guideEqual(data.draft.content, data.published.content))
   );
 }

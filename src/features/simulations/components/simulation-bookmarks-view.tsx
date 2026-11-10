@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { SimulationFeedbackModal } from "./simulation-feedback-modal";
 import { cn } from "@/lib/utils";
+import textStyles from "./simulation-text-layout.module.css";
 import type { LearningLoadState } from "../simulation-learning-types";
 import type {
   BookmarksPage,
@@ -41,6 +42,7 @@ export function SimulationBookmarksView({
   bookmarkPendingId,
   notice,
   onDismissNotice,
+  onRetryBookmark,
 }: {
   state: LearningLoadState<BookmarksPage>;
   criteria: BookmarksQuery;
@@ -54,6 +56,7 @@ export function SimulationBookmarksView({
   bookmarkPendingId?: string | null;
   notice?: string | null;
   onDismissNotice?: () => void;
+  onRetryBookmark?: () => void;
 }) {
   const data = state.status === "ready" ? state.data : null;
   const selectedChapter = data?.chapters.find(
@@ -63,16 +66,58 @@ export function SimulationBookmarksView({
     <LearningShell
       navigation={<BackAction onClick={onBack}>Quay lại Ôn luyện</BackAction>}
     >
-      <header className="mb-[1cm]">
+      <header
+        className={cn(
+          "mb-[1cm]",
+          textStyles.headingDescription,
+          textStyles.pageIntro,
+        )}
+      >
         <h1 className={learningStyles.heading}>Tình huống đã đánh dấu</h1>
-        <p className={cn(learningStyles.body, "mt-2")}>
-          Xem lại những tình huống mô phỏng bạn đã lưu để luyện tập khi cần.
-        </p>
+        <div className={textStyles.introRow}>
+          <p className={cn(learningStyles.body, "min-w-0 flex-1")}>
+            Xem lại những tình huống mô phỏng bạn đã lưu để luyện tập khi cần.
+          </p>
+          {data && data.totalBookmarked > 0 && (
+            <div className="flex max-w-full flex-wrap items-center gap-3">
+              <label className="flex min-w-0 items-center gap-2 rounded-[10px] border border-[#d8e0f1] bg-white px-3 text-[#475467]">
+                <BookOpen className="size-4 shrink-0" />
+                <select
+                  aria-label="Lọc chương mô phỏng"
+                  value={criteria.chapterId ?? ""}
+                  onChange={(e) => onChapter?.(e.target.value || null)}
+                  className="min-h-10 min-w-0 max-w-[280px] bg-transparent py-2 text-[14.5px] font-semibold text-[#344054] outline-none"
+                >
+                  <option value="">Tất cả chương</option>
+                  {data.chapters.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      Chương {roman(c.number)} · {c.name} ({c.bookmarkedCount})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <span className="inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-[10px] border border-[#d8e0f1] bg-white px-3 text-[14.5px] font-semibold text-[#344054]">
+                <ArrowDownWideNarrow className="size-4" />
+                Tình huống tăng dần
+              </span>
+            </div>
+          )}
+        </div>
+        {data && criteria.chapterId && (
+          <p className="mt-3 text-[14.5px] font-medium text-[#475467]">
+            {data.filteredCount} tình huống trong chương đã chọn
+          </p>
+        )}
       </header>
       <SimulationFeedbackModal
         key={notice ?? "no-notice"}
         message={notice}
         onDismiss={onDismissNotice}
+        action={
+          onRetryBookmark
+            ? { label: "Thử lại", onClick: onRetryBookmark }
+            : undefined
+        }
       />
 
       {state.status === "loading" ? (
@@ -92,62 +137,7 @@ export function SimulationBookmarksView({
           <>
             {data.totalBookmarked > 0 && (
               <>
-                <section
-                  aria-label="Tổng số đã đánh dấu toàn ngân hàng"
-                  className="flex items-center gap-4 rounded-[18px] border border-[#dce2ee] bg-[#eef2ff] px-6 py-5"
-                >
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-[11px] bg-white text-[#0758d9]">
-                    <Bookmark className="size-5" />
-                  </span>
-                  <div className="flex min-w-0 flex-col gap-[1cm]">
-                    <p className="text-[16px] font-bold text-[#172335]">
-                      <strong>{data.totalBookmarked}</strong> tình huống đã đánh
-                      dấu
-                    </p>
-                    <p className="text-[15.5px] font-medium leading-6 text-[#475467]">
-                      Các tình huống bạn đã lưu để dễ dàng tìm và luyện lại.
-                    </p>
-                  </div>
-                </section>
-                <section
-                  className="mt-[1cm]"
-                  aria-label="Danh sách đã đánh dấu"
-                >
-                  <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-                    <div>
-                      <h2 className="text-[18px] font-bold text-[#0b1427]">
-                        Danh sách đã đánh dấu
-                      </h2>
-                      {criteria.chapterId && (
-                        <p className="mt-1 text-[14.5px] font-medium text-[#475467]">
-                          {data.filteredCount} tình huống trong chương đã chọn
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex max-w-full flex-wrap items-center gap-3">
-                      <label className="flex min-w-0 items-center gap-2 rounded-[10px] border border-[#d8e0f1] bg-white px-3 text-[#475467]">
-                        <BookOpen className="size-4 shrink-0" />
-                        <select
-                          aria-label="Lọc chương mô phỏng"
-                          value={criteria.chapterId ?? ""}
-                          onChange={(e) => onChapter?.(e.target.value || null)}
-                          className="min-h-10 min-w-0 max-w-[280px] bg-transparent py-2 text-[14.5px] font-semibold text-[#344054] outline-none"
-                        >
-                          <option value="">Tất cả chương</option>
-                          {data.chapters.map((c) => (
-                            <option key={c.id} value={c.id}>
-                              Chương {roman(c.number)} · {c.name} (
-                              {c.bookmarkedCount})
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <span className="inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-[10px] border border-[#d8e0f1] bg-white px-3 text-[14.5px] font-semibold text-[#344054]">
-                        <ArrowDownWideNarrow className="size-4" />
-                        Tình huống tăng dần
-                      </span>
-                    </div>
-                  </div>
+                <section aria-label="Danh sách đã đánh dấu">
                   {data.filteredCount === 0 ? (
                     <CollectionMessage
                       icon={<Filter className="size-7" />}

@@ -44,18 +44,18 @@ export function SimulationGuideView({
   return (
     <LearningShell
       navigation={<BackAction onClick={onBack}>Quay lại Ôn luyện</BackAction>}
+      navigationGap="1cm"
+      ariaLabel="Hướng dẫn luyện mô phỏng"
     >
       {state.status === "ready" ? (
         <SimulationGuideContent
           content={state.data.document.content}
           bank={state.data.bank}
           onStart={onStart}
+          showIntro={false}
         />
       ) : (
         <>
-          <header className="mb-[1cm]">
-            <h1 className={learningStyles.heading}>Hướng dẫn luyện mô phỏng</h1>
-          </header>
           {state.status === "loading" ? (
             <GuideSkeleton />
           ) : state.status === "unavailable" ? (
@@ -86,19 +86,25 @@ export function SimulationGuideContent({
   content: d,
   bank,
   onStart,
+  showIntro = true,
 }: {
   content: GuideContent;
   bank: GuideBankInfo;
   onStart?: () => void;
+  showIntro?: boolean;
 }) {
   return (
     <div className="font-dts space-y-[1cm] [overflow-wrap:anywhere]">
-      <header className={textStyles.headingDescription}>
-        <h1 className={learningStyles.heading}>{d.title}</h1>
-        <p className={cn(learningStyles.body, "whitespace-pre-line")}>
-          {d.description}
-        </p>
-      </header>
+      {showIntro && (
+        <header
+          className={cn(textStyles.headingDescription, textStyles.pageIntro)}
+        >
+          <h1 className={learningStyles.heading}>{d.title}</h1>
+          <p className={cn(learningStyles.body, "whitespace-pre-line")}>
+            {d.description}
+          </p>
+        </header>
+      )}
       <section
         aria-label="Tổng quan mô phỏng"
         className={cn(learningStyles.card, "flex items-start gap-4 px-6 py-5")}

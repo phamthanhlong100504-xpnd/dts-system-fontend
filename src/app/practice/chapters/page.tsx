@@ -1,19 +1,16 @@
-
 "use client";
 
 import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { learningStyles } from "@/features/simulations/components/learning-ui";
 
 import { RequireAuth } from "@/components/require-auth";
 import { ChaptersContent } from "@/features/practice/components/chapters/chapters-content";
 import type { ChapterLearningProgress } from "@/features/practice/chapter-overview-types";
 import { useLicenseByCode } from "@/features/license/use-license";
-import {
-  useLicenseHasHydrated,
-  useLicenseStore,
-} from "@/stores/license-store";
+import { useLicenseHasHydrated, useLicenseStore } from "@/stores/license-store";
 
 export default function ChaptersPage() {
   return (
@@ -26,14 +23,9 @@ export default function ChaptersPage() {
 function ChaptersPageContent() {
   const router = useRouter();
 
-  const hasHydrated =
-    useLicenseHasHydrated();
+  const hasHydrated = useLicenseHasHydrated();
 
-  const selectedLicense =
-    useLicenseStore(
-      (state) =>
-        state.selectedLicense
-    );
+  const selectedLicense = useLicenseStore((state) => state.selectedLicense);
 
   const {
     license,
@@ -51,24 +43,14 @@ function ChaptersPageContent() {
     if (!selectedLicense) {
       router.replace("/");
     }
-  }, [
-    hasHydrated,
-    selectedLicense,
-    router,
-  ]);
+  }, [hasHydrated, selectedLicense, router]);
 
-  function openChapter(
-    chapter: ChapterLearningProgress
-  ) {
-    router.push(
-      `/practice/chapter/${chapter.chapterId}`
-    );
+  function openChapter(chapter: ChapterLearningProgress) {
+    router.push(`/practice/chapter/${chapter.chapterId}`);
   }
 
   if (!hasHydrated || isCatalogLoading) {
-    return (
-      <ChaptersPageSkeleton />
-    );
+    return <ChaptersPageSkeleton />;
   }
 
   if (!selectedLicense) {
@@ -91,9 +73,7 @@ function ChaptersPageContent() {
   }
 
   if (!isCatalogReady) {
-    return (
-      <ChaptersPageSkeleton />
-    );
+    return <ChaptersPageSkeleton />;
   }
 
   if (!license) {
@@ -112,66 +92,19 @@ function ChaptersPageContent() {
   }
 
   return (
-    <main
-      className="
-        font-dts
-        min-h-[calc(100vh-64px)]
-        bg-[#f7f6fb]
-        text-[#101828]
-      "
-    >
-      <div
-        className="
-          w-full
-          px-6
-          pb-16
-          pt-6
-          lg:px-[38px]
-        "
-      >
-        <Link
-          href="/practice"
-          className="
-            inline-flex
-            items-center
-            gap-2
-            py-1
-            text-[14.5px]
-            font-semibold
-            text-[#475467]
-            transition
-            hover:text-[#0758d9]
-          "
-        >
-          <ArrowLeft
-            className="size-4"
-            strokeWidth={2}
-          />
-
+    <main className="font-dts min-h-[calc(100vh-64px)] bg-[#f7f6fb] text-[#0b1427]">
+      <div className="w-full px-6 pb-10 pt-7 lg:px-[38px]">
+        <Link href="/practice" className={learningStyles.back}>
+          <ArrowLeft className="size-4" strokeWidth={2} />
           Quay lại Ôn luyện
         </Link>
 
-        <section
-          className="
-            mx-auto
-            mt-5
-            w-full
-            max-w-[1240px]
-          "
-        >
+        <section className="mx-auto mt-5 w-full max-w-[1240px]">
           <ChaptersContent
-            licenseClass={
-              license.code
-            }
-            onStartChapter={
-              openChapter
-            }
-            onResumeChapter={
-              openChapter
-            }
-            onReviewChapter={
-              openChapter
-            }
+            licenseClass={license.code}
+            onStartChapter={openChapter}
+            onResumeChapter={openChapter}
+            onReviewChapter={openChapter}
           />
         </section>
       </div>
@@ -181,169 +114,40 @@ function ChaptersPageContent() {
 
 function ChaptersPageSkeleton() {
   return (
-    <main
-      className="
-        font-dts
-        min-h-[calc(100vh-64px)]
-        bg-[#f7f6fb]
-      "
-    >
-      <div
-        className="
-          w-full
-          px-6
-          pb-16
-          pt-6
-          lg:px-[38px]
-        "
-      >
-        <div
-          className="
-            h-7
-            w-36
-            animate-pulse
-            rounded-[8px]
-            bg-[#e9ebf1]
-          "
-        />
+    <main className="font-dts min-h-[calc(100vh-64px)] bg-[#f7f6fb]">
+      <div className="w-full px-6 pb-10 pt-7 lg:px-[38px]">
+        <div className="h-7 w-36 animate-pulse rounded-[8px] bg-[#e9ebf1]" />
 
-        <div
-          className="
-            mx-auto
-            mt-5
-            w-full
-            max-w-[1240px]
-          "
-        >
-          <div
-            className="
-              h-9
-              w-60
-              animate-pulse
-              rounded-[8px]
-              bg-[#e4e6ed]
-            "
-          />
+        <div className="mx-auto mt-5 w-full max-w-[1240px]">
+          <div className="h-9 w-60 animate-pulse rounded-[8px] bg-[#e4e6ed]" />
 
-          <div
-            className="
-              mt-2
-              h-5
-              w-[420px]
-              max-w-full
-              animate-pulse
-              rounded-[6px]
-              bg-[#ebedf2]
-            "
-          />
+          <div className="mt-2 h-5 w-[420px] max-w-full animate-pulse rounded-[6px] bg-[#ebedf2]" />
 
-          <div
-            className="
-              mt-6
-              h-[104px]
-              animate-pulse
-              rounded-[18px]
-              border
-              border-[#e4e5ec]
-              bg-white
-              p-5
-            "
-          >
-            <div
-              className="
-                h-5
-                w-44
-                rounded
-                bg-[#eceef4]
-              "
-            />
+          <div className="mt-6 h-[104px] animate-pulse rounded-[18px] border border-[#e4e5ec] bg-white p-5">
+            <div className="h-5 w-44 rounded bg-[#eceef4]" />
 
-            <div
-              className="
-                mt-6
-                h-2
-                rounded-full
-                bg-[#eceef4]
-              "
-            />
+            <div className="mt-6 h-2 rounded-full bg-[#eceef4]" />
           </div>
 
-          <div
-            className="
-              mt-[0.9cm]
-              grid
-              grid-cols-1
-              gap-[0.9cm]
-              lg:grid-cols-2
-            "
-          >
+          <div className="mt-[0.9cm] grid grid-cols-1 gap-[0.9cm] lg:grid-cols-2">
             {Array.from({
               length: 4,
-            }).map(
-              (_, index) => (
-                <div
-                  key={index}
-                  className="
-                    min-h-[238px]
-                    animate-pulse
-                    rounded-[18px]
-                    border
-                    border-[#e4e5ec]
-                    bg-white
-                    p-5
-                  "
-                >
-                  <div
-                    className="
-                      h-7
-                      w-24
-                      rounded-[7px]
-                      bg-[#eceef4]
-                    "
-                  />
+            }).map((_, index) => (
+              <div
+                key={index}
+                className="min-h-[238px] animate-pulse rounded-[18px] border border-[#e4e5ec] bg-white p-5"
+              >
+                <div className="h-7 w-24 rounded-[7px] bg-[#eceef4]" />
 
-                  <div
-                    className="
-                      mt-4
-                      h-5
-                      w-[72%]
-                      rounded
-                      bg-[#eceef4]
-                    "
-                  />
+                <div className="mt-4 h-5 w-[72%] rounded bg-[#eceef4]" />
 
-                  <div
-                    className="
-                      mt-6
-                      h-4
-                      w-[48%]
-                      rounded
-                      bg-[#f0f1f5]
-                    "
-                  />
+                <div className="mt-6 h-4 w-[48%] rounded bg-[#f0f1f5]" />
 
-                  <div
-                    className="
-                      mt-4
-                      h-2
-                      rounded-full
-                      bg-[#eceef4]
-                    "
-                  />
+                <div className="mt-4 h-2 rounded-full bg-[#eceef4]" />
 
-                  <div
-                    className="
-                      mt-6
-                      ml-auto
-                      h-10
-                      w-36
-                      rounded-[10px]
-                      bg-[#e8ebf2]
-                    "
-                  />
-                </div>
-              )
-            )}
+                <div className="mt-6 ml-auto h-10 w-36 rounded-[10px] bg-[#e8ebf2]" />
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -365,9 +169,7 @@ function ChaptersCatalogError({
   return (
     <main className="font-dts flex min-h-[calc(100vh-64px)] items-center justify-center bg-[#f7f6fb] px-6">
       <div className="w-full max-w-[460px] rounded-[16px] border border-[#e3e6ed] bg-white px-6 py-10 text-center">
-        <h1 className="text-[16px] font-bold text-[#101828]">
-          {title}
-        </h1>
+        <h1 className="text-[16px] font-bold text-[#101828]">{title}</h1>
 
         <p className="mt-2 text-[12.5px] font-medium text-[#475467]">
           {message}

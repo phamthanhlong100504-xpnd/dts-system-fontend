@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-11-02",
+  "baseCommit": "498612284b440b20363efecd4f13bb00fa010bfe",
+  "originalManifestSha256": "c4e0e22af113bbaabef8f3f23c4f0a570ac3af8c5f22b52f3dbb3292b4b214c5",
+  "purpose": "Document behavior-only changes; do not replace the accepted UI baseline",
+  "cssAndStaticJsxSourceComparisonPassed": true,
+  "visualBrowserAcceptanceCompleted": false,
+  "backendEndToEndAccepted": false,
+  "behaviorChanges": [
+    {
+      "path": "src/features/simulations/components/practice-hub-modules.tsx",
+      "beforeSha256": "1f517a79cc3b7801a54cd493f3bb7c5624736dd4b1675516a821c787e25705ab",
+      "afterSha256": "1c2416cea6bdcc93987cdfcda095f662ebabef80cb5d1e76803913ce32fecd8b"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-practice-hub.tsx",
+      "beforeSha256": "9c06a1ca3a9e364b7798173d28bcccecfc43b99f968f5391f1df47a89e623712",
+      "afterSha256": "0dad87bd7020f80e2aabc3ac143ec226930e2370e0c0938004be220ce809d9af"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-video-player.tsx",
+      "beforeSha256": "99f3cbcc7772a2cd3f620acd253659f560aa716b5323ebf5475955f09357d4e3",
+      "afterSha256": "d2ee4b7ed1ded3785d03e1882fbb14cde2c67fb6135872db1e62edfac48326d6"
+    }
+  ]
+}

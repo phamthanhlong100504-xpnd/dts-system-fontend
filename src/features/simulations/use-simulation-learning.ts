@@ -32,6 +32,7 @@ export const simulationLearningKeys = {
       scope.userId,
       scope.licenseClass,
       view,
+      scope.bankVersion ?? "current",
       ...args,
     ] as const,
 };
@@ -77,7 +78,23 @@ export function useSimulationRead<T extends { scope: SimulationDataScope }>(
     },
     retry: 1,
     staleTime: 15000,
-    refetchOnMount: "always",
+    refetchInterval:
+      view === "chapter"
+        ? (current) => {
+            const data = current.state.data as unknown as
+              SimulationChapterPage | undefined;
+            const expires = data?.items
+              .map((item) => Date.parse(item.thumbnailExpiresAt ?? ""))
+              .filter(Number.isFinite);
+            return expires?.length
+              ? Math.min(
+                  60000,
+                  Math.max(10000, Math.min(...expires) - Date.now() - 5000),
+                )
+              : false;
+          }
+        : false,
+    refetchOnMount: view === "scenario" ? false : "always",
   });
   const state: LearningLoadState<T> = !source
     ? { status: "unavailable" }

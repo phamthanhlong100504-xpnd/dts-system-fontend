@@ -8,6 +8,7 @@ import { useAdminUnsavedChanges } from "@/features/admin/foundation/use-admin-un
 import { AdminLeaveDialog } from "@/features/admin/foundation/components/admin-leave-dialog";
 
 import { AdminCan } from "@/features/admin/foundation/admin-access-provider";
+import styles from "@/features/admin/examination/admin-exam-visual.module.css";
 
 
 import { useState } from "react";
@@ -194,10 +195,11 @@ export default function ExamCriteriaPage() {
   };
 
   return (
-    <div className="space-y-6" inert={busy} aria-busy={busy}>
+    <div className={styles.page} inert={busy} aria-busy={busy}>
       <AdminLeaveDialog open={leave.leaveOpen} onCancel={leave.cancelLeave} onLeave={leave.confirmLeave} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Tiêu chí chấm thi</h1>
+        <div className="min-w-0"><h1 className="text-2xl font-bold tracking-tight">Tiêu chí chấm thi</h1>
+          <p className="mt-2 text-[14.5px]/6 text-muted-foreground">Quản lý điểm đạt, câu hỏi bắt buộc và các điều kiện chấm thi.</p></div>
         {!isCreating && (
           <AdminCan resource="exam_criteria" action={"create"}><Button onClick={() => setIsCreating(true)}>
             <Plus className="h-4 w-4 mr-2" /> Thêm mới
@@ -207,7 +209,7 @@ export default function ExamCriteriaPage() {
 
       <Card>
         {isCreating && (
-          <div className="p-6 border-b bg-muted/10">
+          <div className={styles.editorPane}>
             <h3 className="text-lg font-semibold mb-4">
               {editingId ? "Cập nhật Tiêu chí" : "Tạo Tiêu chí mới"}
             </h3>
@@ -343,8 +345,8 @@ export default function ExamCriteriaPage() {
                         <div className="flex-1 space-y-1.5">
                           <Label>Loại vi phạm</Label>
                           <select value={penalty.type} onChange={(e) => updatePenalty(idx, "type", e.target.value as Penalty["type"])} className="w-full h-9 rounded-md border px-3 text-[14.5px]/5">
-                            <option value="WRONG_ANSWER">Trả lời sai (WRONG_ANSWER)</option>
-                            <option value="UNANSWERED">Bỏ trống (UNANSWERED)</option>
+                            <option value="WRONG_ANSWER">Trả lời sai</option>
+                            <option value="UNANSWERED">Bỏ trống</option>
                           </select>
                         </div>
                         <div className="w-32 space-y-1.5">

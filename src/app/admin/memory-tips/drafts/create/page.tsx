@@ -1,2 +1,2 @@
-import { ResourceWorkspace } from "@/features/admin/workbench/components/resource-workspace";
-export default function Page() { return <ResourceWorkspace kind="memory-tips" baseHref="/admin/memory-tips/drafts" id="create" />; }
+import {EditorialDraftLanding} from '@/features/admin/admin03/draft-workspace';
+export default function Page(){return <EditorialDraftLanding kind="MEMORY_TIP" baseHref="/admin/memory-tips/drafts"/>;}

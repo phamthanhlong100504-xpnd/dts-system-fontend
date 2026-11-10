@@ -1,2 +1,2 @@
-import { SessionWorkspace } from "@/features/admin/workbench/components/session-workspace";
-export default function Page() { return <SessionWorkspace />; }
+import {Admin04SessionList} from '@/features/admin/admin04/session-pages';
+export default function Page(){return <Admin04SessionList/>}

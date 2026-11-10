@@ -1,2 +1,2 @@
-import { ResourceWorkspace } from "@/features/admin/workbench/components/resource-workspace";
-export default async function Page({ params }: { params: Promise<{ id: string }> }) { const { id } = await params; return <ResourceWorkspace kind="simulation-banks" baseHref="/admin/simulations/scenarios/banks" id={id} />; }
+import {SimulationBankDraftDetail} from '@/features/admin/admin05/draft-pages';
+export default async function Page({params}:{params:Promise<{id:string}>}){const {id}=await params;return <SimulationBankDraftDetail id={id}/>;}

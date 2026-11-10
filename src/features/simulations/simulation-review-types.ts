@@ -7,6 +7,8 @@ export interface ReviewNeededQuery {
   chapterId: string | null;
   sort: "BEST_SCORE_ASC";
   page: number;
+  bankVersion?: string;
+  datasetVersion?: string;
 }
 export type SimulationListReturnContext =
   | ReviewReturnContext
@@ -25,6 +27,7 @@ export interface ReviewScenario extends ScenarioListItem {
   bestScore: number;
   chapterNumber: number;
   chapterName: string;
+  completedAttemptCount?: number;
 }
 export interface ReviewNeededPage {
   scope: SimulationDataScope;
@@ -37,4 +40,15 @@ export interface ReviewNeededPage {
   items: ReviewScenario[];
   page: number;
   totalPages: number;
+  scoringVersion?: string;
+  datasetVersion?: string;
+  pageSize?: number;
+}
+export interface ReviewNeededOverview {
+  scope: SimulationDataScope;
+  scoringVersion: string;
+  datasetVersion: string;
+  practicedScenarios: number;
+  totalNeedReview: number;
+  chapters: ReviewChapter[];
 }

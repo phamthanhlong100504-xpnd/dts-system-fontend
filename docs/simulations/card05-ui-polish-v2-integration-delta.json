@@ -1,0 +1,669 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-11-03",
+  "baseCommit": "498612284b440b20363efecd4f13bb00fa010bfe",
+  "workingBranch": "feature/video-simulation-backend-integration",
+  "uiPolishManifestSha256": "2342d7658529ef6de759dff79d549af219121f616be0a50d70ec45fc0b52ee02",
+  "purpose": "Requested0.6cm intro spacing,20px learning title and scenario ordinal relocation",
+  "runtimeUiAcceptanceCompleted": false,
+  "fullCard05Accepted": false,
+  "behaviorChanges": [
+    {
+      "path": "src/features/simulations/components/simulation-bookmarks-view.tsx",
+      "beforeSha256": "44b0160a56852944c1bd24d94c6048cb2de8b94ba6833a59545514d81506ed3e",
+      "afterSha256": "288e121ddc03937356c814b4491a965e29679271a9daac3bf4adc33299872276"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-review-needed-view.tsx",
+      "beforeSha256": "4b2664c2be69b6af0f44f6849ce7e7c1c875cc4159b4c280169b17068336384c",
+      "afterSha256": "5113b1a500c01230a71596eb8166fb8200e10aacc83798b08fd9e094d3710af9"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-scenario-view.tsx",
+      "beforeSha256": "cb7ef1ae61178f272959cfa381b6f6ce2e582cdbc2e710ce44533ed1ef7b64de",
+      "afterSha256": "ac0e7ad164ea25df8e31be51b4be636d23af2a4267367e17928ee1f36b9d6e8e"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-text-layout.module.css",
+      "beforeSha256": "32f0ffef4323f41abb04bad26dfe5cca69f78bd2e078afe5a3517de47a38178a",
+      "afterSha256": "20d221a97fdcd4bfdf84070b34fd176d9c213f69943a914d90a7488d8c95fcad"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-video-player.tsx",
+      "beforeSha256": "2019c06e58033dde7fd64f1b606a8da1efc724e7ed4f66f931a194365a02f2bd",
+      "afterSha256": "030dda7107e67b418007129ad3600364fb36c96bbdd4a28b14c6820044f381c5"
+    }
+  ],
+  "sourceChanges": [
+    {
+      "path": "src/features/simulations/components/simulation-bookmarks-view.tsx",
+      "beforeSha256": "44b0160a56852944c1bd24d94c6048cb2de8b94ba6833a59545514d81506ed3e",
+      "afterSha256": "288e121ddc03937356c814b4491a965e29679271a9daac3bf4adc33299872276"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-review-needed-view.tsx",
+      "beforeSha256": "4b2664c2be69b6af0f44f6849ce7e7c1c875cc4159b4c280169b17068336384c",
+      "afterSha256": "5113b1a500c01230a71596eb8166fb8200e10aacc83798b08fd9e094d3710af9"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-scenario-view.tsx",
+      "beforeSha256": "cb7ef1ae61178f272959cfa381b6f6ce2e582cdbc2e710ce44533ed1ef7b64de",
+      "afterSha256": "ac0e7ad164ea25df8e31be51b4be636d23af2a4267367e17928ee1f36b9d6e8e"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-text-layout.module.css",
+      "beforeSha256": "32f0ffef4323f41abb04bad26dfe5cca69f78bd2e078afe5a3517de47a38178a",
+      "afterSha256": "20d221a97fdcd4bfdf84070b34fd176d9c213f69943a914d90a7488d8c95fcad"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-video-player.tsx",
+      "beforeSha256": "2019c06e58033dde7fd64f1b606a8da1efc724e7ed4f66f931a194365a02f2bd",
+      "afterSha256": "030dda7107e67b418007129ad3600364fb36c96bbdd4a28b14c6820044f381c5"
+    },
+    {
+      "path": "tests/simulation-ui-polish.test.cjs",
+      "beforeSha256": "bb82295f1282492b83ac2520c0b8598d4323b263e2c793a10d4e7fa041d141dc",
+      "afterSha256": "dd156885ad52ac9b0990fc8a8957a41c9d4afa49b26d3d561bbe5ab7bd2875b4"
+    },
+    {
+      "path": "scripts/verify-simulation-ui-polish-v2.py",
+      "beforeSha256": null,
+      "afterSha256": "a8baf259378e06b5b0bf430855c3cc28d1791641718937d0af78f8b06a5c4484"
+    },
+    {
+      "path": "docs/simulations/UI_POLISH_V2_20261103.md",
+      "beforeSha256": null,
+      "afterSha256": "4ab3eeab091f1ff9a9d449d077a5aa05d828ef4bfb916df94585b2003cad0e35"
+    }
+  ],
+  "sourcePrerequisites": [
+    {
+      "path": "docs/simulations/CARD01_BACKEND_INTEGRATION.md",
+      "sha256": "d74b77f2b5280964bbf96ec049667ddabff80400a678b46cfa148ddef7d4d0e2"
+    },
+    {
+      "path": "docs/simulations/CARD02_BACKEND_INTEGRATION.md",
+      "sha256": "26d6d105bfd7d5a86cd5ff805024631951ae2f95c346a341173f86bb3ec8d52c"
+    },
+    {
+      "path": "docs/simulations/CARD03_BACKEND_INTEGRATION.md",
+      "sha256": "29a1cdd1ef4adb5c6ccbd0aa078b9970b54872fd7e17c5990212c76e6ba96fa0"
+    },
+    {
+      "path": "docs/simulations/CARD04_BACKEND_INTEGRATION.md",
+      "sha256": "48fa207e10275f700a02796b876566a7dce5fa81403711ca7a6b056fe4c0397c"
+    },
+    {
+      "path": "docs/simulations/CARD05_BACKEND_INTEGRATION.md",
+      "sha256": "6ce1be911b73b2e03355ffb0bda16f6b38913d4cbd81c860a35547b843585a5a"
+    },
+    {
+      "path": "docs/simulations/CARD05_HUB_ENTRY_FIX.md",
+      "sha256": "09a8193412361797379a8f223f39d47ee543689abf67458a82e856ccc97f79f3"
+    },
+    {
+      "path": "docs/simulations/UI_POLISH_20261103.md",
+      "sha256": "f2a2d7d03177454b3ac51d4fec5461f4249c7d1086dac801c26d5af08026a427"
+    },
+    {
+      "path": "docs/simulations/card01-integration-delta.json",
+      "sha256": "ef846316ef1062736313b244e9fee435a387726240a2edd07a22c5a8d7f32cdc"
+    },
+    {
+      "path": "docs/simulations/card02-integration-delta.json",
+      "sha256": "b5548519877c85d7ef748d3eee18da9d0df94ae383b71740f6a11b15b32c01b4"
+    },
+    {
+      "path": "docs/simulations/card03-integration-delta.json",
+      "sha256": "44edd59f03c3e889e11f0b0dd804d6f2068f45ad3515da5197bc1cd5cdf975b0"
+    },
+    {
+      "path": "docs/simulations/card04-integration-delta.json",
+      "sha256": "866ad118b657edb6b4224d117760ff1818af10ad5d643a06bb35a7e353fc147a"
+    },
+    {
+      "path": "docs/simulations/card05-hub-integration-delta.json",
+      "sha256": "d9942deed712361bfaea2e6d2bfa4feada97679df3b375d0c449b8e794e0928f"
+    },
+    {
+      "path": "docs/simulations/card05-integration-delta.json",
+      "sha256": "27718e6b908e159a4d00bdc76cac53050b94633f9b4cc8a263d575509b46f7de"
+    },
+    {
+      "path": "docs/simulations/card05-ui-polish-integration-delta.json",
+      "sha256": "2342d7658529ef6de759dff79d549af219121f616be0a50d70ec45fc0b52ee02"
+    },
+    {
+      "path": "docs/simulations/ui-accepted-v10.json",
+      "sha256": "c4e0e22af113bbaabef8f3f23c4f0a570ac3af8c5f22b52f3dbb3292b4b214c5"
+    },
+    {
+      "path": "next.config.ts",
+      "sha256": "f2e5a380125fcc3a20bc5329400801fb1e3f8533e4df23e9b488dee41c9079d9"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "629c8afe8e69030064771404a671320f60bb34419c461333aa792a60a3b840cf"
+    },
+    {
+      "path": "package.json",
+      "sha256": "bfa88e9a716f5b17399a1f2b654d6a0e3f7c8e055747fb2b63f054482203ae6c"
+    },
+    {
+      "path": "scripts/verify-simulation-card01-integration.py",
+      "sha256": "1daa31c655d6ebd582f500ceb636f25ba19aa27b610bca9f447bd507fd5746e5"
+    },
+    {
+      "path": "scripts/verify-simulation-card02-integration.py",
+      "sha256": "a5e2ffdd3fe0d9caaeb423f7d0808205ff489f8b7152ceb5b367f173d7d5e509"
+    },
+    {
+      "path": "scripts/verify-simulation-card03-integration.py",
+      "sha256": "e7a3d96d8000885b1604f6c23628ee5143f51c6b09d1785ca592187a7357cc68"
+    },
+    {
+      "path": "scripts/verify-simulation-card04-integration.py",
+      "sha256": "01cfb78ec27cfa0fcde93bf025bf379cb60e4ebda6f608586a47a46fdcb42827"
+    },
+    {
+      "path": "scripts/verify-simulation-card05-hub.py",
+      "sha256": "a8879bece29316891da63a344a7e590900390a568d18dfba4240c8547704ca82"
+    },
+    {
+      "path": "scripts/verify-simulation-card05-integration.py",
+      "sha256": "67750792024edac31df9b8861704ad3d04dd5736ab5f18e808a78b54530b650c"
+    },
+    {
+      "path": "scripts/verify-simulation-ui-baseline.py",
+      "sha256": "f80b122abec3f91d53389f5a34973164d87b67b72e7c968214b9ccff2bcdd38b"
+    },
+    {
+      "path": "scripts/verify-simulation-ui-polish.py",
+      "sha256": "5502ce1a924244160f7c1481122d5722b0133f156bd3a0538e67c059e5ccd8be"
+    },
+    {
+      "path": "src/app/globals.css",
+      "sha256": "b8382013b1848d5600ac1ff3ed976caf257c5891bf3e7bf0d1e244c54b8c8b32"
+    },
+    {
+      "path": "src/app/practice/chapters/page.tsx",
+      "sha256": "ba091e19f1b5fedd7b7cfe45a78bda130b842c356ea3850e32ef9bc38223605b"
+    },
+    {
+      "path": "src/components/app-shell/app-footer.tsx",
+      "sha256": "b2cc165d0fe66c53aa4726eeec8ea11f175ca71fa413c91569279303003773fb"
+    },
+    {
+      "path": "src/components/app-shell/app-header.tsx",
+      "sha256": "3ae9bb90f97ec8fa915c3753e933ae2f30bd6e887f38231197b3afd487afdfc5"
+    },
+    {
+      "path": "src/components/site-header.tsx",
+      "sha256": "0b84cba14cf9c10a67bcbb482e42f3cc6b40eba71984f55abd30b58dc9a866da"
+    },
+    {
+      "path": "src/config/license.ts",
+      "sha256": "df4a0bbed84f0c20beb7aee855c66355d7e5d94532527d1740c51d5ef6d43c34"
+    },
+    {
+      "path": "src/features/auth/use-auth.ts",
+      "sha256": "05bea8715ade56504987852268f475048b8b3ea4ce828fc97d7203504c1636d2"
+    },
+    {
+      "path": "src/features/license/license-service.ts",
+      "sha256": "c744d9903ef6293f160865b31e90e0ef163e1dfe60025675ca3499530e1fd5e6"
+    },
+    {
+      "path": "src/features/license/use-license.ts",
+      "sha256": "6a7246094ca638a0a78921c254aaff9a4bdecf4cacc7fde0d83709f1063ed343"
+    },
+    {
+      "path": "src/features/practice/chapter-learning-service.ts",
+      "sha256": "adb55971a14784796901da4683f20b5a46b8ed17120c1efd5182c70304aabbd5"
+    },
+    {
+      "path": "src/features/practice/chapter-overview-service.ts",
+      "sha256": "bb756a64faaeff5bb54f544d24572ba8d3ecafcc8a51af2a53a7c53887c78d84"
+    },
+    {
+      "path": "src/features/practice/chapter-overview-types.ts",
+      "sha256": "6222fc26784ed002d2e7d9bb87155f02458203daf42feca90be747b76008967b"
+    },
+    {
+      "path": "src/features/practice/chapter-review-session-service.ts",
+      "sha256": "5928b10d8456e0d93a66ec63459d2ea765337a2c4513ee93df473825eeaa48ac"
+    },
+    {
+      "path": "src/features/practice/chapter-session-types.ts",
+      "sha256": "4731564f0637b3b51f88ed602ad026e99de2a42395b14773a9420e1f7aba182c"
+    },
+    {
+      "path": "src/features/practice/components/chapters/chapter-overview-card.tsx",
+      "sha256": "45d82dca759f797fd5ea899cfb01acd12b2561c5f33e6111f22b91473ca9e966"
+    },
+    {
+      "path": "src/features/practice/components/chapters/chapters-content.tsx",
+      "sha256": "71ffb2cdb546f3054fbe1633c2ba87e36c722767c41fa5e915c1fecb3001ee42"
+    },
+    {
+      "path": "src/features/practice/use-chapter-overview.ts",
+      "sha256": "e68bafa78a944e665ce14acdecd84992dfacfd5d44dc7ccc2888e5c3d763e690"
+    },
+    {
+      "path": "src/features/practice/use-chapter-review-session.ts",
+      "sha256": "94c45a280982b2fce8060b8cfc69b942adaeb0e67afda9a6df57948917f5ee03"
+    },
+    {
+      "path": "src/features/practice/use-chapter-session.ts",
+      "sha256": "23168a80de1681f131f87423ad678048277e8b4a5e5596e63133f25e6edd1ac2"
+    },
+    {
+      "path": "src/features/simulations/components/learning-ui.tsx",
+      "sha256": "7d294bb255c3f084f849cd75269685a15381f074e605b8dbc58d14d4e93bf5d4"
+    },
+    {
+      "path": "src/features/simulations/components/practice-hub-modules.tsx",
+      "sha256": "7647ed1c73f6cb4a4d89ec4b1c5e0b29d9bc900177419e8b153d708677b9277e"
+    },
+    {
+      "path": "src/features/simulations/components/scoring-timeline.tsx",
+      "sha256": "edf63ea7bca511a91a4d508f7b587986bd7b5b7605afa965c9f8e9660afba6d9"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-bookmarks-page.tsx",
+      "sha256": "0af3876d246a7f6e5e0de3992bf5e7e0def014ffe9b692fd562af9c5721fa4cb"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-chapter-view.tsx",
+      "sha256": "057778b476198231a3edbd82cd0391f7f9b9cd79433a2786858d49b863796aa5"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-chapters-view.tsx",
+      "sha256": "1ccd8d72cc36f11e866fb43c400a67b2b03b725a2c4dbadafb2531409a70a580"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-collection-ui.tsx",
+      "sha256": "aa13cc6cb52d16894ed58d54b4593058e9e8cfb2e510037b7a16f9a7c7f96724"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-dialog-layout.module.css",
+      "sha256": "a61c4c457ff0a3fa7128f51f83b9d264e1a72676fd4810d3f1b3c4259fd58cfa"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-layout.module.css",
+      "sha256": "91b51ae820ea96d431c90b3c6e6f5ff2862ba44b0b4e85a2486f57e156dd6a68"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-pages.tsx",
+      "sha256": "734bc4d2da0fa8f5025b20a3305e8560891a2847ea57e8e99feac661bb343a74"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-player.tsx",
+      "sha256": "1b2fad2c182e31cc46507e5ae6489287b8e2eb2c043d009a009a9c392e61df15"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-preparation-view.tsx",
+      "sha256": "c81ecedc196800bac406ac1280a224fa99f176411bc8fd01eefed912d2d6fb0f"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-result-view.tsx",
+      "sha256": "b164c4b4af221300407c1a7084e812e8293d6e546046de876ac3d1e12680f26a"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-review-view.tsx",
+      "sha256": "1cf6413e2ab735339d24a40ab4135505b6abe29d7aee60c7045dd8b07c314269"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-session-view.tsx",
+      "sha256": "f8a79ee2b565f05e96424ee0cc0e3ed10e770b3057ac4d1c75143d4e94f83b74"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-exam-ui.tsx",
+      "sha256": "791fb4b749055016923e8ebf10548f88cbf12b1fac566663f8304419de4e79e1"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-feedback-modal.tsx",
+      "sha256": "52b41d662aae0a4a1bfade2b701f38da3aa91cb3b337a9f99bec709be982772e"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-guide-admin-page.tsx",
+      "sha256": "c0be0244cf16da878d5ac3e5346cddcf15721f0bbfa5bedee9a42b68bac716a4"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-guide-admin-view.tsx",
+      "sha256": "b14abcb13102ba3c1fef2bb77410142ce9326ac090c203469232aba18a483271"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-guide-page.tsx",
+      "sha256": "bf338c86cb43e7dc441ef66a281e9a4e8af76f4c642eea0bc5fdfbb484a12a6e"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-guide-view.tsx",
+      "sha256": "aa78882804f2b916a47ab1b3f6745d2b3a3d0c05a9e93cec48139f0c4e747635"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-hint-card.tsx",
+      "sha256": "3e784ea6902ef31bc566611afb21c849ea603293e3a15c503a66c6f38beb7f14"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-hub-container.tsx",
+      "sha256": "192666c148f7d129dc41a17487e395b83532afa62b8f99733831dd02fe4e1262"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-learning-pages.tsx",
+      "sha256": "59dae9af421eb7ce5f31f8588aa584e3924b94536cda3c14054c8e14dfb7b865"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-practice-hub.tsx",
+      "sha256": "270bf9301c7d0a40bcb2ccb98b5dd94d71a52650450e3b409031e20f51d931ee"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-practice-layout.module.css",
+      "sha256": "ea89c3094ab4711fad44d080564956c5235f3fe658ad768ac7309f00c5516075"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-presentation.ts",
+      "sha256": "c25a9501cb385006cab48bf69174dee58fbb6391f6f6881f133740f6f525846b"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-presets-page.tsx",
+      "sha256": "59862993f26ed4e58b2eb57e55ce968a0f43dc0fbc22d37c349f8235f85d9e59"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-presets-view.tsx",
+      "sha256": "392553a9e83a7201f7e70b0ef79c2b00bcdc1b00331bf4c4a5ec8b1857800a17"
+    },
+    {
+      "path": "src/features/simulations/components/simulation-review-needed-page.tsx",
+      "sha256": "31419931ebb66a3ef8d9e834523d00280b93bb547dfc67f9a8a972ace4f300d9"
+    },
+    {
+      "path": "src/features/simulations/simulation-access.ts",
+      "sha256": "9d5229d6b86cad2f187df8982cf28280ee710a2de756505242c4cff8c80ba933"
+    },
+    {
+      "path": "src/features/simulations/simulation-bookmarks-navigation.ts",
+      "sha256": "b01b704c52968bf65cb59a7250ba73822c29f1b193f67a45719105a450c5ba01"
+    },
+    {
+      "path": "src/features/simulations/simulation-bookmarks-source.ts",
+      "sha256": "8d34e0c83764b2f49111cbbaf952c0ab3bc1e9dbd942f0ef12ccfe5b871d92a9"
+    },
+    {
+      "path": "src/features/simulations/simulation-bookmarks-types.ts",
+      "sha256": "74c0c72ce72687c3da24c15f59520b86b735dcef7d9466a4c6f36ad35b3c02b8"
+    },
+    {
+      "path": "src/features/simulations/simulation-bookmarks-validation.ts",
+      "sha256": "1c48d3dcb0844302e10302118272e5378730c3f41cfe022219d0a4285e27e9ab"
+    },
+    {
+      "path": "src/features/simulations/simulation-cache.ts",
+      "sha256": "ca9635177762168f7640dab1a7d20b7482a1b1e9a87f627f4444324aeef8f7f1"
+    },
+    {
+      "path": "src/features/simulations/simulation-command-queue.ts",
+      "sha256": "e6b27979089493f8ca2d3a1fc8fe0efd0a7b0b9f8852cabc95c3757aaace7848"
+    },
+    {
+      "path": "src/features/simulations/simulation-exam-access.ts",
+      "sha256": "3e8606f2fc16d05b77c52a8edbb3011c5203195cc4a9fdec51e77cb591de7459"
+    },
+    {
+      "path": "src/features/simulations/simulation-exam-controller.ts",
+      "sha256": "4e7f96d411441121ada6eafe303fd7e16235394438ec44142f9a9b1c39043382"
+    },
+    {
+      "path": "src/features/simulations/simulation-exam-http-source.ts",
+      "sha256": "6ed6a64d2a252103820bbe3666907486e5823e7f19320d79628ff42366a0b94c"
+    },
+    {
+      "path": "src/features/simulations/simulation-exam-service.ts",
+      "sha256": "58621ace9aae4f165c1837feaf80ba1bd294b9a586a4163200e097d3788813eb"
+    },
+    {
+      "path": "src/features/simulations/simulation-exam-source.ts",
+      "sha256": "002213ca2ce1483d488d22932cddd300ecc508dd3f38bb6e89f1f109499edfeb"
+    },
+    {
+      "path": "src/features/simulations/simulation-exam-types.ts",
+      "sha256": "704a0fcce4aa8eb5f49ea1d6d6e801773a237498fe1fbda3ea4891e169f4f91f"
+    },
+    {
+      "path": "src/features/simulations/simulation-exam-validation.ts",
+      "sha256": "9e6e95dae23118e71a2fdcfdb79774d064da22b1e7265c8287983f0f993c1bc7"
+    },
+    {
+      "path": "src/features/simulations/simulation-exam-wire.ts",
+      "sha256": "d251c376c66a70505f695bf8fbbe068b1eda9c6c27ebf35d5f6cf87bd6fc93b5"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-access.ts",
+      "sha256": "d7e7bd8b85b5b7df62ee590740ffe55b9912d3f6536b2e47b442fdcc8d42f041"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-content.ts",
+      "sha256": "e0ad77d6f6808c176551a3801a74e1a8210433f0e33df0335e4cf0b4293bb080"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-fields.ts",
+      "sha256": "e5687c9967eb75e228d1a6baae814a05e8147da8acec5f7e3ba9a4b546b8f115"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-http-source.ts",
+      "sha256": "818386c5a5829950afbf598c33e53fb0175496b95fec4d9df448af649877e5c7"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-service.ts",
+      "sha256": "1a46ea34231f0debba904584182b82b45c00490ed546b2a3dfb3ec81ba1d5c74"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-types.ts",
+      "sha256": "3aa0f5296ed2021b919a9645228014743998b75539e26fc14513baee889b90cf"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-validation.ts",
+      "sha256": "d3fd24a717a0ec3af0e379361117270be8bd7e923b17b92e3c9e99d2592160ba"
+    },
+    {
+      "path": "src/features/simulations/simulation-guide-wire.ts",
+      "sha256": "47955a81c572df015f0e534cec75b46bfa4d0dd1bcbbfe540cfa822102958a8c"
+    },
+    {
+      "path": "src/features/simulations/simulation-http-source.ts",
+      "sha256": "f0c7a0fc23677d73da6d1ab8348dd50d7e8c29b28ce32f53a5a59e09442b6e6a"
+    },
+    {
+      "path": "src/features/simulations/simulation-hub-types.ts",
+      "sha256": "d7b956a31502d2369ee126cbb9c380cebc312be18b6129a9f89cb79adc7a93d6"
+    },
+    {
+      "path": "src/features/simulations/simulation-learning-service.ts",
+      "sha256": "f586c98933e6628420c526e54fac78679ef5ae92cb172aec62e0085f0779cddd"
+    },
+    {
+      "path": "src/features/simulations/simulation-learning-source.ts",
+      "sha256": "0b5178c2b633973b76df3b1a070e772c1078e629975ced8f4d54c0c5dc1ba0ac"
+    },
+    {
+      "path": "src/features/simulations/simulation-learning-types.ts",
+      "sha256": "a847e402270c68692cbb0d31846824232a0d07fe014153ab33e70804897e00a4"
+    },
+    {
+      "path": "src/features/simulations/simulation-learning-validation.ts",
+      "sha256": "d4f620d837de9745e95c4a33ff51c80acb5c5f9d698b4eff384fad0752af8f4d"
+    },
+    {
+      "path": "src/features/simulations/simulation-navigation-store.ts",
+      "sha256": "eac45a1a7ceb7a69be2f93bcf9c701c70f6d12eeec921eb01d79f9840b34f896"
+    },
+    {
+      "path": "src/features/simulations/simulation-preset-types.ts",
+      "sha256": "9171bb021b378c2205e9832c0c9c71272b2f606c915b16d910b96388591470a5"
+    },
+    {
+      "path": "src/features/simulations/simulation-preset-validation.ts",
+      "sha256": "752a7742ffd47d89b3ec42cd7bb8c2e1fda1e0f6d597495a550487730dc26e6d"
+    },
+    {
+      "path": "src/features/simulations/simulation-review-navigation.ts",
+      "sha256": "86ad5bf7584f773c15c356a98642b1dc2b4503848e3616cb7a097b575552da29"
+    },
+    {
+      "path": "src/features/simulations/simulation-review-source.ts",
+      "sha256": "c634e642772811c67bb090fe966a23388242ca12a87f97a82eb99dec174c0a46"
+    },
+    {
+      "path": "src/features/simulations/simulation-review-types.ts",
+      "sha256": "11f79fc856e1564a21ebaacef318f52288a7d9bac00e23616f2868b22371fc70"
+    },
+    {
+      "path": "src/features/simulations/simulation-review-validation.ts",
+      "sha256": "b911c90c32f499e07068068c3384fffe40a0167cb4bfa31828f83b16d2bbcdb4"
+    },
+    {
+      "path": "src/features/simulations/simulation-wire.ts",
+      "sha256": "5b2dbc547f8bbbb5ad066b45ec2c50dda2dd9736d74a2d945590e6273b0b876c"
+    },
+    {
+      "path": "src/features/simulations/use-simulation-bookmarks.ts",
+      "sha256": "1a0596e5c5b95458fff312f8643f938eb815301a03ba227364589c4157a3aeb2"
+    },
+    {
+      "path": "src/features/simulations/use-simulation-exam.ts",
+      "sha256": "ccb710d860b949bb17adf8f7c47305b85b4c40dfa828f11df0cafb6cd851c516"
+    },
+    {
+      "path": "src/features/simulations/use-simulation-guide.ts",
+      "sha256": "20599fdbc74dedd7e6f4ab82b09d6fd26e8864d57c0f4af8d3be821cb1d4dad2"
+    },
+    {
+      "path": "src/features/simulations/use-simulation-learning.ts",
+      "sha256": "7d7da53dd24893957ed08057e806dfeb48cacd4fa3e7c3add3f6c45c6b93d2cc"
+    },
+    {
+      "path": "src/features/simulations/use-simulation-presets.ts",
+      "sha256": "2e7bd854352ad70255545cf26b9381e20d87fdd6d8152337fd2806822b52b4f5"
+    },
+    {
+      "path": "src/features/simulations/use-simulation-review.ts",
+      "sha256": "8d9bdec1e2cae9df2b0e3d4220f3a6a5ea438c2c35cff2452a9989a5d9224525"
+    },
+    {
+      "path": "src/lib/api/config.ts",
+      "sha256": "d12ec3e0e14d459f055581e29cfd1b7a5cc868238a2397553a2b33f146700a75"
+    },
+    {
+      "path": "src/lib/api/envelope.ts",
+      "sha256": "36c23423fa2f39944dd6848b56f5d579efdb43b684861ec6f32929473edafc40"
+    },
+    {
+      "path": "src/lib/api/http.ts",
+      "sha256": "4e40bc2581fa81cbd8ea743a981452ffd8e0081dfa01b97ec4016b515cc5a981"
+    },
+    {
+      "path": "src/lib/api/index.ts",
+      "sha256": "75c9fceb988b5886996bf10e1068b495773d6c1a3fc40b1460025f35683ffab1"
+    },
+    {
+      "path": "src/stores/auth-store.ts",
+      "sha256": "ebbb4afd77c4533afb8a4846bfb1e66012c7c6b87f2a48eda034e51255f84f35"
+    },
+    {
+      "path": "tests/simulation-card01-container.test.cjs",
+      "sha256": "83be7aaedb43a39b3763d6f083c36667bd8035583c009cbccc79df040839c445"
+    },
+    {
+      "path": "tests/simulation-card01-contract.test.cjs",
+      "sha256": "848f6f871b7d77f2ef36224b31c384b81a4aeb59bd4674d809aaacdaaa6bb6a2"
+    },
+    {
+      "path": "tests/simulation-card01-player.test.cjs",
+      "sha256": "c1492c09eb1da5d020b9e05c3e2c35f7cba9744098780db6d1a3689755a9391a"
+    },
+    {
+      "path": "tests/simulation-card02-container.test.cjs",
+      "sha256": "c216be05686dc100f68b7dd7bc9f7a01cc37de5cb63376199298458d1ecbbd98"
+    },
+    {
+      "path": "tests/simulation-card02-contract.test.cjs",
+      "sha256": "79c5226014666a994d591bdb210c3517c936d5999e968b43f4ee0b125da7f938"
+    },
+    {
+      "path": "tests/simulation-card02-fixtures.cjs",
+      "sha256": "197c6404484395d54238445053d9f23714b37c778ac3598881ba0105af36f2a6"
+    },
+    {
+      "path": "tests/simulation-card03-container.test.cjs",
+      "sha256": "0a9110feb60a4dd68579251e33ffa0ce753826bd2032cf46ce8b9ddfa2d67a7b"
+    },
+    {
+      "path": "tests/simulation-card03-contract.test.cjs",
+      "sha256": "80ccf6991f8fcde5e2be8615693025f03965f84bff18f96d15228f9780353d3b"
+    },
+    {
+      "path": "tests/simulation-card03-fixtures.cjs",
+      "sha256": "4765e82559634ffcc6aab4311b6c17a93fb5920c1deff777faa5c92f2ba905aa"
+    },
+    {
+      "path": "tests/simulation-card03-hub.test.cjs",
+      "sha256": "92c1deab769d995b932f9d4788aac1156ceb2ebc4d4d96780a1396a5733700e2"
+    },
+    {
+      "path": "tests/simulation-card04-admin.test.cjs",
+      "sha256": "2099417dea5f44a3080e5ae7bcc97b89c31f0f8ca9fc3006ad12371e053e0e70"
+    },
+    {
+      "path": "tests/simulation-card04-contract.test.cjs",
+      "sha256": "78d258298f645ac6f779a25fff77a215fafb81742b8de1ace534fd68eeec4342"
+    },
+    {
+      "path": "tests/simulation-card04-fixtures.cjs",
+      "sha256": "2ed46501f8204252b3e4eddeb9d0836fe71206f0b4c912d63e0bb9d6c547d951"
+    },
+    {
+      "path": "tests/simulation-card04-http.test.cjs",
+      "sha256": "fc1ae57ee1e074897e8b85758e93b78388201051d81bf90ffc3c2b1bff5ec71e"
+    },
+    {
+      "path": "tests/simulation-card04-learner.test.cjs",
+      "sha256": "aecdc2cd05ab0cef3b5e031d70ccfda5a76ddbc960b3f0cd51d1bdacb4b075a0"
+    },
+    {
+      "path": "tests/simulation-card05-contract.test.cjs",
+      "sha256": "b6adfeda86b36299ced7742f1c765ae3dc29581754c0593ab3f845c951862a0f"
+    },
+    {
+      "path": "tests/simulation-card05-controller.test.cjs",
+      "sha256": "a86ee8805308f3b8499e4d36e8af37d208a5aa935b4bb2f6d9733c93deab3421"
+    },
+    {
+      "path": "tests/simulation-card05-fixtures.cjs",
+      "sha256": "651391d011113505f86e9438749972e5bee538b1e6860ce2336671b41fd85a3d"
+    },
+    {
+      "path": "tests/simulation-card05-http.test.cjs",
+      "sha256": "b2f3f158514787a336fb933c3a7013b3752a7c5ac5ca69f5aa926571d8c458c0"
+    },
+    {
+      "path": "tests/simulation-card05-hub.test.cjs",
+      "sha256": "128aad374d567f434ea623d5db2350df1132a994512318ad614440b9ae011eaf"
+    },
+    {
+      "path": "tests/simulation-card05-pages.test.cjs",
+      "sha256": "4889a5b6179ee1b884ebe0afdbd8b4a0af5ce325346e50e2ef92c98f9a5a1dc4"
+    },
+    {
+      "path": "tests/simulation-card05-player.test.cjs",
+      "sha256": "9ad9486a878ea1298c15176561938aa06e3609813bdc37f132f7f0c41c7593cb"
+    },
+    {
+      "path": "tests/simulation-test-loader.cjs",
+      "sha256": "8a79adbb04986ac5c8258499358cdda7f0d755e597cf11a201ca8e77cbf9cbc5"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "5c51df4c59f4510d8c7dadf07a5c32132228826a3b331da5e286207b4df7ef9c"
+    }
+  ]
+}

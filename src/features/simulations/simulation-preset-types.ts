@@ -1,5 +1,9 @@
 import type { SimulationScope } from "./simulation-learning-types";
-import type { ExamPolicy, ExamPreparation } from "./simulation-exam-types";
+import type {
+  ExamPolicy,
+  ExamPreparation,
+  ExamSession,
+} from "./simulation-exam-types";
 /** A saved latest completion, not a best-score aggregate. Version/policy belong to that session. */
 export interface PresetCompletion {
   sessionId: string;
@@ -31,6 +35,7 @@ export interface SimulationPresetPage {
   bankVersion: string;
   totalPublishedSets: number;
   items: SimulationPresetItem[];
+  activeSession?: ExamSession | null;
 }
 export interface SimulationPresetPreparation extends ExamPreparation {
   preset: NonNullable<ExamPreparation["preset"]>;

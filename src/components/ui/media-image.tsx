@@ -7,7 +7,8 @@ import {
 } from "react";
 import { Loader2 } from "lucide-react";
 
-import { mediaApi } from "@/lib/api";
+import { mediaApi, practiceApi } from "@/lib/api";
+import { ApiError } from "@/lib/api/envelope";
 
 interface MediaImageProps {
   src?: string;
@@ -101,11 +102,27 @@ export function MediaImage({
 
     let cancelled = false;
 
-    void mediaApi
-      .get<MediaUrlResponse>(
-        mediaId
-      )
-      .then((response) => {
+    const loadUrl = async (): Promise<MediaUrlResponse> => {
+      try {
+        return await mediaApi.get<MediaUrlResponse>(mediaId);
+      } catch (error: unknown) {
+        // A private image may still belong to the currently published 600-question bank.
+        // Only a verified Practice proof (not a client-side role/UUID guess) can grant access.
+        if (!(error instanceof ApiError) || error.status !== 403 ||
+            !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(mediaId)) {
+          throw error;
+        }
+        const proof = await practiceApi.get<{ ticket: string }>(
+          `/v1/questions/published-image-tickets/${encodeURIComponent(mediaId)}`
+        );
+        return mediaApi.post<MediaUrlResponse>("/published-question-image", {
+          mediaId,
+          ticket: proof.ticket,
+        });
+      }
+    };
+
+    void loadUrl().then((response) => {
         if (cancelled) {
           return;
         }
@@ -119,15 +136,15 @@ export function MediaImage({
             !response?.url,
         });
       })
-      .catch((error: unknown) => {
+      .catch(() => {
         if (cancelled) {
           return;
         }
 
-        console.error(
-          "Failed to load media URL",
-          error
-        );
+        // Do not print private signed URLs or access proof details in the console.
+        if (process.env.NODE_ENV === "development") {
+          console.warn("Image could not be loaded for this account.");
+        }
 
         setLoadedMedia({
           mediaId,

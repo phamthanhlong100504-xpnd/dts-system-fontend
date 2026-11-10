@@ -1,18 +1,13 @@
 "use client";
 
-import {
-  useEffect,
-} from "react";
-import {
-  useRouter,
-} from "next/navigation";
+import { PerformancePage } from "@/features/simulation-performance/components/performance-page";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import { RequireAuth } from "@/components/require-auth";
 import { LeaderboardContent } from "@/features/leaderboard/components/leaderboard-content";
-import {
-  useLicenseHasHydrated,
-  useLicenseStore,
-} from "@/stores/license-store";
+import { useLicenseHasHydrated, useLicenseStore } from "@/stores/license-store";
 
 export default function LeaderboardPage() {
   return (
@@ -23,45 +18,27 @@ export default function LeaderboardPage() {
 }
 
 function LeaderboardPageContent() {
-  const router =
-    useRouter();
+  const router = useRouter();
 
-  const licenseHydrated =
-    useLicenseHasHydrated();
+  const licenseHydrated = useLicenseHasHydrated();
 
-  const selectedLicense =
-    useLicenseStore(
-      (state) =>
-        state.selectedLicense
-    );
+  const selectedLicense = useLicenseStore((state) => state.selectedLicense);
 
   useEffect(() => {
-    if (
-      licenseHydrated &&
-      !selectedLicense
-    ) {
+    if (licenseHydrated && !selectedLicense) {
       router.replace("/");
     }
-  }, [
-    licenseHydrated,
-    selectedLicense,
-    router,
-  ]);
+  }, [licenseHydrated, selectedLicense, router]);
 
-  if (
-    !licenseHydrated ||
-    !selectedLicense
-  ) {
+  if (!licenseHydrated || !selectedLicense) {
     return null;
   }
 
   return (
     <main className="min-h-[calc(100vh-122px)] bg-[#f7f6fb] text-[#101828]">
-      <LeaderboardContent
-        licenseClass={
-          selectedLicense
-        }
-      />
+      <PerformancePage kind="ranking" licenseClass={selectedLicense}>
+        <LeaderboardContent licenseClass={selectedLicense} />
+      </PerformancePage>
     </main>
   );
 }

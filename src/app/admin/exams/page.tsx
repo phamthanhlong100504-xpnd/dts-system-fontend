@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import styles from "@/features/admin/examination/admin-exam-visual.module.css";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useAdminExams, useCreateExam, useDeleteExam, useUpdateExam } from "@/features/admin/use-admin-content";
@@ -37,6 +38,7 @@ export default function AdminExamsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLicense, setSelectedLicense] = useState<string>("ALL");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
+  const [selectedVersion, setSelectedVersion] = useState<string>("ALL");
   const [isCreating, setIsCreating] = useState(false);
 
   const [newName, setNewName] = useState("");
@@ -59,9 +61,16 @@ export default function AdminExamsPage() {
 
   const examSets = apiExams;
 
+  const publishedVersionOptions = Array.from(new Set(examSets
+    .map((item) => item.publishedVersionNo)
+    .filter((version): version is number => typeof version === "number" && version > 0)))
+    .sort((a, b) => a - b);
+
   const filteredExams = examSets.filter((item) => {
     if (selectedLicense !== "ALL" && item.licenseType !== selectedLicense) return false;
     if (selectedStatus !== "ALL" && item.status !== selectedStatus) return false;
+    if (selectedVersion === "NONE" && item.publishedVersionNo != null) return false;
+    if (selectedVersion !== "ALL" && selectedVersion !== "NONE" && item.publishedVersionNo !== Number(selectedVersion)) return false;
     if (
       searchQuery &&
       !item.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -204,22 +213,22 @@ export default function AdminExamsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={styles.page}>
       {/* Top Bar Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-card p-6 shadow-sm border">
+      <div className={styles.heroPanel}>
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Quản lý kỳ thi chính thức
           </h1>
           <p className="text-[14.5px]/5 text-muted-foreground mt-1">
-            Quản lý kỳ thi chính thức, phiên bản đề và lịch áp dụng.
+            Quản lý đề thi, phiên bản và lịch tổ chức.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Link href="/admin/exams/structures/create">
             <Button variant="outline" className="gap-2">
               <Settings2 className="h-4 w-4" />
-              Cấu hình Ma trận
+              Cấu trúc đề thi
             </Button>
           </Link>
           <AdminCan resource="exam" action={"create"}><Button className="gap-2" onClick={() => setIsCreating(!isCreating)}>
@@ -269,7 +278,7 @@ export default function AdminExamsPage() {
               </div>
               <div className="space-y-1.5">
                 <label className="text-[12.5px]/4 font-semibold text-muted-foreground flex justify-between">
-                  <span>Ảnh bìa (Thumbnail)</span>
+                  <span>Ảnh bìa</span>
                   {newThumbnailId && (
                     <span
                       className="text-destructive cursor-pointer hover:underline"
@@ -325,7 +334,7 @@ export default function AdminExamsPage() {
       )}
 
       {/* Parent exam state and published versions are different entities. */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+      <div className={styles.statGridFive}>
         {[
           { label: "Tổng kỳ thi", value: examSets.length, icon: BookOpen, color: "text-primary" },
           { label: "Kỳ thi đang công bố", value: examSets.filter((e) => e.status === "PUBLISHED").length, icon: CheckCircle2, color: "text-emerald-500" },
@@ -334,16 +343,16 @@ export default function AdminExamsPage() {
           { label: "Số câu đề đã cấu hình", value: examSets.reduce((sum, e) => sum + e.questionsCount, 0).toLocaleString("vi-VN"), icon: BookOpen, color: "text-primary" },
         ].map((stat) => {
           const Icon = stat.icon;
-          return <Card key={stat.label}><CardContent className="flex items-center gap-3 p-4"><div className={`rounded-xl bg-muted p-2 ${stat.color}`}><Icon className="size-5" /></div><div><p className="text-[12.5px]/4 text-muted-foreground">{stat.label}</p><p className="text-2xl font-bold">{examsError || isLoading ? "—" : stat.value}</p></div></CardContent></Card>;
+          return <Card key={stat.label} className={styles.statTile}><CardContent><div className={styles.statTileTop}><p className={styles.statTileLabel}>{stat.label}</p><span className={styles.statTileIcon}><Icon className="size-5" aria-hidden="true" /></span></div><strong className={styles.statTileValue}>{examsError || isLoading ? "—" : stat.value}</strong></CardContent></Card>;
         })}
       </div>
-      <p className="text-[12.5px]/4 text-muted-foreground">Trạng thái kỳ thi và phiên bản đề được quản lý riêng. Kỳ thi đang ẩn sẽ không hiển thị cho học viên.</p>
+      
       {examsError && <p role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-[14.5px]/5 text-red-700">Không tải được dữ liệu kỳ thi. Vui lòng kiểm tra kết nối hoặc quyền truy cập.</p>}
 
       {/* Filter Toolbar */}
-      <Card className="rounded-2xl shadow-sm">
-        <CardContent className="p-4 flex flex-wrap gap-4 items-center justify-between">
-          <div className="relative flex-1 min-w-[240px]">
+      <Card className={styles.filterCard}>
+        <CardContent>
+          <div className={`relative ${styles.filterSearch}`}>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Tìm kiếm bộ đề thi..."
@@ -352,7 +361,7 @@ export default function AdminExamsPage() {
               className="pl-9 h-9 text-[14.5px]/5"
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className={styles.filterControls}>
             <select
               value={selectedLicense}
               onChange={(e) => setSelectedLicense(e.target.value)}
@@ -372,12 +381,22 @@ export default function AdminExamsPage() {
               <option value="HIDDEN">Đang ẩn</option>
               <option value="ARCHIVED">Đã lưu trữ</option>
             </select>
+            <select
+              value={selectedVersion}
+              onChange={(e) => setSelectedVersion(e.target.value)}
+              aria-label="Lọc theo phiên bản đã công bố"
+              className="h-9 rounded-lg border bg-background px-3 text-[14.5px]/5 focus:outline-none focus:ring-1 focus:ring-primary"
+            >
+              <option value="ALL">Tất cả phiên bản</option>
+              {publishedVersionOptions.map(version => <option key={version} value={String(version)}>Phiên bản {version}</option>)}
+              <option value="NONE">Chưa công bố phiên bản</option>
+            </select>
           </div>
         </CardContent>
       </Card>
 
       {/* Main Exams Table */}
-      <Card className="rounded-2xl shadow-sm overflow-hidden border">
+      <Card className={styles.listCard}>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-[14.5px]/5">
             <thead className="bg-muted/50 border-b text-[12.5px]/4 font-semibold uppercase tracking-wider text-muted-foreground">
@@ -418,7 +437,7 @@ export default function AdminExamsPage() {
                     </td>
                     <td className="py-4 px-4 font-medium text-foreground max-w-xs">
                       {exam.title}
-                      {exam.publishedVersionNo != null && <p className="mt-1 text-[14px]/5 text-muted-foreground">Đang công bố phiên bản {exam.publishedVersionNo}</p>}
+
                     </td>
                     <td className="py-4 px-4">
                       <Badge variant="outline" className="font-bold">
@@ -426,11 +445,11 @@ export default function AdminExamsPage() {
                       </Badge>
                     </td>
                     <td className="py-4 px-4 text-[12.5px]/4 text-muted-foreground">
-                      {exam.versionCount === 0 ? "Chưa tạo phiên bản" : <>{exam.questionsCount ? `${exam.questionsCount} câu` : "Chưa có cấu trúc"} · {exam.durationMinutes ? `${exam.durationMinutes} phút` : "Chưa có quy chế"} · {exam.passScore ? `Đạt ≥${exam.passScore}` : "Chưa có tiêu chí"}<span className="mt-1 block font-medium text-foreground">{exam.examType === "OFFICIAL" ? "Thi chính thức" : exam.examType ?? "—"} · {exam.versionCount} phiên bản</span></>}
+                      {exam.versionCount === 0 ? "Chưa tạo phiên bản" : <>{exam.questionsCount ? `${exam.questionsCount} câu` : "Chưa có cấu trúc"} · {exam.durationMinutes ? `${exam.durationMinutes} phút` : "Chưa có quy chế"} · {exam.passScore ? `Đạt ≥${exam.passScore}` : "Chưa có tiêu chí"}</>}
                     </td>
                     <td className="py-4 px-4">
                       <Badge variant="secondary" className={exam.status === "PUBLISHED" ? "bg-emerald-100 text-emerald-700" : exam.status === "HIDDEN" ? "bg-slate-200 text-slate-700" : exam.status === "ARCHIVED" ? "bg-gray-200 text-gray-700" : "bg-amber-100 text-amber-700"}>{({ DRAFT: "Bản nháp", PUBLISHED: "Đã xuất bản", HIDDEN: "Đang ẩn", ARCHIVED: "Đã lưu trữ" } as Record<string, string>)[exam.status] ?? exam.status}</Badge>
-                      {exam.status === "HIDDEN" && exam.publishedVersionCount > 0 && <p className="mt-1 text-[12.5px]/4 text-amber-700">Phiên bản đã xuất bản nhưng kỳ thi đang ẩn</p>}
+
                     </td>
                     <td className="py-4 px-4 text-[12.5px]/4 text-muted-foreground">{exam.updatedAt ? new Date(exam.updatedAt).toLocaleString("vi-VN") : "Chưa có thông tin"}</td>
                     <td className="py-4 px-4 text-right whitespace-nowrap">
@@ -486,7 +505,7 @@ export default function AdminExamsPage() {
       </Card>
       {/* Edit Exam Dialog */}
       <Dialog open={!!editingExam} onOpenChange={(open) => !open && setEditingExam(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className={styles.dialog}>
           <DialogHeader>
             <DialogTitle>Chỉnh sửa thông tin Bộ đề thi</DialogTitle>
           </DialogHeader>

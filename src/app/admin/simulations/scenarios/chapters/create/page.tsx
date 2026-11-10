@@ -1,2 +1,10 @@
 import { ResourceWorkspace } from "@/features/admin/workbench/components/resource-workspace";
-export default function Page() { return <ResourceWorkspace kind="simulation-chapters" baseHref="/admin/simulations/scenarios/chapters" id="create" />; }
+import styles from "@/features/admin/admin05/admin-simulation-pages.module.css";
+
+export default function Page() {
+  return (
+    <div className={styles.workspace}>
+      <ResourceWorkspace kind="simulation-chapters" baseHref="/admin/simulations/scenarios/chapters" id="create" />
+    </div>
+  );
+}

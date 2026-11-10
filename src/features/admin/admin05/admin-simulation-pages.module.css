@@ -1,0 +1,550 @@
+/* DTS Admin mô phỏng: cùng kiểu chữ /admin/simulation-guide.
+   Chỉ áp dụng cho các trang Admin import module này. */
+.page,
+.workspace {
+  width: 100%;
+  max-width: 1320px;
+  min-width: 0;
+  margin-inline: auto;
+  color: var(--foreground);
+  font-family: inherit;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1cm;
+}
+
+.page :where(h1) {
+  font-size: 22px;
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--foreground);
+}
+
+.page :where(h2),
+.workspace :where(h2) {
+  font-size: 18px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.page :where(h3),
+.workspace :where(h3) {
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.page :where(p, li),
+.workspace :where(p, li) {
+  line-height: 1.65;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e3e5ec;
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: 0 2px 10px rgba(16,24,40,.045);
+}
+
+.navLink {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: background .16s ease, border-color .16s ease;
+}
+
+.navLink:hover {
+  border-color: #d8e1f6;
+  background: #f8f8fc;
+}
+
+.navActive,
+.navActive:hover {
+  border-color: #cbd9f8;
+  background: #eef2ff;
+  color: var(--primary);
+}
+
+.sheet,
+.filterForm,
+.tableWrap,
+.chapterStat,
+.chapterGrid > *,
+.workspace :where(fieldset, form, section) {
+  border: 1px solid #e3e5ec;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: 0 2px 10px rgba(16,24,40,.045);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 20px;
+  padding: 24px;
+}
+
+.sheet > :where(h2, h3) {
+  margin: 0;
+}
+
+.sheet > :where(p),
+.sheet > :where(div) > :where(p) {
+  margin-block: 0;
+}
+
+.sheet :where(input:not([type='checkbox']), select, textarea),
+.workspace :where(input:not([type='checkbox']), select, textarea) {
+  min-height: 44px;
+  border-radius: 11px;
+  border-color: #d9deea;
+  font-size: 15px;
+  color: var(--foreground);
+}
+
+.sheet :where(label),
+.workspace :where(label) {
+  display: block;
+  font-size: 14.5px;
+  line-height: 1.6;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.sheet :where(label) > :where(input, select, textarea),
+.workspace :where(label) > :where(input, select, textarea) {
+  margin-top: 9px;
+}
+
+.sheet [class~="grid"] {
+  gap: 18px;
+}
+
+.sheet [class~="space-y-2"] > * + *,
+.sheet [class~="space-y-3"] > * + * {
+  margin-block-start: 14px;
+}
+
+.sheet [class~="rounded-xl"][class~="border"] {
+  padding: 18px 20px;
+  border-color: #e3e5ec;
+  background: #fcfcff;
+  border-radius: 14px;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.actionLink {
+  color: var(--primary);
+  font-size: 14.5px;
+  font-weight: 650;
+  text-decoration: none;
+  text-underline-offset: 4px;
+}
+
+.actionLink:hover {
+  text-decoration: underline;
+}
+
+.filterForm {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(125px, auto);
+  align-items: end;
+  gap: 20px;
+  padding: 22px 24px;
+}
+
+.filterForm:has(> label:nth-of-type(2):last-of-type) {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(125px,auto);
+}
+
+.field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.field > span {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.field :where(input),
+.select {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  border: 1px solid #d9deea;
+  border-radius: 11px;
+  background: var(--background);
+  padding: 0 12px;
+  font-size: 15px;
+  color: var(--foreground);
+}
+
+.searchButton {
+  min-height: 44px;
+  padding-inline: 22px;
+  white-space: nowrap;
+  border-radius: 11px;
+  font-weight: 650;
+}
+
+.tableWrap {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.table thead {
+  background: #f8f8fc;
+}
+
+.table th {
+  padding: 18px 19px;
+  border-bottom: 1px solid #e3e5ec;
+  font-size: 15.5px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--foreground);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 19px;
+  border-bottom: 1px solid #ebedf2;
+  vertical-align: middle;
+  font-size: 15px;
+  font-weight: 450;
+  line-height: 1.65;
+  color: var(--foreground);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: #fcfcff;
+}
+
+.table tbody td:nth-child(2) {
+  font-weight: 600;
+}
+
+.table td :where(a) {
+  white-space: nowrap;
+}
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 14.5px;
+  color: var(--muted-foreground);
+}
+
+.pager :where(button) {
+  min-height: 39px;
+  border-radius: 10px;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 16px;
+}
+
+.tile {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 19px;
+  border: 1px solid #e3e5ec;
+  border-radius: 14px;
+  background: #f8f8fc;
+}
+
+.tileLabel {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.tileValue {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.subtleText {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--muted-foreground);
+}
+
+.chapterGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.chapterGrid .sheet {
+  min-height: 156px;
+}
+
+.chapterStat {
+  padding: 18px;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.proseGroup {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.proseGroup > div {
+  min-width: 0;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid #e3e5ec;
+  background: #f8f8fc;
+}
+
+.proseGroup h3 {
+  margin-bottom: 12px;
+}
+
+.proseGroup p {
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.scenarioOrder {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.orderItem {
+  display: flex;
+  min-height: 68px;
+  min-width: 0;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 17px;
+  border: 1px solid #e3e5ec;
+  border-radius: 14px;
+  background: #f8f8fc;
+}
+
+.orderNumber {
+  display: flex;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #eef2ff;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.policyCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1cm;
+  padding: 24px;
+  border: 1px solid #e3e5ec;
+  border-radius: 16px;
+  background: #fcfcff;
+}
+
+.policyTitle {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 18px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.headerAction {
+  min-height: 42px;
+  border: 1px solid #dce2ed;
+  border-radius: 10px;
+  padding-inline: 18px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+/* Các trang tạo và sửa dùng ResourceWorkspace dùng chung: giới hạn CSS
+   trong vùng mô phỏng, không ảnh hưởng các trang Admin khác. */
+.workspace :where(form, fieldset, section) {
+  padding: 24px;
+}
+
+.workspace :where(form, fieldset) :where(.grid) {
+  gap: 18px;
+}
+
+.workspace :where(table) {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.workspace :where(th) {
+  padding: 17px;
+  border-bottom: 1px solid #e3e5ec;
+  background: #f8f8fc;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.workspace :where(td) {
+  padding: 17px;
+  border-bottom: 1px solid #ebedf2;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.workspace :where(button) {
+  border-radius: 10px;
+}
+
+.page :where(a,button,input,select,textarea):focus-visible,
+.workspace :where(a,button,input,select,textarea):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1180px) {
+  .filterForm {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .filterForm:has(> label:nth-of-type(2):last-of-type) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .searchButton {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 850px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .chapterGrid,
+  .proseGroup,
+  .scenarioOrder {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    gap: 24px;
+  }
+  .sheet,
+  .filterForm {
+    padding: 18px;
+  }
+  .nav {
+    gap: 7px;
+    padding: 9px;
+  }
+  .navLink {
+    padding: 9px 11px;
+    font-size: 13.5px;
+  }
+  .filterForm,
+  .filterForm:has(> label:nth-of-type(2):last-of-type),
+  .tiles {
+    grid-template-columns: 1fr;
+  }
+  .searchButton {
+    width: 100%;
+    justify-self: stretch;
+  }
+  .table th,
+  .table td {
+    padding: 15px 14px;
+  }
+  .policyCard {
+    padding: 18px;
+    gap: 28px;
+  }
+  .headerAction {
+    width: 100%;
+  }
+  .workspace :where(form,fieldset,section) {
+    padding: 18px;
+  }
+}
+
+:global(.dark) .nav,
+:global(.dark) .sheet,
+:global(.dark) .filterForm,
+:global(.dark) .tableWrap,
+:global(.dark) .tile,
+:global(.dark) .policyCard,
+:global(.dark) .orderItem,
+:global(.dark) .proseGroup > div {
+  border-color: var(--border);
+  background: var(--card);
+}
+
+:global(.dark) .table thead,
+:global(.dark) .table tbody tr:hover {
+  background: var(--muted);
+}

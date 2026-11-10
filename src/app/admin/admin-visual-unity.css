@@ -1,0 +1,104 @@
+/* DTS Admin visual language — scoped to the Admin shell only.
+ * Reference: /admin/simulation-guide. Do not style learner routes or alter state colors.
+ */
+#admin-main-content {
+  --dts-admin-surface-border: #e3e5ec;
+  --dts-admin-surface-shadow: 0 2px 12px rgb(16 24 40 / 5%);
+  --dts-admin-secondary-text: #475467;
+  --dts-admin-soft-surface: #f8f9fc;
+  font-family: var(--font-geist-sans), "Segoe UI", Arial, sans-serif;
+  color: var(--foreground);
+  letter-spacing: -0.005em;
+}
+
+/* Match the calm centered 1320px workspace used on the simulation guide page. */
+#admin-main-content > .contents > :where(div, section, article) {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+/* Shared page headings, including pages that build their own header. */
+#admin-main-content .dts-admin-page-heading,
+#admin-main-content :where(header, section, div)[class~="bg-card"][class*="border"]:has(> h1) {
+  border: 1px solid var(--dts-admin-surface-border);
+  border-radius: 18px;
+  background-color: var(--card);
+  box-shadow: var(--dts-admin-surface-shadow);
+}
+#admin-main-content :where(h1, h2, h3) {
+  color: var(--foreground);
+  letter-spacing: -0.018em;
+}
+#admin-main-content h1 { font-size: 22px; line-height: 1.35; font-weight: 700; }
+#admin-main-content h2 { font-size: 18px; line-height: 1.4; font-weight: 650; }
+#admin-main-content h3 { font-size: 16px; line-height: 1.45; font-weight: 600; }
+#admin-main-content :where(p, li, dt, dd, label) { line-height: 1.6; }
+#admin-main-content :where(.dts-admin-page-heading p, [data-slot="card-description"]) {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+}
+
+/* Cards, editors and data panels. Avoid warning, error and success surfaces. */
+#admin-main-content :where(section, article, div)[class~="bg-card"][class*="border"][class*="rounded"],
+#admin-main-content [data-slot="card"] {
+  border-color: var(--dts-admin-surface-border);
+  border-radius: 18px;
+  box-shadow: var(--dts-admin-surface-shadow);
+}
+#admin-main-content :where([data-slot="card-header"], [data-slot="card-content"]) {
+  min-width: 0;
+}
+#admin-main-content :where(table) {
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+#admin-main-content :where(thead) {
+  background-color: var(--dts-admin-soft-surface);
+  color: var(--foreground);
+}
+#admin-main-content :where(th) { font-weight: 650; }
+#admin-main-content :where(td, th) { vertical-align: middle; }
+#admin-main-content :where(tbody tr) { transition: background-color 120ms ease; }
+#admin-main-content :where(tbody tr:hover) { background: color-mix(in srgb, var(--muted) 24%, transparent); }
+
+/* Form controls: typography and corners only — preserve disabled/validation states. */
+#admin-main-content :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea, [data-slot="select-trigger"]) {
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+#admin-main-content :where(button, [data-slot="button"]) {
+  border-radius: 10px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+#admin-main-content :where([data-slot="tabs-list"]) {
+  border-radius: 12px;
+  padding: 4px;
+}
+#admin-main-content :where([data-slot="tabs-trigger"]) {
+  border-radius: 9px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+/* Portaled dialogs are shown only in Admin; never affect learner dialogs. */
+body:has(#admin-main-content) :where([data-slot="dialog-content"], [data-slot="alert-dialog-content"]) {
+  border-color: var(--dts-admin-surface-border);
+  border-radius: 18px;
+  box-shadow: 0 16px 52px rgb(16 24 40 / 15%);
+}
+.dark #admin-main-content {
+  --dts-admin-surface-border: #343e50;
+  --dts-admin-secondary-text: #cbd5e1;
+  --dts-admin-soft-surface: #212937;
+  --dts-admin-surface-shadow: 0 2px 12px rgb(0 0 0 / 16%);
+}
+@media (max-width: 767px) {
+  #admin-main-content h1 { font-size: 20px; }
+  #admin-main-content h2 { font-size: 17px; }
+  #admin-main-content :where(table) { font-size: 14px; }
+}

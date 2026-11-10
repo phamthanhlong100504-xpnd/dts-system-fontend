@@ -1,10 +1,68 @@
-/* One heading/description rhythm for student Card04/05/06; no global overrides. */
+/* Scoped title/description spacing. No font size, content, API or grading changes. */
 .headingDescription {
   display: grid;
   min-width: 0;
   align-content: start;
-  row-gap: 0.6cm;
+  row-gap: var(--heading-description-gap, 0.6cm);
 }
 .headingDescription > :is(h1, h2, h3, p) {
   margin-block: 0;
+}
+
+/* Explicitly win over per-page 0.7cm preparation overrides, regardless of load order. */
+.headingDescription.pageIntro {
+  --heading-description-gap: 0.6cm;
+  row-gap: 0.6cm;
+}
+.pageIntro > :is(h1, h2, h3, p),
+.pageIntro > .introRow > p {
+  margin-block: 0;
+  padding-block: 0;
+}
+.introRow {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+@media (min-width: 1280px) {
+  .introRow {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+/* Keep multiline leading, trim only the two facing text edges.
+   Otherwise font half-leading adds visible space on top of the requested 0.6cm.
+   Older engines retain the exact 0.6cm line-box gap above. */
+@supports (text-box-trim: trim-both) {
+  .pageIntro > :is(h1, h2, h3) {
+    text-box-trim: trim-end;
+    text-box-edge: cap alphabetic;
+  }
+  .pageIntro > p,
+  .pageIntro > .introRow > p {
+    text-box-trim: trim-start;
+    text-box-edge: cap alphabetic;
+  }
+}
+
+/* Apply the requested gap to the visible facing text edges in section/card pairs too. */
+@supports (text-box-trim: trim-both) {
+  .headingDescription.sectionPair > :is(h1, h2, h3) {
+    /* Trimming does not propagate through flex anonymous text items. Keep
+       heading text in its inline formatting context and retain inline icons. */
+    display: block;
+    text-box-trim: trim-end;
+    text-box-edge: cap alphabetic;
+  }
+  .headingDescription.sectionPair > :is(h1, h2, h3) > svg {
+    display: inline-block;
+    vertical-align: middle;
+    margin-inline-end: 8px;
+  }
+  .headingDescription.sectionPair > p {
+    text-box-trim: trim-start;
+    text-box-edge: cap alphabetic;
+  }
 }

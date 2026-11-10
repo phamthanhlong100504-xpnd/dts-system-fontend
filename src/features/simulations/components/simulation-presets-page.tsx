@@ -12,13 +12,11 @@ import {
   useSimulationPresetPreparation,
 } from "../use-simulation-presets";
 import { useSimulationNavigation } from "../simulation-navigation-store";
-import { simulationExamKeys } from "../use-simulation-exam";
+import { invalidateExamCatalogues } from "../simulation-exam-cache";
+import { presetCreateIntent } from "../simulation-preset-create-intent";
 import { simulationExamRoutes } from "../simulation-exam-source";
 import { SimulationExamError } from "../simulation-exam-types";
-import {
-  validateExamSession,
-  sameExamPolicy,
-} from "../simulation-exam-validation";
+import { validateExamSession } from "../simulation-exam-validation";
 import type { SimulationScope } from "../simulation-learning-types";
 export function SimulationPresetsPage({
   presetSetId,
@@ -34,7 +32,7 @@ export function SimulationPresetsPage({
       {(scope) =>
         presetSetId ? (
           <BoundPresetPreparation
-            key={`${scope.userId}:${scope.licenseClass}:${presetSetId}:${expectedVersionId ?? "current"}:${retakeFromVersion ?? ""}`}
+            key={`${scope.userId}:${scope.licenseClass}:${presetSetId}`}
             scope={scope}
             id={presetSetId}
             expectedVersionId={expectedVersionId}
@@ -67,6 +65,12 @@ function BoundPresets({ scope }: { scope: SimulationScope }) {
           simulationExamRoutes.preset(i.presetSetId, i.presetVersionId),
         )
       }
+      onResumeActive={() => {
+        if (state.status === "ready" && state.data.activeSession)
+          router.push(
+            simulationExamRoutes.session(state.data.activeSession.sessionId),
+          );
+      }}
       onResume={(i) => {
         if (i.activeSession)
           router.push(simulationExamRoutes.session(i.activeSession.sessionId));
@@ -108,10 +112,11 @@ function BoundPresetPreparation({
     [notice, setNotice] = useState<string | null>(null),
     [exit, setExit] = useState(false),
     [cancelError, setCancelError] = useState<string | null>(null),
-    [startBlocked, setStartBlocked] = useState(false);
+    [startBlocked, setStartBlocked] = useState(false),
+    [pendingCreate, setPendingCreate] = useState(false);
   const lock = useRef(false),
     alive = useRef(true),
-    creation = useRef<{ version: string; key: string } | null>(null),
+    creation = useRef<ReturnType<typeof presetCreateIntent> | null>(null),
     cancelKey = useRef<{ sessionId: string; key: string } | null>(null);
   useEffect(() => {
     alive.current = true;
@@ -121,59 +126,52 @@ function BoundPresetPreparation({
   }, []);
   const startNotice = !data
     ? null
-    : !data.canStart
-      ? data.unavailableReason
-      : versionChanged
-        ? "Bộ đề đã có phiên bản mới kể từ khi bạn chọn. Hãy xem phiên bản hiện tại trước khi bắt đầu."
-        : retakeChanged
-          ? "Bộ đề đã được cập nhật. Lượt thi mới sử dụng phiên bản đang công bố; kết quả trước vẫn được giữ nguyên."
-          : startBlocked
-            ? "Chưa thể bắt đầu bộ đề này. Hãy tải lại thông tin trước khi thử tiếp."
-            : null;
-  async function start() {
+    : pendingCreate
+      ? "Yêu cầu tạo trước chưa được xác nhận. Hãy kiểm tra bài đang làm hoặc thử lại đúng yêu cầu trước."
+      : !data.canStart
+        ? data.unavailableReason
+        : versionChanged
+          ? "Bộ đề đã có phiên bản mới kể từ khi bạn chọn. Hãy xem phiên bản hiện tại trước khi bắt đầu."
+          : retakeChanged
+            ? "Bộ đề đã được cập nhật. Lượt thi mới sử dụng phiên bản đang công bố; kết quả trước vẫn được giữ nguyên."
+            : startBlocked
+              ? "Chưa thể bắt đầu bộ đề này. Hãy tải lại thông tin trước khi thử tiếp."
+              : null;
+  async function start(retry = false) {
+    if (lock.current || !alive.current || !source) return;
     if (
-      lock.current ||
-      !alive.current ||
-      !source ||
-      !data ||
-      active ||
-      !data.canStart ||
-      query.isFetching ||
-      versionChanged ||
-      startBlocked
+      !retry &&
+      (!data ||
+        active ||
+        !data.canStart ||
+        query.isFetching ||
+        versionChanged ||
+        startBlocked)
     )
       return;
+    if (retry && !creation.current) return;
     lock.current = true;
     setBusy(true);
-    const preset = data.preset;
-    if (creation.current?.version !== preset.presetVersionId)
-      creation.current = {
-        version: preset.presetVersionId,
-        key: crypto.randomUUID(),
-      };
-    const key = creation.current.key;
+    creation.current ??= presetCreateIntent(scope, data!, crypto.randomUUID());
+    const intent = creation.current;
     try {
-      const s = await source.create(scope, {
-        mode: "PRESET",
-        presetSetId: preset.presetSetId,
-        presetVersionId: preset.presetVersionId,
-        idempotencyKey: key,
-      });
+      const s = await source.create(scope, intent.request);
       if (!alive.current) return;
-      validateExamSession(s, scope);
-      if (
-        s.mode !== "PRESET" ||
-        s.preset.presetSetId !== preset.presetSetId ||
-        s.preset.presetVersionId !== preset.presetVersionId ||
-        s.bankVersion !== data.bankVersion ||
-        !sameExamPolicy(s.policy, data.policy) ||
-        !["IN_PROGRESS", "READY_TO_SUBMIT"].includes(s.status)
-      )
-        throw Error("Phiên không khớp bộ đề đã chọn.");
-      client.removeQueries({ queryKey: simulationExamKeys.scope(scope) });
-      router.push(simulationExamRoutes.session(s.sessionId));
+      intent.accept(s);
+      setPendingCreate(false);
+      creation.current = null;
+      void invalidateExamCatalogues(client, scope.userId);
+      if (s.status === "COMPLETED")
+        router.push(simulationExamRoutes.result(s.sessionId));
+      else if (s.status === "CANCELLED") {
+        setNotice(
+          "Yêu cầu trước thuộc bài thi đã hủy. Bạn có thể bắt đầu một lượt thi mới.",
+        );
+        await query.refetch();
+      } else router.push(simulationExamRoutes.session(s.sessionId));
     } catch (e) {
       if (!alive.current) return;
+      setPendingCreate(true);
       if (
         e instanceof SimulationExamError &&
         e.code === "ACTIVE_SESSION_EXISTS"
@@ -185,8 +183,11 @@ function BoundPresetPreparation({
           );
       } else if (
         e instanceof SimulationExamError &&
-        ["PRESET_UNAVAILABLE", "PRESET_VERSION_CHANGED"].includes(e.code)
+        ["PRESET_VERSION_CHANGED", "BANK_CHANGED"].includes(e.code)
       ) {
+        // Definitive rejected selection: a newly confirmed version is a new intent.
+        creation.current = null;
+        setPendingCreate(false);
         setStartBlocked(true);
         await query.refetch();
       } else
@@ -227,6 +228,8 @@ function BoundPresetPreparation({
       setExit(false);
       cancelKey.current = null;
       creation.current = null;
+      setPendingCreate(false);
+      void invalidateExamCatalogues(client, scope.userId);
       await query.refetch();
     } catch {
       if (alive.current)
@@ -246,14 +249,13 @@ function BoundPresetPreparation({
         busy={busy || query.isFetching}
         busyLabel={busy ? undefined : "Đang kiểm tra bộ đề…"}
         canStart={
-          !!data?.canStart &&
-          !versionChanged &&
-          !startBlocked &&
+          (pendingCreate ||
+            (!!data?.canStart && !versionChanged && !startBlocked)) &&
           !query.isFetching
         }
         startNotice={startNotice}
         onAcceptVersion={
-          versionChanged && data?.canStart
+          versionChanged && data?.canStart && !pendingCreate
             ? () =>
                 router.replace(
                   simulationExamRoutes.preset(
@@ -266,12 +268,16 @@ function BoundPresetPreparation({
         }
         onBack={() => router.push(simulationExamRoutes.presets)}
         onRetry={() => {
+          if (pendingCreate) {
+            void start(true);
+            return;
+          }
           setStartBlocked(true);
           void query.refetch().then((result) => {
             if (alive.current && !result.isError) setStartBlocked(false);
           });
         }}
-        onStart={() => void start()}
+        onStart={() => void start(pendingCreate)}
         onResume={
           active
             ? () => router.push(simulationExamRoutes.session(active.sessionId))
@@ -283,6 +289,15 @@ function BoundPresetPreparation({
         key={notice ?? "no-notice"}
         message={notice}
         onDismiss={() => setNotice(null)}
+        action={
+          pendingCreate
+            ? {
+                label: "Thử lại yêu cầu",
+                disabled: busy,
+                onClick: () => void start(true),
+              }
+            : undefined
+        }
       />
       {active && (
         <ExamExitDialog

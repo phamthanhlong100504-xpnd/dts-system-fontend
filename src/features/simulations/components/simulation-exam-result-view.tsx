@@ -38,6 +38,7 @@ export function SimulationExamResultView({
   const r = state.status === "ready" ? state.data : null;
   return (
     <ExamShell
+      showIntro={false}
       title={
         r?.mode === "PRESET"
           ? `Kết quả thi thử – ${r.preset.title}`
@@ -65,7 +66,9 @@ export function SimulationExamResultView({
             <div className="flex flex-wrap items-center justify-between gap-4">
               <h2 className={examTitle}>
                 <Trophy className="size-5 text-[#0758d9]" />
-                Kết quả bài thi
+                {r.mode === "PRESET"
+                  ? `Kết quả bài thi - ${r.preset.title}`
+                  : "Kết quả bài thi"}
               </h2>
               <ExamBadge tone={r.passed ? "green" : "red"}>
                 {r.passed ? "Đạt" : "Không đạt"}
@@ -125,7 +128,12 @@ export function SimulationExamResultView({
             </div>
           </section>
           <section>
-            <div className={textStyles.headingDescription}>
+            <div
+              className={cn(
+                textStyles.headingDescription,
+                textStyles.sectionPair,
+              )}
+            >
               <h2 className={examTitle}>Kết quả từng tình huống</h2>
               <p className={examBody}>
                 Xem điểm phản ứng và mở chi tiết để rút kinh nghiệm.

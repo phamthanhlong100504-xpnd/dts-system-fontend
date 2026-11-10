@@ -1,0 +1,152 @@
+/* Chapter-management presentation only. Aligned with the approved Admin
+   questions and simulation-guide surfaces. No global or learner overrides. */
+.page {
+  width: 100%;
+  max-width: 1320px;
+  min-width: 0;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  color: var(--foreground);
+}
+.tabShell { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.tabList {
+  overflow-x: auto;
+  display: inline-flex;
+  align-self: flex-start;
+  width: max-content;
+  max-width: 100%;
+  min-height: 48px;
+  padding: 4px;
+  border: 1px solid #e3e5ec;
+  border-radius: 14px;
+  background: #f8f8fc;
+}
+.tabTrigger {
+  min-height: 38px;
+  padding-inline: 17px;
+  border-radius: 10px;
+  font-size: 14.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-align: center;
+  flex-shrink: 0;
+}
+.createCard, .panelCard {
+  min-width: 0;
+  overflow: hidden;
+  gap: 0;
+  border: 1px solid #e3e5ec;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: 0 2px 10px rgba(16,24,40,.045);
+}
+.createCard { padding-bottom: 20px; }
+.createCard input { min-height: 42px; border-color: #dce1eb; border-radius: 10px; }
+.workspaceGrid {
+  display: grid;
+  grid-template-columns: minmax(285px, 0.82fr) minmax(0, 1.8fr);
+  align-items: start;
+  gap: 20px;
+}
+.workspaceSidebar, .workspaceMain { min-width: 0; }
+.listHeader, .detailHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px;
+  border-bottom: 1px solid #e3e5ec;
+  background: #f8f8fc;
+}
+.listHeader { padding-block: 21px; }
+.listHeader :global(svg) { color: var(--primary); }
+.listBody { display: flex; flex-direction: column; gap: 9px; padding: 18px; }
+.chapterListItem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 63px;
+  padding: 13px 14px;
+  border: 1px solid #e5e9f0;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.unselectedChapter:hover { background: #f8faff; border-color: #bdcafa; }
+.selectedChapter {
+  border-color: #b7c8fa;
+  background: #eef2ff;
+}
+.chapterListItem :global([data-slot="badge"]) { font-size: 12px; font-weight: 600; text-transform: none; }
+.detailHeader > div:first-child { min-width: 0; }
+.detailHeader :global([data-slot="card-title"]) { line-height: 1.5; overflow-wrap: anywhere; }
+.chapterActions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+.chapterActions :global(button) { min-height: 38px; border-radius: 10px; }
+.editCard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #e3e5ec;
+  border-radius: 14px;
+  background: #fcfcff;
+}
+.editCard input { min-height: 41px; border-radius: 10px; }
+.descriptionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+  border: 1px solid #e3e5ec;
+  border-radius: 14px;
+  background: #f8f8fc;
+}
+.descriptionCard p { margin: 0; overflow-wrap: anywhere; }
+.descriptionCard :global(svg) { color: var(--primary); }
+.questionSection { display: flex; flex-direction: column; gap: 15px; }
+.questionSection h3 { margin: 0; font-size: 16px; }
+.questionBlockList { display: flex; flex-direction: column; gap: 12px; }
+.questionBlock {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  padding: 14px 16px;
+  border: 1px solid #e4e8f1;
+  border-radius: 13px;
+  background: #fff;
+}
+.questionBlock:hover { background: #fcfcff; }
+.questionBlock p { white-space: normal; overflow-wrap: anywhere; }
+.questionBlock :global(button) { flex-shrink: 0; }
+@media (max-width: 1130px) {
+  .workspaceGrid { grid-template-columns: 1fr; }
+  .detailHeader { align-items: flex-start; }
+}
+@media (max-width: 700px) {
+  .page { gap: 23px; }
+  .tabList { width: 100%; justify-content: flex-start; }
+  .tabTrigger { flex: 0 0 auto; font-size: 13px; padding-inline: 12px; }
+  .listHeader, .detailHeader { padding: 17px; }
+  .listBody { padding: 14px; }
+  .detailHeader { flex-direction: column; }
+  .chapterListItem { flex-wrap: wrap; gap: 8px; }
+  .chapterActions { width: 100%; }
+  .questionBlock { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chapterListItem { transition: none; }
+}
+:global(.dark) .createCard,
+:global(.dark) .panelCard,
+:global(.dark) .chapterListItem,
+:global(.dark) .questionBlock,
+:global(.dark) .descriptionCard,
+:global(.dark) .editCard { border-color: var(--border); background: var(--card); }
+:global(.dark) .listHeader,
+:global(.dark) .detailHeader,
+:global(.dark) .tabList { background: var(--muted); border-color: var(--border); }
+:global(.dark) .selectedChapter { background: color-mix(in srgb, var(--primary) 16%, var(--card)); }

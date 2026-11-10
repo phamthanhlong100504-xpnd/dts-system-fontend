@@ -1,2 +1,2 @@
-import { ResourceWorkspace } from "@/features/admin/workbench/components/resource-workspace";
-export default function Page() { return <ResourceWorkspace kind="simulation-sets" baseHref="/admin/simulations/exam-sets" id="create" />; }
+import {SimulationPresetDrafts} from '@/features/admin/admin05/draft-pages';
+export default function Page(){return <SimulationPresetDrafts/>;}

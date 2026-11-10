@@ -17,7 +17,10 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { ExamWorkspaceState } from "../simulation-exam-types";
+import type {
+  ExamWorkspaceState,
+  ExamMediaOwner,
+} from "../simulation-exam-types";
 import { learningStyles } from "./learning-ui";
 import {
   ExamBadge,
@@ -125,6 +128,11 @@ export function SimulationExamSessionView({
   onBack,
   onRetry,
   onRespond,
+  onStart,
+  onSkipIntro,
+  onRefreshShortcuts,
+  onAdvance,
+  onHeartbeat,
   onComplete,
   onFault,
   onCancel,
@@ -134,9 +142,21 @@ export function SimulationExamSessionView({
   state: ExamWorkspaceState;
   onBack?: () => void;
   onRetry?: () => void;
-  onRespond?: (ms: number, id: string) => Promise<void>;
-  onComplete?: () => Promise<void>;
-  onFault?: () => void;
+  onStart?: (owner: ExamMediaOwner) => Promise<unknown>;
+  onSkipIntro?: (ms: number, owner: ExamMediaOwner) => Promise<unknown>;
+  onRefreshShortcuts?: () => Promise<unknown>;
+  onAdvance?: (owner: ExamMediaOwner) => Promise<unknown>;
+  onHeartbeat?: (
+    readMediaTime: () => number,
+    owner: ExamMediaOwner,
+  ) => Promise<unknown>;
+  onRespond?: (
+    ms: number,
+    id: string,
+    owner: ExamMediaOwner,
+  ) => Promise<unknown>;
+  onComplete?: (ms: number, owner: ExamMediaOwner) => Promise<unknown>;
+  onFault?: (owner: ExamMediaOwner) => void;
   onCancel?: () => Promise<void>;
   exitInitiallyOpen?: boolean;
   designPreview?: boolean;
@@ -150,19 +170,25 @@ export function SimulationExamSessionView({
     s?.status === "READY_TO_SUBMIT" || s?.status === "COMPLETED";
   const phase = d?.phase;
   const phaseLabel =
-    phase === "recorded"
-      ? "Đã ghi nhận"
-      : phase === "response-pending"
-        ? "Đang xác nhận"
-        : phase === "video-error"
-          ? "Chưa bắt đầu"
-          : phase === "transition"
-            ? "Đang chuẩn bị"
-            : phase === "response-error"
-              ? "Chờ xác nhận"
-              : phase === "completion-error"
-                ? "Chờ xác nhận"
-                : "Đang thực hiện";
+    phase === "ready"
+      ? s?.responseRecorded
+        ? "Phản ứng đã lưu"
+        : "Chưa bắt đầu"
+      : ["starting", "restarting"].includes(phase ?? "")
+        ? "Đang chuẩn bị"
+        : phase === "recorded"
+          ? "Đã ghi nhận"
+          : phase === "response-pending"
+            ? "Đang xác nhận"
+            : phase === "video-error"
+              ? "Video gián đoạn"
+              : phase === "transition"
+                ? "Đang chuẩn bị"
+                : phase === "response-error"
+                  ? "Chờ xác nhận"
+                  : phase === "completion-error"
+                    ? "Chờ xác nhận"
+                    : "Đang thực hiện";
   async function cancel() {
     if (cancelBusy || !onCancel) return;
     setCancelBusy(true);
@@ -255,6 +281,13 @@ export function SimulationExamSessionView({
                 recorded={s.responseRecorded}
                 blocked={exit || cancelBusy}
                 onRespond={onRespond}
+                onStart={onStart}
+                shortcuts={d.shortcuts}
+                onSkipIntro={onSkipIntro}
+                onAdvance={onAdvance}
+                onHeartbeat={onHeartbeat}
+                heartbeatIntervalMs={s.playbackPolicy.heartbeatIntervalMs}
+                autoStart={d.autoStart}
                 onComplete={onComplete}
                 onFault={onFault}
                 onRetry={onRetry}
@@ -275,7 +308,7 @@ export function SimulationExamSessionView({
                     {[
                       "Quan sát video tình huống hiện tại.",
                       "Nhấn Space hoặc bấm nút khi phát hiện nguy hiểm.",
-                      "Xem hết video để chuyển sang tình huống tiếp theo.",
+                      "Sau khi phản ứng được xác nhận, bấm Tiếp theo hoặc xem hết video để chuyển tình huống.",
                     ].map((t, i) => (
                       <li
                         className={cn(examBody, "flex items-start gap-3")}
@@ -346,9 +379,13 @@ export function SimulationExamSessionView({
                   <>
                     <p className={cn(examBody, styles.statusDescription)}>
                       {s.responseRecorded
-                        ? "Đã ghi nhận phản ứng. Video tiếp tục phát."
+                        ? phase === "video-error"
+                          ? "Phản ứng đã được lưu. Bạn có thể chuyển tiếp khi nút Tiếp theo sẵn sàng, hoặc tải lại video."
+                          : phase === "ready"
+                            ? "Phản ứng đã lưu được giữ nguyên khi tải lại. Bạn không cần ghi nhận lần nữa."
+                            : "Đã ghi nhận phản ứng. Có thể bấm Tiếp theo khi được xác nhận."
                         : phase === "video-error"
-                          ? "Video chưa sẵn sàng. Tải lại để tiếp tục bài thi."
+                          ? "Chưa ghi nhận phản ứng. Tải lại video để tiếp tục tình huống này."
                           : phase === "response-pending"
                             ? "Đang chờ xác nhận phản ứng từ hệ thống."
                             : phase === "response-error"
@@ -371,6 +408,19 @@ export function SimulationExamSessionView({
                       >
                         Kiểm tra và thử lại
                       </button>
+                    )}
+                    {d.shortcutNotice && (
+                      <div className="mt-4 space-y-3" role="status">
+                        <p className={examBody}>{d.shortcutNotice}</p>
+                        <button
+                          type="button"
+                          className={learningStyles.secondary}
+                          disabled={d.busy || !onRefreshShortcuts}
+                          onClick={() => void onRefreshShortcuts?.()}
+                        >
+                          Kết nối lại thao tác video
+                        </button>
+                      </div>
                     )}
                     <div className={styles.reactionCard}>
                       <p className={styles.reactionLabel}>

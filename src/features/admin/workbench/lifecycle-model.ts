@@ -21,7 +21,7 @@ export interface LifecycleSource {
  history(context:VersionContext,page:number,signal?:AbortSignal):Promise<Page<HistoryRow>>;
  compare(context:VersionContext,versionId:string,signal?:AbortSignal):Promise<Difference[]>;
 }
-export function getAdminLifecycleSource():LifecycleSource|null{return null;}
+export {makeAdminLifecycleSource as getAdminLifecycleSource} from './adapters/lifecycle';
 export function contextMatches(c:VersionContext,actor:string,s:LifecycleSubject):boolean {
  return Boolean(c&&c.actorId===actor&&c.subject.kind===s.kind&&c.subject.id===s.id&&(!s.versionId||c.versionId===s.versionId)&&c.versionId&&Number.isSafeInteger(c.revision)&&c.revision>=0&&Array.isArray(c.actions)&&Array.isArray(c.dependencies)&&Number.isSafeInteger(c.totalDependencies)&&c.totalDependencies>=c.dependencies.length);
 }

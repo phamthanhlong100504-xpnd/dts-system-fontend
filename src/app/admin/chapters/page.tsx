@@ -1,5 +1,4 @@
 "use client";
-import { VersionEntryLink } from "@/features/admin/workbench/components/version-entry-link";
 import {LifecycleButton} from "@/features/admin/workbench/components/lifecycle-button";
 import { adminQuestionTypeLabel } from "@/features/admin/foundation/admin-ui-labels";
 import { AdminCan } from "@/features/admin/foundation/admin-access-provider";
@@ -7,7 +6,7 @@ import { AdminCan } from "@/features/admin/foundation/admin-access-provider";
 
 import { useState } from "react";
 import {
-  FolderTree, Plus, GripVertical, Trash2, Sparkles, Loader2, FileText, ArrowUp, ArrowDown, Search, Edit2
+  FolderTree, Plus, Trash2, Sparkles, Loader2, FileText, ArrowUp, ArrowDown, Search, Edit2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,10 +43,11 @@ import {
 } from "@/components/ui/tabs";
 
 import { contentFingerprint } from "@/features/admin/theory/theory-contract";
-import { TheoryWorkflowNotice } from "@/features/admin/theory/components/theory-workflow-notice";
 import { useAdminUnsavedChanges } from "@/features/admin/foundation/use-admin-unsaved-changes";
 import { AdminLeaveDialog } from "@/features/admin/foundation/components/admin-leave-dialog";
 import { adminFailure } from "@/features/admin/foundation/admin-errors";
+import { AdminPageHeader } from "@/features/admin/foundation/components/admin-page-header";
+import styles from "./admin-chapters.module.css";
 
 export default function AdminChaptersPage() {
   const { data: chapters = [], isLoading, isError: chaptersError, refetch: reloadChapters } = useAdminChapters();
@@ -58,6 +58,7 @@ export default function AdminChaptersPage() {
   const activeChapter = chapters.find((c) => c.id === selectedChapterId) || chapters[0];
   const updateMutation = useUpdateChapter(activeChapter?.id || "");
   const [isCreating, setIsCreating] = useState(false);
+  const [chapterTab, setChapterTab] = useState<"official" | "custom">("official");
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -199,40 +200,27 @@ export default function AdminChaptersPage() {
     }
   };
 
-  return (<>
-<VersionEntryLink href="/admin/chapters/versions" label="Phiên bản chương" />
-    <div className="space-y-6">
+  return (
+    <div className={styles.page} data-testid="admin-chapters">
       <AdminLeaveDialog open={leave.leaveOpen} onCancel={leave.cancelLeave} onLeave={leave.confirmLeave} />
-      <TheoryWorkflowNotice />
-      {activeChapter&&<LifecycleButton key={activeChapter.id} subject={{kind:"CHAPTER",id:activeChapter.id}}/>}
-      {creationUncertain && <p role="alert" className="rounded-xl border p-4 text-[15px]/6">Chưa rõ hệ thống đã tạo chương hay chưa. Giữ nội dung đang nhập và kiểm tra danh sách trước khi tạo lại.</p>}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-card p-6 shadow-sm border">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="text-[14px]/5">
-              QUẢN LÝ NỘI DUNG
-            </Badge>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">
-              Quản lý chương học
-            </h1>
-          </div>
-          <p className="text-[15px]/6 text-muted-foreground">
-            Quản lý các chương câu hỏi theo hạng GPLX và những chương học do bạn biên soạn.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <AdminCan resource="chapters" action={"create"}><Button onClick={() => isCreating ? closeCreate() : setIsCreating(true)} className="gap-2">
-            <Plus className="h-4 w-4" /> {isCreating ? "Đóng biểu mẫu" : "Tạo chương mới"}
-          </Button></AdminCan>
-        </div>
-      </div>
+      {creationUncertain && <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[14.5px]/6 text-amber-900">Chưa xác nhận được việc tạo chương. Vui lòng kiểm tra danh sách trước khi thử lại.</p>}
+      <AdminPageHeader
+        title="Quản lý chương"
+        description="Quản lý chương học và câu hỏi theo hạng GPLX."
+        actions={
+          <AdminCan resource="chapters" action="create">
+            <Button onClick={() => { if (isCreating) closeCreate(); else { setChapterTab("custom"); setIsCreating(true); } }} className="gap-2">
+              <Plus className="h-4 w-4" /> {isCreating ? "Đóng biểu mẫu" : "Tạo chương mới"}
+            </Button>
+          </AdminCan>
+        }
+      />
 
       {chaptersError && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-[15px]/6 text-destructive">Không thể tải danh sách chương tự tạo. Vui lòng thử lại hoặc kiểm tra quyền truy cập. Bạn vẫn có thể xem Ngân hàng chuẩn.</p>}
-      <Tabs defaultValue="official" className="mt-8">
-        <TabsList className="mb-4">
-          <TabsTrigger value="official">Chương ngân hàng theo hạng</TabsTrigger>
-          <TabsTrigger value="custom">Chương tự biên soạn</TabsTrigger>
+      <Tabs value={chapterTab} onValueChange={(value) => leave.requestLeave(() => setChapterTab(value as "official" | "custom"))} className={styles.tabShell}>
+        <TabsList className={styles.tabList}>
+          <TabsTrigger value="official" className={styles.tabTrigger}>Chương ngân hàng chuẩn</TabsTrigger>
+          <TabsTrigger value="custom" className={styles.tabTrigger}>Chương biên soạn</TabsTrigger>
         </TabsList>
 
         <TabsContent value="official" className="space-y-4">
@@ -242,7 +230,7 @@ export default function AdminChaptersPage() {
         <TabsContent value="custom" className="space-y-4">
 
           {isCreating && (
-            <Card className="rounded-2xl border bg-primary/5">
+            <Card className={styles.createCard}>
               <CardHeader>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" /> Thêm chương học mới
@@ -279,16 +267,16 @@ export default function AdminChaptersPage() {
             </Card>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className={styles.workspaceGrid}>
             {/* Left Panel */}
-            <div className="lg:col-span-4 space-y-4">
-              <Card className="rounded-2xl shadow-sm">
-                <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
+            <div className={styles.workspaceSidebar}>
+              <Card className={styles.panelCard}>
+                <CardHeader className={styles.listHeader}>
                   <CardTitle className="text-[15px]/6 font-bold flex items-center gap-2">
                     <FolderTree className="h-4 w-4 text-primary" /> Danh sách chương ({isLoading || chaptersError ? "—" : chapters.length})
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className={styles.listBody}>
                   {isLoading ? (
                     Array.from({ length: 4 }).map((_, i) => (
                       <Skeleton key={i} className="h-12 w-full rounded-xl" />
@@ -301,13 +289,23 @@ export default function AdminChaptersPage() {
                       return (
                         <div
                           key={chapter.id}
+                          role="button"
+                          tabIndex={0}
+                          aria-pressed={isSelected}
                           onClick={() => leave.requestLeave(() => { setSelectedChapterId(chapter.id); setIsEditingInfo(false); })}
-                          className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${isSelected
-                            ? "border-primary bg-primary/5 shadow-sm font-semibold"
-                            : "border-border bg-card hover:bg-accent/50"
+                          onKeyDown={(event) => {
+                            if (event.target !== event.currentTarget) return;
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              leave.requestLeave(() => { setSelectedChapterId(chapter.id); setIsEditingInfo(false); });
+                            }
+                          }}
+                          className={`${styles.chapterListItem} ${isSelected
+                            ? styles.selectedChapter
+                            : styles.unselectedChapter
                             }`}
                         >
-                          <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <FolderTree className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                           <div className="flex-1 min-w-0">
                             <p className="text-[14px]/5 truncate text-foreground font-medium">
                               {chapter.title}
@@ -338,13 +336,10 @@ export default function AdminChaptersPage() {
             </div>
 
             {/* Right Panel */}
-            <div className="lg:col-span-8 space-y-4">
-              <Card className="rounded-2xl shadow-sm">
-                <CardHeader className="pb-3 flex flex-row items-center justify-between border-b">
+            <div className={styles.workspaceMain}>
+              <Card className={styles.panelCard}>
+                <CardHeader className={styles.detailHeader}>
                   <div>
-                    <Badge variant="outline" className="text-[14px]/5 mb-1">
-                      CHƯƠNG TỰ BIÊN
-                    </Badge>
                     <CardTitle className="text-base font-bold flex items-center gap-2">
                       {activeChapter ? activeChapter.title : "Chọn chương để xem chi tiết"}
                       {activeChapter && editable && (
@@ -355,8 +350,8 @@ export default function AdminChaptersPage() {
                     </CardTitle>
                   </div>
                   {activeChapter && (
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline" disabled title="Chức năng phê duyệt hiện chưa khả dụng">Chờ công bố</Button>
+                    <div className={styles.chapterActions}>
+                      <LifecycleButton key={activeChapter.id} subject={{kind:"CHAPTER",id:activeChapter.id}}/>
                       <AdminCan resource="chapters" action={"update"}><Button size="sm" onClick={() => setIsAddingQuestion(true)} className="gap-2" disabled={!editable || busy}>
                         <Plus className="h-4 w-4" /> Thêm câu hỏi
                       </Button></AdminCan>
@@ -367,7 +362,7 @@ export default function AdminChaptersPage() {
                   {activeChapter ? (
                     <>
                       {isEditingInfo ? (
-                        <div className="p-4 rounded-xl border bg-muted/20 space-y-4">
+                        <div className={styles.editCard}>
                           <div className="space-y-1.5">
                             <label className="text-[14px]/5 font-semibold text-muted-foreground">Tên chương</label>
                             <Input disabled={busy} value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
@@ -385,19 +380,19 @@ export default function AdminChaptersPage() {
                           </div>
                         </div>
                       ) : (
-                        <div className="p-4 rounded-xl border bg-muted/20 space-y-2 group">
+                        <div className={styles.descriptionCard}>
                           <div className="flex items-center justify-between text-[14px]/5 text-muted-foreground mb-1">
                             <span className="font-semibold uppercase tracking-wider flex items-center gap-1">
                               <FileText className="h-3.5 w-3.5" /> Mô tả chương
                             </span>
                           </div>
                           <p className="text-[15px]/6 leading-relaxed text-foreground">
-                            {activeChapter.description || "Chương này chưa có mô tả."}
+                            {activeChapter.description || "Chưa có mô tả."}
                           </p>
                         </div>
                       )}
 
-                      <div className="space-y-3">
+                      <div className={styles.questionSection}>
                         <h3 className="font-semibold text-[15px]/6">Danh sách câu hỏi trong chương</h3>
                         {isLoadingDetail ? (
                           <Skeleton className="h-20 w-full rounded-xl" />
@@ -406,9 +401,9 @@ export default function AdminChaptersPage() {
                             Chưa có câu hỏi nào. Bấm &quot;Thêm câu hỏi&quot; để lấy từ Ngân hàng.
                           </div>
                         ) : (
-                          <div className="space-y-2">
+                          <div className={styles.questionBlockList}>
                             {chapterDetail?.questionBlocks?.map((block, index) => (
-                              <div key={block.id} className="flex items-center gap-3 p-3 rounded-xl border bg-card">
+                              <div key={block.id} className={styles.questionBlock}>
                                 <div className="flex flex-col gap-1 shrink-0">
                                   <AdminCan resource="chapters" action={"update"}><Button
                                     variant="ghost" size="icon" className="h-5 w-5"
@@ -427,7 +422,6 @@ export default function AdminChaptersPage() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-[15px]/6 font-medium truncate">{block.title}</p>
-                                  <p className="text-[14px]/5 text-muted-foreground font-mono mt-0.5">Mã câu hỏi: {block.questionId}</p>
                                 </div>
                                 <AdminCan resource="chapters" action={"update"}><Button
                                   variant="ghost"
@@ -480,9 +474,6 @@ export default function AdminChaptersPage() {
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
-                  <p className="text-[14px]/5 text-muted-foreground italic px-1">
-                    * Chỉ hiển thị câu hỏi đã xuất bản và chưa có trong chương này.
-                  </p>
 
                   <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-2">
                     {isLoadingQuestions ? (
@@ -526,13 +517,14 @@ export default function AdminChaptersPage() {
           </Dialog>
         </TabsContent>
       </Tabs>
-    </div>
-  </>);
+    </div>);
 }
 
 function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapterDetail: ChapterDetail | null | undefined; onAdd: (q: AdminQuestionItem) => void; isPending: boolean }) {
   return <OfficialBankBrowser
     view="questions"
+    questionsView
+    showVersionLink={false}
     isPicking={isPending}
     excludedIds={(chapterDetail?.questionBlocks ?? []).map((block) => block.questionId ?? "").filter(Boolean)}
     onPick={(question) => onAdd({
@@ -547,5 +539,5 @@ function OfficialQuestionsSelector({ chapterDetail, onAdd, isPending }: { chapte
 }
 
 function OfficialChaptersView() {
-  return <OfficialBankBrowser view="chapters" />;
+  return <OfficialBankBrowser view="chapters" showVersionLink={false} chapterVersionHref="/admin/chapters/versions" />;
 }

@@ -1,5 +1,6 @@
-
 "use client";
+
+import { PerformancePage } from "@/features/simulation-performance/components/performance-page";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -7,10 +8,7 @@ import { useRouter } from "next/navigation";
 import { RequireAuth } from "@/components/require-auth";
 import { ProgressLearningContent } from "@/features/progress-learning/components/progress-learning-content";
 import type { LearningChapterProgress } from "@/features/progress-learning/progress-learning-types";
-import {
-  useLicenseHasHydrated,
-  useLicenseStore,
-} from "@/stores/license-store";
+import { useLicenseHasHydrated, useLicenseStore } from "@/stores/license-store";
 
 export default function ProgressPage() {
   return (
@@ -23,9 +21,7 @@ export default function ProgressPage() {
 function ProgressPageContent() {
   const router = useRouter();
   const licenseHydrated = useLicenseHasHydrated();
-  const selectedLicense = useLicenseStore(
-    (state) => state.selectedLicense
-  );
+  const selectedLicense = useLicenseStore((state) => state.selectedLicense);
 
   useEffect(() => {
     if (licenseHydrated && !selectedLicense) {
@@ -37,12 +33,8 @@ function ProgressPageContent() {
     return null;
   }
 
-  function handleOpenChapter(
-    chapter: LearningChapterProgress
-  ) {
-    router.push(
-      `/practice/chapter/${chapter.chapterId}?from=progress`
-    );
+  function handleOpenChapter(chapter: LearningChapterProgress) {
+    router.push(`/practice/chapter/${chapter.chapterId}?from=progress`);
   }
 
   function handleOpenReview() {
@@ -55,12 +47,14 @@ function ProgressPageContent() {
 
   return (
     <main className="min-h-[calc(100vh-122px)] bg-[#f7f6fb] text-[#101828]">
-      <ProgressLearningContent
-        licenseClass={selectedLicense}
-        onOpenChapter={handleOpenChapter}
-        onOpenReview={handleOpenReview}
-        onOpenCritical={handleOpenCritical}
-      />
+      <PerformancePage kind="progress" licenseClass={selectedLicense}>
+        <ProgressLearningContent
+          licenseClass={selectedLicense}
+          onOpenChapter={handleOpenChapter}
+          onOpenReview={handleOpenReview}
+          onOpenCritical={handleOpenCritical}
+        />
+      </PerformancePage>
     </main>
   );
 }

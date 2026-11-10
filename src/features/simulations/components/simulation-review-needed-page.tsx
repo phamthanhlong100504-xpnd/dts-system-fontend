@@ -1,11 +1,13 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { ApiError } from "@/lib/api/envelope";
+import { useSimulationCanLearn } from "../simulation-access";
+import { invalidateSimulationLists } from "../simulation-cache";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { SimulationLearningBoundary } from "./simulation-learning-pages";
 import { useSimulationReview } from "../use-simulation-review";
-import { simulationLearningKeys } from "../use-simulation-learning";
 import {
   simulationRoutes,
   useSimulationNavigation,
@@ -23,8 +25,11 @@ export function SimulationReviewNeededPage({
     <SimulationLearningBoundary>
       {(scope) => (
         <BoundReview
-          key={`${scope.userId}:${scope.licenseClass}:${criteria.chapterId}:${criteria.page}`}
-          scope={scope}
+          key={`${scope.userId}:${scope.licenseClass}:${criteria.bankVersion ?? scope.bankVersion}:${criteria.chapterId}:${criteria.page}:${criteria.datasetVersion ?? "latest"}`}
+          scope={{
+            ...scope,
+            bankVersion: criteria.bankVersion ?? scope.bankVersion,
+          }}
           criteria={criteria}
         />
       )}
@@ -42,33 +47,65 @@ function BoundReview({
     client = useQueryClient(),
     select = useSimulationNavigation((s) => s.select);
   const { state, query, source } = useSimulationReview(scope, criteria);
+  const canLearn = useSimulationCanLearn();
+  const redirected = useRef(false);
   const [notice, setNotice] = useState<string | null>(null);
   const data = state.status === "ready" ? state.data : null;
   const canonicalPage = data
     ? data.page !== criteria.page
       ? data.page
-      : data.totalPages > 0 && criteria.page >= data.totalPages
-        ? data.totalPages - 1
-        : null
+      : data.totalPages === 0 && criteria.page > 0
+        ? 0
+        : data.totalPages > 0 && criteria.page >= data.totalPages
+          ? data.totalPages - 1
+          : null
     : null;
+  const changed =
+    query.error instanceof ApiError &&
+    query.error.status === 409 &&
+    query.error.errorCode === "SIMULATION_REVIEW_CHANGED" &&
+    !!(criteria.datasetVersion || criteria.page);
   useEffect(() => {
-    if (canonicalPage !== null)
-      router.replace(reviewNeededUrl({ ...criteria, page: canonicalPage }), {
-        scroll: false,
-      });
-  }, [canonicalPage, criteria, router]);
+    if ((canonicalPage !== null || changed) && !redirected.current) {
+      redirected.current = true;
+      router.replace(
+        reviewNeededUrl({
+          ...criteria,
+          bankVersion: data?.scope.bankVersion ?? scope.bankVersion,
+          page: changed ? 0 : canonicalPage!,
+          datasetVersion: undefined,
+        }),
+        {
+          scroll: false,
+        },
+      );
+    }
+  }, [
+    canonicalPage,
+    changed,
+    criteria,
+    data?.scope.bankVersion,
+    scope.bankVersion,
+    router,
+  ]);
   const bookmark = useMutation({
     mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      if (!source?.bookmark) throw new Error("Chưa có API đánh dấu.");
-      const ack = await source.bookmark(scope, id, value);
+      if (!source?.bookmark || !canLearn)
+        throw new Error("Tài khoản không có quyền đánh dấu.");
+      const ack = await source.bookmark(
+        { ...scope, bankVersion: data?.scope.bankVersion ?? scope.bankVersion },
+        id,
+        value,
+      );
       if (ack.scenarioId !== id || ack.bookmarked !== value)
         throw new Error("Backend chưa xác nhận trạng thái đánh dấu.");
       return ack;
     },
     onSuccess: () => {
       setNotice(null);
-      void client.invalidateQueries({
-        queryKey: simulationLearningKeys.scope(scope),
+      void invalidateSimulationLists(client, {
+        ...scope,
+        bankVersion: data?.scope.bankVersion ?? scope.bankVersion,
       });
     },
     onError: () =>
@@ -79,7 +116,7 @@ function BoundReview({
   return (
     <SimulationReviewNeededView
       criteria={criteria}
-      state={canonicalPage !== null ? { status: "loading" } : state}
+      state={canonicalPage !== null || changed ? { status: "loading" } : state}
       notice={notice}
       onDismissNotice={() => setNotice(null)}
       onBack={() => {
@@ -88,24 +125,49 @@ function BoundReview({
       }}
       onStartChapters={() => router.push(simulationRoutes.chapters)}
       onChapter={(chapterId) =>
-        router.push(reviewNeededUrl({ ...criteria, chapterId, page: 0 }))
-      }
-      onPage={(page) => router.push(reviewNeededUrl({ ...criteria, page }))}
-      onRetry={() => void query.refetch()}
-      onOpen={(item) =>
         router.push(
-          simulationRoutes.scenario(
-            item.id,
-            item.chapterId,
-            "ALL",
-            0,
-            undefined,
-            { origin: "review-needed", ...criteria },
-          ),
+          reviewNeededUrl({
+            ...criteria,
+            chapterId,
+            page: 0,
+            bankVersion: data?.scope.bankVersion ?? scope.bankVersion,
+            datasetVersion: undefined,
+          }),
         )
       }
+      onPage={(page) =>
+        router.push(
+          reviewNeededUrl({
+            ...criteria,
+            page,
+            bankVersion: data?.scope.bankVersion ?? scope.bankVersion,
+            datasetVersion: data?.datasetVersion,
+          }),
+        )
+      }
+      onRetry={() => void query.refetch()}
+      onOpen={
+        canLearn
+          ? (item) =>
+              router.push(
+                simulationRoutes.scenario(
+                  item.id,
+                  item.chapterId,
+                  "ALL",
+                  0,
+                  undefined,
+                  {
+                    origin: "review-needed",
+                    ...criteria,
+                    bankVersion: data?.scope.bankVersion ?? scope.bankVersion,
+                    datasetVersion: undefined,
+                  },
+                ),
+              )
+          : undefined
+      }
       onBookmark={
-        source?.bookmark
+        source?.bookmark && canLearn
           ? (item) =>
               bookmark.mutate({ id: item.id, value: !item.isBookmarked })
           : undefined

@@ -9,6 +9,7 @@ import {
   ImageOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import textStyles from "./simulation-text-layout.module.css";
 import type {
   LearningLoadState,
   ScenarioFilter,
@@ -66,13 +67,15 @@ export function SimulationChapterView({
       }
     >
       <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
+        <div
+          className={cn(textStyles.headingDescription, textStyles.pageIntro)}
+        >
           <h1 className={learningStyles.heading}>
             {data
               ? `Chương ${roman(data.chapter.number)} – ${data.chapter.name}`
               : "Danh sách tình huống"}
           </h1>
-          <p className={cn(learningStyles.body, "mt-2")}>
+          <p className={learningStyles.body}>
             {data
               ? `${data.chapter.totalScenarios} tình huống mô phỏng${data.chapter.scenarioRangeLabel ? ` · ${data.chapter.scenarioRangeLabel}` : ""}`
               : "Chọn tình huống để luyện tập nhận diện nguy hiểm."}

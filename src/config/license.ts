@@ -1,10 +1,6 @@
-
 import type { LicenseCatalogItem } from "@/features/license/license-service";
 
-export type LicenseGroupId =
-  | "motorcycle"
-  | "car"
-  | "trailer";
+export type LicenseGroupId = "motorcycle" | "car" | "trailer";
 
 export interface LicenseGroup {
   id: LicenseGroupId;
@@ -21,6 +17,13 @@ export interface LicenseOption {
   bankVersion?: string;
   bankCountsMatch?: boolean;
   examAvailable?: boolean;
+  simulationEnabled?: boolean;
+  simulationReady?: boolean;
+  simulationBankVersion?: string | null;
+  performanceMode?: "LEGACY_THEORY" | "COMBINED";
+  learningModules?: ("THEORY" | "SIMULATION")[];
+  performancePolicyVersion?: string;
+  simulationProgressScope?: string | null;
 
   totalStudyQuestions: number;
 
@@ -52,26 +55,20 @@ export const LICENSE_GROUPS: LicenseGroup[] = [
   },
 ];
 
-const BACKEND_GROUP_IDS: Record<
-  LicenseCatalogItem["group"],
-  LicenseGroupId
-> = {
+const BACKEND_GROUP_IDS: Record<LicenseCatalogItem["group"], LicenseGroupId> = {
   "Mô tô": "motorcycle",
   "Ô tô": "car",
   "Rơ moóc": "trailer",
 };
 
 export function mapLicenseCatalogToOptions(
-  catalog: readonly LicenseCatalogItem[]
+  catalog: readonly LicenseCatalogItem[],
 ): LicenseOption[] {
   return catalog.map((item) => {
-    const group =
-      BACKEND_GROUP_IDS[item.group];
+    const group = BACKEND_GROUP_IDS[item.group];
 
     if (!group) {
-      throw new Error(
-        `Nhóm GPLX không hợp lệ: ${item.group}`
-      );
+      throw new Error(`Nhóm GPLX không hợp lệ: ${item.group}`);
     }
 
     return {
@@ -83,55 +80,48 @@ export function mapLicenseCatalogToOptions(
 
       bankVersion: item.bankVersion,
 
-      totalStudyQuestions:
-        item.totalStudyQuestions,
+      totalStudyQuestions: item.totalStudyQuestions,
 
-      criticalStudyQuestions:
-        item.criticalStudyQuestions,
+      criticalStudyQuestions: item.criticalStudyQuestions,
 
       exam: {
-        totalQuestions:
-          item.totalQuestions,
+        totalQuestions: item.totalQuestions,
 
-        durationMinutes:
-          item.durationMinutes,
+        durationMinutes: item.durationMinutes,
 
-        passingScore:
-          item.passingScore,
+        passingScore: item.passingScore,
 
-        criticalQuestionCount:
-          item.criticalQuestionCount,
+        criticalQuestionCount: item.criticalQuestionCount,
       },
 
-      bankCountsMatch:
-        item.bankCountsMatch,
+      bankCountsMatch: item.bankCountsMatch,
 
-      examAvailable:
-        item.examAvailable,
+      examAvailable: item.examAvailable,
+      simulationEnabled: item.simulationEnabled,
+      simulationReady: item.simulationReady,
+      simulationBankVersion: item.simulationBankVersion,
+      performanceMode: item.performanceMode,
+      learningModules: item.learningModules,
+      performancePolicyVersion: item.performancePolicyVersion,
+      simulationProgressScope: item.simulationProgressScope,
     };
   });
 }
 
 export function getLicensesByGroup(
   group: LicenseGroupId,
-  options: readonly LicenseOption[]
+  options: readonly LicenseOption[],
 ): LicenseOption[] {
-  return options.filter(
-    (license) =>
-      license.group === group
-  );
+  return options.filter((license) => license.group === group);
 }
 
 export function getLicenseByCode(
   code: string | null | undefined,
-  options: readonly LicenseOption[]
+  options: readonly LicenseOption[],
 ): LicenseOption | undefined {
   if (!code) {
     return undefined;
   }
 
-  return options.find(
-    (license) =>
-      license.code === code
-  );
+  return options.find((license) => license.code === code);
 }

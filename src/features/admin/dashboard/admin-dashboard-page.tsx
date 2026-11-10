@@ -1,24 +1,74 @@
 "use client";
+
 import Link from "next/link";
-import { DashboardData } from "../workbench/components/dashboard-data";
-import { BookOpen, Video, ClipboardCheck, Activity } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  ArrowUpRight,
+  BarChart3,
+  BookOpen,
+  ClipboardList,
+  FileQuestion,
+  LayoutDashboard,
+  Users,
+  Video,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AdminPageHeader } from "../foundation/components/admin-page-header";
+import { DashboardData } from "../workbench/components/dashboard-data";
 import { useAdminAccess } from "../foundation/admin-access-provider";
 import { canReadAdminPage } from "../foundation/admin-access";
+import styles from "./admin-dashboard.module.css";
 
-const groups = [
-  { title: "Nội dung lý thuyết", icon: BookOpen, description: "Ngân hàng chuẩn, nội dung tự biên, chương trình, biển báo và mẹo ghi nhớ.", links: [["questions", "Ngân hàng câu hỏi", "/admin/questions"], ["programs", "Chương trình học", "/admin/programs"]] },
-  { title: "Video mô phỏng", icon: Video, description: "Tình huống, chương mô phỏng, bộ đề và tài nguyên đang sử dụng.", links: [["simulation-scenarios", "Ngân hàng tình huống", "/admin/simulations/scenarios"], ["simulation-exam-sets", "Bộ đề mô phỏng", "/admin/simulations/exam-sets"]] },
-  { title: "Thi và học tập", icon: ClipboardCheck, description: "Kết quả thi, tiến độ học tập, điểm kinh nghiệm và xếp hạng.", links: [["reports", "Báo cáo & Thống kê", "/admin/reports"], ["exams", "Quản lý đề thi", "/admin/exams"]] },
-  { title: "Vận hành", icon: Activity, description: "Phát hành nội dung, cập nhật dữ liệu và các vấn đề cần theo dõi.", links: [["system-monitoring", "Giám sát vận hành", "/admin/system-monitoring"], ["content-releases", "Phát hành & Đồng bộ", "/admin/content-releases"]] },
-];
+const quickActions = [
+  { id: "questions", label: "Ngân hàng câu hỏi", description: "Câu hỏi lý thuyết", href: "/admin/questions", icon: FileQuestion },
+  { id: "simulation-scenarios", label: "Tình huống mô phỏng", description: "Tình huống và video", href: "/admin/simulations/scenarios", icon: Video },
+  { id: "exams", label: "Đề thi chính thức", description: "Đề thi và cấu trúc", href: "/admin/exams", icon: ClipboardList },
+  { id: "users", label: "Người dùng", description: "Tài khoản học viên", href: "/admin/users", icon: Users },
+  { id: "reports", label: "Báo cáo", description: "Kết quả và tiến độ", href: "/admin/reports", icon: BarChart3 },
+  { id: "simulation-guide", label: "Hướng dẫn mô phỏng", description: "Nội dung hướng dẫn", href: "/admin/simulation-guide", icon: BookOpen },
+] as const;
+
 export function AdminDashboardPage() {
   const { access } = useAdminAccess();
-  return <div className="space-y-6"><AdminPageHeader title="Tổng quan hệ thống" description="Theo dõi các khu vực quản trị và tình trạng số liệu tổng hợp." />
-    <DashboardData/>
-    <div className="grid gap-4 md:grid-cols-2">{groups.map(group => { const links = group.links.filter(([id]) => canReadAdminPage(access, id)); if (!links.length) return null; const Icon=group.icon;
-      return <Card key={group.title} className="rounded-2xl"><CardHeader><div className="flex items-center gap-3"><Icon className="size-5 shrink-0 text-primary" /><CardTitle>{group.title}</CardTitle></div><p className="text-[15px]/6 text-muted-foreground">{group.description}</p></CardHeader><CardContent className="space-y-4"><div className="rounded-xl bg-muted/40 p-4"><p className="text-[15px] font-medium">Chưa có số liệu xác nhận</p><p className="mt-1 text-[14px]/6 text-muted-foreground">Thời điểm cập nhật: chưa có thông tin.</p></div><div className="flex flex-wrap gap-3">{links.map(([id,label,href]) => <Button key={id} asChild variant="outline"><Link href={href}>{label}</Link></Button>)}</div></CardContent></Card>;
-    })}</div></div>;
+  const actions = quickActions.filter((item) => canReadAdminPage(access, item.id));
+  const canReadReports = canReadAdminPage(access, "reports");
+
+  return (
+    <div className={styles.page} data-testid="admin-dashboard">
+      <header className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <h1>Tổng quan</h1>
+          <p>Theo dõi tình hình học tập, thi cử và nội dung đào tạo.</p>
+        </div>
+        <div className={styles.heroRight}>
+          {canReadReports && (
+            <Button asChild variant="outline" size="lg" className={styles.reportButton}>
+              <Link href="/admin/reports">Xem báo cáo <ArrowUpRight aria-hidden="true" className="size-4" /></Link>
+            </Button>
+          )}
+          <span className={styles.heroIcon} aria-hidden="true"><LayoutDashboard className="size-6" /></span>
+        </div>
+      </header>
+
+      <DashboardData />
+
+      {actions.length > 0 && (
+        <section className={styles.shortcuts} aria-labelledby="admin-shortcuts-title">
+          <div className={styles.sectionHeading}>
+            <h2 id="admin-shortcuts-title">Truy cập nhanh</h2>
+          </div>
+          <div className={styles.shortcutGrid}>
+            {actions.map(({ id, label, description, href, icon: Icon }) => (
+              <Link className={styles.shortcut} href={href} key={id} data-testid={`dashboard-link-${id}`}>
+                <span className={styles.shortcutIcon}><Icon aria-hidden="true" className="size-5" /></span>
+                <span className={styles.shortcutBody}>
+                  <span className={styles.shortcutTitle}>{label}</span>
+                  <span className={styles.shortcutDescription}>{description}</span>
+                </span>
+                <ArrowUpRight aria-hidden="true" className={styles.shortcutArrow} />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
 }

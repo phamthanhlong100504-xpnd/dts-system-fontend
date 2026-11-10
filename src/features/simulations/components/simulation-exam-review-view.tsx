@@ -12,7 +12,7 @@ import styles from "./simulation-exam-layout.module.css";
 import textStyles from "./simulation-text-layout.module.css";
 import { cn } from "@/lib/utils";
 import type { LearningLoadState } from "../simulation-learning-types";
-import type { ExamReview } from "../simulation-exam-types";
+import type { ExamReview, ExamPlayback } from "../simulation-exam-types";
 import { learningStyles, mediaTime, reactionTime } from "./learning-ui";
 import { ScoringTimeline } from "./scoring-timeline";
 import { SimulationExamPlayer } from "./simulation-exam-player";
@@ -33,6 +33,8 @@ export function SimulationExamReviewView({
   onChoose,
   onRetry,
   onRenew,
+  selectedPlayback = null,
+  playbackLoading = false,
   mediaError = false,
   designPreview = false,
 }: {
@@ -42,6 +44,8 @@ export function SimulationExamReviewView({
   onChoose?: (n: number) => void;
   onRetry?: () => void;
   onRenew?: () => void;
+  selectedPlayback?: ExamPlayback | null;
+  playbackLoading?: boolean;
   mediaError?: boolean;
   designPreview?: boolean;
 }) {
@@ -49,6 +53,7 @@ export function SimulationExamReviewView({
     i = r?.items.find((x) => x.position === position);
   return (
     <ExamShell
+      showIntro={false}
       title="Chi tiết tình huống đã thi"
       description="Xem lại video, thời điểm phản ứng và phân tích kết quả từng tình huống."
       back="Quay lại kết quả bài thi"
@@ -105,13 +110,24 @@ export function SimulationExamReviewView({
           </section>
           <div className={styles.workspace} data-simulation-layout="review">
             <SimulationExamPlayer
-              key={`${i.position}:${i.playback.playbackEventId}`}
-              playback={i.playback}
-              phase={mediaError ? "video-error" : "recorded"}
+              key={i.position}
+              playback={selectedPlayback}
+              phase={
+                mediaError
+                  ? "video-error"
+                  : playbackLoading
+                    ? "transition"
+                    : "recorded"
+              }
               position={i.position}
               total={r.result.policy.totalScenarios}
               recorded={i.responseRecorded}
               review
+              onReviewNext={
+                i.position < r.items.length && onChoose
+                  ? () => onChoose(i.position + 1)
+                  : undefined
+              }
               onRetry={onRenew}
               designPreview={designPreview}
             />
