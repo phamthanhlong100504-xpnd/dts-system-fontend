@@ -18,6 +18,7 @@ export function getAdminCapabilitySource(actorId:string):AdminCapabilitySource|n
  }};
 }
 export function validCapabilityGrant(g:AdminCapabilityGrant,actor:string,now=Date.now()):boolean {
- return Boolean(g&&g.actorId===actor&&typeof g.canEnterAdmin==='boolean'&&Number.isFinite(Date.parse(g.verifiedAt))&&Date.parse(g.verifiedAt)<=now&&Number.isFinite(Date.parse(g.expiresAt))&&Date.parse(g.expiresAt)>now&&g.pages&&!Array.isArray(g.pages)&&Object.values(g.pages).every(x=>typeof x==='boolean')&&Array.isArray(g.resources)&&new Set(g.resources.map(x=>x.resource)).size===g.resources.length&&g.resources.every(x=>typeof x.resource==='string'&&x.resource.length>0&&typeof x.scopeLabel==='string'&&Array.isArray(x.actions)&&x.actions.every(a=>typeof a==='string'&&a.length>0)));
+ const tolerance = 5 * 60 * 1000;
+ return Boolean(g&&g.actorId===actor&&typeof g.canEnterAdmin==='boolean'&&Number.isFinite(Date.parse(g.verifiedAt))&&Date.parse(g.verifiedAt)<=now+tolerance&&Number.isFinite(Date.parse(g.expiresAt))&&Date.parse(g.expiresAt)>now-tolerance&&g.pages&&!Array.isArray(g.pages)&&Object.values(g.pages).every(x=>typeof x==='boolean')&&Array.isArray(g.resources)&&new Set(g.resources.map(x=>x.resource)).size===g.resources.length&&g.resources.every(x=>typeof x.resource==='string'&&x.resource.length>0&&typeof x.scopeLabel==='string'&&Array.isArray(x.actions)&&x.actions.every(a=>typeof a==='string'&&a.length>0)));
 }
 export function capabilityAllows(g:AdminCapabilityGrant,actor:string,resource:string,action:string):boolean {return validCapabilityGrant(g,actor)&&g.canEnterAdmin&&g.resources.some(x=>x.resource===resource&&x.actions.includes(action));}
