@@ -261,7 +261,7 @@ export function OfficialExamSessionContent({
               <div className="mt-5 flex justify-center">
                 <QuestionImage
                   src={
-                    currentQuestion.mediaFileIds?.[0] || currentQuestion.imageUrl!
+                    currentQuestion.imageUrl || currentQuestion.mediaFileIds?.[0]
                   }
                   alt={`Hình minh họa câu ${
                     currentIndex + 1

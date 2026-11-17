@@ -1,4 +1,5 @@
 import { examinationApi } from "@/lib/api";
+import { safeRandomUUID } from "@/lib/utils";
 
 export type ExamSessionStatus = "IN_PROGRESS" | "READY" | "SUBMISSION_GRACE" | "SUBMITTED" | "EXPIRED";
 export interface ExamRule {
@@ -118,13 +119,13 @@ export function getSubmitKey(sessionId: string): string {
   try {
     const old = window.sessionStorage.getItem(storageKey);
     if (old) return old;
-    const key = crypto.randomUUID();
+    const key = safeRandomUUID();
     window.sessionStorage.setItem(storageKey, key);
     return key;
   } catch {
     // Avoid generating a new key for each retry within the same browser tab.
     const keys = fallbackSubmitKeys;
-    if (!keys.has(sessionId)) keys.set(sessionId, crypto.randomUUID());
+    if (!keys.has(sessionId)) keys.set(sessionId, safeRandomUUID());
     return keys.get(sessionId)!;
   }
 }

@@ -1,3 +1,4 @@
+import "@/lib/polyfill-crypto";
 import type { Metadata } from "next";
 import {
   Be_Vietnam_Pro,

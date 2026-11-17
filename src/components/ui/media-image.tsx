@@ -9,6 +9,9 @@ import { Loader2 } from "lucide-react";
 
 import { mediaApi, practiceApi } from "@/lib/api";
 import { ApiError } from "@/lib/api/envelope";
+import questionMediaMap from "@/lib/question-media-map.json";
+
+const QUESTION_MEDIA_MAP: Record<string, string> = questionMediaMap;
 
 interface MediaImageProps {
   src?: string;
@@ -35,6 +38,13 @@ function resolveSource(
   if (!src) {
     return {
       directUrl: undefined,
+      mediaId: undefined,
+    };
+  }
+
+  if (QUESTION_MEDIA_MAP[src]) {
+    return {
+      directUrl: QUESTION_MEDIA_MAP[src],
       mediaId: undefined,
     };
   }

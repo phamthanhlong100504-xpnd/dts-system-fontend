@@ -1,6 +1,8 @@
 
 "use client";
 
+import "@/lib/polyfill-crypto";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {

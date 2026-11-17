@@ -16,6 +16,7 @@ import { useOfficialExamDetail } from "@/features/examination/use-official-exam-
 import { useLicenseStore } from "@/stores/license-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@/lib/api";
+import { safeRandomUUID } from "@/lib/utils";
 
 export default function ExamRunPage() {return <RequireAuth><ExamRunContent /></RequireAuth>;}
 
@@ -189,7 +190,7 @@ function ExamRunContent() {
   }
   const reportViolation = useCallback((eventType:"TAB_SWITCH"|"FULLSCREEN_EXIT") => {
     if (!sessionId || !isActive || isReportingViolation) return;
-    const eventId=crypto.randomUUID();
+    const eventId = safeRandomUUID();
     setIsReportingViolation(true);
     void reportExamViolation(sessionId,eventId,eventType).then(async(result)=>{
       if(result.status && result.status!=="IN_PROGRESS") {await refreshState();router.replace(`/examination/result/${sessionId}`);}
