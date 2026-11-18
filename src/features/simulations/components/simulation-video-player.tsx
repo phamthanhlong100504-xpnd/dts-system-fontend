@@ -349,7 +349,7 @@ export function SimulationVideoPlayer({
         });
       if (
         !Number.isFinite(element.duration) ||
-        Math.abs(element.duration * 1000 - model.scenario.durationMs) > 1500
+        Math.abs(element.duration * 1000 - model.scenario.durationMs) > 2500
       )
         throw new Error("Thời lượng video không khớp backend.");
       const resume = latest.current.model.resumeAtMs ?? 0;

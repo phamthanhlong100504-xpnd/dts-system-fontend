@@ -256,7 +256,7 @@ export function SimulationExamPlayer({
       !el.ended ||
       !Number.isFinite(el.duration) ||
       el.currentTime * 1000 < el.duration * 1000 - 250 ||
-      Math.abs(el.duration * 1000 - (s.playback?.durationMs ?? Infinity)) > 250
+      Math.abs(el.duration * 1000 - (s.playback?.durationMs ?? Infinity)) > 2500
     )
       return;
     l.ended = true;
@@ -355,7 +355,7 @@ export function SimulationExamPlayer({
     try {
       if (!s.review) {
         if (!s.onStart) throw Error("Chưa có kết nối bắt đầu video.");
-        if (Math.abs(el.duration * 1000 - s.playback!.durationMs) > 250)
+        if (Math.abs(el.duration * 1000 - s.playback!.durationMs) > 2500)
           throw Error("Thời lượng video không khớp.");
         const checkpoint = s.playback!.restartAtMs;
         if (el.currentTime * 1000 !== checkpoint) {
@@ -616,7 +616,7 @@ export function SimulationExamPlayer({
               const el = e.currentTarget;
               if (
                 !Number.isFinite(el.duration) ||
-                Math.abs(el.duration * 1000 - playback.durationMs) > 250
+                Math.abs(el.duration * 1000 - playback.durationMs) > 2500
               ) {
                 mediaFault(
                   "Thời lượng video không khớp dữ liệu bài thi. Tải lại; nếu lặp lại cần kiểm tra nguồn video.",
