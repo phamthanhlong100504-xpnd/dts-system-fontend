@@ -18,6 +18,7 @@ import {
 } from "@/features/practice/chapter-learning-service";
 import { getQuestionsByChapter } from "@/features/practice/practice-service";
 import { chapterOverviewKeys } from "@/features/practice/use-chapter-overview";
+import { learningProgressKeys } from "@/features/progress-learning/use-progress-learning";
 
 export const chapterSessionKeys = {
   all: [
@@ -251,6 +252,10 @@ export function useRecordChapterAnswer() {
             license
           ),
       });
+
+      void queryClient.invalidateQueries({
+        queryKey: learningProgressKeys.all,
+      });
     },
 
     onError: () => {
@@ -283,6 +288,10 @@ export function useSaveChapterCursor() {
           chapterOverviewKeys.byLicense(
             license
           ),
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: learningProgressKeys.all,
       });
     },
 

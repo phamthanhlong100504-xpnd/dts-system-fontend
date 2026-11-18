@@ -18,6 +18,7 @@ import type {
   SubmitCriticalQuestionAnswerRequest,
 } from "@/features/practice/critical-session-types";
 import { criticalProgressKeys } from "@/features/practice/use-critical-overview";
+import { learningProgressKeys } from "@/features/progress-learning/use-progress-learning";
 import { ApiError } from "@/lib/api";
 
 export const criticalQuestionSessionKeys = {
@@ -119,6 +120,10 @@ export function useSubmitCriticalQuestionAnswer() {
         queryKey: criticalProgressKeys.overview(
           variables.licenseClass
         ),
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: learningProgressKeys.all,
       });
     },
 

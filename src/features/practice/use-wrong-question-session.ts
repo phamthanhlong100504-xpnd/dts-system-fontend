@@ -21,6 +21,7 @@ import type {
   WrongQuestionReviewSession,
 } from "@/features/practice/wrong-question-session-types";
 import { wrongQuestionsKeys } from "@/features/practice/use-wrong-questions";
+import { learningProgressKeys } from "@/features/progress-learning/use-progress-learning";
 import { ApiError } from "@/lib/api";
 
 export const wrongQuestionSessionKeys = {
@@ -163,6 +164,10 @@ export function useSubmitWrongQuestionAnswer() {
       void queryClient.invalidateQueries({
         queryKey:
           wrongQuestionsKeys.all,
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: learningProgressKeys.all,
       });
     },
 
@@ -307,6 +312,10 @@ export function useFinishWrongQuestionSession() {
       void queryClient.invalidateQueries({
         queryKey:
           wrongQuestionsKeys.all,
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: learningProgressKeys.all,
       });
     },
 
