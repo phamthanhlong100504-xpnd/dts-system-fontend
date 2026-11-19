@@ -1,6 +1,7 @@
 "use client";
 import { ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { chapterDisplayName } from "./simulation-presentation";
 import textStyles from "./simulation-text-layout.module.css";
 import type {
   LearningLoadState,
@@ -117,7 +118,7 @@ export function SimulationChaptersView({
                         </span>
                       </div>
                       <h2 className="mt-4 text-[18px] font-bold leading-[1.45] text-[#0b1427]">
-                        {chapter.name}
+                        {chapterDisplayName(chapter.name, chapter.number)}
                       </h2>
                       <p className="mt-1 text-[15.5px] font-medium leading-5 text-[#475467]">
                         {chapter.totalScenarios} tình huống

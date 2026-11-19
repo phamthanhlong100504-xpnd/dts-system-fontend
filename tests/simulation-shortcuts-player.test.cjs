@@ -31,8 +31,28 @@ async function setup(options={}){
 
 const capability=(patch={})=>({enabled:true,skipReason:null,skip:true,next:false,position:1,playbackEventId:f.uuid(100),startAtMs:0,...patch});
 const button=(h,label)=>[...h.host.querySelectorAll('button')].find(b=>b.textContent.trim()===label);
-test('active exam Skip uses measured 3012ms, quarantines pause/HB/reaction/ended and never directly seeks',async()=>{let release;const gate=new Promise(r=>release=r),requests=[];const h=await setup({props:{shortcuts:capability(),onSkipIntro:async(ms,owner)=>{requests.push([ms,owner]);await gate;}}});try{await h.start();await h.fire('timeupdate',3.012);const skip=button(h,'Bỏ qua 10s');assert(skip);await act(async()=>skip.click());assert.equal(requests[0][0],3012);assert.equal(h.media.paused,true);assert.equal(h.media.currentTime,3.012);await h.key();await h.tick();await h.fire('ended',27);assert(!h.calls.some(c=>['reaction','heartbeat','complete','fault'].includes(c[0])));await act(async()=>release());assert(!button(h,'Bỏ qua 10s'));}finally{await h.close();}});
+test('active exam Skip uses measured 3012ms, quarantines pause/HB/reaction/ended and never directly seeks',async()=>{let release;const gate=new Promise(r=>release=r),requests=[];const h=await setup({props:{shortcuts:capability(),onSkipIntro:async(ms,owner)=>{requests.push([ms,owner]);await gate;}}});try{await h.start();await h.fire('timeupdate',3.012);const skip=button(h,'Bỏ qua 10s');assert(skip);assert(!button(h,'Tiếp theo'));assert.equal(h.host.querySelectorAll('[aria-label="Thao tác nhanh video"] button').length,1);await act(async()=>skip.click());assert.equal(requests[0][0],3012);assert.equal(h.media.paused,true);assert.equal(h.media.currentTime,3.012);await h.key();await h.tick();await h.fire('ended',27);assert(!h.calls.some(c=>['reaction','heartbeat','complete','fault'].includes(c[0])));await act(async()=>release());assert(!button(h,'Bỏ qua 10s'));}finally{await h.close();}});
 test('active Next stays disabled with pending or missing proof and unlocks only for confirmed stored reaction',async()=>{let release;const gate=new Promise(r=>release=r),next=[];const h=await setup({responseHook:()=>gate,props:{shortcuts:capability(),onAdvance:async owner=>next.push(owner)}});try{await h.start();await h.fire('timeupdate',17.432);await h.key();assert(button(h,'Tiếp theo').disabled);await act(async()=>release());await h.flush();assert(button(h,'Tiếp theo').disabled);await h.update({shortcuts:capability({skip:false,next:true})});const b=button(h,'Tiếp theo');assert(b);await act(async()=>{b.click();b.click()});assert.equal(next.length,1);assert(!button(h,'Tiếp theo'));assert(!h.calls.some(c=>c[0]==='complete'));assert.equal(h.calls.find(c=>c[0]==='reaction')[1],17432);}finally{await h.close();}});
 test('approved exam checkpoint seeks exactly 10000 before START ACK and never enables manual scrubbing',async()=>{let release;const gate=new Promise(r=>release=r);const h=await setup({startHook:()=>gate,props:{playback:{...f.playback(),restartAtMs:10000},shortcuts:capability({skip:false,startAtMs:10000})}});try{await h.start();assert.equal(h.media.currentTime,10);assert(!h.calls.some(c=>c[0]==='native-play'));await act(async()=>release());await h.flush();await h.fire('seeking',12);assert(h.calls.some(c=>c[0]==='fault'));}finally{await h.close();}});
 test('unconfirmed stale media capability never exposes controls for a new nonce',async()=>{const h=await setup({props:{shortcuts:capability({playbackEventId:f.uuid(999),next:true}),recorded:true}});try{await h.start();assert(!button(h,'Bỏ qua 10s'));assert(!button(h,'Tiếp theo'));}finally{await h.close();}});
 test('read-only playback has only Skip; Next is reserved for an active exam',async()=>{const h=await setup({review:true,props:{recorded:true,shortcuts:capability({next:true}),onAdvance:async()=>{throw Error('read-only')}}});try{assert(button(h,'Bỏ qua 10s'));assert(!button(h,'Tiếp theo'));}finally{await h.close();}});
+
+test('quiet Skip resumption hides only informational buffering notices, preserves exact checkpoint and START acknowledgement',async()=>{
+ let ready=1,finished=0;
+ const h=await setup({props:{quietIntroTransition:true,onPlaybackReady:()=>finished++,playback:{...f.playback(),restartAtMs:10000},shortcuts:capability({skip:false,startAtMs:10000}),onAdvance:async()=>{}}});
+ try {
+  Object.defineProperty(h.media,'readyState',{get:()=>ready,configurable:true});
+  await h.start();assert(!h.host.querySelector('[role="alert"]'));assert(!h.calls.some(c=>c[0]==='start'));
+  ready=4;await h.fire('canplay');await h.flush();
+  assert.equal(h.media.currentTime,10);assert.equal(finished,1);
+  assert.equal(h.calls.filter(c=>c[0]==='start').length,1);
+  assert(!h.calls.some(c=>['reaction','complete'].includes(c[0])));
+ }finally{await h.close();}
+});
+test('quiet Skip resumption never masks a genuine failure or suppresses normal next-scenario preparation',async()=>{
+ const h=await setup({props:{quietIntroTransition:true}});try{
+  await h.update({phase:'starting'});assert(!h.host.textContent.includes('Đang chuẩn bị tình huống'));
+  await h.update({phase:'transition',quietIntroTransition:false});assert(h.host.textContent.includes('Đang chuẩn bị tình huống'));
+  await h.update({phase:'video-error',quietIntroTransition:true});assert(h.host.querySelector('[role="alert"]'));assert(button(h,'Thử tải lại'));
+ }finally{await h.close();}
+});

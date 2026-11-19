@@ -9,6 +9,7 @@ import {
   ImageOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { chapterDisplayName } from "./simulation-presentation";
 import textStyles from "./simulation-text-layout.module.css";
 import type {
   LearningLoadState,
@@ -72,7 +73,7 @@ export function SimulationChapterView({
         >
           <h1 className={learningStyles.heading}>
             {data
-              ? `Chương ${roman(data.chapter.number)} – ${data.chapter.name}`
+              ? `Chương ${roman(data.chapter.number)} – ${chapterDisplayName(data.chapter.name, data.chapter.number)}`
               : "Danh sách tình huống"}
           </h1>
           <p className={learningStyles.body}>

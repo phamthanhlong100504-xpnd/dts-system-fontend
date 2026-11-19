@@ -163,9 +163,11 @@ export function SimulationExamSessionView({
 }) {
   const [exit, setExit] = useState(exitInitiallyOpen),
     [cancelBusy, setCancelBusy] = useState(false),
-    [cancelError, setCancelError] = useState<string | null>(null);
+    [cancelError, setCancelError] = useState<string | null>(null),
+    [quietIntroKey, setQuietIntroKey] = useState<string | null>(null);
   const d = state.status === "ready" ? state.data : null,
     s = d?.session;
+  const introKey = s ? `${s.sessionId}:${s.currentPosition}` : null;
   const finalizing =
     s?.status === "READY_TO_SUBMIT" || s?.status === "COMPLETED";
   const phase = d?.phase;
@@ -283,14 +285,37 @@ export function SimulationExamSessionView({
                 onRespond={onRespond}
                 onStart={onStart}
                 shortcuts={d.shortcuts}
-                onSkipIntro={onSkipIntro}
+                onSkipIntro={
+                  onSkipIntro
+                    ? async (ms, owner) => {
+                        setQuietIntroKey(introKey);
+                        try {
+                          await onSkipIntro(ms, owner);
+                        } catch (error) {
+                          setQuietIntroKey(null);
+                          throw error;
+                        }
+                      }
+                    : undefined
+                }
+                quietIntroTransition={
+                  introKey !== null && quietIntroKey === introKey
+                }
+                onPlaybackReady={() => setQuietIntroKey(null)}
                 onAdvance={onAdvance}
                 onHeartbeat={onHeartbeat}
                 heartbeatIntervalMs={s.playbackPolicy.heartbeatIntervalMs}
                 autoStart={d.autoStart}
                 onComplete={onComplete}
                 onFault={onFault}
-                onRetry={onRetry}
+                onRetry={
+                  onRetry
+                    ? () => {
+                        setQuietIntroKey(null);
+                        onRetry();
+                      }
+                    : undefined
+                }
                 designPreview={designPreview}
               />
             )}

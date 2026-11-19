@@ -12,6 +12,7 @@ export function SimulationVideoShortcuts({
   nextDisabled = false,
   skipTitle,
   nextTitle,
+  singleAction = false,
 }: {
   mediaKey: string;
   onSkip?: () => boolean | Promise<boolean>;
@@ -21,6 +22,7 @@ export function SimulationVideoShortcuts({
   nextDisabled?: boolean;
   skipTitle?: string;
   nextTitle?: string;
+  singleAction?: boolean;
 }) {
   const [skipUsed, setSkipUsed] = useState<Record<string, boolean>>({});
   const [nextUsed, setNextUsed] = useState<Record<string, boolean>>({});
@@ -28,7 +30,8 @@ export function SimulationVideoShortcuts({
   const [error, setError] = useState<string | null>(null);
   const lock = useRef(false);
   const showSkip = !!onSkip && !skipUsed[mediaKey];
-  const showNext = !!onNext && !nextUsed[mediaKey];
+  const showNext =
+    !!onNext && !nextUsed[mediaKey] && (!singleAction || !showSkip);
   async function skip() {
     if (lock.current || disabled || skipDisabled || !showSkip || !onSkip)
       return;

@@ -48,6 +48,8 @@ export function SimulationExamPlayer({
   shortcuts,
   onSkipIntro,
   onAdvance,
+  quietIntroTransition = false,
+  onPlaybackReady,
 }: {
   playback: ExamPlayback | null;
   phase: ExamPhase;
@@ -76,6 +78,8 @@ export function SimulationExamPlayer({
   shortcuts?: import("../simulation-shortcut-source").ShortcutView;
   onSkipIntro?: (ms: number, owner: ExamMediaOwner) => Promise<unknown>;
   onAdvance?: (owner: ExamMediaOwner) => Promise<unknown>;
+  quietIntroTransition?: boolean;
+  onPlaybackReady?: () => void;
 }) {
   const video = useRef<HTMLVideoElement>(null),
     frame = useRef<HTMLDivElement>(null);
@@ -345,9 +349,10 @@ export function SimulationExamPlayer({
     if (!metadata || el.readyState < 1) {
       l.wantPlay = true;
       setBuffering(true);
-      setNotice(
-        "Video đang tải. Bài thi sẽ bắt đầu phát khi dữ liệu sẵn sàng.",
-      );
+      if (!quietIntroTransition)
+        setNotice(
+          "Video đang tải. Bài thi sẽ bắt đầu phát khi dữ liệu sẵn sàng.",
+        );
       return;
     }
     l.starting = true;
@@ -385,7 +390,10 @@ export function SimulationExamPlayer({
         if (!hasSimulationBuffer(el, checkpoint)) {
           l.wantPlay = true;
           setBuffering(true);
-          setNotice("Đang tải dữ liệu video trước khi bắt đầu tính thời gian.");
+          if (!quietIntroTransition)
+            setNotice(
+              "Đang tải dữ liệu video trước khi bắt đầu tính thời gian.",
+            );
           return;
         }
         l.wantPlay = false;
@@ -580,7 +588,8 @@ export function SimulationExamPlayer({
     ? mediaLoadFailure
       ? "Chưa tải được video tình huống"
       : "Phiên phát video cần khôi phục"
-    : ["transition", "starting", "restarting"].includes(phase)
+    : !quietIntroTransition &&
+        ["transition", "starting", "restarting"].includes(phase)
       ? `Đang chuẩn bị tình huống ${String(position).padStart(2, "0")} / ${total}`
       : null;
   return (
@@ -637,6 +646,7 @@ export function SimulationExamPlayer({
               if (!recoverBuffer()) return;
               locks.current.played = true;
               setPaused(false);
+              if (quietIntroTransition) onPlaybackReady?.();
             }}
             onPause={(e) => {
               setPaused(true);
@@ -743,6 +753,7 @@ export function SimulationExamPlayer({
             "completion-error",
           ].includes(phase) && (
             <SimulationVideoShortcuts
+              singleAction
               mediaKey={`${reviewKey}:${shortcuts.playbackEventId}`}
               onSkip={
                 !recorded &&

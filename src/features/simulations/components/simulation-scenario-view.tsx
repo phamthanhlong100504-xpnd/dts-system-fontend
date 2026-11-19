@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { chapterDisplayName } from "./simulation-presentation";
 import {
   Activity,
   Trophy,
@@ -128,7 +129,7 @@ export function SimulationScenarioView({
               )}
             >
               {data
-                ? `Chương ${roman(data.scenario.chapterNumber)} · ${data.scenario.chapterName}`
+                ? `Chương ${roman(data.scenario.chapterNumber)} · ${chapterDisplayName(data.scenario.chapterName, data.scenario.chapterNumber)}`
                 : "Luyện tập mô phỏng"}
             </p>
             <div
