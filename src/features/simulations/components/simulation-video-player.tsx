@@ -147,8 +147,12 @@ export function SimulationVideoPlayer({
         return;
       heartbeatPending.current = true;
       lastHeartbeat.current = Date.now();
+      const safeHeartbeatMs = Math.min(
+        Math.floor(element.currentTime * 1000),
+        state.model.scenario.durationMs,
+      );
       void state.actions
-        .heartbeat(Math.floor(element.currentTime * 1000))
+        .heartbeat(safeHeartbeatMs)
         .catch(() => {
           if (
             !shortcutTransition.current &&
@@ -206,7 +210,11 @@ export function SimulationVideoPlayer({
       const element = video.current;
       if (!element?.ended || !Number.isFinite(element.currentTime))
         throw new Error("Video chưa kết thúc.");
-      await state.actions.complete(Math.floor(element.currentTime * 1000));
+      const finalMs = Math.min(
+        Math.floor(element.currentTime * 1000),
+        state.model.scenario.durationMs,
+      );
+      await state.actions.complete(finalMs);
     } catch {
       endLock.current = false;
       setLocalError(
@@ -242,7 +250,10 @@ export function SimulationVideoPlayer({
       return;
     const measured = retrying
       ? firstSubmission.current!.mediaTimeMs
-      : Math.floor(element.currentTime * 1000);
+      : Math.min(
+          Math.floor(element.currentTime * 1000),
+          state.model.scenario.durationMs,
+        );
     if (
       !Number.isFinite(measured) ||
       measured < 0 ||
