@@ -11,6 +11,7 @@ import {
 import { SimulationFeedbackModal } from "./simulation-feedback-modal";
 import { cn } from "@/lib/utils";
 import textStyles from "./simulation-text-layout.module.css";
+import { chapterDisplayName } from "./simulation-presentation";
 import type { LearningLoadState } from "../simulation-learning-types";
 import type {
   BookmarksPage,
@@ -91,7 +92,9 @@ export function SimulationBookmarksView({
                   <option value="">Tất cả chương</option>
                   {data.chapters.map((c) => (
                     <option key={c.id} value={c.id}>
-                      Chương {roman(c.number)} · {c.name} ({c.bookmarkedCount})
+                      Chương {roman(c.number)} ·{" "}
+                      {chapterDisplayName(c.name, c.number)} (
+                      {c.bookmarkedCount})
                     </option>
                   ))}
                 </select>

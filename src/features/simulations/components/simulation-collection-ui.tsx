@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import type { ScenarioListItem } from "../simulation-learning-types";
 import { learningStyles, mediaTime, roman } from "./learning-ui";
 import { ScenarioThumbnail } from "./simulation-chapter-view";
+import { chapterDisplayName } from "./simulation-presentation";
 export interface ScenarioCollectionItem extends ScenarioListItem {
   chapterNumber: number;
   chapterName: string;
@@ -32,6 +33,7 @@ export function ScenarioCollectionCard<T extends ScenarioCollectionItem>({
   showPracticeStatus?: boolean;
   replayIcon?: boolean;
 }) {
+  const chapterLabel = `Chương ${roman(item.chapterNumber)} · ${chapterDisplayName(item.chapterName, item.chapterNumber)}`;
   return (
     <article
       key={item.id}
@@ -89,10 +91,10 @@ export function ScenarioCollectionCard<T extends ScenarioCollectionItem>({
         </div>
         <h3 className={cn(learningStyles.itemHeading, "mt-2")}>{item.title}</h3>
         <p
-          title={item.chapterName}
+          title={chapterLabel}
           className="mt-1 truncate text-[14.5px] font-medium text-[#475467]"
         >
-          Chương {roman(item.chapterNumber)} · {item.chapterName}
+          {chapterLabel}
         </p>
         <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
           <div className="flex flex-wrap items-center gap-2 text-[14.5px] font-medium text-[#344054]">
