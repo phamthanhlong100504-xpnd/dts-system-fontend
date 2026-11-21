@@ -1,4 +1,4 @@
-import { practiceApi } from "@/lib/api";
+import { progressApi } from "@/lib/api";
 
 import type {
   WrongQuestionItem,
@@ -34,7 +34,7 @@ export async function getWrongQuestionsOverview({
   }
 
   const data =
-    await practiceApi.get<WrongQuestionsOverview>(
+    await progressApi.get<WrongQuestionsOverview>(
       `/v1/questions/wrong/overview?licenseClass=${encodeURIComponent(
         normalizedLicense
       )}`
@@ -56,7 +56,7 @@ export async function getWrongQuestions({
   }
 
   const data =
-    await practiceApi.get<WrongQuestionItem[]>(
+    await progressApi.get<WrongQuestionItem[]>(
       `/v1/questions/wrong?licenseClass=${encodeURIComponent(
         normalizedLicense
       )}`

@@ -3,7 +3,7 @@ import type {
   ChapterLearningStatus,
 } from "@/features/practice/chapter-overview-types";
 import { CHAPTER_META } from "@/features/practice/practice-service";
-import { practiceApi } from "@/lib/api";
+import { progressApi } from "@/lib/api";
 
 interface ChapterLearningOverviewApiResponse {
   licenseClass: string;
@@ -45,7 +45,7 @@ export async function getChapterLearningOverview(
   }
 
   const data =
-    await practiceApi.get<ChapterLearningOverviewApiResponse>(
+    await progressApi.get<ChapterLearningOverviewApiResponse>(
       `/v1/learning/chapters?licenseClass=${encodeURIComponent(
         normalizedLicense
       )}`
@@ -66,7 +66,6 @@ export async function getChapterLearningOverview(
 
     completionPercent:
       data.completionPercent,
-
 
     chapters:
       (data.chapters ?? [])

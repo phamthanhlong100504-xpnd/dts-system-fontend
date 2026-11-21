@@ -1,4 +1,4 @@
-import { practiceApi } from "@/lib/api";
+import { progressApi } from "@/lib/api";
 
 export interface ChapterLearnedAnswer {
   questionId: number;
@@ -70,7 +70,7 @@ export async function getChapterLearnedAnswers({
 }): Promise<ChapterLearnedAnswer[]> {
   const license = normalizeLicense(licenseClass);
 
-  return practiceApi.get<ChapterLearnedAnswer[]>(
+  return progressApi.get<ChapterLearnedAnswer[]>(
     `/v1/learning/chapters/${chapterId}/answers?licenseClass=${encodeURIComponent(
       license
     )}`
@@ -85,7 +85,7 @@ export async function recordChapterAnswer({
 }: RecordChapterAnswerRequest): Promise<RecordChapterAnswerResponse> {
   const license = normalizeLicense(licenseClass);
 
-  return practiceApi.post<RecordChapterAnswerResponse>(
+  return progressApi.post<RecordChapterAnswerResponse>(
     `/v1/learning/chapters/${chapterId}/answers`,
     {
       licenseClass: license,
@@ -102,7 +102,7 @@ export async function saveChapterCursor({
 }: SaveChapterCursorRequest): Promise<ChapterLearningCursor> {
   const license = normalizeLicense(licenseClass);
 
-  return practiceApi.put<ChapterLearningCursor>(
+  return progressApi.put<ChapterLearningCursor>(
     `/v1/learning/chapters/${chapterId}/cursor`,
     {
       licenseClass: license,
@@ -120,7 +120,7 @@ export async function getChapterBookmarks({
 }): Promise<ChapterBookmarks> {
   const license = normalizeLicense(licenseClass);
 
-  return practiceApi.get<ChapterBookmarks>(
+  return progressApi.get<ChapterBookmarks>(
     `/v1/learning/chapters/${chapterId}/bookmarks?licenseClass=${encodeURIComponent(
       license
     )}`
@@ -135,7 +135,7 @@ export async function setChapterBookmark({
 }: SetChapterBookmarkRequest): Promise<ChapterBookmarkResponse> {
   const license = normalizeLicense(licenseClass);
 
-  return practiceApi.put<ChapterBookmarkResponse>(
+  return progressApi.put<ChapterBookmarkResponse>(
     `/v1/learning/chapters/${chapterId}/bookmarks/${questionId}`,
     {
       licenseClass: license,
