@@ -1,4 +1,4 @@
-import { practiceApi } from "@/lib/api";
+import { contentBuilderApi } from "@/lib/api";
 import {
   getTrafficSignGroupCode,
   type TrafficSign,
@@ -12,7 +12,7 @@ export function getTrafficSigns({
   page = 0,
   size = 20,
 }: TrafficSignListParams): Promise<TrafficSignListResult> {
-  return practiceApi.get<TrafficSignListResult>("/v1/traffic-signs", {
+  return contentBuilderApi.get<TrafficSignListResult>("/v1/traffic-signs", {
     params: {
       group: getTrafficSignGroupCode(category),
       q: search?.trim() || undefined,
@@ -22,9 +22,8 @@ export function getTrafficSigns({
   });
 }
 
-
 export function getTrafficSignById(id: string): Promise<TrafficSign> {
-  return practiceApi.get<TrafficSign>(
+  return contentBuilderApi.get<TrafficSign>(
     `/v1/traffic-signs/${encodeURIComponent(id)}`
   );
 }
